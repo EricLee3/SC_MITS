@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context" 
+  xmlns:p="http://www.springframework.org/schema/p" 
+  xsi:schemaLocation="
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+  
+  <!-- Root Context: defines shared resources visible to all other web components -->
+  <context:component-scan base-package="com.isec.sc" />
+  
+  <context:property-placeholder location="classpath:sc.properties"/>
+  
+  <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+    p:host-name="${redis.host}" 
+    p:port="${redis.port}" 
+    p:password="${redis.pass}"
+    p:database="${redis.default.dbindex}" />
+  
+  
+  <bean id="objectRedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+    p:connection-factory-ref="jedisConnectionFactory"/>
+  
+  <bean id="stringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
+    p:connection-factory-ref="jedisConnectionFactory"
+    p:defaultSerializer-ref="stringSerializer"
+  />
+    
+  <bean id="stringSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+  
+  
+  <bean id="sterlingHTTPConnector" class="com.isec.sc.intgr.api.delegate.SterlingHTTPConnector">
+    <constructor-arg name="url" value="${sc.api.http.url}" />
+    <constructor-arg name="user" value="${sc.api.user}" />
+    <constructor-arg name="password" value="${sc.api.password}" />
+    <constructor-arg name="param" value="${sc.api.http.param}" /> 
+  </bean> 
+  
+  
+  <!--  Message Listener Adapter -->
+  <!-- <bean id="delegateMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+      <constructor-arg>
+      <bean class="com.isec.sc.intgr.redis.listener.MagentoMessageDelegate" />
+      </constructor-arg>
+    </bean> --><!-- Delegate Type -->
+    
+    <!-- Magento Product Listener -->
+    <bean id="mgtProductMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+      <constructor-arg>
+        <bean class="com.isec.sc.intgr.redis.listener.MgtProductMessageListener" />
+      </constructor-arg>
+    </bean><!-- Listener Type -->
+    
+    <!-- Magento Order Listener -->
+    <bean id="mgtOrderMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+      <constructor-arg>
+        <bean class="com.isec.sc.intgr.redis.listener.MgtOrderMessageListener" />
+      </constructor-arg>
+    </bean><!-- Listener Type -->
+  <!--  Message Listener Adapter -->
+  
+  
+  <!-- RedisMessage Listener Setting -->
+  <bean id="redisContainer" class="org.springframework.data.redis.listener.RedisMessageListenerContainer">
+    <property name="connectionFactory" ref="jedisConnectionFactory" />
+      <property name="messageListeners">
+        <map>
+          <!-- <entry key-ref="delegateMessageListener">
+            <bean class="org.springframework.data.redis.listener.ChannelTopic">
+              <constructor-arg value="chatroom.patrick" />
+            </bean>
+          </entry> -->
+          <entry key-ref="mgtProductMessageListener">
+            <bean class="org.springframework.data.redis.listener.ChannelTopic">
+              <constructor-arg value="${redis.channel.magento.product}" />
+            </bean>
+          </entry>
+          <entry key-ref="mgtOrderMessageListener">
+            <bean class="org.springframework.data.redis.listener.ChannelTopic">
+              <constructor-arg value="${redis.channel.magento.order}" />
+            </bean>
+          </entry>
+        </map>
+     </property>
+  </bean>
+  
+</beans>

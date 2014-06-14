@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-   <Order EnterpriseCode="Matrix" ShipNode="Matrix_WH1" PaymentStatus="AUTHORIZED" OrderNo="{4}">
+   <Order DocumentType="0001" EnterpriseCode="{0}" OrderNo="{1}" SellerOrganizationCode="{2}" BillToID="{3}" PaymentStatus="{4}"
+          ReqDeliveryDate="{5}" ReqShipDate="{6}" ShipNode="{7}">
       <OrderLines>
-         <OrderLine OrderedQty="{3}">
-            <Item ItemID="{2}" UnitOfMeasure="EACH" ProductClass="GOOD"/>
-         </OrderLine>
+         {8}
       </OrderLines>
-	  <PersonInfoShipTo FirstName="{0}" AddressLine1="{1}"/>
-	  <PersonInfoBillTo FirstName="{0}" AddressLine1="{1}"/>
+	  <PersonInfoShipTo FirstName="{9}" LastName="{10}" DayPhone="{11}" EMailID="{12}" MobilePhone="{13}"
+                        AddressLine1="{14}" AddressLine2="{15}" City="{16}" Country="{17}" ZipCode="{18}" />
+      <PersonInfoBillTo FirstName="{9}" LastName="{10}" DayPhone="{11}" EMailID="{12}" MobilePhone="{13}"
+                      AddressLine1="{14}" AddressLine2="{15}" City="{16}" Country="{17}" ZipCode="{18}" />
+      <PaymentMethods>
+          <PaymentMethod PaymentType="CREDIT_CARD"/>
+      </PaymentMethods>
    </Order>
