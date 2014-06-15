@@ -69,6 +69,8 @@ public class RedisTest {
     public void TestGetProductErrList() {
 		
 		List<String> errProductList = listOps.range(redis_M_key_ordUpdate_S2M, 0, -1);
+		System.out.println("[errlist_Count]"+errProductList.size());
+		
 		for(int i=0; i<errProductList.size(); i++){
 			System.out.println("["+i+"]"+errProductList.get(i));
 		}
