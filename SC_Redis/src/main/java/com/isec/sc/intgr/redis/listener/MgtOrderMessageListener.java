@@ -41,7 +41,7 @@ import com.isec.sc.intgr.http.ScInventoryController;
  */
 public class MgtOrderMessageListener implements MessageListener {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ScInventoryController.class);
+	private static final Logger logger = LoggerFactory.getLogger(MgtOrderMessageListener.class);
 	
 	
 	@Autowired	private StringRedisTemplate stringRedisTemplate;
