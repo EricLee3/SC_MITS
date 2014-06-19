@@ -127,7 +127,10 @@ public class MgtOrderMessageListener implements MessageListener {
 					
 					// Java Object(Map) to JSON	
 					String orderErrJSON = mapper.writeValueAsString(sendMsgMap);
+					logger.debug("Create Order Error occured");
 					logger.debug("[orderErrJSON]"+orderErrJSON);
+					
+					
 					listOps.leftPush(redis_M_key_order_err, orderErrJSON);
 				}
 			}

@@ -2,9 +2,12 @@ package com.isec.sc.intgr.api.delegate;
 
 import java.text.MessageFormat;
 
+import org.springframework.stereotype.Component;
+
 import com.isec.sc.intgr.api.util.HTTPClient;
 
 
+@Component
 public class SterlingHTTPConnector {
 	private String url;
 	private String user;

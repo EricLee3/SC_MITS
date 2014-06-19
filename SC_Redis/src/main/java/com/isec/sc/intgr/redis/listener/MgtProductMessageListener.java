@@ -113,7 +113,7 @@ public class MgtProductMessageListener implements MessageListener {
 					
 					Map<String, String> sendMsgMap = new HashMap<String, String>();
 					sendMsgMap.put("type", "product");
-					sendMsgMap.put("key", "key");
+					sendMsgMap.put("key", redis_M_key_product_err);
 					sendMsgMap.put("data", xmlData);
 					sendMsgMap.put("date", cuurentDate());
 					

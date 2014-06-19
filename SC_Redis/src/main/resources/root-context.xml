@@ -50,12 +50,19 @@
       <constructor-arg>
         <bean class="com.isec.sc.intgr.redis.listener.MgtProductMessageListener" />
       </constructor-arg>
-    </bean><!-- Listener Type -->
+    </bean>
     
     <!-- Magento Order Listener -->
     <bean id="mgtOrderMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
       <constructor-arg>
         <bean class="com.isec.sc.intgr.redis.listener.MgtOrderMessageListener" />
+      </constructor-arg>
+    </bean>
+    
+    <!-- Magento OrderStatus Update Listener -->
+    <bean id="mgtOrderStsUpdateMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+      <constructor-arg>
+        <bean class="com.isec.sc.intgr.redis.listener.MgtOrderStsUpdateMessageListener" />
       </constructor-arg>
     </bean><!-- Listener Type -->
   <!--  Message Listener Adapter -->
@@ -79,6 +86,11 @@
           <entry key-ref="mgtOrderMessageListener">
             <bean class="org.springframework.data.redis.listener.ChannelTopic">
               <constructor-arg value="${redis.channel.magento.order}" />
+            </bean>
+          </entry>
+          <entry key-ref="mgtOrderStsUpdateMessageListener">
+            <bean class="org.springframework.data.redis.listener.ChannelTopic">
+              <constructor-arg value="${redis.channel.magento.orderUpdate}" />
             </bean>
           </entry>
         </map>
