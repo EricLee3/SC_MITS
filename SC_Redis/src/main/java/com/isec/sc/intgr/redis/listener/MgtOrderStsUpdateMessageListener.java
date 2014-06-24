@@ -53,6 +53,8 @@ public class MgtOrderStsUpdateMessageListener implements MessageListener {
 	@Resource(name="stringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
+	@Resource(name="stringRedisTemplate")
+	private ValueOperations<String, String> valueOps;
 	
 	@Value("${redis.magento.key.orderUpdate.S2M}")
 	private String redis_M_key_orderUpdate_S2M;
@@ -60,16 +62,9 @@ public class MgtOrderStsUpdateMessageListener implements MessageListener {
 	@Value("${redis.magento.key.orderUpdate.M2S}")
 	private String redis_M_key_orderUpdate_M2S;
 	
-	
 	@Value("${redis.magento.key.order.err}")
 	private String redis_M_key_order_err;
 	
-	
-	@Value("${magento.outro.ent.code}")
-	private String magento_outro_ent_code;
-	
-	
-	private static final String releaseOrder_template = "/com/isec/sc/intgr/api/xml/releaseOrder_input.xml";
 	
 	@Override
 	public void onMessage(Message message, byte[] chaanel) {
@@ -111,60 +106,73 @@ public class MgtOrderStsUpdateMessageListener implements MessageListener {
 //			List<String> list = listOps.range(key, 0, -1);
 //			System.out.println("[list.size-read]"+list.size());
 			
-			long dataCnt =  listOps.size(key);
-			logger.debug("[list.size-read]"+dataCnt);
-			
+			logger.debug("[list.size-read]"+listOps.size(key));
 			
 			// 3. Call Sterling API by Type & Key
-			for(int i=0; i<dataCnt; i++){
+			for(int i=0; i<listOps.size(key); i++){
 				
 				String keyData = listOps.rightPop(key);
+				logger.debug("[Redis OrderStatus Update Data]"+keyData);
+				
+				
+				// JSON --> HashMap 변환
 				HashMap<String, Object> dataMap = mapper.readValue(keyData, new TypeReference<HashMap<String,Object>>(){});
 				
 				String status = (String)dataMap.get("status");
+				logger.debug("[status]"+status);
 				
+				// 3201: Magento의 OrderStatus가 Order Captured단계 (정상정으로 인보이스가 생성된 상태)
+				// Create Shipment 실행
+				if("3201".equals(status)){
 				
-				// 1501: Magento의 OrderStatus가 Processing인 단계 (정상정으로 인보이스가 생성된 상태)
-				// SC의 Order status를 released로 변경한다.
-				if("1501".equals(status)){
-				
-				
-					String template = FileContentReader.readContent(getClass().getResourceAsStream(releaseOrder_template));
-	
-					MessageFormat msg = new MessageFormat(template);
-					String xmlData = msg.format(new String[] {magento_outro_ent_code, (String)dataMap.get("orderId")} );
-					logger.debug("[xmlData]"+xmlData);
+					// createShipment API 호출
 					
-					// SC API 호출
-					String result = sterlingApiDelegate.releaseOrder(xmlData);
-					logger.debug("[result]"+result);
+					String docType = (String)dataMap.get("docType");
+					String entCode = (String)dataMap.get("entCode");
+					String orderId = (String)dataMap.get("orderId");
+					logger.debug("[docType]"+docType);
+					logger.debug("[entCode]"+entCode);
+					logger.debug("[orderId]"+orderId);
 					
-					// 에러발생시 다른 key로 해당xml저장
-					if("0".equals(result)){
+					ArrayList<String> releaseKeys = (ArrayList<String>)dataMap.get("releaseKeys");
+					
+					for(int j=0; j<releaseKeys.size(); j++){
 						
+						logger.debug("[releaseKeys]"+releaseKeys.get(i));
 						
-						logger.debug("##### Error Occured!!!");
+						// Sterling API Call
+						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment(releaseKeys.get(i), docType, entCode, orderId);
 						
-						Map<String, String> errMsgMap = new HashMap<String, String>();
-						errMsgMap.put("type", "orderUpdate");
-						errMsgMap.put("key", redis_M_key_order_err);
-						errMsgMap.put("status", status);
-						errMsgMap.put("data", xmlData);
-						errMsgMap.put("date", cuurentDate());
+						String apiStatus = resultMap.get("status");
+						logger.debug("[apiStatus]"+apiStatus);
 						
+						// 에러발생시 별도의 에러키값으로 저장
+						if("0000".equals(apiStatus)){
+							
+							/*
+							 * TODO: Release 번호에 따라 Shipment가 별도로 생성되는 경우는 거의 없음
+							 *       OrderLine별 ShipNode가 다르거나 DeliveryDate가 다른 경우에만 별도로 Shipment가 생성됨
+							 *       이런 경우를 제외하면 CreateShipment는 모든 ReleaseKey에 대해 한번만 수행됨.
+							 *       따라서 루프처리시 발생하는 에러(사실 에러가 아님)와 실제 에러에 대한 구분이 필요. 
+							 */
+							
+							
+						}else{
+							
+							// confirm shipment 처리 후 Ma로 shipment 정보를 전송하기 위해
+							// Ma의 Key값이 되는 오더번호를 별도로 저장해 놓는다.
+							String shipmentNo = resultMap.get("shipmentNo");
+							logger.debug("[shipmentNo]"+shipmentNo);
+							
+							valueOps.set(shipmentNo, orderId);
+						}
 						
-						// Java Object(Map) to JSON	
-						ObjectMapper resultMapper = new ObjectMapper();
-						String errMsg = resultMapper.writeValueAsString(errMsgMap);
-						
-						listOps.leftPush(redis_M_key_order_err, errMsg);
-					}
+					} // End loop ReleaseKey
+					
+				} // End if OrderStatus
 				
-				}
-			}
+			} // End loop Redis Data
 			
-			
-
 			
 		} catch (Exception e) {
 			

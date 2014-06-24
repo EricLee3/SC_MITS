@@ -2,6 +2,7 @@ package com.isec.sc.intgr.api.delegate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.isec.sc.intgr.api.util.FileContentReader;
 import com.isec.sc.intgr.redis.listener.MgtOrderMessageListener;
 
 
@@ -29,6 +31,11 @@ public class SterlingApiDelegate {
 	
 	
 	@Autowired SterlingHTTPConnector sterlingHTTPConnector;
+	 
+	
+	
+	@Value("${magento.outro.ent.code}")
+	private String magento_outro_ent_code;
 	
 	
 	@Value("${sc.api.item.manage}")
@@ -39,6 +46,17 @@ public class SterlingApiDelegate {
 	
 	@Value("${sc.api.order.release}")
 	private String sc_order_release;
+	
+	@Value("${sc.api.shipment.createShipment}")
+	private String sc_shipment_create;
+	
+	
+	@Value("${sc.api.releaseOrder.template}")
+	private String releaseOrder_template;
+	
+	@Value("${sc.api.createShipment.template}")
+	private String createShipment_template;
+	
 	
 	public SterlingApiDelegate() {
 		
@@ -190,4 +208,60 @@ public class SterlingApiDelegate {
 		
 	}
 	
+	
+	public HashMap<String, String> createShipment(String releaseNo, String docType, String entCode, String orderId) throws Exception{
+		
+		
+		// Generate SC API Input XML	
+		String template = FileContentReader.readContent(getClass().getResourceAsStream(createShipment_template));
+		
+		MessageFormat msg = new MessageFormat(template);
+		String xmlData = msg.format(new String[] {releaseNo, docType, entCode, orderId} );
+		logger.debug("[createShipment intputXML]"+xmlData);
+		
+		
+		Document doc = null;
+		HashMap<String, String> resultMap = new HashMap<String, String>();
+		
+		try {
+			
+			sterlingHTTPConnector.setApi(sc_shipment_create);
+			sterlingHTTPConnector.setData(xmlData);
+			
+			String outputXML = sterlingHTTPConnector.run();
+			logger.debug("[CreateOrder outputXML]"+outputXML);
+			
+			
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+			logger.debug("result:::"+doc.getFirstChild().getNodeName());
+			
+			
+			// Error 발생
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+
+				// 상세예외처리 필요
+				resultMap.put("status", "0000");
+				
+			}else{
+				
+				Element ele = doc.getDocumentElement();
+				
+				resultMap.put("status", "3350");
+				resultMap.put("shipmentNo", ele.getAttribute("ShipmentNo"));
+			}
+			
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return resultMap;
+		
+	}
 }

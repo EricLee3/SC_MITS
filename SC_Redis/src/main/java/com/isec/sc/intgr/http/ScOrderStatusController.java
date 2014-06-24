@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -80,6 +82,7 @@ public class ScOrderStatusController {
 		String maxOrderStatus = el.getAttribute("MaxOrderStatus"); // 코드값
 		String minOrderStatus = el.getAttribute("MinOrderStatus");	// 코드값
 		
+		String sellerOrgCode = el.getAttribute("SellerOrganizationCode");	// 판매조직코드
 		
 		logger.debug("[orderKey]"+orderKey);
 		logger.debug("[orderNo]"+orderNo);
@@ -98,8 +101,8 @@ public class ScOrderStatusController {
 		
 		// SC 필수항목 
 		sendMsgMap.put("orderHeaderKey", orderKey);
-		sendMsgMap.put("enterpriseCode", entCode);
-		sendMsgMap.put("doctype", docType);
+		sendMsgMap.put("entCode", entCode);
+		sendMsgMap.put("docType", docType);
 		
 		
 		String outputMsg = "";
@@ -138,35 +141,33 @@ public class ScOrderStatusController {
 			
 			List<HashMap<String,String>> confirmList = new ArrayList<HashMap<String,String>>();
 			
+			Set<String> releaseKeys = new HashSet<String>();
+			
 			for(int i=0; i<releaseOrderLineList.getLength(); i++){
 				
 				String orderedQty = (String)xp.evaluate("@OrderedQty", releaseOrderLineList.item(i), XPathConstants.STRING);
 				String itemID = (String)xp.evaluate("Item/@ItemID", releaseOrderLineList.item(i), XPathConstants.STRING);
+				String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus/@OrderReleaseKey", releaseOrderLineList.item(i), XPathConstants.STRING);
 				
-				logger.debug("[orderedQty]"+orderedQty);
+				logger.debug("---------------------------------------"+i);
 				logger.debug("[itemID]"+itemID);
+				logger.debug("[orderedQty]"+orderedQty);
+				logger.debug("[orderReleaseKey]"+orderReleaseKey);
 				
 				HashMap<String, String> confirmItemMap = new HashMap<String, String>();
 				confirmItemMap.put("itemId", itemID);
 				confirmItemMap.put("qty", orderedQty);
-				
 				confirmList.add(confirmItemMap);
+				
+				
+				// 중복된 ReleaseKey는 담지 않는다.
+				releaseKeys.add(orderReleaseKey);
 			}
 			
 			
 			sendMsgMap.put("confirmed", confirmList);	// 출고가능한 상품정보
+			sendMsgMap.put("releaseKeys", releaseKeys);	// Release Key 
 			sendMsgMap.put("status", maxOrderStatus);	
-			
-			
-			
-		/*
-		 * Shipped
-		 */
-		}else if("Shipped".equals(orderStatus)){
-			
-		
-		
-			
 			
 		/*
 		 *  Canceled (전체 취소일 경우만 처리)

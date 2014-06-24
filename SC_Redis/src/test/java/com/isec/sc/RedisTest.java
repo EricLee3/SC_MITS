@@ -88,7 +88,7 @@ public class RedisTest {
 	@Value("${redis.magento.key.order.err}")
 	private String redis_M_key_order_err;
 	
-	@Test
+	@Ignore
     public void TestGetOrderUpdateList() {
 		
 		List<String> orderUpdateList = listOps.range(redis_M_key_ordUpdate_S2M, 0, -1);
@@ -108,7 +108,7 @@ public class RedisTest {
     }
 	
 	
-	@Test
+	@Ignore
     public void TestGetOrderErrList() {
 		
 		List<String> errOrderList = listOps.range(redis_M_key_order_err, 0, -1);
@@ -158,7 +158,7 @@ public class RedisTest {
 		
     }
 	
-	@Test
+	@Ignore
 	public void TestXMLParsing(){
 		
 		try{
@@ -282,10 +282,7 @@ public class RedisTest {
 		
 	}
 	
-	@Ignore
-	/**
-	 * 
-	 */
+	@Test
 	public void TestRedisOrderStatusPub(){
 		
 		try{
@@ -302,7 +299,7 @@ public class RedisTest {
 			
 			stringRedisTemplate.convertAndSend(redis_M_ch_orderUpdate, sendMsg);
 			
-			listOps.leftPush(redis_M_key_ordUpdate_M2S, "{\"orderId\":\"100000035\",\"status\":\"1501\"}");
+			listOps.leftPush(redis_M_key_ordUpdate_M2S, "{\"orderHeaderKey\":\"2014061716272448539\",\"confirmed\":[{\"qty\":\"1.00\",\"itemId\":\"2500535570001\"},{\"qty\":\"1.00\",\"itemId\":\"2500536180001\"}],\"docType\":\"0001\",\"status\":\"3201\",\"releaseKeys\":[\"2014062418504874241\"],\"orderId\":\"100000056\",\"entCode\":\"Matrix\"}");
 		
 		}catch(Exception e){
 			e.printStackTrace();
