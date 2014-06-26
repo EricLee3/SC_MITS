@@ -46,26 +46,33 @@ import com.isec.sc.intgr.api.util.FileContentReader;
 public class RedisTest {
 
 	
-	@Autowired	private StringRedisTemplate stringRedisTemplate;
+	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
+	@Autowired	private StringRedisTemplate wcsStringRedisTemplate;
 	
 	
-	@Resource(name="stringRedisTemplate")
+	@Resource(name="mgtStringRedisTemplate")
     private ValueOperations<String, String> valueOps;
 	
-	@Resource(name="stringRedisTemplate")
+	@Resource(name="mgtStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
+	@Resource(name="wcsStringRedisTemplate")
+	private ListOperations<String, String> wcslistOps;
 	
 	
-	@Value("${redis.default.dbindex}")
+	
+	@Value("${redis.magento.dbindex}")
 	private String redis_db_index;
+	@Value("${redis.wcs.dbindex}")
+	private String redis_wcs_index;
 	
 	@Value("${redis.channel.magento.product}")
 	private String redis_M_ch;
 	
 	@Value("${redis.channel.magento.orderUpdate}")
 	private String redis_M_ch_orderUpdate;
-	
+	@Value("${redis.channel.wcs.orderUpdate}")
+	private String redis_W_ch_orderUpdate;
 	
 	@Value("${redis.magento.key.product}")
 	private String redis_M_key_product;
@@ -81,12 +88,26 @@ public class RedisTest {
 	
 	@Value("${redis.magento.key.orderUpdate.M2S}")
 	private String redis_M_key_ordUpdate_M2S;
+	@Value("${redis.wcs.key.orderUpdate.M2S}")
+	private String redis_W_key_ordUpdate_M2S;
 	
 	@Value("${magento.outro.ent.code}")
 	private String magento_outro_ent_code;
 	
 	@Value("${redis.magento.key.order.err}")
 	private String redis_M_key_order_err;
+	
+	@Test
+    public void TestGetOrderListMagento() {
+		
+		List<String> orderList = listOps.range(redis_M_key_order, 0, -1);
+		System.out.println("[orderlist]"+orderList.size());
+		
+		for(int i=0; i<orderList.size(); i++){
+			System.out.println("["+i+"]"+orderList.get(i));
+		}
+		
+    }
 	
 	@Ignore
     public void TestGetOrderUpdateList() {
@@ -222,7 +243,7 @@ public class RedisTest {
 //		listOps.rightPush("1", "a");
 //		listOps.rightPush("1", "b");
 //		listOps.rightPush("1", "c");
-		stringRedisTemplate.getConnectionFactory().getConnection().select(Integer.parseInt(redis_db_index));
+		mgtStringRedisTemplate.getConnectionFactory().getConnection().select(Integer.parseInt(redis_db_index));
 		
 		
 		List<String> orderList = listOps.range("com:scteam:magento:order", 0, -1);
@@ -265,11 +286,11 @@ public class RedisTest {
 			System.out.println("[sendMsg]"+sendMsg);
 			System.out.println("[redis_M_ch]"+redis_M_ch);
 			
-			stringRedisTemplate.convertAndSend(redis_M_ch, sendMsg);
+			mgtStringRedisTemplate.convertAndSend(redis_M_ch, sendMsg);
 			
 			
 			// Set Database Index
-			stringRedisTemplate.getConnectionFactory().getConnection().select(Integer.parseInt(redis_db_index));
+			mgtStringRedisTemplate.getConnectionFactory().getConnection().select(Integer.parseInt(redis_db_index));
 						
 			listOps.leftPush(redis_M_key_product, "{\"item_id\":\"00001\",\"qty\":\"100\"}");
 			listOps.leftPush(redis_M_key_product, "{\"item_id\":\"00002\",\"qty\":\"200\"}");
@@ -282,25 +303,44 @@ public class RedisTest {
 		
 	}
 	
-	@Test
+	@Ignore
 	public void TestRedisOrderStatusPub(){
 		
 		try{
 
-			Map<String, String> sendMsgMap = new HashMap<String, String>();
-			sendMsgMap.put("db", redis_db_index);
-			sendMsgMap.put("type", "orderUpdate");
-			sendMsgMap.put("key", redis_M_key_ordUpdate_M2S);
+			
+			for(int i=0; i<100; i++){
+				listOps.leftPush(redis_M_key_ordUpdate_M2S, "{\"orderHeaderKey\":\"2014061716272448539\",\"confirmed\":[{\"qty\":\"1.00\",\"itemId\":\"2500535570001\"},{\"qty\":\"1.00\",\"itemId\":\"2500536180001\"}],\"docType\":\"0001\",\"status\":\"3201\",\"releaseKeys\":[\"2014062418504874241\"],\"orderId\":\"100000056\",\"entCode\":\"Matrix\"}");
+				
+				Map<String, String> sendMsgMap = new HashMap<String, String>();
+				sendMsgMap.put("db", redis_db_index);
+				sendMsgMap.put("type", "orderUpdate");
+				sendMsgMap.put("key", redis_M_key_ordUpdate_M2S);
+				
+				// Java Object(Map) to JSON
+				ObjectMapper mapper = new ObjectMapper();
+				String sendMsg = mapper.writeValueAsString(sendMsgMap);
+				mgtStringRedisTemplate.convertAndSend(redis_M_ch_orderUpdate, sendMsg);
+			
+			}
+//			Thread tr = new Thread();
+//			tr.sleep(3000);
 			
 			
-			// Java Object(Map) to JSON
-			ObjectMapper mapper = new ObjectMapper();
-			String sendMsg = mapper.writeValueAsString(sendMsgMap);
+//			wcslistOps.leftPush(redis_W_key_ordUpdate_M2S, "{\"orderHeaderKey\":\"2014061716272448539\",\"confirmed\":[{\"qty\":\"1.00\",\"itemId\":\"2500535570001\"},{\"qty\":\"1.00\",\"itemId\":\"2500536180001\"}],\"docType\":\"0001\",\"status\":\"3201\",\"releaseKeys\":[\"2014062418504874241\"],\"orderId\":\"100000056\",\"entCode\":\"Matrix\"}");
+//		
+//			Map<String, String> sendMsgMap2 = new HashMap<String, String>();
+//			sendMsgMap2.put("db", redis_wcs_index);
+//			sendMsgMap2.put("type", "orderUpdate");
+//			sendMsgMap2.put("key", redis_W_key_ordUpdate_M2S);
+//			
+//			// Java Object(Map) to JSON
+//			ObjectMapper mapper2 = new ObjectMapper();
+//			String sendMsg2 = mapper2.writeValueAsString(sendMsgMap2);
+//			mgtStringRedisTemplate.convertAndSend(redis_W_ch_orderUpdate, sendMsg2);
 			
-			stringRedisTemplate.convertAndSend(redis_M_ch_orderUpdate, sendMsg);
 			
-			listOps.leftPush(redis_M_key_ordUpdate_M2S, "{\"orderHeaderKey\":\"2014061716272448539\",\"confirmed\":[{\"qty\":\"1.00\",\"itemId\":\"2500535570001\"},{\"qty\":\"1.00\",\"itemId\":\"2500536180001\"}],\"docType\":\"0001\",\"status\":\"3201\",\"releaseKeys\":[\"2014062418504874241\"],\"orderId\":\"100000056\",\"entCode\":\"Matrix\"}");
-		
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}

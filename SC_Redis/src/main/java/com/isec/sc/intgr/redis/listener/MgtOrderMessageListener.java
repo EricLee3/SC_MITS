@@ -44,12 +44,12 @@ public class MgtOrderMessageListener implements MessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(MgtOrderMessageListener.class);
 	
 	
-	@Autowired	private StringRedisTemplate stringRedisTemplate;
+	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
-	@Resource(name="stringRedisTemplate")
+	@Resource(name="mgtStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
 	
@@ -63,7 +63,7 @@ public class MgtOrderMessageListener implements MessageListener {
 	public void onMessage(Message message, byte[] chaanel) {
 		
 		// TODO Auto-generated method stub
-		System.out.println("Message Received at Listener: " + message.toString() + " from Channel [" + new String(chaanel) +"]");
+		System.out.println("Magento CreateOrder Message: " + message.toString() + " from Channel [" + new String(chaanel) +"]");
 		
 		
 		Map<String,String> sendMsgMap = new HashMap<String,String>();

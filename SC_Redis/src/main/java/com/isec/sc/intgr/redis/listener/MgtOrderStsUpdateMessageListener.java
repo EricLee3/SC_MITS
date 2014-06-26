@@ -45,25 +45,16 @@ public class MgtOrderStsUpdateMessageListener implements MessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(MgtOrderStsUpdateMessageListener.class);
 	
 	
-	@Autowired	private StringRedisTemplate stringRedisTemplate;
+	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
-	@Resource(name="stringRedisTemplate")
+	@Resource(name="mgtStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
-	@Resource(name="stringRedisTemplate")
+	@Resource(name="mgtStringRedisTemplate")
 	private ValueOperations<String, String> valueOps;
-	
-	@Value("${redis.magento.key.orderUpdate.S2M}")
-	private String redis_M_key_orderUpdate_S2M;
-	
-	@Value("${redis.magento.key.orderUpdate.M2S}")
-	private String redis_M_key_orderUpdate_M2S;
-	
-	@Value("${redis.magento.key.order.err}")
-	private String redis_M_key_order_err;
 	
 	
 	@Override
@@ -93,9 +84,9 @@ public class MgtOrderStsUpdateMessageListener implements MessageListener {
 			type = sendMsgMap.get("type");
 			key = sendMsgMap.get("key");
 			
-			System.out.println("[db]"+dbIndex);
-			System.out.println("[type]"+type);
-			System.out.println("[key]"+key); 
+			logger.debug("[db]"+dbIndex);
+			logger.debug("[type]"+type);
+			logger.debug("[key]"+key); 
 
 			
 			// Set Database Index

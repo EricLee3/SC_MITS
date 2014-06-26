@@ -39,12 +39,12 @@ import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 public class MgtProductMessageListener implements MessageListener {
 	
 	
-	@Autowired	private StringRedisTemplate stringRedisTemplate;
+	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
-	@Resource(name="stringRedisTemplate")
+	@Resource(name="mgtStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
 	

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,16 +41,21 @@ public class ScOrderStatusController {
 	private static final Logger logger = LoggerFactory.getLogger(ScOrderStatusController.class);
 	
 	
-	@Autowired	private StringRedisTemplate stringRedisTemplate;
+	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
+	@Autowired	private StringRedisTemplate wcsStringRedisTemplate;
 	
-	@Resource(name="stringRedisTemplate")
-	private ListOperations<String, String> listOps;
 	
+	@Resource(name="mgtStringRedisTemplate")
+	private ListOperations<String, String> listOps;	
+	@Resource(name="wcsStringRedisTemplate")
+	private ListOperations<String, String> wcsListOps;
 	
 	
 	@Value("${redis.magento.key.orderUpdate.S2M}")
 	private String redis_M_key_orderUpdate_S2M;
 	
+	@Value("${redis.wcs.key.orderUpdate.S2M}")
+	private String redis_W_key_orderUpdate_S2M;
 	
 	@RequestMapping(value = "/orderUpdate")
 	public void updateOrderStatus(@RequestParam(required=false) String returnXML,

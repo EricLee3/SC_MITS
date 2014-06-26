@@ -65,7 +65,7 @@ public class SterlingApiDelegate {
 	public String manageItem(String xmlData) throws Exception{
 		
 		
-		logger.debug("[intputXML]"+xmlData);
+		logger.debug("[manageItem intputXML]"+xmlData);
 		
 		String result = "1";
 		Document doc = null;
@@ -77,7 +77,7 @@ public class SterlingApiDelegate {
 			
 			
 			String outputXML = sterlingHTTPConnector.run();
-			logger.debug("[outputXML]"+outputXML);
+			logger.debug("[manageItem outputXML]"+outputXML);
 			
 			
 			// output string Parsing
@@ -111,7 +111,7 @@ public class SterlingApiDelegate {
 	
 	public String releaseOrder(String xmlData) throws Exception{
 		
-		logger.debug("[intputXML]"+xmlData);
+		logger.debug("[releaseOrder intputXML]"+xmlData);
 		
 		String result = "1";
 		Document doc = null;
@@ -123,7 +123,7 @@ public class SterlingApiDelegate {
 			
 			
 			String outputXML = sterlingHTTPConnector.run();
-			logger.debug("[outputXML]"+outputXML);
+			logger.debug("[releaseOrder outputXML]"+outputXML);
 			
 			
 			// output string Parsing
@@ -229,7 +229,7 @@ public class SterlingApiDelegate {
 			sterlingHTTPConnector.setData(xmlData);
 			
 			String outputXML = sterlingHTTPConnector.run();
-			logger.debug("[CreateOrder outputXML]"+outputXML);
+			logger.debug("[createShipment outputXML]"+outputXML);
 			
 			
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
