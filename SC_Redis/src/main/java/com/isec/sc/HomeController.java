@@ -26,15 +26,13 @@ public class HomeController {
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = "/orderUpdates")
-	public void home(@RequestParam(required=false) String param, 
+	@RequestMapping(value = "/")
+	public String home(@RequestParam(required=false) String param, 
 					Model model,
 					HttpServletResponse res) throws Exception{
 		
-		logger.info("[param]"+param);
 		
-		res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><a>aaa</a>");
-		//return "home";
+		return "home";
 	}
 	
 }

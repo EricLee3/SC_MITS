@@ -17,6 +17,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
  
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.Message;
@@ -29,6 +31,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.http.ScInventoryController;
 
 
 /**
@@ -36,20 +39,25 @@ import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
  * @author ykjang
  *
  */
-public class MgtProductMessageListener implements MessageListener {
+public class WcsOrderMessageListener implements MessageListener {
+	
+	private static final Logger logger = LoggerFactory.getLogger(WcsOrderMessageListener.class);
 	
 	
-	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
+	@Autowired	private StringRedisTemplate wcsStringRedisTemplate;
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
-	@Resource(name="mgtStringRedisTemplate")
+	@Resource(name="wcsStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
 	
-	@Value("${redis.magento.key.product.err}")
-	private String redis_M_key_product_err;
+	@Value("${redis.wcs.key.order.err}")
+	private String redis_W_key_order_err;
+	
+	@Value("${redis.wcs.key.orderUpdate.S2M}")
+	private String redis_W_key_orderUpdate_S2M;
 	
 	@Override
 	public void onMessage(Message message, byte[] chaanel) {
@@ -58,7 +66,7 @@ public class MgtProductMessageListener implements MessageListener {
 		System.out.println("Message Received at Listener: " + message.toString() + " from Channel [" + new String(chaanel) +"]");
 		
 		
-		Map<String,String> map = new HashMap<String,String>();
+		Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
 	 
 		String dbIndex = "";
@@ -71,11 +79,11 @@ public class MgtProductMessageListener implements MessageListener {
 			
 			// convert JSON string to Map
 			// {"db":"10","key":"com:scteam:magento:product"}
-			map = mapper.readValue(message.toString(), new TypeReference<HashMap<String,String>>(){});
+			sendMsgMap = mapper.readValue(message.toString(), new TypeReference<HashMap<String,String>>(){});
 	 
-			dbIndex = map.get("db");
-			type = map.get("type");
-			key = map.get("key");
+			dbIndex = sendMsgMap.get("db");
+			type = sendMsgMap.get("type");
+			key = sendMsgMap.get("key");
 			
 			System.out.println("[db]"+dbIndex);
 			System.out.println("[type]"+type);
@@ -83,12 +91,10 @@ public class MgtProductMessageListener implements MessageListener {
 
 			
 			// Set Database Index
-//			stringRedisTemplate.getConnectionFactory().getConnection().select(10);
-//			ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
-			
+//			wcsStringRedisTemplate.getConnectionFactory().getConnection().select(10);
+//			ListOperations<String, String> listOps = wcsStringRedisTemplate.opsForList();
 			
 			// 2. Get Data Count by Key
-			
 //			List<String> list = listOps.range(key, 0, -1);
 //			System.out.println("[list.size-read]"+list.size());
 			
@@ -97,33 +103,35 @@ public class MgtProductMessageListener implements MessageListener {
 			
 			
 			// 3. Call Sterling API by Type & Key
-			
 			for(int i=0; i<dataCnt; i++){
 				
 				String xmlData = listOps.rightPop(key);
 				
 				// SC API 호출
-				String result = sterlingApiDelegate.manageItem(xmlData);
+				HashMap<String, Object> result = sterlingApiDelegate.createOrder(xmlData);
+				String status = (String)result.get("status");
 				
-				// 에러발생시 다른 key로 해당xml저장
-				if("0".equals(result)){
+				
+				if("1100".equals(status)){
 					
+					String orderSuccJSON = mapper.writeValueAsString(result);
+					logger.debug("[orderSuccJSON]"+orderSuccJSON);
+					listOps.leftPush(redis_W_key_orderUpdate_S2M, orderSuccJSON);
+				
+				// 에러발생시 별도의 에러키값으로 저장
+				}else if("0000".equals(status)){
 					
-					System.out.println("##### Error Occured!!!");
-					
-					Map<String, String> sendMsgMap = new HashMap<String, String>();
-					sendMsgMap.put("type", "product");
-					sendMsgMap.put("key", redis_M_key_product_err);
 					sendMsgMap.put("data", xmlData);
-					sendMsgMap.put("date", cuurentDate());
+					sendMsgMap.put("occure_date", cuurentDate());
 					
 					
 					// Java Object(Map) to JSON	
-					String sendMsg = "";
-					ObjectMapper resultMapper = new ObjectMapper();
-					sendMsg = resultMapper.writeValueAsString(sendMsgMap);
+					String orderErrJSON = mapper.writeValueAsString(sendMsgMap);
+					logger.debug("Create Order Error occured");
+					logger.debug("[orderErrJSON]"+orderErrJSON);
 					
-					listOps.leftPush(redis_M_key_product_err, sendMsg);
+					
+					listOps.leftPush(redis_W_key_order_err, orderErrJSON);
 				}
 			}
 			
