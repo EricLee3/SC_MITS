@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<InventorySupply ItemID="{0}" SupplyType="ONHAND" OrganizationCode="{1}" 
-	ConsiderAllNodes="Y" UnitOfMeasure="EACH" ShipNaod="{2}"/>
