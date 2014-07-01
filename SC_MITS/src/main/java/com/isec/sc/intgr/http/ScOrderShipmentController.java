@@ -39,33 +39,19 @@ public class ScOrderShipmentController {
 	private static final Logger logger = LoggerFactory.getLogger(ScOrderShipmentController.class);
 	
 	
-	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
+	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private StringRedisTemplate wcsStringRedisTemplate;
 	
 	
 	
 	
-	@Resource(name="mgtStringRedisTemplate")
+	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
-	@Resource(name="mgtStringRedisTemplate")
+	@Resource(name="maStringRedisTemplate")
 	private ValueOperations<String, String> valueOps;
 	
-	@Resource(name="wcsStringRedisTemplate")
-	private ListOperations<String, String> wcsListOps;
-	
-	@Resource(name="wcsStringRedisTemplate")
-	private ValueOperations<String, String> wcsValueOps;
-	
-	
-	
-	@Value("${redis.magento.key.orderUpdate.S2M}")
-	private String redis_M_key_orderUpdate_S2M;
-	
-	@Value("${redis.wcs.key.orderUpdate.S2M}")
-	private String redis_W_key_orderUpdate_S2M;
-	
-	
+
 	
 	@RequestMapping(value = "/shipment")
 	public void shipmentProcess(@RequestParam(required=false) String returnXML,
@@ -89,9 +75,18 @@ public class ScOrderShipmentController {
 		String shipmentKey = el.getAttribute("ShipmentKey");
 		String shipmentNo = el.getAttribute("ShipmentNo");
 		
+		String entCode = el.getAttribute("EnterpriseCode");
+		String sellOrgCode = el.getAttribute("SellerOrganizationCode");
+		
+		String pushKey = entCode+":"+sellOrgCode+":order:update:S2M";
+		logger.debug("[pushKey]"+pushKey);
+		
 		
 		logger.debug("[shipmentKey]"+shipmentKey);
 		logger.debug("[shipmentNo]"+shipmentNo);
+		logger.debug("[entCode]"+entCode);
+		logger.debug("[sellOrgCode]"+sellOrgCode);
+		
 		
 		
 		// 2. Shimpment OutPut 데이타 생성
@@ -184,10 +179,9 @@ public class ScOrderShipmentController {
 		ObjectMapper mapper = new ObjectMapper();
 		outputMsg = mapper.writeValueAsString(sendMsgMap);
 		logger.debug("[outputMsg]"+outputMsg);
-		logger.debug("[redis_M_key_orderUpdate_S2M]"+redis_M_key_orderUpdate_S2M);
 		
 		// 4. RedisDB에 메세지 저장
-		listOps.leftPush("com:scteam:magento:orderUpdate:S2M", outputMsg);
+		listOps.leftPush(pushKey, outputMsg);
 		
 		
 		// 5. 호출한 Sterling 서비스에 Response 전달

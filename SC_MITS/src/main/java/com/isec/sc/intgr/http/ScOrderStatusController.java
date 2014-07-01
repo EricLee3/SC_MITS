@@ -41,21 +41,13 @@ public class ScOrderStatusController {
 	private static final Logger logger = LoggerFactory.getLogger(ScOrderStatusController.class);
 	
 	
-	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
+	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private StringRedisTemplate wcsStringRedisTemplate;
 	
 	
-	@Resource(name="mgtStringRedisTemplate")
+	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;	
-	@Resource(name="wcsStringRedisTemplate")
-	private ListOperations<String, String> wcsListOps;
 	
-	
-	@Value("${redis.magento.key.orderUpdate.S2M}")
-	private String redis_M_key_orderUpdate_S2M;
-	
-	@Value("${redis.wcs.key.orderUpdate.S2M}")
-	private String redis_W_key_orderUpdate_S2M;
 	
 	@RequestMapping(value = "/orderUpdate")
 	public void updateOrderStatus(@RequestParam(required=false) String returnXML,
@@ -88,7 +80,10 @@ public class ScOrderStatusController {
 		String maxOrderStatus = el.getAttribute("MaxOrderStatus"); // 코드값
 		String minOrderStatus = el.getAttribute("MinOrderStatus");	// 코드값
 		
-		String sellerOrgCode = el.getAttribute("SellerOrganizationCode");	// 판매조직코드
+		String sellOrgCode = el.getAttribute("SellerOrganizationCode");	// 판매조직코드
+		
+		String pushKey = entCode+":"+sellOrgCode+":order:update:S2M";
+		logger.debug("[pushKey]"+pushKey);
 		
 		logger.debug("[orderKey]"+orderKey);
 		logger.debug("[orderNo]"+orderNo);
@@ -100,8 +95,6 @@ public class ScOrderStatusController {
 		
 		
 		// 2. 오더상태별 OutPut 데이타 생성
-		
-		
 		Map<String,Object> sendMsgMap = new HashMap<String,Object>();
 		sendMsgMap.put("orderId", orderNo);
 		
@@ -196,10 +189,9 @@ public class ScOrderStatusController {
 		ObjectMapper mapper = new ObjectMapper();
 		outputMsg = mapper.writeValueAsString(sendMsgMap);
 		logger.debug("[outputMsg]"+outputMsg);
-		logger.debug("[redis_M_key_orderUpdate_S2M]"+redis_M_key_orderUpdate_S2M);
 		
 		// 4. RedisDB에 메세지 저장
-		listOps.leftPush("com:scteam:magento:orderUpdate:S2M", outputMsg);
+		listOps.leftPush(pushKey, outputMsg);
 		
 		
 		// 5. 호출한 Sterling 서비스에 Response 전달

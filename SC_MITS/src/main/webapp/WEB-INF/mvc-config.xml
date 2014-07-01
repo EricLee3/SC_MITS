@@ -10,8 +10,9 @@
          <context:component-scan
             base-package="org.springframework.samples.web"/>  -->
 
-
-    <mvc:annotation-driven />
+	<context:annotation-config/>
+  
+  	<context:component-scan base-package="com.isec.sc" />
 
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 	        <!-- Example: a logical view name of 'showMessage' is mapped to '/WEB-INF/jsp/showMessage.jsp' -->

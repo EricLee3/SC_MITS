@@ -18,7 +18,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.isec.sc.intgr.api.util.FileContentReader;
-import com.isec.sc.intgr.redis.listener.MgtOrderMessageListener;
+import com.isec.sc.intgr.redis.listener.OrderCreateMsgListener;
 
 
 
@@ -32,11 +32,6 @@ public class SterlingApiDelegate {
 	
 	@Autowired SterlingHTTPConnector sterlingHTTPConnector;
 	 
-	
-	
-	@Value("${magento.outro.ent.code}")
-	private String magento_outro_ent_code;
-	
 	
 	@Value("${sc.api.item.manage}")
 	private String sc_item_manage;
@@ -187,9 +182,9 @@ public class SterlingApiDelegate {
 				
 				resultMap.put("status", "1100");
 				resultMap.put("orderHeaderKey", ele.getAttribute("OrderHeaderKey"));
-				resultMap.put("enterpriseCode", ele.getAttribute("EnterpriseCode"));
+				resultMap.put("entCode", ele.getAttribute("EnterpriseCode"));
 				resultMap.put("orderId", ele.getAttribute("OrderNo"));
-				resultMap.put("documentType", ele.getAttribute("DocumentType"));
+				resultMap.put("docType", ele.getAttribute("DocumentType"));
 				
 			}
 			

@@ -40,20 +40,20 @@ import com.isec.sc.intgr.http.ScInventoryController;
  * @author ykjang
  *
  */
-public class MgtOrderStsUpdateMessageListener implements MessageListener {
+public class OrderUpdateMsgListener implements MessageListener {
 	
-	private static final Logger logger = LoggerFactory.getLogger(MgtOrderStsUpdateMessageListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(OrderUpdateMsgListener.class);
 	
 	
-	@Autowired	private StringRedisTemplate mgtStringRedisTemplate;
+	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
-	@Resource(name="mgtStringRedisTemplate")
+	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
-	@Resource(name="mgtStringRedisTemplate")
+	@Resource(name="maStringRedisTemplate")
 	private ValueOperations<String, String> valueOps;
 	
 	
@@ -61,7 +61,7 @@ public class MgtOrderStsUpdateMessageListener implements MessageListener {
 		
 		
 		// TODO Auto-generated method stub
-		logger.debug("Magento OrderUpdate Listener: " + message.toString() + " from Channel [" + new String(chaanel) +"]");
+		logger.debug("OrderUpdate Listener: " + message.toString() + " from Channel [" + new String(chaanel) +"]");
 		
 		
 		Map<String,String> sendMsgMap = new HashMap<String,String>();

@@ -12,32 +12,33 @@
   
   <context:property-placeholder location="classpath:sc.properties"/>
   
-  <bean id="mgtJedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+  <bean id="maConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
     p:host-name="${redis.host}" 
     p:port="${redis.port}" 
     p:password="${redis.pass}"
-    p:database="${redis.magento.dbindex}" />
+    p:database="${redis.ma.dbindex}"
+    p:timeout="${redis.timeout}" 
+    p:usePool="${redis.usePool}"
+    p:poolConfig-ref="jedisPoolConfig"/>
   
-  <bean id="mgtStringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
-    p:connection-factory-ref="mgtJedisConnectionFactory"
-    p:defaultSerializer-ref="stringSerializer"  />
-    
+
+  <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig"
+   p:maxTotal="${redis.pool.maxTotal}"
+   p:maxWaitMillis="${redis.pool.maxWait}"
+   p:maxIdle="${redis.pool.maxIdle}"
+   p:minIdle="${redis.pool.minIdle}"
+   p:testOnBorrow="${redis.pool.testOnBorrow}"
+  />
   
-  <bean id="wcsJedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-    p:host-name="${redis.host}" 
-    p:port="${redis.port}" 
-    p:password="${redis.pass}"
-    p:database="${redis.wcs.dbindex}" />
-  
-  <bean id="wcsStringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
-    p:connection-factory-ref="wcsJedisConnectionFactory"
+  <bean id="maStringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
+    p:connection-factory-ref="maConnectionFactory"
     p:defaultSerializer-ref="stringSerializer"  />
     
   <bean id="stringSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer" />
   
   
   <!-- <bean id="objectRedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
-    p:connection-factory-ref="mgtJedisConnectionFactory"/> -->
+    p:connection-factory-ref="maConnectionFactory"/> -->
   
   <bean id="sterlingHTTPConnector" class="com.isec.sc.intgr.api.delegate.SterlingHTTPConnector">
     <constructor-arg name="url" value="${sc.api.http.url}" />
@@ -55,41 +56,29 @@
     </bean> --><!-- Delegate Type -->
     
     <!-- Magento  Listener -->
-    <bean id="mgtProductMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+    <bean id="maProductMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
       <constructor-arg>
-        <bean class="com.isec.sc.intgr.redis.listener.MgtProductMessageListener" />
+        <bean class="com.isec.sc.intgr.redis.listener.ProductMsgListener" />
       </constructor-arg>
     </bean>
-    <bean id="mgtOrderMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+    <bean id="maOrderMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
       <constructor-arg>
-        <bean class="com.isec.sc.intgr.redis.listener.MgtOrderMessageListener" />
+        <bean class="com.isec.sc.intgr.redis.listener.OrderCreateMsgListener" />
       </constructor-arg>
     </bean>
-    <bean id="mgtOrderStsUpdateMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
+    <bean id="maOrderStsUpdateMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
       <constructor-arg>
-        <bean class="com.isec.sc.intgr.redis.listener.MgtOrderStsUpdateMessageListener" />
+        <bean class="com.isec.sc.intgr.redis.listener.OrderUpdateMsgListener" />
       </constructor-arg>
     </bean>
     <!-- Magento  Listener -->
     
     
-    <!-- WCS Listener -->
-    <bean id="wcsOrderMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
-      <constructor-arg>
-        <bean class="com.isec.sc.intgr.redis.listener.WcsOrderMessageListener" />
-      </constructor-arg>
-    </bean>
-    <bean id="wcsOrderStsUpdateMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
-      <constructor-arg>
-        <bean class="com.isec.sc.intgr.redis.listener.WcsOrderStsUpdateMessageListener" />
-      </constructor-arg>
-    </bean>
-  	<!-- WCS Listener --> 
   
   
   <!-- RedisMessage Listener Setting -->
-  <bean id="mgtRedisContainer" class="org.springframework.data.redis.listener.RedisMessageListenerContainer">
-    <property name="connectionFactory" ref="mgtJedisConnectionFactory" />
+  <bean id="maRedisContainer" class="org.springframework.data.redis.listener.RedisMessageListenerContainer">
+    <property name="connectionFactory" ref="maConnectionFactory" />
       <property name="messageListeners" >
         <map>
           <!-- <entry key-ref="delegateMessageListener">
@@ -98,19 +87,19 @@
             </bean>
           </entry> -->
           <!-- Magento Message Listener -->
-          <entry key-ref="mgtProductMessageListener">
+          <entry key-ref="maProductMessageListener">
             <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${redis.channel.magento.product}" />
+              <constructor-arg value="${channel.ma.product}" />
             </bean>
           </entry>
-          <entry key-ref="mgtOrderMessageListener">
+          <entry key-ref="maOrderMessageListener">
             <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${redis.channel.magento.order}" />
+              <constructor-arg value="${channel.ma.order}" />
             </bean>
           </entry>
-          <entry key-ref="mgtOrderStsUpdateMessageListener">
+          <entry key-ref="maOrderStsUpdateMessageListener">
             <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${redis.channel.magento.orderUpdate}" />
+              <constructor-arg value="${channel.ma.orderUpdate}" />
             </bean>
           </entry>
           <!-- Magento Message Listener -->
@@ -118,24 +107,4 @@
      </property>
   </bean>
   
-  
-  <bean id="wcsRedisContainer" class="org.springframework.data.redis.listener.RedisMessageListenerContainer">
-    <property name="connectionFactory" ref="wcsJedisConnectionFactory" />
-      <property name="messageListeners" >
-        <map>
-          <!-- WCS Message Listener -->
-          <entry key-ref="wcsOrderMessageListener">
-            <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${redis.channel.wcs.order}" />
-            </bean>
-          </entry>
-          <entry key-ref="wcsOrderStsUpdateMessageListener">
-            <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${redis.channel.wcs.orderUpdate}" />
-            </bean>
-          </entry>
-          <!-- WCS Message Listener -->
-        </map>
-     </property>
-  </bean>
 </beans>

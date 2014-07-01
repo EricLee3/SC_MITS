@@ -20,9 +20,6 @@ public class ScInventoryController {
 	private static final Logger logger = LoggerFactory.getLogger(ScInventoryController.class);
 	
 	
-	@Value("${redis.magento.key.inventory}")
-	private String redis_M_key_inventory;
-	
 	@RequestMapping(value = "/changeInventory")
 	public void changeInventory(@RequestParam(required=false) String returnXML, 
 								  @RequestParam String status,
