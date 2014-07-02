@@ -60,6 +60,7 @@ public class OrderCreateMsgListener implements MessageListener {
 		System.out.println("CreateOrder Message: " + message.toString() + " from Channel [" + new String(chaanel) +"]");
 		
 		
+		
 		Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
 	 
@@ -71,7 +72,6 @@ public class OrderCreateMsgListener implements MessageListener {
 		String errKey = "";
 		
 		try {
-	 
 			// 1. Send Message 추출
 			
 			// convert JSON string to Map
@@ -116,6 +116,8 @@ public class OrderCreateMsgListener implements MessageListener {
 					
 					String orderSuccJSON = mapper.writeValueAsString(result);
 					logger.debug("[orderSuccJSON]"+orderSuccJSON);
+					logger.debug("[pushKey]"+pushKey);
+					
 					listOps.leftPush(pushKey, orderSuccJSON);
 				
 				// 에러발생시 별도의 에러키값으로 저장

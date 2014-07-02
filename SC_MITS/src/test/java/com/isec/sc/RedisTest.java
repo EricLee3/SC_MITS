@@ -42,7 +42,7 @@ import com.isec.sc.intgr.api.util.FileContentReader;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:spring/application-config.xml"})
+@ContextConfiguration(locations={"classpath:spring/application-config.xml","classpath:quartz-config.xml"})
 public class RedisTest {
 
 	
@@ -61,12 +61,12 @@ public class RedisTest {
 	private String redis_ma_index;
 	
 	
-	@Value("${channel.ma.order}")
-	private String ch_ma_order;
+	@Value("${channel.ma.jns.order}")
+	private String ch_ma_jns_order;
 	
 
 	
-	@Ignore
+	@Test
     public void TestGetOrderListMagento() {
 		
 		List<String> orderList = listOps.range("DA:OUTRO:order", 0, -1);
@@ -192,12 +192,12 @@ public class RedisTest {
 		
 	}
 		
-		@Test
+		@Ignore
 		public void TestOrderCreatePubToWCS(){
 			
 			
 			String wcsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-					+ "<Order DocumentType=\"0001\" EnterpriseCode=\"ISEC\" SellerOrganizationCode=\"MI\" PaymentStatus=\"AUTHORIZED\" ShipNode=\"ISEC_WH1\">"
+					+ "<Order DocumentType=\"0001\" EnterpriseCode=\"ISEC\" SellerOrganizationCode=\"JNS\" OrderNo=\"168002\" PaymentStatus=\"AUTHORIZED\" ShipNode=\"ISEC_WH1\">"
 					
 					+ "<OrderLines>"
 						+ "<OrderLine OrderedQty=\"1\">"
@@ -222,19 +222,19 @@ public class RedisTest {
 
 				
 				// for(int i=0; i<100; i++){
-				listOps.leftPush("MI:JNS:order", wcsXML);
+				listOps.leftPush("ISEC:JNS:order", wcsXML);
 				
 				Map<String, String> sendMsgMap = new HashMap<String, String>();
 				sendMsgMap.put("db", redis_ma_index);
 				sendMsgMap.put("type", "order");
-				sendMsgMap.put("key", "MI:JNS:order");
+				sendMsgMap.put("key", "ISEC:JNS:order");
 				
 				
 				
 				// Java Object(Map) to JSON
 				ObjectMapper mapper = new ObjectMapper();
 				String sendMsg = mapper.writeValueAsString(sendMsgMap);
-				maStringRedisTemplate.convertAndSend(ch_ma_order, sendMsg);
+				maStringRedisTemplate.convertAndSend(ch_ma_jns_order, sendMsg);
 				
 				// }
 //				Thread tr = new Thread();

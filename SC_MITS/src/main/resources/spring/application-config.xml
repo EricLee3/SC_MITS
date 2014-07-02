@@ -88,18 +88,18 @@
           </entry> -->
           <!-- Magento Message Listener -->
           <entry key-ref="maProductMessageListener">
-            <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${channel.ma.product}" />
+            <bean class="org.springframework.data.redis.listener.PatternTopic">
+              <constructor-arg value="ch:ma:*:product" />
             </bean>
           </entry>
           <entry key-ref="maOrderMessageListener">
-            <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${channel.ma.order}" />
+            <bean class="org.springframework.data.redis.listener.PatternTopic">
+              <constructor-arg value="ch:ma:*:order" />
             </bean>
           </entry>
           <entry key-ref="maOrderStsUpdateMessageListener">
-            <bean class="org.springframework.data.redis.listener.ChannelTopic">
-              <constructor-arg value="${channel.ma.orderUpdate}" />
+            <bean class="org.springframework.data.redis.listener.PatternTopic">
+              <constructor-arg value="ch:ma:*:order:update" />
             </bean>
           </entry>
           <!-- Magento Message Listener -->
