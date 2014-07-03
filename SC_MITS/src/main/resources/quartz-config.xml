@@ -11,26 +11,49 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-    <bean id="dummyTask" class="com.isec.sc.intgr.scheduler.DummyTask"/>
+    <bean id="orderCreateTask" class="com.isec.sc.intgr.scheduler.OrderCreateTask"/>
+    <bean id="orderUpdateTask" class="com.isec.sc.intgr.scheduler.OrderUpdateTask"/>
 
-    <bean name="dummyJob" class="org.springframework.scheduling.quartz.JobDetailBean"
-          p:jobClass="com.isec.sc.intgr.scheduler.DummyJobBean">
+    <bean name="orderCreateJob_OUTRO" class="org.springframework.scheduling.quartz.JobDetailBean"
+          p:jobClass="com.isec.sc.intgr.scheduler.OrderCreateJobBean">
         <property name="jobDataAsMap">
-            <map>
-                <entry key="dummyTask" value-ref="dummyTask"/>
+            <map >
+                <entry key="orderCreateTask" value-ref="orderCreateTask"/>
+                <entry key="redisKey" value="${key.ma.outro.order}" />
+                <entry key="redisPushKey" value="${key.ma.outro.orderUpdate.S2M}" />
+                <entry key="redisErrKey" value="${key.ma.outro.order.error}" />
+            </map>
+        </property>
+    </bean>
+    
+    <bean name="orderUpdateJob_OUTRO" class="org.springframework.scheduling.quartz.JobDetailBean"
+          p:jobClass="com.isec.sc.intgr.scheduler.OrderCreateJobBean">
+        <property name="jobDataAsMap">
+            <map >
+                <entry key="orderUpdateTask" value-ref="orderUpdateTask"/>
+                <entry key="redisKey" value="${key.ma.outro.order}" />
+                <entry key="redisPushKey" value="${key.ma.outro.orderUpdate.S2M}" />
+                <entry key="redisErrKey" value="${key.ma.outro.order.error}" />
             </map>
         </property>
     </bean>
 
-    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean"
-          p:jobDetail-ref="dummyJob"
+    <bean id="orderCreateTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean"
+          p:jobDetail-ref="orderCreateJob_OUTRO"
           p:startDelay="1000"
           p:cronExpression="0/10 * * * * ?"/>
+          
+    <bean id="orderUpdateTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean"
+          p:jobDetail-ref="orderCreateJob_OUTRO"
+          p:startDelay="1000"
+          p:cronExpression="0/5 * * * * ?"/>
+
 
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="cronTrigger"/>
+                <ref bean="orderCreateTrigger_OUTRO"/>
+                <ref bean="orderUpdateTrigger_OUTRO"/>
             </list>
         </property>
     </bean>

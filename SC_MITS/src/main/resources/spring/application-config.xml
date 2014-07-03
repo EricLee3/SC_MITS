@@ -10,7 +10,7 @@
   <!-- Root Context: defines shared resources visible to all other web components -->
   <context:component-scan base-package="com.isec.sc" />
   
-  <context:property-placeholder location="classpath:sc.properties"/>
+  <context:property-placeholder location="classpath:mits.properties"/>
   
   <bean id="maConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
     p:host-name="${redis.host}" 
@@ -56,6 +56,7 @@
     </bean> --><!-- Delegate Type -->
     
     <!-- Magento  Listener -->
+    <!-- 
     <bean id="maProductMessageListener" class="org.springframework.data.redis.listener.adapter.MessageListenerAdapter">
       <constructor-arg>
         <bean class="com.isec.sc.intgr.redis.listener.ProductMsgListener" />
@@ -71,22 +72,24 @@
         <bean class="com.isec.sc.intgr.redis.listener.OrderUpdateMsgListener" />
       </constructor-arg>
     </bean>
+     -->
     <!-- Magento  Listener -->
     
     
   
   
   <!-- RedisMessage Listener Setting -->
+  <!-- 
   <bean id="maRedisContainer" class="org.springframework.data.redis.listener.RedisMessageListenerContainer">
     <property name="connectionFactory" ref="maConnectionFactory" />
       <property name="messageListeners" >
         <map>
-          <!-- <entry key-ref="delegateMessageListener">
+          <entry key-ref="delegateMessageListener">
             <bean class="org.springframework.data.redis.listener.ChannelTopic">
               <constructor-arg value="chatroom.patrick" />
             </bean>
-          </entry> -->
-          <!-- Magento Message Listener -->
+          </entry>
+          Magento Message Listener
           <entry key-ref="maProductMessageListener">
             <bean class="org.springframework.data.redis.listener.PatternTopic">
               <constructor-arg value="ch:ma:*:product" />
@@ -102,9 +105,9 @@
               <constructor-arg value="ch:ma:*:order:update" />
             </bean>
           </entry>
-          <!-- Magento Message Listener -->
+          Magento Message Listener
         </map>
      </property>
   </bean>
-  
+   -->
 </beans>
