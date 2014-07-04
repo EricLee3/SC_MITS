@@ -11,51 +11,121 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-    <bean id="orderCreateTask" class="com.isec.sc.intgr.scheduler.OrderCreateTask"/>
-    <bean id="orderUpdateTask" class="com.isec.sc.intgr.scheduler.OrderUpdateTask"/>
-
-    <bean name="orderCreateJob_OUTRO" class="org.springframework.scheduling.quartz.JobDetailBean"
-          p:jobClass="com.isec.sc.intgr.scheduler.OrderCreateJobBean">
-        <property name="jobDataAsMap">
-            <map >
-                <entry key="orderCreateTask" value-ref="orderCreateTask"/>
-                <entry key="redisKey" value="${key.ma.outro.order}" />
-                <entry key="redisPushKey" value="${key.ma.outro.orderUpdate.S2M}" />
-                <entry key="redisErrKey" value="${key.ma.outro.order.error}" />
-            </map>
-        </property>
+	<bean id="orderProcessBean" class="com.isec.sc.intgr.scheduler.OrderProcessTask"/>
+	<bean id="productSyncBean" class="com.isec.sc.intgr.scheduler.ProductSyncTask"/>
+	
+	<!-- ========== Job Detail ========== -->
+    
+    <!-- OUTRO - Order -->
+    <bean id="orderCreateJob_OUTRO" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>createOrder</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ma.outro.order}</value>
+	    		<value>${key.ma.outro.orderUpdate.S2M}</value>
+	    		<value>${key.ma.outro.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+	<bean id="orderUpdateJob_OUTRO" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>updateOrderStatus</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ma.outro.orderUpdate.M2S}</value>
+	    		<value>${key.ma.outro.orderUpdate.S2M}</value>
+	    		<value>${key.ma.outro.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+	
+	<!-- OUTRO - Product -->
+	<bean id="syncProductJob_OUTRO" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="productSyncBean"/></property>
+	    <property name="targetMethod"><value>syncProduct</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ma.outro.product}</value>
+	    		<value>${key.ma.outro.product.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+	
+	<!-- JNS - Order -->
+	<bean id="orderCreateJob_JNS" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>createOrder</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ma.jns.order}</value>
+	    		<value>${key.ma.jns.orderUpdate.S2M}</value>
+	    		<value>${key.ma.jns.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+	<bean id="orderUpdateJob_JNS" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>updateOrderStatus</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ma.jns.orderUpdate.M2S}</value>
+	    		<value>${key.ma.jns.orderUpdate.S2M}</value>
+	    		<value>${key.ma.jns.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+	<!-- ========== Job Detail ========== -->
+	
+	
+	
+	<!-- ========== Job Trigger Setting ========== -->
+	<!-- OUTRO > Order -->
+	<bean id="orderCreateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderCreateJob_OUTRO" />
+        <property name="startDelay" value="1000" />
+        <property name="cronExpression" value="0/60 * * * * ?" />
+    </bean>
+    <bean id="orderUpdateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderUpdateJob_OUTRO" />
+        <property name="startDelay" value="1000" />
+        <property name="cronExpression" value="0/30 * * * * ?" />
+    </bean>
+    <bean id="productSyncJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="syncProductJob_OUTRO" />
+        <property name="startDelay" value="2000" />
+        <property name="cronExpression" value="0/120 * * * * ?" />
     </bean>
     
-    <bean name="orderUpdateJob_OUTRO" class="org.springframework.scheduling.quartz.JobDetailBean"
-          p:jobClass="com.isec.sc.intgr.scheduler.OrderUpdateJobBean">
-        <property name="jobDataAsMap">
-            <map >
-                <entry key="orderUpdateTask" value-ref="orderUpdateTask"/>
-                <entry key="redisKey" value="${key.ma.outro.order}" />
-                <entry key="redisPushKey" value="${key.ma.outro.orderUpdate.S2M}" />
-                <entry key="redisErrKey" value="${key.ma.outro.order.error}" />
-            </map>
-        </property>
+    
+    <!-- JNS > Order -->
+    <bean id="orderCreateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderCreateJob_JNS" />
+        <property name="startDelay" value="5000" />
+        <property name="cronExpression" value="0/60 * * * * ?" />
     </bean>
-
-    <bean id="orderCreateTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean"
-          p:jobDetail-ref="orderCreateJob_OUTRO"
-          p:startDelay="1000"
-          p:cronExpression="0/10 * * * * ?"/>
-          
-    <bean id="orderUpdateTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean"
-          p:jobDetail-ref="orderCreateJob_OUTRO"
-          p:startDelay="1000"
-          p:cronExpression="0/5 * * * * ?"/>
-
-
+    <bean id="orderUpdateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderUpdateJob_JNS" />
+        <property name="startDelay" value="5000" />
+        <property name="cronExpression" value="0/30 * * * * ?" />
+    </bean>
+	<!-- ========== Job Trigger Setting ========== -->
+	
+	
+	<!-- ========== Scheduler Setting ========== -->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="orderCreateTrigger_OUTRO"/>
-                <ref bean="orderUpdateTrigger_OUTRO"/>
+                <ref bean="orderCreateJobTrigger_OUTRO"/>
+                <ref bean="orderUpdateJobTrigger_OUTRO"/>
+                <ref bean="productSyncJobTrigger_OUTRO"/>
+                
+                
+                <ref bean="orderCreateJobTrigger_JNS"/>
+                <ref bean="orderUpdateJobTrigger_JNS"/>
             </list>
         </property>
     </bean>
-
+	<!-- ========== Scheduler Setting ========== -->
+	
 </beans>

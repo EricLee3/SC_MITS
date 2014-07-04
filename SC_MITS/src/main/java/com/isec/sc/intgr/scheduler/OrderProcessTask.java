@@ -29,36 +29,29 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
-import com.isec.sc.intgr.redis.listener.OrderUpdateMsgListener;
 
 
 
-public class OrderUpdateTask {
+public class OrderProcessTask {
 	
-	private static final Logger logger = LoggerFactory.getLogger(OrderUpdateTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(OrderProcessTask.class);
 
-	
+
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
-	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
-	
-	
+
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
 	@Resource(name="maStringRedisTemplate")
 	private ValueOperations<String, String> valueOps;
-
 	
-    public void updateOrderStatus(String redisKey, String redisPushKey, String redisErrKey){
+	
+    public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
-//        System.out.println("Spring 4.0 + Quartz 1.8.6 ");
     	logger.debug("##### createOrder["+redisKey+"] Task Excuted!!!");
     	logger.debug("##### redisPushKey ["+redisPushKey+"]");
     	logger.debug("##### redisErrKey["+redisErrKey+"]");
-    	
-//    	String pushKey = redisKey + ":update:S2M";
-//    	String errKey = redisKey + ":error";
     	
     	Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -69,10 +62,65 @@ public class OrderUpdateTask {
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
 		
 		try{
+			// 3. Call Sterling API by Type & Key
+			for(int i=0; i<dataCnt; i++){
+				
+				String xmlData = listOps.rightPop(redisKey);
+				
+				// SC API 호출
+				HashMap<String, Object> result = sterlingApiDelegate.createOrder(xmlData);
+				String status = (String)result.get("status");
+				
+				
+				// Create 성공
+				if("1100".equals(status)){
+					
+					String orderSuccJSON = mapper.writeValueAsString(result);
+					logger.debug("[Create Order Successful]");
+					logger.debug("[orderSucc JSON]"+orderSuccJSON);
+					
+					// 결과데이타 저장
+					listOps.leftPush(redisPushKey, orderSuccJSON);
+				
+				// Create 실패
+				}else if("0000".equals(status)){
+					
+					sendMsgMap.put("data", xmlData);
+					sendMsgMap.put("occure_date", cuurentDate());
+					
+					
+					// Java Object(Map) to JSON	
+					String orderErrJSON = mapper.writeValueAsString(sendMsgMap);
+					logger.debug("Create Order Error occured");
+					logger.debug("[orderErr JSON]"+orderErrJSON);
+					
+					// 실패데이타 저장
+					listOps.leftPush(redisErrKey, orderErrJSON);
+				}
+			}
 			
+		}catch(Exception e){
+			logger.debug("##### Create Order Task Exeption Occured");
+			e.printStackTrace();
+		}
+		
+    }
+    
+    
+	public void updateOrderStatus(String redisKey, String redisPushKey, String redisErrKey){
+        
+	  	logger.debug("##### createOrder["+redisKey+"] Task Excuted!!!");
+	  	logger.debug("##### redisPushKey ["+redisPushKey+"]");
+	  	logger.debug("##### redisErrKey["+redisErrKey+"]");
+	  	
+	  	Map<String,String> sendMsgMap = new HashMap<String,String>();
+		ObjectMapper mapper = new ObjectMapper();
+	  	
 			
-			
-			
+	  	long dataCnt =  listOps.size(redisKey);
+	  	logger.debug("["+redisKey+"] data length: "+dataCnt);
+		
+		try{
 			
 			logger.debug("[list.size-read]"+listOps.size(redisKey));
 			
@@ -142,23 +190,12 @@ public class OrderUpdateTask {
 			} // End loop Redis Data
 			
 			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 		}catch(Exception e){
 			logger.debug("##### Update Order Status Task Exeption Occured");
 			e.printStackTrace();
 		}
 		
-    }
+  }
     
     
     private String cuurentDate(){
