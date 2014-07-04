@@ -27,7 +27,7 @@
     </bean>
     
     <bean name="orderUpdateJob_OUTRO" class="org.springframework.scheduling.quartz.JobDetailBean"
-          p:jobClass="com.isec.sc.intgr.scheduler.OrderCreateJobBean">
+          p:jobClass="com.isec.sc.intgr.scheduler.OrderUpdateJobBean">
         <property name="jobDataAsMap">
             <map >
                 <entry key="orderUpdateTask" value-ref="orderUpdateTask"/>
