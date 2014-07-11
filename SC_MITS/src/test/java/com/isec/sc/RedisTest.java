@@ -192,12 +192,12 @@ public class RedisTest {
 		
 	}
 		
-		@Ignore
+		@Test
 		public void TestOrderCreatePubToWCS(){
 			
 			
 			String wcsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-					+ "<Order DocumentType=\"0001\" EnterpriseCode=\"ISEC\" SellerOrganizationCode=\"JNS\" OrderNo=\"168002\" PaymentStatus=\"AUTHORIZED\" ShipNode=\"ISEC_WH1\">"
+					+ "<Order DocumentType=\"0001\" EnterpriseCode=\"ISEC\" SellerOrganizationCode=\"JNS\" PaymentStatus=\"AUTHORIZED\" ShipNode=\"ISEC_WH1\">"
 					
 					+ "<OrderLines>"
 						+ "<OrderLine OrderedQty=\"1\">"
@@ -221,37 +221,19 @@ public class RedisTest {
 			try{
 
 				
-				// for(int i=0; i<100; i++){
-				listOps.leftPush("ISEC:JNS:order", wcsXML);
+				for(int i=0; i<10; i++){
+					listOps.leftPush("ISEC:JNS:order", wcsXML);
+				}
 				
-				Map<String, String> sendMsgMap = new HashMap<String, String>();
-				sendMsgMap.put("db", redis_ma_index);
-				sendMsgMap.put("type", "order");
-				sendMsgMap.put("key", "ISEC:JNS:order");
-				
-				
+//				Map<String, String> sendMsgMap = new HashMap<String, String>();
+//				sendMsgMap.put("db", redis_ma_index);
+//				sendMsgMap.put("type", "order");
+//				sendMsgMap.put("key", "ISEC:JNS:order");
 				
 				// Java Object(Map) to JSON
-				ObjectMapper mapper = new ObjectMapper();
-				String sendMsg = mapper.writeValueAsString(sendMsgMap);
-				maStringRedisTemplate.convertAndSend(ch_ma_jns_order, sendMsg);
-				
-				// }
-//				Thread tr = new Thread();
-//				tr.sleep(3000);
-				
-//				wcslistOps.leftPush(redis_W_key_ordUpdate_M2S, "{\"orderHeaderKey\":\"2014061716272448539\",\"confirmed\":[{\"qty\":\"1.00\",\"itemId\":\"2500535570001\"},{\"qty\":\"1.00\",\"itemId\":\"2500536180001\"}],\"docType\":\"0001\",\"status\":\"3201\",\"releaseKeys\":[\"2014062418504874241\"],\"orderId\":\"100000056\",\"entCode\":\"Matrix\"}");
-//			
-//				Map<String, String> sendMsgMap2 = new HashMap<String, String>();
-//				sendMsgMap2.put("db", redis_wcs_index);
-//				sendMsgMap2.put("type", "orderUpdate");
-//				sendMsgMap2.put("key", redis_W_key_ordUpdate_M2S);
-//				
-//				// Java Object(Map) to JSON
-//				ObjectMapper mapper2 = new ObjectMapper();
-//				String sendMsg2 = mapper2.writeValueAsString(sendMsgMap2);
-//				maStringRedisTemplate.convertAndSend(ch_ma_jns_orderUpdate, sendMsg2);
-				
+//				ObjectMapper mapper = new ObjectMapper();
+//				String sendMsg = mapper.writeValueAsString(sendMsgMap);
+//				maStringRedisTemplate.convertAndSend(ch_ma_jns_order, sendMsg);
 				
 				
 			}catch(Exception e){

@@ -47,11 +47,18 @@ public class OrderProcessTask {
 	private ValueOperations<String, String> valueOps;
 	
 	
+	
+	/**
+	 * 
+	 * @param redisKey
+	 * @param redisPushKey
+	 * @param redisErrKey
+	 */
     public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
-    	logger.debug("##### createOrder["+redisKey+"] Task Excuted!!!");
+    	logger.debug("##### ["+redisKey+"] createOrder Task Started!!!");
     	logger.debug("##### redisPushKey ["+redisPushKey+"]");
-    	logger.debug("##### redisErrKey["+redisErrKey+"]");
+    	logger.debug("##### redisErrKey ["+redisErrKey+"]");
     	
     	Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -103,13 +110,18 @@ public class OrderProcessTask {
 			logger.debug("##### Create Order Task Exeption Occured");
 			e.printStackTrace();
 		}
-		
     }
     
     
+    /**
+     * 
+     * @param redisKey
+     * @param redisPushKey
+     * @param redisErrKey
+     */
 	public void updateOrderStatus(String redisKey, String redisPushKey, String redisErrKey){
         
-	  	logger.debug("##### createOrder["+redisKey+"] Task Excuted!!!");
+		logger.debug("##### ["+redisKey+"] udpateOrderStatuss Task Started!!!");
 	  	logger.debug("##### redisPushKey ["+redisPushKey+"]");
 	  	logger.debug("##### redisErrKey["+redisErrKey+"]");
 	  	
@@ -130,15 +142,18 @@ public class OrderProcessTask {
 				String keyData = listOps.rightPop(redisKey);
 				logger.debug("[Redis OrderStatus Update Data]"+keyData);
 				
-				
 				// JSON --> HashMap 변환
 				HashMap<String, Object> dataMap = mapper.readValue(keyData, new TypeReference<HashMap<String,Object>>(){});
 				
 				String status = (String)dataMap.get("status");
 				logger.debug("[status]"+status);
 				
-				// 3201: Magento의 OrderStatus가 Order Captured단계 (정상정으로 인보이스가 생성된 상태)
-				// Create Shipment 실행
+				/*
+				 * 3201: Magento - OrderStatus가 Order Captured단계 (정상정으로 인보이스가 생성된 상태)
+				 *       WCS     - OrderStatus가 Inventory Fulfilled단계
+				 *       
+				 * Create Shipment 실행
+				 */
 				if("3201".equals(status)){
 				
 					// createShipment API 호출
@@ -150,33 +165,37 @@ public class OrderProcessTask {
 					logger.debug("[entCode]"+entCode);
 					logger.debug("[orderId]"+orderId);
 					
-					ArrayList<String> releaseKeys = (ArrayList<String>)dataMap.get("releaseKeys");
+					// Order Release Key 조회
+					ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
 					
 					for(int j=0; j<releaseKeys.size(); j++){
 						
-						logger.debug("[releaseKeys]"+releaseKeys.get(i));
+						logger.debug("[releaseKeys]"+releaseKeys.get(j));
 						
-						// Sterling API Call
-						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment(releaseKeys.get(i), docType, entCode, orderId);
+						/**
+						 * TODO:
+						 * 현재는 MITS가 Shipment처리를 담당하나 향후에는 CUBE가 출고지시를 할수 있도록 Release된 주문정보를
+						 * Cube로 전송하고 SC(MITS)는 CUBE의 출고확정정보를 받아 Shipped로 주문의 상태를 변경하는 방식으로 변경필요 
+						 */
+						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment(releaseKeys.get(j), docType, entCode, orderId);
 						
 						String apiStatus = resultMap.get("status");
 						logger.debug("[apiStatus]"+apiStatus);
 						
-						// 에러발생시 별도의 에러키값으로 저장
+						/*
+						 * TODO: Release 번호에 따라 Shipment가 별도로 생성되는 경우는 거의 없음
+						 *       OrderLine별 ShipNode가 다르거나 DeliveryDate가 다른 경우에만 별도로 Shipment가 생성됨
+						 *       이런 경우를 제외하면 CreateShipment는 모든 ReleaseKey에 대해 한번만 수행됨.
+						 *       따라서 루프처리시 발생하는 에러(사실 에러가 아님)와 실제 에러에 대한 구분이 필요. 
+						 */
 						if("0000".equals(apiStatus)){
-							
-							/*
-							 * TODO: Release 번호에 따라 Shipment가 별도로 생성되는 경우는 거의 없음
-							 *       OrderLine별 ShipNode가 다르거나 DeliveryDate가 다른 경우에만 별도로 Shipment가 생성됨
-							 *       이런 경우를 제외하면 CreateShipment는 모든 ReleaseKey에 대해 한번만 수행됨.
-							 *       따라서 루프처리시 발생하는 에러(사실 에러가 아님)와 실제 에러에 대한 구분이 필요. 
-							 */
-							
-							
+							// TODO: 에러처리
 						}else{
 							
-							// confirm shipment 처리 후 Ma로 shipment 정보를 전송하기 위해
-							// Ma의 Key값이 되는 오더번호를 별도로 저장해 놓는다.
+							/**
+							 * confirm shipment 처리 후 Ma로 shipment 정보를 전송하기 위해
+							 * Ma의 Key값이 되는 오더번호를 별도로 저장해 놓는다. 
+							 */
 							String shipmentNo = resultMap.get("shipmentNo");
 							logger.debug("[shipmentNo]"+shipmentNo);
 							
@@ -195,16 +214,16 @@ public class OrderProcessTask {
 			e.printStackTrace();
 		}
 		
-  }
+	}
     
     
-    private String cuurentDate(){
+	private String cuurentDate(){
 		
 		SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat ( "yyyy.MM.dd HH:mm:ss", Locale.KOREA );
 		Date currentTime = new Date ( );
 		String mTime = mSimpleDateFormat.format ( currentTime );
 		
 		return mTime;
-	}
+  	}
 
-}
+  }

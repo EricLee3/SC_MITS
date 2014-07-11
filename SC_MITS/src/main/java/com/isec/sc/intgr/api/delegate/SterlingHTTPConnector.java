@@ -42,7 +42,7 @@ public class SterlingHTTPConnector {
 	public String run() {
 		
 //		System.out.println("========= Input XML Message =========");
-//		System.out.println(data);
+		System.out.println(param);
 		
 		MessageFormat fmt = new MessageFormat(param);
 		String newParam = fmt.format(new String[] { user, password, api, data });

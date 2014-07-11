@@ -8,20 +8,39 @@
     	classpath:quartz-config.xml
     </param-value>
   </context-param>
+  
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+  
   <servlet>
-    <servlet-name>dispatcherServlet</servlet-name>
+    <servlet-name>defaultServlet</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <init-param>
       <param-name>contextConfigLocation</param-name>
-      <param-value>/WEB-INF/mvc-config.xml</param-value>
+      <param-value>/WEB-INF/servlet-config.xml</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+  <servlet>
+    <servlet-name>jsonServlet</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>/WEB-INF/json-config.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  
   <servlet-mapping>
-    <servlet-name>dispatcherServlet</servlet-name>
-    <url-pattern>/</url-pattern>
+    <servlet-name>defaultServlet</servlet-name>
+    <url-pattern>*.do</url-pattern>
+    <url-pattern>/sc/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>jsonServlet</servlet-name>
+    <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
 </web-app>

@@ -11,13 +11,15 @@
             base-package="org.springframework.samples.web"/>  -->
 
 	<context:annotation-config/>
-  
-  	<context:component-scan base-package="com.isec.sc" />
-
-	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-	        <!-- Example: a logical view name of 'showMessage' is mapped to '/WEB-INF/jsp/showMessage.jsp' -->
-	        <property name="prefix" value="/WEB-INF/view/"/>
-	        <property name="suffix" value=".jsp"/>
+  <context:component-scan base-package="com.isec.sc" />
+	
+	<bean id="jspView" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+      <!-- Example: a logical view name of 'showMessage' is mapped to '/WEB-INF/jsp/showMessage.jsp' -->
+      <property name="prefix" value="/WEB-INF/view/"/>
+      <property name="suffix" value=".jsp"/>
 	</bean>
+	
+	
+	
 
 </beans>

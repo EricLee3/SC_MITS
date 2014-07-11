@@ -76,16 +76,16 @@ public class ScOrderShipmentController {
 		String shipmentNo = el.getAttribute("ShipmentNo");
 		
 		String entCode = el.getAttribute("EnterpriseCode");
-		String sellOrgCode = el.getAttribute("SellerOrganizationCode");
+		String sellerCode = el.getAttribute("SellerOrganizationCode");
 		
-		String pushKey = entCode+":"+sellOrgCode+":order:update:S2M";
+		String pushKey = entCode+":"+sellerCode+":order:update:S2M";
 		logger.debug("[pushKey]"+pushKey);
 		
 		
 		logger.debug("[shipmentKey]"+shipmentKey);
 		logger.debug("[shipmentNo]"+shipmentNo);
 		logger.debug("[entCode]"+entCode);
-		logger.debug("[sellOrgCode]"+sellOrgCode);
+		logger.debug("[sellerCode]"+sellerCode);
 		
 		
 		
