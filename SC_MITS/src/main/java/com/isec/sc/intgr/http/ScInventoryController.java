@@ -20,7 +20,7 @@ public class ScInventoryController {
 	private static final Logger logger = LoggerFactory.getLogger(ScInventoryController.class);
 	
 	
-	@RequestMapping(value = "/changeInventory")
+	@RequestMapping(value = "/changeInventory.do")
 	public void changeInventory(@RequestParam(required=false) String returnXML, 
 								  @RequestParam String status,
 								  Model model,

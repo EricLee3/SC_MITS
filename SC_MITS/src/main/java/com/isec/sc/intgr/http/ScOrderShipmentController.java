@@ -53,7 +53,7 @@ public class ScOrderShipmentController {
 	
 
 	
-	@RequestMapping(value = "/shipment")
+	@RequestMapping(value = "/shipment.do")
 	public void shipmentProcess(@RequestParam(required=false) String returnXML,
 								  @RequestParam(required=false) String status,	
 								  HttpServletResponse res) throws Exception{

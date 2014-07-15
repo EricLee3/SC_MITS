@@ -49,7 +49,7 @@ public class ScOrderStatusController {
 	
 	
 	
-	@RequestMapping(value = "/orderUpdate")
+	@RequestMapping(value = "/orderUpdate.do")
 	public void updateOrderStatus(@RequestParam(required=false) String returnXML,
 								  @RequestParam(required=false) String status,	
 								  HttpServletResponse res) throws Exception{
