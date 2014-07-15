@@ -103,8 +103,19 @@ public class ScOrderShipmentController {
 		// Shipment Confirmed
 		}else if("confirmed".equals(status)){
 			
+			// Shipment 기본정보 추출
+			String currency = (String)xp.evaluate("@Currency", el, XPathConstants.STRING);
+			logger.debug("[currency]" + currency);
 			
-			// Released가 된 Item정보 추출
+			String expectedDeliveryDate = (String)xp.evaluate("@ExpectedDeliveryDate", el, XPathConstants.STRING);
+			logger.debug("[expectedDeliveryDate]" + expectedDeliveryDate);
+			
+			String totalActualCharge = (String)xp.evaluate("@TotalActualCharge", el, XPathConstants.STRING);
+			logger.debug("[totalActualCharge]" + totalActualCharge);
+			
+			
+			
+			// Pack Container별 Item정보 추출(N건)
 			NodeList containerNodeList = (NodeList)xp.evaluate("/Shipment/Containers/Container", el, XPathConstants.NODESET);
 			logger.debug("[containerNodeList]"+containerNodeList.getLength());
 			
@@ -126,7 +137,8 @@ public class ScOrderShipmentController {
 				logger.debug("[trackingNo]"+trackingNo);
 				
 				
-				containerMap.put("carrierCode", "custom");
+				// TODO: 배송사코드 MA와 매핑필요
+				containerMap.put("carrierCode", entCode.equals("DA")?"custom":carrierCode);
 				containerMap.put("carrierTitle", carrierCode);
 				containerMap.put("trackingNo", trackingNo);
 				
@@ -165,7 +177,11 @@ public class ScOrderShipmentController {
 			sendMsgMap.put("shipment", containerList);	// 출고정보
 			sendMsgMap.put("status", "3700"); // 오더상태 (Shipped)
 			
-		
+			sendMsgMap.put("expDeliveryDate", expectedDeliveryDate);	// 배송예정일
+			sendMsgMap.put("totalCharge", totalActualCharge);	// 총배송비용
+			sendMsgMap.put("currency", currency);	// 통화
+			
+			
 		}else{
 			
 			res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
