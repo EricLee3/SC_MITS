@@ -76,7 +76,7 @@ public class RedisTest {
 			System.out.println("["+i+"]"+orderList.get(i));
 		}
 		
-		List<String> orderWList = listOps.range("MI:JNS:order", 0, -1);
+		List<String> orderWList = listOps.range("ISEC:JNS:order:update:S2M", 0, -1);
 		System.out.println("[orderlist - JNS]"+orderWList.size());
 		
 		for(int i=0; i<orderWList.size(); i++){
@@ -196,13 +196,24 @@ public class RedisTest {
 		public void TestOrderCreatePubToWCS(){
 			
 			
-			String wcsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-					+ "<Order DocumentType=\"0001\" EnterpriseCode=\"ISEC\" SellerOrganizationCode=\"JNS\" PaymentStatus=\"AUTHORIZED\" ShipNode=\"ISEC_WH1\">"
+			String createOrderXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+					+ "<Order DocumentType=\"0001\" EnterpriseCode=\"ISEC\" SellerOrganizationCode=\"MI\" PaymentStatus=\"AUTHORIZED\" ShipNode=\"ISEC_WH1\""
+					+ " ScacAndServiceKey=\"200409201112576488\">"
 					
 					+ "<OrderLines>"
-						+ "<OrderLine OrderedQty=\"1\">"
+						+ "<OrderLine OrderedQty=\"3\" ScacAndServiceKey=\"19991214183438453\">"
 							+ "<Item ItemID=\"38855\" UnitOfMeasure=\"EACH\" ProductClass=\"GOOD\"/>"
 							+ "<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"398\"/>"
+
+							+ "<LineCharges>"
+								+ "<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10\" ChargePerUnit=\"10\" />"
+								+ "<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5\" ChargePerUnit=\"5\" />"
+                       		+ "</LineCharges>"
+
+							+ "<LineTaxes>"
+								+ "<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" Tax=\"10\" TaxableFlag=\"Y\"/>"
+			                + "</LineTaxes>"
+						
 						+ "</OrderLine>"
 					+ "</OrderLines>"
 					
@@ -218,12 +229,27 @@ public class RedisTest {
 					
 					+ "</Order>";
 			
+			
+			
+			String shipmentXML = "{\"orderId\":\"174004\",\"status\":\"3701\","
+								+ "\"shipment\":[{\"carrierCode\":\"UPS\", \"carrierTitle\":\"UPS\",\"trackingNo\":\"11111\","
+									+ "\"items\":[{\"itemId\":\"Brighton_Sunset Orange_sku\",\"qty\":\"1.00\"}]"
+								+ "}]"
+								+ "}";
+			
+			
+			
+			
+			
 			try{
 
 				
-				for(int i=0; i<10; i++){
-					listOps.leftPush("ISEC:JNS:order", wcsXML);
-				}
+//				for(int i=0; i<10; i++){
+//					listOps.leftPush("ISEC:JNS:order", wcsXML);
+//				}
+				
+				listOps.leftPush("ISEC:JNS:order", createOrderXML);
+//				listOps.leftPush("ISEC:JNS:order:update:S2M", shipm/entXML);
 				
 //				Map<String, String> sendMsgMap = new HashMap<String, String>();
 //				sendMsgMap.put("db", redis_ma_index);
