@@ -95,13 +95,13 @@ public class ScOrderShipmentController {
 		
 		
 		// Shipment Created
-		if("created".equals(status)){
+		if("1100".equals(status)){
 			
 			// TODO: 
 			
 		
 		// Shipment Confirmed
-		}else if("confirmed".equals(status)){
+		}else if("1400".equals(status)){
 			
 			// Shipment 기본정보 추출
 			String currency = (String)xp.evaluate("@Currency", el, XPathConstants.STRING);

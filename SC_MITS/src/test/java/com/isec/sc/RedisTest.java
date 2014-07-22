@@ -224,7 +224,9 @@ public class RedisTest {
 					+ "MobilePhone=\"01042831028\" AddressLine1=\"seoul\" AddressLine2=\"seoul\" City=\"seoul\" Country=\"KR\" ZipCode=\"123456\" />"
 					
 					+ "<PaymentMethods>"
-						+ "<PaymentMethod PaymentType=\"CREDIT_CARD\"/>"
+						+ "<PaymentMethod PaymentType=\"CREDIT_CARD\">"
+							+ "<PaymentDetails ChargeType=\"AUTHORIZATION\" ProcessedAmount=\"1224.00\" />"
+						+ "</PaymentMethod>"
 					+ "</PaymentMethods>"
 					
 					+ "</Order>";
@@ -244,11 +246,13 @@ public class RedisTest {
 			try{
 
 				
+				System.out.println("[createOrderXML]"+createOrderXML);
+				
 //				for(int i=0; i<10; i++){
 //					listOps.leftPush("ISEC:JNS:order", wcsXML);
 //				}
 				
-				listOps.leftPush("ISEC:JNS:order", createOrderXML);
+//				listOps.leftPush("ISEC:JNS:order", createOrderXML);
 //				listOps.leftPush("ISEC:JNS:order:update:S2M", shipm/entXML);
 				
 //				Map<String, String> sendMsgMap = new HashMap<String, String>();

@@ -109,7 +109,6 @@ public class OrderService {
 		    + "</OrderBy> "
 		+ "</Order> ";
 		
-		
 	    MessageFormat msg = new MessageFormat(getOrderList_input);
 		String inputXML = msg.format(new String[] {entCode, sellerCode, orderStatus, orderId} );
 		logger.debug("[inputXML]"+inputXML); 
@@ -186,16 +185,4 @@ public class OrderService {
 		
 	}
 	
-	@RequestMapping(value = "/home.do")
-	public ModelAndView home( @RequestParam(required = false) String param ) throws Exception{ 
-		
-		
-		logger.debug("param: "+param);
-		
-		ModelAndView mav = new ModelAndView("jspView");
-		mav.addObject("message", param);
-		mav.setViewName("showMessage");
-		return mav;
-		
-	}
 }

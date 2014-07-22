@@ -27,7 +27,7 @@ var EcommerceOrders = function () {
                 ],
                 "pageLength": 20, // default record count per page
                 "ajax": {
-                    "url": "/mits/api/getOrderList", // ajax source
+                    "url": "/api/getOrderList", // ajax source
                 },
                 "order": [
                     [2, "asc"]
