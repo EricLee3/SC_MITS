@@ -30,7 +30,7 @@ public class ScInventoryController {
 		logger.debug("[status]"+status);
 		
 		
-		// 1. Sterling Status 
+		// 1. Sterling Status   
 		
 		
 		// 2. Receive Message(retrunXML) Parsing
