@@ -11,6 +11,17 @@ var EcommerceOrders = function () {
     var handleOrders = function () {
 
         var grid = new Datatable();
+        
+        $.extend(true, $.fn.DataTable.TableTools.classes, {
+            "container": "btn-group tabletools-dropdown-on-portlet",
+            "buttons": {
+                "normal": "btn btn-sm default",
+                "disabled": "btn btn-sm default disabled"
+            },
+            "collection": {
+                "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
+            }
+        });
 
         grid.init({
             src: $("#datatable_orders"),
@@ -27,11 +38,14 @@ var EcommerceOrders = function () {
                 ],
                 "pageLength": 20, // default record count per page
                 "ajax": {
-                    "url": "/api/getOrderList", // ajax source
+                    "url": "/orders/orderList.sc"   // ajax source
                 },
                 "order": [
                     [2, "asc"]
-                ] // set first column as a default sort by asc
+                ], // set first column as a default sort by asc
+                
+                //"dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
+                //"dom": "Tlfrtip",
             }
         });
 
