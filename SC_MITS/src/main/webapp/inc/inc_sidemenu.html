@@ -30,8 +30,8 @@
 				</form>
 				<!-- END RESPONSIVE QUICK SEARCH FORM -->
 			</li>
-			<li class="start active ">
-				<a href="${pageContext.request.contextPath}/index.do">
+			<li class="start">
+				<a class="ajaxify start" href="${pageContext.request.contextPath}/index.do">
 				<i class="icon-home"></i>
 				<span class="title">Dashboard</span>
 				<span class="selected"></span>
@@ -41,26 +41,28 @@
 				<a href="javascript:;">
 				<i class="icon-basket"></i>
 				<span class="title">eCommerce</span>
+				<span class="selected">
+				</span>
 				<span class="arrow "></span>
 				</a>
 				<ul class="sub-menu">
 					<li>
-						<a href="${pageContext.request.contextPath}/index.do">
+						<a class="ajaxify" href="/index.do">
 						<i class="icon-home"></i>
 						Dashboard</a>
 					</li>
 					<li>
-						<a href="${pageContext.request.contextPath}/orderList.do">
+						<a class="ajaxify" href="/admin/orders/ecommerce_orders.html">
 						<i class="icon-basket"></i>
 						Orders</a>
 					</li>
 					<li>
-						<a href="${pageContext.request.contextPath}/admin/orders/ecommerce_orders_view.html">
+						<a class="ajaxify" href="/admin/orders/ecommerce_orders_view.html">
 						<i class="icon-tag"></i>
 						Order View</a>
 					</li>
 					<li>
-						<a href="${pageContext.request.contextPath}/admin/orders/ecommerce_products.html">
+						<a class="ajaxify" href="/admin/orders/ecommerce_products.html">
 						<i class="icon-handbag"></i>
 						Products</a>
 					</li>

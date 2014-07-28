@@ -14,6 +14,8 @@ import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +30,8 @@ import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 
 
 @Controller
+@PropertySource("classpath:mits.properties")
+@RequestMapping("/orders")
 public class OrderService {
 
 	private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
@@ -35,8 +39,14 @@ public class OrderService {
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
-	@RequestMapping(value = "/getOrderList")
-	public ModelAndView getOrderList( @RequestParam Map paramMap, @RequestParam(required=false, value="orderNo[]") String[] orderNos ) throws Exception{ 
+	
+	
+	@Autowired	private Environment env;
+	
+	@RequestMapping(value = "/orderList.sc")
+	public ModelAndView getOrderList( @RequestParam Map paramMap,
+							@RequestParam(defaultValue="0000" ) String doc_type,
+							@RequestParam(required=false, value="orderNo[]") String[] orderNos ) throws Exception{ 
 		
 		
 		/*
@@ -83,7 +93,25 @@ public class OrderService {
 		 * bill_to_id=&
 		 * total_amount=&
 		 * order_status=pending
+		 * doc_type
 		 */
+		
+		
+		
+		logger.debug("doc_Type: "+doc_type); 
+		logger.debug("action: "+paramMap.get("action")); 
+		
+		// 페이지 최초접근시 또는 Reset일 경우 API호출하지 않고 바로 리턴처리
+		if( paramMap.get("action") == null){
+			
+			ModelAndView mav = new ModelAndView("jsonView");
+			mav.addObject("data","");
+			mav.addObject("recordsTotal", 0);
+			mav.addObject("recordsFiltered", 0);
+			
+			return mav;
+		}
+		
 		
 		logger.debug("start: "+paramMap.get("start")); 
 		logger.debug("length: "+paramMap.get("length")); 
@@ -102,8 +130,11 @@ public class OrderService {
 		
 		
 		String getOrderList_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
-		+ "<Order DocumentType=\"0001\" "
-		   + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" Status=\"{2}\" OrderNo=\"{3}\" OrderNoQryType=\"LIKE\"> "
+		+ "<Order DocumentType=\""+ doc_type +"\" "
+		   + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" Status=\"{2}\" OrderNo=\"{3}\" "
+		   + "OrderNoQryType=\"LIKE\" "
+		   // Order Date 검색
+		   + "FromOrderDate=\""+paramMap.get("order_date_from")+"\" ToOrderDate=\""+paramMap.get("order_date_to")+"\" OrderDateQryType=\"BETWEEN\" > "
 		   + "<OrderBy> "
 		      + "  <Attribute Desc=\"Y\" Name=\"OrderNo\"/> "
 		    + "</OrderBy> "
@@ -113,6 +144,8 @@ public class OrderService {
 		String inputXML = msg.format(new String[] {entCode, sellerCode, orderStatus, orderId} );
 		logger.debug("[inputXML]"+inputXML); 
 		
+		
+		// API Call
 		String outputXML = sterlingApiDelegate.comApiCall("getOrderList", inputXML);
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 		Element el = doc.getDocumentElement();
@@ -123,9 +156,7 @@ public class OrderService {
 		String tCnt = (String)xp.evaluate("@TotalOrderList", el, XPathConstants.STRING);
 		logger.debug("[tCnt]" + tCnt);
 		
-		
-		
-		
+/*		
 		int iTotalRecords = Integer.parseInt(tCnt);
 		int iDisplayLength = Integer.parseInt( (String)paramMap.get("length") );
 		iDisplayLength = iDisplayLength < 0 ? iTotalRecords:iDisplayLength;
@@ -133,15 +164,14 @@ public class OrderService {
 		int iDisplayStart = Integer.parseInt( (String)paramMap.get("start"));
 		int iEnd = iDisplayStart + iDisplayLength;
 		iEnd = iEnd > iTotalRecords ? iTotalRecords:iEnd;
+*/		
 		
-		
-		HashMap<String, Object> records = new HashMap<String,Object>();
-		
+//		for(int i=iDisplayStart; i<iEnd; i++){
 		
 		NodeList orderNodeList = (NodeList)xp.evaluate("/OrderList/Order", el, XPathConstants.NODESET);
-		
 		ArrayList<Object> data = new ArrayList<Object>();
-		for(int i=iDisplayStart; i<iEnd; i++){
+		
+		for(int i=0; i<orderNodeList.getLength(); i++){
 			
 			
 			String orderNo = (String)xp.evaluate("@OrderNo", orderNodeList.item(i), XPathConstants.STRING);
@@ -151,8 +181,10 @@ public class OrderService {
 			String billToID = (String)xp.evaluate("@BillToID", orderNodeList.item(i), XPathConstants.STRING);
 			String totalAmount = (String)xp.evaluate("@OriginalTotalAmount", orderNodeList.item(i), XPathConstants.STRING);
 			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
+			if("".equals(status)) status = "Draft";
 			
-			
+			String status_class = env.getProperty("ui.status."+status);
+			if( status_class == null) status_class = "default";
 			
 			
 			data.add(new String[] { "<input type=\"checkbox\" name=\"orderNo[]\" value=\""+orderNo+"\">", 
@@ -162,8 +194,8 @@ public class OrderService {
 					sellerOrg,
 					billToID,
 					totalAmount,
-				      "<span class=\"label label-sm label-success\">"+status+"</span>",
-				      "<a href=\"javascript:;\" class=\"btn btn-xs default\"><i class=\"fa fa-search\"></i> View</a>",
+				      "<span class=\"label label-sm label-"+status_class+"\">"+status+"</span>",
+				      "<a href=\"/admin/orders/order_detail.html\"  class=\"btn btn-xs default ajaxify\"><i class=\"fa fa-search\"></i> View</a>",
 					});
 		}
 		
@@ -171,9 +203,11 @@ public class OrderService {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("data",data);
-		mav.addObject("draw", paramMap.get("draw"));
-		mav.addObject("recordsTotal", iTotalRecords);
-		mav.addObject("recordsFiltered", iTotalRecords);
+//		mav.addObject("draw", paramMap.get("draw"));
+//		mav.addObject("recordsTotal", iTotalRecords);
+//		mav.addObject("recordsFiltered", iTotalRecords);
+		mav.addObject("recordsTotal", tCnt);
+		mav.addObject("recordsFiltered", tCnt);
 		
 		String custActionType = (String)paramMap.get("customActionType"); 
 		if ("group_action".equals(custActionType)) {

@@ -401,7 +401,7 @@ License: You must have a valid license purchased only from themeforest(the above
             Metronic.init(); // init metronic core components
 			Layout.init(); // init current layout
     		QuickSidebar.init() // init quick sidebar
-            EcommerceOrders.init();
+            //EcommerceOrders.init();
     		
         });
     </script>

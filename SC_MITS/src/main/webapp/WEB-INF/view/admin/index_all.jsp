@@ -992,7 +992,10 @@ License: You must have a valid license purchased only from themeforest(the above
     	Metronic.init(); // init metronic core components
 		Layout.init(); // init current layout
 		QuickSidebar.init() // init quick sidebar
-           EcommerceIndex.init();
+        EcommerceIndex.init();
+		
+		$('.page-sidebar .ajaxify.start').click() // load the content for the dashboard page.
+		
      });
 </script>
 <!-- END JAVASCRIPTS -->

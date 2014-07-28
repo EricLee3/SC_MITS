@@ -36,11 +36,10 @@
   <servlet-mapping>
     <servlet-name>defaultServlet</servlet-name>
     <url-pattern>*.do</url-pattern>
-    <url-pattern>/sc/*</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
     <servlet-name>jsonServlet</servlet-name>
-    <url-pattern>/api/*</url-pattern>
+    <url-pattern>*.sc</url-pattern>
   </servlet-mapping>
 </web-app>

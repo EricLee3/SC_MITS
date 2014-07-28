@@ -20,21 +20,14 @@ public class DefaultService {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultService.class);
 	
 	
-	@RequestMapping(value = {"/index.do","/"})
-	public ModelAndView home() throws Exception{ 
+	@RequestMapping(value = {"/","/index.do"})
+	public String home() throws Exception{ 
 		
-		ModelAndView mav = new ModelAndView("jspView");
-		mav.setViewName("admin/index");
-		return mav;
+		logger.debug("Redirect Index Page!!!");
+		
+		return "redirect:index.html";
 		
 	}
 	
-	@RequestMapping(value = {"/orderList.do","/"})
-	public ModelAndView orderList() throws Exception{ 
-		
-		ModelAndView mav = new ModelAndView("jspView");
-		mav.setViewName("admin/orders/order_list");
-		return mav;
-		
-	}
+	
 }
