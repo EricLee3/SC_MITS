@@ -11,7 +11,17 @@
             base-package="org.springframework.samples.web"/>  -->
 
 	<context:annotation-config/>
-  <context:component-scan base-package="com.isec.sc" />
+  	<context:component-scan base-package="com.isec.sc" />
+	
+	<context:property-placeholder location="classpath:mits.properties"/>
+	
+	<bean id="sterlingHTTPConnector" class="com.isec.sc.intgr.api.delegate.SterlingHTTPConnector">
+	    <constructor-arg name="url" value="${sc.api.http.url}" />
+	    <constructor-arg name="user" value="${sc.api.user}" />
+	    <constructor-arg name="password" value="${sc.api.password}" />
+	    <constructor-arg name="param" value="${sc.api.http.param}" /> 
+	</bean>
+	
 	
 	<bean id="jspView" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
       <!-- Example: a logical view name of 'showMessage' is mapped to '/WEB-INF/jsp/showMessage.jsp' -->

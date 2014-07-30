@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.util.FileContentReader;
 
 
 
@@ -38,14 +41,19 @@ public class OrderService {
 	
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
-	
-	
-	
 	@Autowired	private Environment env;
+	
+	
+	
+	@Value("${sc.api.createOrder.template}")
+	private String CREATE_ORDER_TEMPLATE;
+	
+	@Value("${sc.api.createOrderLine.template}")
+	private String CREATE_ORDERLINE_TEMPLATE;
 	
 	@RequestMapping(value = "/orderList.sc")
 	public ModelAndView getOrderList( @RequestParam Map paramMap,
-							@RequestParam(defaultValue="0000" ) String doc_type,
+							@RequestParam(defaultValue="0001" ) String doc_type,
 							@RequestParam(required=false, value="orderNo[]") String[] orderNos ) throws Exception{ 
 		
 		
@@ -186,6 +194,7 @@ public class OrderService {
 			String status_class = env.getProperty("ui.status."+status);
 			if( status_class == null) status_class = "default";
 			
+			String linkParam = "docType="+doc_type+"&entCode="+enterPrise+"&orderNo="+orderNo;
 			
 			data.add(new String[] { "<input type=\"checkbox\" name=\"orderNo[]\" value=\""+orderNo+"\">", 
 					orderNo,
@@ -195,7 +204,7 @@ public class OrderService {
 					billToID,
 					totalAmount,
 				      "<span class=\"label label-sm label-"+status_class+"\">"+status+"</span>",
-				      "<a href=\"/admin/orders/order_detail.html\"  class=\"btn btn-xs default ajaxify\"><i class=\"fa fa-search\"></i> View</a>",
+				      "<a href=\"/orders/orderDetail.do?"+linkParam+"\"  class=\"btn btn-xs default ajaxify\"><i class=\"fa fa-search\"></i> View</a>",
 					});
 		}
 		
@@ -217,6 +226,100 @@ public class OrderService {
 		
 		return mav;   
 		
+	}
+	
+	/**
+	 * 오더상세 조회
+	 * 
+	 * @param orderNo 오더번호
+	 * @param entCode 조직코드
+	 * @param docType 주문유형 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/orderDetail.do")
+	public ModelAndView getOrderDetail( @RequestParam String orderNo, @RequestParam String entCode, @RequestParam String docType ) throws Exception{ 
+		
+		// Input XML
+		String getOrderDetail_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
+		+ "<Order DocumentType=\"{0}\" "
+		+ " EnterpriseCode=\"{1}\" OrderNo=\"{2}\" >"
+		+ "</Order> ";
+		
+	    MessageFormat msg = new MessageFormat(getOrderDetail_input);
+		String inputXML = msg.format(new String[] {docType, entCode, orderNo} );
+		logger.debug("[inputXML]"+inputXML); 
+		
+		
+		// API Call
+		String outputXML = sterlingApiDelegate.comApiCall("getOrderDetails", inputXML);
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		Element el = doc.getDocumentElement();
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
+		
+		// XML Parsing
+		HashMap<String, Object> baseInfoMap = new HashMap<String, Object>();
+		
+		String ordreDate = (String)xp.evaluate("@OrderDate", el, XPathConstants.STRING);
+		
+		
+		baseInfoMap.put("orderDate", ordreDate);
+		
+		ModelAndView mav = new ModelAndView("");
+		mav.addObject("orderBaseInfo", baseInfoMap);
+		mav.setViewName("admin/orders/order_detail");
+		return mav;
+	}
+	
+	@RequestMapping(value = "/rerturnCreate.sc")
+	public ModelAndView returnCreate(@RequestParam Map<String, Object> formData){
+		
+		
+		logger.debug("[doc_type]"+formData.get("doc_type"));
+		logger.debug("[ent_code]"+formData.get("ent_code"));
+		logger.debug("[seller_code]"+formData.get("seller_code"));
+		
+		
+		// Generate SC API Input XML	
+		String orderXML = FileContentReader.readContent(getClass().getResourceAsStream(CREATE_ORDER_TEMPLATE));
+		String orderLineXML = FileContentReader.readContent(getClass().getResourceAsStream(CREATE_ORDERLINE_TEMPLATE));
+		String orderLineText = "";
+		
+		for(int i=0; i<3; i++)
+		{
+			MessageFormat msg = new MessageFormat(orderLineXML);
+			orderLineText += msg.format(new String[] {"3","ASOS0001","Shirts"} );
+			logger.debug("[createShipment intputXML]"+orderLineText);
+		}
+		
+		
+		
+	    MessageFormat msg = new MessageFormat(orderXML);
+		String inputXML = msg.format(new String[] {"0003","DA","OUTRO","","USER1",
+													"ISEC_WH1",orderLineText,
+													"hong","gil-dong","123-4567",
+													"010-123-4567","","","","","" } );
+		logger.debug("[inputXML]"+inputXML); 
+		
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		String outputXML =  "";
+		String succ = "Y";
+		
+		try{
+		
+			// API Call
+			outputXML = sterlingApiDelegate.comApiCall("createOrder", inputXML);
+		
+		}catch(Exception e){
+			succ = "N";
+		}
+		
+		
+		mav.addObject("success", succ);
+		mav.addObject("outputXML", outputXML);
+		return mav;
 	}
 	
 }

@@ -539,7 +539,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				</li>
 				
 				<li>
-					<a href="javascript:;">
+					<a href="#order">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
 					오더관리 </span>
@@ -568,8 +568,8 @@ License: You must have a valid license purchased only from themeforest(the above
 					</ul>
 				</li>
 				
-				<li class="last">
-					<a href="javascript:;">
+				<li>
+					<a href="#shipment">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
 					출고관리 </span>
@@ -598,17 +598,21 @@ License: You must have a valid license purchased only from themeforest(the above
 					</ul>
 				</li>
 				
-				<li>
-					<a href="javascript:;">
+				<li class="last">
+					<a href="#return">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
 					반풒오더 관리 </span>
 					<span class="selected">
 					</span>
-					<span class="arrow open">
+					<span class="arrow">
 					</span>
 					</a>
 					<ul class="sub-menu">
+						<li>
+							<a class="ajaxify" href="/admin/returns/return_order_regist.html">
+							반품오더 접수 </a>
+						</li>
 						<li>
 							<a class="ajaxify" href="/admin/returns/return_order_list.html">
 							반품오더 조회 </a>
@@ -617,14 +621,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							<a class="ajaxify" href="layout_ajax_content_3.html">
 							Ajax Link Sample 2 </a>
 						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 3 </a>
-						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 4 </a>
-						</li>
+						
 					</ul>
 				</li>
 				
@@ -713,6 +710,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	</div>
 	<!-- END CONTENT -->
 	<!-- BEGIN QUICK SIDEBAR -->
+	<!-- 
     <a href="javascript:;" class="page-quick-sidebar-toggler"><i class="icon-close"></i></a>
     <div class="page-quick-sidebar-wrapper">
         <div class="page-quick-sidebar">            
@@ -1362,6 +1360,7 @@ License: You must have a valid license purchased only from themeforest(the above
             </div>
         </div>
     </div>
+    -->
 <!-- END QUICK SIDEBAR -->
 </div>
 <!-- END CONTAINER -->
@@ -1397,24 +1396,44 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- END CORE PLUGINS -->
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 <script type="text/javascript" src="../../assets/global/plugins/select2/select2.min.js"></script>
-
 <!-- END PAGE LEVEL PLUGINS -->
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
 <script src="../../assets/global/scripts/metronic.js" type="text/javascript"></script>
 <script src="../../assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
 <script src="../../assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
 
+<!-- for using browser history function -->
+<script src="../../assets/admin/custom/jquery.address-1.5.min.js" type="text/javascript"></script>
 
-	<script>
-		jQuery(document).ready(function() {    
-		   		Metronic.init(); // init metronic core components
-				Layout.init(); // init current layout
-				QuickSidebar.init() // init quick sidebar
-		   		$('.page-sidebar .ajaxify.start').click() // load the content for the dashboard page.
-		   		
-		});
-	</script>
-	<!-- END JAVASCRIPTS -->
-	</body>
-	<!-- END BODY -->
-	</html>
+<script src="../../assets/admin/pages/scripts/custom.js" type="text/javascript"></script>
+
+<script>
+	jQuery(document).ready(function() {    
+	   		Metronic.init(); // init metronic core components
+			Layout.init(); // init current layout
+			QuickSidebar.init() // init quick sidebar
+			
+			Custom.init();
+			
+	   		$('.page-sidebar .ajaxify.start').click() // load the content for the dashboard page.
+	   		
+	   		$.address.change(function(event) {  
+	   		    // do something depending on the event.value property, e.g.  
+	   		    // $('#content').load(event.value + '.xml');  
+	   		    
+	   		    //alert(event.value);
+	   		 	$('.page-sidebar .ajaxify[href="'+event.value+'"]').click();
+	   		 
+	   		});  
+	   		$('a').click(function() {  
+	   			
+	   			//if($(this).attr('href').indexOf("#") > -1) return;
+	   		    $.address.value($(this).attr('href'));  
+	   		});
+	   		
+	});
+</script>
+<!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

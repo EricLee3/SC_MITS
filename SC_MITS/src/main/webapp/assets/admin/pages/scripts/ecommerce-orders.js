@@ -12,16 +12,16 @@ var EcommerceOrders = function () {
 
         var grid = new Datatable();
         
-//        $.extend(true, $.fn.DataTable.TableTools.classes, {
-//            "container": "btn-group tabletools-dropdown-on-portlet",
-//            "buttons": {
-//                "normal": "btn btn-sm default",
-//                "disabled": "btn btn-sm default disabled"
-//            },
-//            "collection": {
-//                "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
-//            }
-//        });
+        $.extend(true, $.fn.DataTable.TableTools.classes, {
+            "container": "btn-group tabletools-dropdown-on-portlet",
+            "buttons": {
+                "normal": "btn btn-sm default",
+                "disabled": "btn btn-sm default disabled"
+            },
+            "collection": {
+                "container": "DTTT_dropdown dropdown-menu tabletools-dropdown-menu"
+            }
+        });
 
         grid.init({
             src: $("#datatable_orders"),
@@ -37,24 +37,13 @@ var EcommerceOrders = function () {
                     [10, 50, 100, 150, "All"] // change per page values here
                 ],
                 "pageLength": 10, // default record count per page
-                "pagingType": "bootstrap_full_number", // pagination type(bootstrap, bootstrap_full_number or bootstrap_extended)
                 "ajax": {
                     "url": "/orders/orderList.sc"   // ajax source
                 },
                 "bServerSide":false,
                 //"dom": "<'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'>>", // datatable layout
                 "dom":"<'row'<'col-md-8 col-sm-12'l><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
-                "language": { // language settings
-                    "infoEmpty": "",
-                    "paginate": {
-                        //"previous": "Prev",
-                        //"next": "Next",
-                        //"last": "Last",
-                        //"first": "First",
-                        ///"page": "Page",
-                        //"pageOf": "of"
-                    }
-                },
+                
                 
 //                "tableTools": {
 //                    "sSwfPath": "../../assets/global/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
@@ -99,6 +88,9 @@ var EcommerceOrders = function () {
                 
             }
         });
+        
+        var tableWrapper = $('#datatable_orders_wrapper'); // datatable creates the table wrapper by adding with id {your_table_jd}_wrapper
+        tableWrapper.find('.dataTables_length select').select2(); // initialize select2 dropdown
 
         // handle group actionsubmit button click
         grid.getTableWrapper().on('click', '.table-group-action-submit', function (e) {

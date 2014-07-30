@@ -204,12 +204,12 @@ var EcommerceOrdersView = function () {
 
         //main function to initiate the module
         init: function () {
-            initPickers();
-
-            handleInvoices();
-            handleCreditMemos();
-            handleShipment();
-            handleHistory();
+//            initPickers();
+//
+//            handleInvoices();
+//            handleCreditMemos();
+//            handleShipment();
+//            handleHistory();
         }
 
     };

@@ -16,11 +16,11 @@
 	<context:property-placeholder location="classpath:mits.properties"/>
 	
 	<bean id="sterlingHTTPConnector" class="com.isec.sc.intgr.api.delegate.SterlingHTTPConnector">
-    <constructor-arg name="url" value="${sc.api.http.url}" />
-    <constructor-arg name="user" value="${sc.api.user}" />
-    <constructor-arg name="password" value="${sc.api.password}" />
-    <constructor-arg name="param" value="${sc.api.http.param}" /> 
-  </bean>
+	    <constructor-arg name="url" value="${sc.api.http.url}" />
+	    <constructor-arg name="user" value="${sc.api.user}" />
+	    <constructor-arg name="password" value="${sc.api.password}" />
+	    <constructor-arg name="param" value="${sc.api.http.param}" /> 
+	</bean>
 	
 	<bean id="viewResolver"	class="org.springframework.web.servlet.view.BeanNameViewResolver" />
 	<bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/>
