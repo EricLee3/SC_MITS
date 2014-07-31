@@ -215,11 +215,11 @@
 <script type="text/javascript" src="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 
-<script src="../../assets/global/scripts/datatable.js"></script>
-<script src="../../assets/admin/pages/scripts/ecommerce-orders.js"></script>
+<script src="../../assets/global/scripts/custom-datatable.js"></script>
+<script src="../../assets/admin/pages/scripts/custom-ecommerce-orders.js"></script>
 <script>
 	jQuery(document).ready(function() {    
-		EcommerceOrders.init();
+		EcommerceOrders.init('#datatable_orders');
 		
 		
 	    var table = $('#datatable_orders').dataTable();

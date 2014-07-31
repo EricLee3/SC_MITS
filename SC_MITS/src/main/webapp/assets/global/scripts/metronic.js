@@ -11,14 +11,7 @@ var Metronic = function () {
 
     var resizeHandlers = [];
 
-
-    
-    /*
-     * Modify by ykjang
-     */
-//  var assetsPath = '../../assets/';
-    var contextRoot = '/';
-    var assetsPath = contextRoot + 'assets/';
+    var assetsPath = '../../assets/';
 
     var globalImgPath = assetsPath + 'global/img/';
 
@@ -684,6 +677,10 @@ var Metronic = function () {
 
         getAssetsPath: function () {
             return assetsPath;
+        },    
+
+        setAssetsPath: function(path) {
+            assetsPath = path;
         },
 
         getGlobalImgPath: function () {
@@ -697,7 +694,9 @@ var Metronic = function () {
             } else {
                 return '';
             }
-        }
+        },
+
+
 
     };
 

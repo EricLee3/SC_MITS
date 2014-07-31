@@ -250,16 +250,6 @@ Page Header
 .page-sidebar .page-sidebar-menu > li.active.open > a > .arrow.open:before {
   color: white;
 }
-.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected,
-.page-sidebar .page-sidebar-menu > li.active > a > .selected,
-.page-sidebar .page-sidebar-menu > li.active.open > a > .selected {
-  background-image: url("../../img/sidebar-menu-arrow.png");
-}
-.page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-reversed
-.page-sidebar .page-sidebar-menu > li.active > a > .selected, .page-sidebar-reversed
-.page-sidebar .page-sidebar-menu > li.active.open > a > .selected {
-  background-image: url("../../img/sidebar-menu-arrow-reverse.png");
-}
 .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active + li > a,
 .page-sidebar .page-sidebar-menu > li.active + li > a {
   border-top-color: transparent;
@@ -661,26 +651,28 @@ Page Footer
 .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected,
 .page-sidebar .page-sidebar-menu > li.active.open > a > .selected,
 .page-sidebar .page-sidebar-menu > li.active > a > .selected {
-  background-image: url("../../img/sidebar_arrow_icon_light.png");
-}
-.page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-sidebar-reversed
-.page-sidebar .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-reversed
-.page-sidebar .page-sidebar-menu > li.active > a > .selected {
-  background-image: url("../../img/sidebar_arrow_icon_light_rtl.png");
-}
-.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected,
-.page-sidebar .page-sidebar-menu > li.active.open > a > .selected,
-.page-sidebar .page-sidebar-menu > li.active > a > .selected {
-  top: 1px;
-  right: -7px;
-  width: 8px;
-  height: 39px;
+  top: 0px;
+  right: -8px;
+  border-width: 20px 0 20px 8px;
+  border-color: transparent transparent transparent #3fd5c0;
 }
 .page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-sidebar-reversed
 .page-sidebar .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-reversed
 .page-sidebar .page-sidebar-menu > li.active > a > .selected {
   right: auto;
-  left: -7px;
+  left: -8px;
+  border-width: 20px 8px 20px 0;
+  border-color: transparent #3fd5c0 transparent transparent;
+}
+.page-container-bg-solid .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-container-bg-solid .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-container-bg-solid
+.page-sidebar .page-sidebar-menu > li.active.open > a > .selected, .page-container-bg-solid
+.page-sidebar .page-sidebar-menu > li.active > a > .selected {
+  border-color: transparent transparent transparent #3fd5c0;
+}
+.page-container-bg-solid.page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-container-bg-solid.page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-container-bg-solid.page-sidebar-reversed
+.page-sidebar .page-sidebar-menu > li.active.open > a > .selected, .page-container-bg-solid.page-sidebar-reversed
+.page-sidebar .page-sidebar-menu > li.active > a > .selected {
+  border-color: transparent #3fd5c0 transparent transparent;
 }
 .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu li > a,
 .page-sidebar .page-sidebar-menu li > a {

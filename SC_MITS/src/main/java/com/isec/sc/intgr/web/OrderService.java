@@ -51,8 +51,26 @@ public class OrderService {
 	@Value("${sc.api.createOrderLine.template}")
 	private String CREATE_ORDERLINE_TEMPLATE;
 	
+	@RequestMapping(value = "/dashboard.sc")
+	public ModelAndView getDashBoardData(@RequestParam Map<String, String> paramMap) throws Exception{
+		
+		
+		
+		String outputXML = sterlingApiDelegate.comApiCall("getOrderList", "");
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		Element el = doc.getDocumentElement();
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
+		
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		mav.addObject("orderBaseInfo", "");
+		mav.setViewName("admin/orders/order_detail");
+		return mav;
+	}
+	
 	@RequestMapping(value = "/orderList.sc")
-	public ModelAndView getOrderList( @RequestParam Map paramMap,
+	public ModelAndView getOrderList( @RequestParam Map<String, String> paramMap,
 							@RequestParam(defaultValue="0001" ) String doc_type,
 							@RequestParam(required=false, value="orderNo[]") String[] orderNos ) throws Exception{ 
 		
@@ -204,7 +222,7 @@ public class OrderService {
 					billToID,
 					totalAmount,
 				      "<span class=\"label label-sm label-"+status_class+"\">"+status+"</span>",
-				      "<a href=\"/orders/orderDetail.do?"+linkParam+"\"  class=\"btn btn-xs default ajaxify\"><i class=\"fa fa-search\"></i> View</a>",
+				      "<a href=\"/orders/orderDetail.do?"+linkParam+"\"  class=\"btn default btn-xs blue-stripe ajaxify\"><i class=\"fa fa-search\"></i> View</a>",
 					});
 		}
 		
@@ -273,12 +291,37 @@ public class OrderService {
 	}
 	
 	@RequestMapping(value = "/rerturnCreate.sc")
-	public ModelAndView returnCreate(@RequestParam Map<String, Object> formData){
+	public ModelAndView returnCreate(@RequestParam Map<String, String> formData,
+					@RequestParam(required=false, value="itemId[]") String[] itemIds,
+					@RequestParam(required=false, value="itemDesc[]") String[] itemDesc,
+					@RequestParam(required=false, value="itemQty[]") String[] itemQty
+			){
 		
 		
 		logger.debug("[doc_type]"+formData.get("doc_type"));
 		logger.debug("[ent_code]"+formData.get("ent_code"));
 		logger.debug("[seller_code]"+formData.get("seller_code"));
+		
+		String docType = formData.get("doc_type");
+		String entCode = formData.get("ent_code");
+		String sellerCode = formData.get("seller_code");
+		
+		
+		String orderNo = formData.get("order_no");
+		
+		String fName = formData.get("fname");
+		String lName = formData.get("lname");
+		String phone = formData.get("phone");
+		String mPhone = formData.get("mphone");
+		String addr1 = formData.get("addr1");
+		String addr2 = formData.get("addr2");
+		String zipCode = formData.get("zipcode");
+		String city = formData.get("city");
+		String email = formData.get("email");
+		String passwd = formData.get("passwd");
+		
+		String shipNode = "ISEC_WH1";
+		String billToId = "SCUser1";
 		
 		
 		// Generate SC API Input XML	
@@ -286,20 +329,22 @@ public class OrderService {
 		String orderLineXML = FileContentReader.readContent(getClass().getResourceAsStream(CREATE_ORDERLINE_TEMPLATE));
 		String orderLineText = "";
 		
-		for(int i=0; i<3; i++)
+		for(int i=0; i<itemIds.length; i++)
 		{
 			MessageFormat msg = new MessageFormat(orderLineXML);
-			orderLineText += msg.format(new String[] {"3","ASOS0001","Shirts"} );
+			
+			orderLineText += msg.format(new String[] {itemQty[i], itemIds[i], itemDesc[i]} );
 			logger.debug("[createShipment intputXML]"+orderLineText);
 		}
 		
 		
 		
 	    MessageFormat msg = new MessageFormat(orderXML);
-		String inputXML = msg.format(new String[] {"0003","DA","OUTRO","","USER1",
-													"ISEC_WH1",orderLineText,
-													"hong","gil-dong","123-4567",
-													"010-123-4567","","","","","" } );
+		String inputXML = msg.format(new String[] {
+												    docType, entCode, sellerCode, orderNo, billToId,
+												    shipNode,orderLineText,
+													fName,lName,phone, mPhone, email, addr1, addr2, city, zipCode
+												  } );
 		logger.debug("[inputXML]"+inputXML); 
 		
 		

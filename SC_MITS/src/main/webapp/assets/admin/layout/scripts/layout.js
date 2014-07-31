@@ -38,7 +38,7 @@ var Layout = function () {
                     height = sidebar.height() + 20;
                 }
 
-                if ($(window).width() > 1024 && (height + headerHeight + footerHeight) < Metronic.getViewPort().height) {
+                if ((height + headerHeight + footerHeight) <= Metronic.getViewPort().height) {
                     height = Metronic.getViewPort().height - headerHeight - footerHeight;
                 }
             }
@@ -51,7 +51,7 @@ var Layout = function () {
         jQuery('.page-sidebar').on('click', 'li > a', function (e) {
 
             if ($(this).next().hasClass('sub-menu') === false) {
-                if (Metronic.getViewPort().width < 992) { // close the menu on mobile view while laoding a page 
+                if (Metronic.getViewPort().width < 992 && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
                     $('.page-header .responsive-toggler').click();
                 }
                 return;

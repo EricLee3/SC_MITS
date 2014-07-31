@@ -49,8 +49,8 @@ var Datatable = function () {
 
                         // data tables spesific
                         "processing": '<img src="' + Metronic.getGlobalImgPath() + 'loading-spinner-grey.gif"/><span>&nbsp;&nbsp;Loading...</span>',
-                        "lengthMenu": "<span class='seperator'>|</span>View _MENU_ records",
-                        "info": "<span class='seperator'>|</span>Found total _TOTAL_ records",
+//                        "lengthMenu": "<span class='seperator'> | </span>View _MENU_ records",
+//                        "info": "<span class='seperator'> | </span>Found total _TOTAL_ records",
                         "infoEmpty": "No records found to show",
                         "emptyTable": "No data available in table",
                         "zeroRecords": "No matching records found",
@@ -70,7 +70,7 @@ var Datatable = function () {
                         'targets': [0]
                     }],
 
-                    "pagingType": "bootstrap_extended", // pagination type(bootstrap, bootstrap_full_number or bootstrap_extended)
+                    "pagingType": "bootstrap_full_number", // pagination type(bootstrap, bootstrap_full_number or bootstrap_extended)
                     "autoWidth": false, // disable fixed width and enable fluid table
                     "processing": true, // enable/disable display message box on record load
                     "serverSide": true, // enable/disable server side ajax loading
@@ -78,7 +78,7 @@ var Datatable = function () {
                     "ajax": { // define ajax settings
                         "url": "", // ajax URL
                         "type": "POST", // request type
-                        "timeout": 20000,
+                        "timeout": 10000,
                         "data": function (data) { // add request parameters before submit
                             $.each(ajaxParams, function (key, value) {
                                 data[key] = value;
@@ -149,7 +149,8 @@ var Datatable = function () {
             // apply the special class that used to restyle the default datatable
             var tmp = $.fn.dataTableExt.oStdClasses;
 
-            $.fn.dataTableExt.oStdClasses.sWrapper = $.fn.dataTableExt.oStdClasses.sWrapper + " dataTables_extended_wrapper";
+            // $.fn.dataTableExt.oStdClasses.sWrapper = $.fn.dataTableExt.oStdClasses.sWrapper + " dataTables_extended_wrapper";
+            
             $.fn.dataTableExt.oStdClasses.sFilterInput = "form-control input-small input-sm input-inline";
             $.fn.dataTableExt.oStdClasses.sLengthSelect = "form-control input-xsmall input-sm input-inline";
 

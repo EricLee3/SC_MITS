@@ -250,16 +250,6 @@ Page Header
 .page-sidebar .page-sidebar-menu > li.active.open > a > .arrow.open:before {
   color: white;
 }
-.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected,
-.page-sidebar .page-sidebar-menu > li.active > a > .selected,
-.page-sidebar .page-sidebar-menu > li.active.open > a > .selected {
-  background-image: url("../../img/sidebar-menu-arrow.png");
-}
-.page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active > a > .selected, .page-sidebar-reversed .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active.open > a > .selected, .page-sidebar-reversed
-.page-sidebar .page-sidebar-menu > li.active > a > .selected, .page-sidebar-reversed
-.page-sidebar .page-sidebar-menu > li.active.open > a > .selected {
-  background-image: url("../../img/sidebar-menu-arrow-reverse.png");
-}
 .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li.active + li > a,
 .page-sidebar .page-sidebar-menu > li.active + li > a {
   border-top-color: transparent;

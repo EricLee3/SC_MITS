@@ -1,0 +1,371 @@
+<!-- BEGIN PAGE HEADER-->
+<div class="row">
+	<div class="col-md-12">
+		<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+		<h3 class="page-title">
+		반품주문 신청 <small>Sterling OMS</small>
+		</h3>
+		<ul class="page-breadcrumb breadcrumb">
+			<li class="btn-group">
+				<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
+				<span>Actions</span><i class="fa fa-angle-down"></i>
+				</button>
+				<ul class="dropdown-menu pull-right" role="menu">
+					<li>
+						<a href="#">Action</a>
+					</li>
+					<li>
+						<a href="#">Another action</a>
+					</li>
+					<li>
+						<a href="#">Something else here</a>
+					</li>
+					<li class="divider">
+					</li>
+					<li>
+						<a href="#">Separated link</a>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<i class="fa fa-home"></i>
+				<a href="index.html">Home</a>
+				<i class="fa fa-angle-right"></i>
+			</li>
+			<li>
+				<a href="#">Form Stuff</a>
+				<i class="fa fa-angle-right"></i>
+			</li>
+			<li>
+				<a href="#">Form Layouts</a>
+			</li>
+		</ul>
+		<!-- END PAGE TITLE & BREADCRUMB-->
+	</div>
+</div>
+<!-- END PAGE HEADER-->
+<!-- BEGIN PAGE CONTENT-->
+<div class="row">
+	<div class="col-md-12">
+		<div class="portlet box green-seagreen">
+			<div class="portlet-title">
+				<div class="caption">
+					<i class="fa fa-gift"></i>반품 주문 신청서
+				</div>
+				<div class="tools">
+					<a href="javascript:;" class="collapse">
+					</a>
+					<a href="#portlet-config" data-toggle="modal" class="config">
+					</a>
+					<a href="javascript:;" class="reload">
+					</a>
+					<a href="javascript:;" class="remove">
+					</a>
+				</div>
+			</div>
+			<div class="portlet-body form">
+				<!-- BEGIN FORM-->
+				<form class="form-horizontal" id="form_regist">
+					<input name="doc_type" type="hidden" value="0003"/>
+					<input name="ent_code" type="hidden" value="DA"/>
+					<input name="seller_code" type="hidden" value="OUTRO"/>
+				
+				
+					<div class="form-body">
+						<h4 class="form-section">Basic Information</h4>
+						
+						<!-- Alert Message Area -->
+						<div class="alert alert-danger display-hide">
+							<button class="close" data-close="alert"></button>
+							You have some form errors. Please check below.
+						</div>
+						<div class="alert alert-success display-hide">
+							<button class="close" data-close="alert"></button>
+							Your form validation is successful!
+						</div>
+						<!-- Alert Message Area -->
+						
+						<div class="form-group">
+							<label class="control-label col-md-3">First Name <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input type="text" name="fname" data-required="1" class="form-control"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Last Name <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input type="text" name="lname" data-required="1" class="form-control"/>
+							</div>
+						</div>
+						<!-- <div class="form-group">
+							<label class="control-label col-md-3">Email <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input name="email" type="text" class="form-control"/>
+							</div>
+						</div> -->
+						
+						
+						<div class="form-group">
+							<label class="control-label col-md-3">Phone <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input name="phone" type="text" class="form-control"/>
+								<span class="help-block">
+								e.g: (02)1234-5678 </span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label class="control-label col-md-3">Mobile Phone <span class="required">
+									* </span>
+									</label>	
+									<div class="col-md-4">
+										<input name="mphone" type="text" class="form-control"/>
+										<span class="help-block">
+										e.g: 010-1234-5678 </span>
+									</div>
+								</div>
+							</div>
+						</div>
+							
+						<div class="form-group">
+							<label class="control-label col-md-3">Address 1</label>
+							<div class="col-md-8">
+								<input type="text" class="form-control" name="addr1">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Address 2</label>
+							<div class="col-md-8">
+								<input type="text" class="form-control" name="addr2">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">City</label>
+							<div class="col-md-8">
+								<input type="text" class="form-control" name="city">
+								<span class="help-block">
+								e.g: Seoul </span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Postal Code</label>
+							<div class="col-md-8">
+								<input type="text" class="form-control" name="zipcode">
+								<span class="help-block">
+								e.g: 123-456 </span>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="col-md-3 control-label">Email Address</label>
+							<div class="col-md-4">
+								<div class="input-group">
+									<span class="input-group-addon">
+									<i class="fa fa-envelope"></i>
+									</span>
+									<input type="email" class="form-control" placeholder="Email Address">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label">Password<span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<div class="input-group">
+									<input type="password" class="form-control" placeholder="Password" name="passwd">
+									<span class="input-group-addon">
+									<i class="fa fa-user"></i>
+									</span>
+								</div>
+							</div>
+						</div>
+						<!-- <div class="form-group">
+							<label class="control-label col-md-3">URL <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input name="url" type="text" class="form-control"/>
+								<span class="help-block">
+								e.g: http://www.demo.com or http://demo.com </span>
+							</div>
+						</div> 
+						<div class="form-group">
+							<label class="control-label col-md-3">Number <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input name="number" type="text" class="form-control"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Digits <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input name="digits" type="text" class="form-control"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Credit Card <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input name="creditcard" type="text" class="form-control"/>
+								<span class="help-block">
+								e.g: 5500 0000 0000 0004 </span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Occupation&nbsp;&nbsp;</label>
+							<div class="col-md-4">
+								<input name="occupation" type="text" class="form-control"/>
+								<span class="help-block">
+								optional field </span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Select <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<select class="form-control" name="select">
+									<option value="">Select...</option>
+									<option value="Category 1">Category 1</option>
+									<option value="Category 2">Category 2</option>
+									<option value="Category 3">Category 5</option>
+									<option value="Category 4">Category 4</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">Multi Select <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<select class="form-control" name="select_multi" multiple>
+									<option value="Category 1">Category 1</option>
+									<option value="Category 2">Category 2</option>
+									<option value="Category 3">Category 3</option>
+									<option value="Category 4">Category 4</option>
+									<option value="Category 5">Category 5</option>
+								</select>
+								<span class="help-block">
+								select max 3 options, min 1 option </span>
+							</div>
+						</div>
+						-->
+						
+						<h4 class="form-section">Item Information</h4>
+						
+						<div class="form-group">
+							<label class="control-label col-md-3">Order Number <span class="required">
+							* </span>
+							</label>
+							<div class="col-md-4">
+								<input type="text" class="form-control" name="order_no"/>
+								<span class="help-block">
+								e.g: ON0000001 </span>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="control-label col-md-3">Item Id / Quantity
+							</label>
+							<div class="col-md-2">
+								<input type="text" class="form-control" name="itemId[]"/>
+							</div>
+							<div class="col-md-3">
+								<input type="text" class="form-control" name="itemDesc[]"/>
+							</div>
+							<div class="col-md-1">
+								<input type="text" class="form-control" name="itemQty[]"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">
+							</label>
+							<div class="col-md-2">
+								<input type="text" class="form-control" name="itemId[]"/>
+							</div>
+							<div class="col-md-3">
+								<input type="text" class="form-control" name="itemDesc[]"/>
+							</div>
+							<div class="col-md-1">
+								<input type="text" class="form-control" name="itemQty[]"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-md-3">
+							</label>
+							<div class="col-md-2">
+								<input type="text" class="form-control" name="itemId[]"/>
+							</div>
+							<div class="col-md-3">
+								<input type="text" class="form-control" name="itemDesc[]"/>
+							</div>
+							<div class="col-md-1">
+								<input type="text" class="form-control" name="itemQty[]"/>
+							</div>
+						</div>
+						
+					</div>
+					<div class="form-actions fluid">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="col-md-offset-3 col-md-9">
+									<button type="submit" class="btn green" id="btn_return_submit">Submit</button>
+									<button type="button" class="btn default">Cancel</button>
+								</div>
+							</div>
+							<div class="col-md-6">
+							</div>
+						</div>
+					</div>
+				</form>
+				<!-- END FORM-->
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END PAGE CONTENT-->
+
+<script type="text/javascript" src="../../assets/global/plugins/jquery-validation/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/jquery-validation/js/additional-methods.min.js"></script>
+
+<script>
+	jQuery(document).ready(function() {    
+		
+		Custom.setFormValidation('form_regist');
+		
+		$('#btn_return_submit').click(function(event){
+			
+			$.ajax({
+				url: '/orders/rerturnCreate.sc',
+				data: $('#form_regist').serialize(),
+				success:function(data)
+				{
+					
+					alert(data.outputXML);
+					if( data.succ == 'Y'){
+						
+						//$(".page-content").load("/admin/returns/return_order_regist.html");
+						$('.page-sidebar .ajaxify[href="/admin/returns/return_order_list.html"]').click();
+					}
+				}
+			})
+			
+			event.preventDefault();
+			
+		});
+	});
+</script>

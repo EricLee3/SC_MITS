@@ -6,7 +6,7 @@
 		Dashboard <small>dashboard & statistics</small>
 		</h3>
 		<ul class="page-breadcrumb breadcrumb">
-			<li class="btn-group">
+			<!-- <li class="btn-group">
 				<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
 				<span>Actions</span><i class="fa fa-angle-down"></i>
 				</button>
@@ -26,7 +26,7 @@
 						<a href="#">Separated link</a>
 					</li>
 				</ul>
-			</li>
+			</li> -->
 			<li>
 				<i class="fa fa-home"></i>
 				<a href="index.html">Home</a>
@@ -38,6 +38,13 @@
 			</li>
 			<li>
 				<a href="#">Dashboard</a>
+			</li>
+			<li class="pull-right">
+				<div id="dashboard-report-range" class="dashboard-date-range tooltips" data-placement="top" data-original-title="Change dashboard date range">
+					<i class="icon-calendar"></i>
+					<span></span>
+					<i class="fa fa-angle-down"></i>
+				</div>
 			</li>
 		</ul>
 		<!-- END PAGE TITLE & BREADCRUMB-->
@@ -807,10 +814,14 @@
 <script src="../../assets/global/plugins/flot/jquery.flot.resize.js" type="text/javascript"></script>
 <script src="../../assets/global/plugins/flot/jquery.flot.categories.js" type="text/javascript"></script>
 
-<script src="../../assets/admin/pages/scripts/ecommerce-index.js"></script>
+<script src="../../assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script>
+<script src="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.js" type="text/javascript"></script>
+
+<script src="../../assets/admin/pages/scripts/custom-ecommerce-index.js"></script>
 <script>
 	jQuery(document).ready(function() {    
 		 EcommerceIndex.init();
+		 EcommerceIndex.initDashboardDaterange();
 		
 	});
 </script>

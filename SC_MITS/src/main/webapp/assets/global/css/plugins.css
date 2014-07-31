@@ -40,6 +40,14 @@ Bootstrap Datepaginator
   right: 4px !important;
 }
 
+.datepaginator .fa-angle-right:before {
+  content: "\f105";
+}
+
+.datepaginator .fa-angle-left:before {
+  content: "\f104";
+}
+
 /***
 Bootstrap Datepicker
 ***/
@@ -94,6 +102,10 @@ Bootstrap Daterangepicker
 ***/
 .modal-open .daterangepicker {
   z-index: 10055 !important;
+}
+
+.daterangepicker {
+  margin-top: 4px;
 }
 
 .daterangepicker td {
@@ -1116,6 +1128,23 @@ Fullcalendar
   background-color: #eeeeee;
   text-transform: uppercase;
   font-weight: 300;
+}
+.portlet.calendar.light .fc-button {
+  top: -56px;
+  color: #666;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.portlet.calendar.light .fc-button .fc-text-arrow {
+  margin-top: -6px;
+  display: inline-block;
+}
+.portlet.calendar.light .fc-button.fc-state-active, .portlet.calendar.light .fc-button.fc-state-hover {
+  color: #333;
+  border-bottom: 2px solid #45b6af;
+}
+.portlet.calendar.light .fc-button.fc-state-disabled {
+  color: #aaa;
 }
 .portlet.calendar .mobile .fc-button {
   padding: 0px 6px 20px 6px;
