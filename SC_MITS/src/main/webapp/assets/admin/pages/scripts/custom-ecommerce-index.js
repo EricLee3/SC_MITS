@@ -235,6 +235,11 @@ var EcommerceIndex = function () {
             $('#statistics_amounts_tab').on('shown.bs.tab', function (e) {
                 initChart2();
             });
+            
+            // add by jyk
+            $('#statistics_amounts_tab2').on('shown.bs.tab', function (e) {
+                initChart1();
+            });
         },
     
     	initDashboardDaterange: function () {
@@ -285,6 +290,25 @@ var EcommerceIndex = function () {
 	        $('#dashboard-report-range span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
 	        $('#dashboard-report-range').show();
 	    },
+	    
+	    
+	    getOrderOverviewData: function() {
+	    	var table = $('#table_error_order');
+
+	        // begin first table
+	        table.dataTable({
+	        	"processing": false,
+	            "serverSide": true,
+	            "dom":"",
+	            "ajax": "/orders/errorList.sc",
+                "columns": [
+                            { "data": "orderId" },
+                            { "data": "entCode" },
+                            { "data": "sellerCode" },
+                            { "data": "errorDate" }
+                        ]
+	        });
+	    }
 
     };
 

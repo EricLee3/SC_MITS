@@ -40,9 +40,6 @@ public class ScOrderShipmentController {
 	
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
-	@Autowired	private StringRedisTemplate wcsStringRedisTemplate;
-	
-	
 	
 	
 	@Resource(name="maStringRedisTemplate")

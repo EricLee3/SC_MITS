@@ -4,19 +4,24 @@ import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +45,13 @@ public class OrderService {
 	private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 	
 	
+	@Autowired	private StringRedisTemplate maStringRedisTemplate;
+	
+	@Resource(name="maStringRedisTemplate")
+	private ListOperations<String, String> listOps;
+	
+	
+	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	@Autowired	private Environment env;
 	
@@ -51,24 +63,20 @@ public class OrderService {
 	@Value("${sc.api.createOrderLine.template}")
 	private String CREATE_ORDERLINE_TEMPLATE;
 	
-	@RequestMapping(value = "/dashboard.sc")
-	public ModelAndView getDashBoardData(@RequestParam Map<String, String> paramMap) throws Exception{
-		
-		
-		
-		String outputXML = sterlingApiDelegate.comApiCall("getOrderList", "");
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
-		Element el = doc.getDocumentElement();
-		
-		XPath xp = XPathFactory.newInstance().newXPath();
-		
-		
-		ModelAndView mav = new ModelAndView("jsonView");
-		mav.addObject("orderBaseInfo", "");
-		mav.setViewName("admin/orders/order_detail");
-		return mav;
-	}
 	
+	@Value("${sc.api.scheduleOrder.template}")
+	private String SCHEDULE_ORDER_TEMPLATE;
+	
+	
+	/**
+	 * 오더목록조회 (판매오더, 반품오더)
+	 * 
+	 * @param paramMap
+	 * @param doc_type
+	 * @param orderNos
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/orderList.sc")
 	public ModelAndView getOrderList( @RequestParam Map<String, String> paramMap,
 							@RequestParam(defaultValue="0001" ) String doc_type,
@@ -82,7 +90,6 @@ public class OrderService {
 				+ "SellerOrganizationCodeQryType=\"\" SellerOrganizationCode=\"\" ShipNodeQryType=\"\" "
 				+ "ShipNode=\"\" ReceivingNodeQryType=\"\" ReceivingNode=\"\" DeliveryMethod=\"\" "
 				+ "ReqShipDateQryType=\"BETWEEN\" ReqDeliveryDateQryType=\"BETWEEN\" OrderDateQryType=\"BETWEEN\" ></OrderRelease>";
-		
 		 */
 		
 		/**
@@ -103,9 +110,6 @@ public class OrderService {
 		 * customActionType=group_action&
 		 * customActionName=Close&
 		 * id[]=1&id[]=2&id[]=3&id[]=4&id[]=5
-		 * 
-		 * 
-		 * 
 		 * 
 		 * -------일반 Action 일 경우 - 검색
 		 * start=0&
@@ -158,11 +162,13 @@ public class OrderService {
 		String getOrderList_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
 		+ "<Order DocumentType=\""+ doc_type +"\" "
 		   + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" Status=\"{2}\" OrderNo=\"{3}\" "
+		   // 오더번호 검색유형
 		   + "OrderNoQryType=\"LIKE\" "
-		   // Order Date 검색
+		   // 오더생성일  검색
 		   + "FromOrderDate=\""+paramMap.get("order_date_from")+"\" ToOrderDate=\""+paramMap.get("order_date_to")+"\" OrderDateQryType=\"BETWEEN\" > "
+		   // 오더목록 Sorting
 		   + "<OrderBy> "
-		      + "  <Attribute Desc=\"Y\" Name=\"OrderNo\"/> "
+		      + "  <Attribute Desc=\"Y\" Name=\"EnterpriseCode\"/> "
 		    + "</OrderBy> "
 		+ "</Order> ";
 		
@@ -285,11 +291,25 @@ public class OrderService {
 		baseInfoMap.put("orderDate", ordreDate);
 		
 		ModelAndView mav = new ModelAndView("");
+		mav.addObject("docType", docType);
+		mav.addObject("entCode", entCode);
+		mav.addObject("orderNo", orderNo);
+		
 		mav.addObject("orderBaseInfo", baseInfoMap);
+		
 		mav.setViewName("admin/orders/order_detail");
 		return mav;
 	}
 	
+	/**
+	 * 반품오더 생성
+	 * 
+	 * @param formData
+	 * @param itemIds
+	 * @param itemDesc
+	 * @param itemQty
+	 * @return
+	 */
 	@RequestMapping(value = "/rerturnCreate.sc")
 	public ModelAndView returnCreate(@RequestParam Map<String, String> formData,
 					@RequestParam(required=false, value="itemId[]") String[] itemIds,
@@ -367,4 +387,107 @@ public class OrderService {
 		return mav;
 	}
 	
+	/**
+	 * Schedule Order
+	 * 
+	 * 
+	 * @param doc_type 오더유형
+	 * @param ent_code 관리조직코드
+	 * @param order_no 오더번호
+	 * @return
+	 */
+	@RequestMapping(value = "/scheduleOrder.sc")
+	public ModelAndView scheduleOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
+	{
+		
+		logger.debug("##### Schedule Order API Called !!!");
+		
+		logger.debug("##### [doc_type]"+ doc_type);
+		logger.debug("##### [ent_code]"+ ent_code);
+		logger.debug("##### [order_no]"+ order_no);
+		
+		
+		String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
+		
+		String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
+		
+		MessageFormat msg = new MessageFormat(scheduleOrderXML);
+		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, scheduleNrelease} );
+		logger.debug("##### [inputXML]"+inputXML); 
+		
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		String outputMsg =  "";
+		String succ = "Y";
+		
+		try
+		{
+		
+			// API Call
+			outputMsg = sterlingApiDelegate.comApiCall("getOrderList", inputXML);
+			
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+			Element el = doc.getDocumentElement();
+			
+			// TODD: Error 메세지 정규화 작업필요
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+				succ = "N";
+				mav.addObject("errorMsg", outputMsg);
+			}
+		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			succ = "N";
+			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			
+		}
+		mav.addObject("success", succ);
+		mav.addObject("outputMsg", outputMsg);
+		return mav;
+	}
+	
+	
+	@RequestMapping(value = "/errorList.sc")
+	public ModelAndView getOrderErrorList(@RequestParam Map<String, String> paramMap) throws Exception{
+		
+		
+		String entCode = "DA";
+		String sellerCode = "OUTRO";
+		
+		String errListKey = entCode + ":" + sellerCode + ":order:error";
+		
+		
+		/*
+		 * String errorJSON = "{ 'docType':'0001', 'entCode':'DA' 'sellerCode':'OUTRO' orderId:'0001', "
+				+ " orderXML:'<xml>',"
+				+ " errorMsg:'Error Message',"
+				+ " errorDetail:'Error Detail Message',"
+				+ " errorDate:'2013-11-23 14:30' "
+				+ "}";
+		 */
+		 
+		List<String> errorList = listOps.range(errListKey, 0, 6);
+		
+		List<HashMap<String,Object>> dataList = new ArrayList<HashMap<String, Object>>();
+		
+		for( String jsonData:  errorList){
+			
+			HashMap<String,Object> result = new ObjectMapper().readValue(jsonData, HashMap.class);
+			dataList.add(result);
+		}
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		mav.addObject("data",dataList);
+//		mav.addObject("draw", paramMap.get("draw"));
+//		mav.addObject("recordsTotal", iTotalRecords);
+//		mav.addObject("recordsFiltered", iTotalRecords);
+		mav.addObject("recordsTotal", errorList.size());
+		mav.addObject("recordsFiltered", errorList.size());
+		
+		
+		return mav;
+	}
 }
