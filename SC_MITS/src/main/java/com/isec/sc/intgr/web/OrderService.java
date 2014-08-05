@@ -156,6 +156,8 @@ public class OrderService {
 		String entCode = (String)paramMap.get("ent_code");
 		String sellerCode = (String)paramMap.get("seller_code");
 		String orderStatus = (String)paramMap.get("order_status");
+		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
+		
 		String orderId = (String)paramMap.get("order_id");
 		
 		
@@ -283,19 +285,131 @@ public class OrderService {
 		XPath xp = XPathFactory.newInstance().newXPath();
 		
 		// XML Parsing
+		
+		//-------- 1. base info
 		HashMap<String, Object> baseInfoMap = new HashMap<String, Object>();
 		
 		String ordreDate = (String)xp.evaluate("@OrderDate", el, XPathConstants.STRING);
+		// String totalAmount = (String)xp.evaluate("@TotalAdjustmentAmount", el, XPathConstants.STRING);
+		String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", el, XPathConstants.STRING);
+		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
+		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
 		
-		
+		baseInfoMap.put("orderNo", orderNo);
 		baseInfoMap.put("orderDate", ordreDate);
+		baseInfoMap.put("currency", currency);
+		baseInfoMap.put("totalAmount", totalAmount);
+		baseInfoMap.put("paymentType", paymentType);
+		
+		
+		//-------- 2. customer info
+		// CustomerEMailID="" CustomerFirstName="" CustomerLastName="" CustomerPhoneNo
+		HashMap<String, Object> custInfoMap = new HashMap<String, Object>();
+		
+		String custFName = (String)xp.evaluate("@CustomerFirstName", el, XPathConstants.STRING);
+		String custLName = (String)xp.evaluate("@CustomerLastName", el, XPathConstants.STRING);
+		String custEmail = (String)xp.evaluate("@CustomerEMailID", el, XPathConstants.STRING);
+		String custPhone = (String)xp.evaluate("@CustomerPhoneNo", el, XPathConstants.STRING);
+		
+		custInfoMap.put("custName", custFName +" "+ custLName);
+		custInfoMap.put("custEmail", custEmail);
+		custInfoMap.put("custPhone", custPhone);
+		
+		
+		//-------- 3. Bill info / Ship info
+		/*
+			<PersonInfoBillTo AddressID="" AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" 
+			AlternateEmailID="" Beeper="" City="" Company="" Country="" DayFaxNo="" DayPhone="" Department="" 
+			EMailID="" EveningFaxNo="" EveningPhone="" FirstName="" IsAddressVerified="" IsCommercialAddress="" 
+			JobTitle="" LastName="" Latitude="" Longitude="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" 
+			PersonInfoKey="" State="" Suffix="" TaxGeoCode="" Title="" ZipCode=""/>
+		*/
+		HashMap<String, Object> billInfoMap = new HashMap<String, Object>();
+		
+		// Name, Addr1, Addr2, City, State, ZipCode, Phone, MobilePhone, Fax
+		
+		String billFName = (String)xp.evaluate("PersonInfoBillTo/@FirstName", el, XPathConstants.STRING);
+		String billLName = (String)xp.evaluate("PersonInfoBillTo/@LastName", el, XPathConstants.STRING);
+		String billAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", el, XPathConstants.STRING);
+		String billAddr2 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine2", el, XPathConstants.STRING);
+		String billCity = (String)xp.evaluate("PersonInfoBillTo/@City", el, XPathConstants.STRING);
+		String billState = (String)xp.evaluate("PersonInfoBillTo/@State", el, XPathConstants.STRING);
+		String billZipcode = (String)xp.evaluate("PersonInfoBillTo/@ZipCode", el, XPathConstants.STRING);
+		
+		billInfoMap.put("billName", billFName +" "+ billLName);
+		billInfoMap.put("billAddr1", billAddr1);
+		billInfoMap.put("billAddr2", billAddr2);
+		billInfoMap.put("billCity", billCity);
+		billInfoMap.put("billState", billState);
+		billInfoMap.put("billZipcode", billZipcode);
+		
+		
+		//-------- 3. Order Line Info
+		NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", el, XPathConstants.NODESET);
+		
+		List<HashMap<String,String>> orderLineList = new ArrayList<HashMap<String,String>>();
+		for( int i=0; i<orderLineNodeList.getLength(); i++){
+			
+			HashMap<String,String> orderLineMap = new HashMap<String,String>();
+			
+			
+			// Line Basic Info
+			String lineKey = (String)xp.evaluate("@OrderLineKey", orderLineNodeList.item(i), XPathConstants.STRING);
+			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
+			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
+			String qty = (String)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.STRING);
+			String status = (String)xp.evaluate("@Status", orderLineNodeList.item(i), XPathConstants.STRING);
+			String status_class = env.getProperty("ui.status."+status);
+			if( status_class == null) status_class = "default";
+			
+			// Line Price, Charge, Tax Info
+			String lineTatal = (String)xp.evaluate("LinePriceInfo/@LineTotal", orderLineNodeList.item(i), XPathConstants.STRING);
+			String UnitPrice = (String)xp.evaluate("LinePriceInfo/@UnitPrice", orderLineNodeList.item(i), XPathConstants.STRING);
+			String lineShipCharge = (String)xp.evaluate("LineCharges/LineCharge[@ChargeCategory='Shipping' and @ChargeName='Shipping']/@ChargePerLine", orderLineNodeList.item(i), XPathConstants.STRING);
+			String lineDisountCharge = (String)xp.evaluate("LineCharges/LineCharge[@ChargeCategory='Discount' and @ChargeName='Discount']/@ChargePerLine", orderLineNodeList.item(i), XPathConstants.STRING);
+			String lineTax= (String)xp.evaluate("LineTaxes/LineTax[@ChargeCategory='Price']/@Tax", orderLineNodeList.item(i), XPathConstants.STRING);
+			
+			// Item Info
+			String itemId = (String)xp.evaluate("Item/@ItemID", orderLineNodeList.item(i), XPathConstants.STRING);
+			String itemDesc = (String)xp.evaluate("Item/@ItemDesc", orderLineNodeList.item(i), XPathConstants.STRING);
+			String itemdShortDesc = (String)xp.evaluate("Item/@ItemShortDesc", orderLineNodeList.item(i), XPathConstants.STRING);
+			String uom = (String)xp.evaluate("Item/@UnitOfMeasure", orderLineNodeList.item(i), XPathConstants.STRING);
+			String pclass = (String)xp.evaluate("Item/@ProductClass", orderLineNodeList.item(i), XPathConstants.STRING);
+			 
+			orderLineMap.put("lineKey", lineKey);
+			orderLineMap.put("PrimeLineNo", PrimeLineNo);
+			orderLineMap.put("shipNode", shipNode);
+			orderLineMap.put("qty", qty);
+			orderLineMap.put("status", status);
+			orderLineMap.put("status_class", status_class);
+			orderLineMap.put("lineTatal", lineTatal);
+			orderLineMap.put("UnitPrice", UnitPrice);
+			orderLineMap.put("lineShipCharge", lineShipCharge);
+			orderLineMap.put("lineDisount", lineDisountCharge);
+			orderLineMap.put("lineTax", lineTax);
+			
+			orderLineMap.put("itemId", itemId);
+			orderLineMap.put("itemDesc", itemDesc);
+			orderLineMap.put("itemdShortDesc", itemdShortDesc);
+			orderLineMap.put("uom", uom);
+			orderLineMap.put("pclass", pclass);
+			
+			orderLineList.add(orderLineMap);
+		}
+		
+		// TODO: OrderLine Grand Total 계산
+		
 		
 		ModelAndView mav = new ModelAndView("");
 		mav.addObject("docType", docType);
 		mav.addObject("entCode", entCode);
 		mav.addObject("orderNo", orderNo);
 		
-		mav.addObject("orderBaseInfo", baseInfoMap);
+		mav.addObject("baseInfo", baseInfoMap);
+		mav.addObject("custInfo", custInfoMap);
+		mav.addObject("billInfo", billInfoMap);
+		mav.addObject("shipInfo", billInfoMap); // 일단 Bill정보를 Ship정보 그대로 사용
+		mav.addObject("lineInfoList", orderLineList);
 		
 		mav.setViewName("admin/orders/order_detail");
 		return mav;
@@ -469,7 +583,7 @@ public class OrderService {
 				+ "}";
 		 */
 		 
-		List<String> errorList = listOps.range(errListKey, 0, 6);
+		List<String> errorList = listOps.range(errListKey, 0, 7);
 		
 		List<HashMap<String,Object>> dataList = new ArrayList<HashMap<String, Object>>();
 		
@@ -481,11 +595,6 @@ public class OrderService {
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("data",dataList);
-//		mav.addObject("draw", paramMap.get("draw"));
-//		mav.addObject("recordsTotal", iTotalRecords);
-//		mav.addObject("recordsFiltered", iTotalRecords);
-		mav.addObject("recordsTotal", errorList.size());
-		mav.addObject("recordsFiltered", errorList.size());
 		
 		
 		return mav;

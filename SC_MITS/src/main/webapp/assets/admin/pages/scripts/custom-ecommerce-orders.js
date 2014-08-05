@@ -37,6 +37,7 @@ var EcommerceOrders = function () {
                     [20, 50, 100, 150, "All"] // change per page values here
                 ],
                 "pageLength": 20, // default record count per page
+                "serverSide": false, 
                 "ajax": {
                     "url": "/orders/orderList.sc"  // ajax source
                 	

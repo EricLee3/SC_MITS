@@ -33,6 +33,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -59,6 +60,10 @@ public class RedisTest2 {
 	@Resource(name="maStringRedisTemplate")
 	private HashOperations<String, String, Object> hashOps;
 	
+	@Resource(name="maStringRedisTemplate")
+	private ZSetOperations<String, String> zSetOps;
+	
+
 	
 	
 	@Value("${redis.ma.dbindex}")
@@ -69,7 +74,66 @@ public class RedisTest2 {
 	private String ch_ma_jns_order;
 	
 	
+	
+	
 	@Test
+	public void insertPlotChartDataMonth(){
+		
+		String key = "amount:ISEC:ASPB:orders:";
+		
+		/**
+		데이타유형: {"yyyymm":"201408", "count":"150", "amount":"1500.00"}
+		**/
+/*		
+		['01/2013', 4],
+        ['02/2013', 8],
+        ['03/2013', 10],
+        ['04/2013', 12],
+        ['05/2013', 2125],
+        ['06/2013', 324],
+        ['07/2013', 1223],
+        ['08/2013', 1365],
+        ['09/2013', 250],
+        ['10/2013', 999],
+        ['11/2013', 390]
+		*/
+		
+		valueOps.set(key+"201301", "100");
+		valueOps.set(key+"201302", "80");
+		valueOps.set(key+"201303", "30");
+		valueOps.set(key+"201304", "150");
+		valueOps.set(key+"201305", "200");
+		valueOps.set(key+"201306", "300");
+		valueOps.set(key+"201307", "180");
+		valueOps.set(key+"201308", "100");
+		valueOps.set(key+"201309", "120");
+		valueOps.set(key+"201310", "200");
+		valueOps.set(key+"201311", "75");
+		valueOps.set(key+"201312", "50");
+		
+		
+		String outro_key = "amount:DA:OUTRO:orders:";
+		
+		
+		valueOps.set(outro_key+"201301", "200");
+		valueOps.set(outro_key+"201302", "160");
+		valueOps.set(outro_key+"201303", "60");
+		valueOps.set(outro_key+"201304", "300");
+		valueOps.set(outro_key+"201305", "400");
+		valueOps.set(outro_key+"201306", "600");
+		valueOps.set(outro_key+"201307", "360");
+		valueOps.set(outro_key+"201308", "200");
+		valueOps.set(outro_key+"201309", "140");
+		valueOps.set(outro_key+"201310", "555");
+		valueOps.set(outro_key+"201311", "290");
+		valueOps.set(outro_key+"201312", "200");
+		
+		//System.out.println("amount:"+valueOps.increment(key, 150.00));
+		
+	}
+	
+	
+	@Ignore
 	public void TestSetList() {
 		
 		String errorJSON = "{ \"docType\":\"0001\", \"entCode\":\"DA\", \"sellerCode\":\"OUTRO\", \"orderId\":\"0001\", "

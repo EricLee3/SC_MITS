@@ -4,7 +4,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
 <!DOCTYPE html>
-<!-- 
+<!--  
 Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.2.0
 Version: 3.1.1
 Author: KeenThemes
@@ -67,7 +67,6 @@ License: You must have a valid license purchased only from themeforest(the above
 	<!-- BEGIN SIDEBAR -->
 	<%@ include file="/inc/inc_sidemenu.html" %>
 	<!-- END SIDEBAR -->
-	<!-- BEGIN CONTENT -->
 	<!-- BEGIN CONTENT -->
 	<div class="page-content-wrapper">
 		<div class="page-content">

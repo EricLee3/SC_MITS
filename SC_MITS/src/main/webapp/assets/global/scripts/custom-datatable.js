@@ -197,11 +197,34 @@ var Datatable = function () {
                 e.preventDefault();
                 the.submitFilter();
             });
-
+            
             // handle filter cancel button click
             table.on('click', '.filter-cancel', function (e) {
                 e.preventDefault();
                 the.resetFilter();
+            });
+            
+            
+            // add by jyk
+            table.on('keyup', 'input.form-filter', function (e) {
+            	
+            	if(e.keyCode == 13){
+            		
+            		if($(this).val() == "") return;
+            		
+                	e.preventDefault();
+                	the.submitFilter();
+                
+            	}
+            });
+            
+            // add by jyk
+            table.on('change', 'select.form-filter', function (e) {
+            	
+            	if($(this).val() == "") return;
+            	
+            	e.preventDefault();
+            	the.submitFilter();
             });
         },
 

@@ -1,7 +1,7 @@
 var EcommerceIndex = function () {
 
-    function showTooltip(x, y, labelX, labelY) {
-        $('<div id="tooltip" class="chart-tooltip">' + (labelY.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')) + 'USD<\/div>').css({
+    function showTooltip(x, y, labelX, labelY, lastLabel) {
+        $('<div id="tooltip" class="chart-tooltip">' + (labelY.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')) + lastLabel+'<\/div>').css({
             position: 'absolute',
             display: 'none',
             top: y - 40,
@@ -11,28 +11,22 @@ var EcommerceIndex = function () {
             'background-color': '#fff'
         }).appendTo("body").fadeIn(200);
     }
+    
+    
+    function gd(year, month, day) {
+        return new Date(year, month - 1, day).getTime();
+    }
 
-    var initChart1 = function () {
-
-        var data = [
-            ['01/2013', 4],
-            ['02/2013', 8],
-            ['03/2013', 10],
-            ['04/2013', 12],
-            ['05/2013', 2125],
-            ['06/2013', 324],
-            ['07/2013', 1223],
-            ['08/2013', 1365],
-            ['09/2013', 250],
-            ['10/2013', 999],
-            ['11/2013', 390]
-        ];
+    
+    var orderCountChart = function (data1, data2) {
+    	
 
             var plot_statistics = $.plot(
                 $("#statistics_1"), 
                 [
                     {
-                        data:data,
+                        data:data1,
+                        label: "AspenBay",
                         lines: {
                             fill: 0.6,
                             lineWidth: 0
@@ -40,7 +34,17 @@ var EcommerceIndex = function () {
                         color: ['#f89f9f']
                     },
                     {
-                        data: data,
+                        data:data2,
+                        label: "Outro",
+                        lines: {
+                            fill: 0.6,
+                            lineWidth: 0
+                        },
+                        color: ['#BAD9F5']
+                    },
+                    
+                    {
+                        data: data1,
                         points: {
                             show: true,
                             fill: true,
@@ -50,12 +54,50 @@ var EcommerceIndex = function () {
                         },
                         color: '#fff',
                         shadowSize: 0
+                    },
+                    {
+                        data: data2,
+                        points: {
+                            show: true,
+                            fill: true,
+                            radius: 5,
+                            fillColor: "#BAD9F5",
+                            lineWidth: 3
+                        },
+                        color: '#fff',
+                        shadowSize: 0
                     }
+                   
                 ], 
+                
+                
                 {
-
+                	
+                	
+                	series: {
+                        lines: {
+                            show: true,
+//                            lineWidth: 2,
+//                            fill: true,
+//                            fillColor: {
+//                                colors: [{
+//                                        opacity: 0.5
+//                                    }, {
+//                                        opacity: 0.1
+//                                    }
+//                                ]
+//                            }
+                        },
+                        points: {
+//                            show: true,
+//                            radius: 3,
+//                            lineWidth: 1
+                        },
+                        shadowSize: 2
+                    },
+                	
                     xaxis: {
-                        tickLength: 0,
+                    	tickLength: 0,
                         tickDecimals: 0,                        
                         mode: "categories",
                         min: 2,
@@ -91,7 +133,7 @@ var EcommerceIndex = function () {
                         mouseActiveRadius: 6
                     },
                     legend: {
-                        show: false
+                        show: true
                     }
                 }
             );
@@ -109,7 +151,7 @@ var EcommerceIndex = function () {
                         var x = item.datapoint[0].toFixed(2),
                             y = item.datapoint[1].toFixed(2);
 
-                        showTooltip(item.pageX, item.pageY, item.datapoint[0], item.datapoint[1]);
+                        showTooltip(item.pageX, item.pageY, item.datapoint[0], item.datapoint[1], '건');
                     }
                 } else {
                     $("#tooltip").remove();
@@ -119,127 +161,181 @@ var EcommerceIndex = function () {
 
     }
 
-    var initChart2 = function() {
+    var orderAmountChart = function (data1, data2) {
+    	
 
-        var data = [
-            ['01/2013', 10],
-            ['02/2013', 0],
-            ['03/2013', 10],
-            ['04/2013', 12],
-            ['05/2013', 212],
-            ['06/2013', 324],
-            ['07/2013', 122],
-            ['08/2013', 136],
-            ['09/2013', 250],
-            ['10/2013', 99],
-            ['11/2013', 190]
-        ];
-
-            var plot_statistics = $.plot(
-                $("#statistics_2"), 
-                [
-                    {
-                        data:data,
-                        lines: {
-                            fill: 0.6,
-                            lineWidth: 0
-                        },
-                        color: ['#BAD9F5']
-                    },
-                    {
-                        data: data,
-                        points: {
-                            show: true,
-                            fill: true,
-                            radius: 5,
-                            fillColor: "#BAD9F5",
-                            lineWidth: 3
-                        },
-                        color: '#fff',
-                        shadowSize: 0
-                    }
-                ], 
+        var plot_statistics = $.plot(
+            $("#statistics_2"), 
+            [
                 {
-
-                    xaxis: {
-                        tickLength: 0,
-                        tickDecimals: 0,                        
-                        mode: "categories",
-                        min: 2,
-                        font: {
-                            lineHeight: 14,
-                            style: "normal",
-                            variant: "small-caps",
-                            color: "#6F7B8A"
-                        }
+                    data:data1,
+                    label: "AspenBay",
+                    lines: {
+                        fill: 0.6,
+                        lineWidth: 0
                     },
-                    yaxis: {
-                        ticks: 3,
-                        tickDecimals: 0,
-                        tickColor: "#f0f0f0",
-                        font: {
-                            lineHeight: 14,
-                            style: "normal",
-                            variant: "small-caps",
-                            color: "#6F7B8A"
-                        }
+                    color: ['#f89f9f']
+                },
+                {
+                    data:data2,
+                    label: "Outro",
+                    lines: {
+                        fill: 0.6,
+                        lineWidth: 0
                     },
-                    grid: {
-                        backgroundColor: {
-                            colors: ["#fff", "#fff"]
-                        },
-                        borderWidth: 1,
-                        borderColor: "#f0f0f0",
-                        margin: 0,
-                        minBorderMargin: 0,
-                        labelMargin: 20,
-                        hoverable: true,
-                        clickable: true,
-                        mouseActiveRadius: 6
+                    color: ['#BAD9F5']
+                },
+                
+                {
+                    data: data1,
+                    points: {
+                        show: true,
+                        fill: true,
+                        radius: 5,
+                        fillColor: "#f89f9f",
+                        lineWidth: 3
                     },
-                    legend: {
-                        show: false
-                    }
+                    color: '#fff',
+                    shadowSize: 0
+                },
+                {
+                    data: data2,
+                    points: {
+                        show: true,
+                        fill: true,
+                        radius: 5,
+                        fillColor: "#BAD9F5",
+                        lineWidth: 3
+                    },
+                    color: '#fff',
+                    shadowSize: 0
                 }
-            );
-
-            var previousPoint = null;
-
-            $("#statistics_2").bind("plothover", function (event, pos, item) {
-                $("#x").text(pos.x.toFixed(2));
-                $("#y").text(pos.y.toFixed(2));
-                if (item) {
-                    if (previousPoint != item.dataIndex) {
-                        previousPoint = item.dataIndex;
-
-                        $("#tooltip").remove();
-                        var x = item.datapoint[0].toFixed(2),
-                            y = item.datapoint[1].toFixed(2);
-
-                       showTooltip(item.pageX, item.pageY, item.datapoint[0], item.datapoint[1]);
+               
+            ], 
+            
+            
+            {
+            	
+            	
+            	series: {
+                    lines: {
+                        show: true,
+//                        lineWidth: 2,
+//                        fill: true,
+//                        fillColor: {
+//                            colors: [{
+//                                    opacity: 0.5
+//                                }, {
+//                                    opacity: 0.1
+//                                }
+//                            ]
+//                        }
+                    },
+                    points: {
+//                        show: true,
+//                        radius: 3,
+//                        lineWidth: 1
+                    },
+                    shadowSize: 2
+                },
+            	
+                xaxis: {
+                	tickLength: 0,
+                    tickDecimals: 0,                        
+                    mode: "categories",
+                    min: 2,
+                    font: {
+                        lineHeight: 15,
+                        style: "normal",
+                        variant: "small-caps",
+                        color: "#6F7B8A"
                     }
-                } else {
+                },
+                yaxis: {
+                    ticks: 3,
+                    tickDecimals: 0,
+                    tickColor: "#f0f0f0",
+                    font: {
+                        lineHeight: 15,
+                        style: "normal",
+                        variant: "small-caps",
+                        color: "#6F7B8A"
+                    }
+                },
+                grid: {
+                    backgroundColor: {
+                        colors: ["#fff", "#fff"]
+                    },
+                    borderWidth: 1,
+                    borderColor: "#f0f0f0",
+                    margin: 0,
+                    minBorderMargin: 0,
+                    labelMargin: 20,
+                    hoverable: true,
+                    clickable: true,
+                    mouseActiveRadius: 6
+                },
+                legend: {
+                    show: true
+                }
+            }
+        );
+
+        var previousPoint = null;
+
+        $("#statistics_2").bind("plothover", function (event, pos, item) {
+            $("#x").text(pos.x.toFixed(2));
+            $("#y").text(pos.y.toFixed(2));
+            if (item) {
+                if (previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+
                     $("#tooltip").remove();
-                    previousPoint = null;
-                }
-            });
+                    var x = item.datapoint[0].toFixed(2),
+                        y = item.datapoint[1].toFixed(2);
 
-    }
+                    showTooltip(item.pageX, item.pageY, item.datapoint[0], item.datapoint[1], '');
+                }
+            } else {
+                $("#tooltip").remove();
+                previousPoint = null;
+            }
+        });
+
+}
+    
+    
+    // Order Chart Data
+    var chartData = new Object();
+    
 
     return {
-
+    	
+    	
         //main function
         init: function () {
-            initChart1();
-
-            $('#statistics_amounts_tab').on('shown.bs.tab', function (e) {
-                initChart2();
+        	
+        	$.ajax({
+				url: '/reports/getOrderReportByCh.sc',
+				data: $('#form_regist').serialize(),
+				success:function(jsonData)
+				{
+					chartData = jsonData;
+					
+					orderCountChart(chartData.data.ASPB.count, chartData.data.OUTRO.count);
+				}
+			});
+        	
+        	
+        	$('#statistics_amounts_tab1').on('shown.bs.tab', function (e) {
+                orderCountChart(chartData.data.ASPB.count, chartData.data.OUTRO.count);
+            });
+        	
+            $('#statistics_amounts_tab2').on('shown.bs.tab', function (e) {
+                orderAmountChart(chartData.data.ASPB.amount, chartData.data.OUTRO.amount);
             });
             
-            // add by jyk
-            $('#statistics_amounts_tab2').on('shown.bs.tab', function (e) {
-                initChart1();
-            });
+            
         },
     
     	initDashboardDaterange: function () {
@@ -297,6 +393,9 @@ var EcommerceIndex = function () {
 
 	        // begin first table
 	        table.dataTable({
+	        	"paging":   false,
+	            "ordering": false,
+	            "info":     false,
 	        	"processing": false,
 	            "serverSide": true,
 	            "dom":"",
@@ -308,6 +407,21 @@ var EcommerceIndex = function () {
                             { "data": "errorDate" }
                         ]
 	        });
+	    },
+	    
+	    
+	    setOrderChartData: function(data) {
+	    	chartData = data;
+	    },
+	    
+	    // Tab Chart Ajax Refresh
+	    refreshChart: function(index){
+	    	
+	    	switch(index) {
+	    		case 0: orderAmountChart(chartData.data.ASPB.amount, chartData.data.OUTRO.amount);
+	    		case 1: orderCountChart(chartData.data.ASPB.count, chartData.data.OUTRO.count);
+	    	}
+	    	
 	    }
 
     };

@@ -2,6 +2,7 @@
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+
 <!-- BEGIN PAGE HEADER-->
 <div class="row">
 	<div class="col-md-12">
@@ -10,7 +11,7 @@
 		Order View <small>view order details</small>
 		</h3>
 		<ul class="page-breadcrumb breadcrumb">
-			<li class="btn-group">
+			<!-- <li class="btn-group">
 				<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
 				<span>Actions</span><i class="fa fa-angle-down"></i>
 				</button>
@@ -30,7 +31,7 @@
 						<a href="#">Separated link</a>
 					</li>
 				</ul>
-			</li>
+			</li> -->
 			<li>
 				<i class="fa fa-home"></i>
 				<a href="index.html">Home</a>
@@ -55,11 +56,11 @@
 		<div class="portlet">
 			<div class="portlet-title">
 				<div class="caption">
-					<i class="fa fa-shopping-cart"></i>Order #12313232 <span class="hidden-480">
-					| Dec 27, 2013 7:16:25 ${orderBaseInfo.orderDate}</span>
+					<i class="fa fa-shopping-cart"></i>Order #${orderNo} <span class="hidden-480">
+					| ${baseInfo.orderDate} <!-- Dec 27, 2013 7:16:25 --> </span>
 				</div>
 				<div class="actions">
-					<a href="javascript:history.back();" class="btn default yellow-stripe">
+					<a href="/admin/orders/order_list.html?orderNo=${baseInfo.orderNo}" class="btn default yellow-stripe ajaxify">
 					<i class="fa fa-angle-left"></i>
 					<span class="hidden-480">
 					Back </span>
@@ -72,7 +73,7 @@
 						<i class="fa fa-angle-down"></i>
 						</a>
 						<ul class="dropdown-menu pull-right">
-							<li>
+							<!-- <li>
 								<a href="#">
 								Export to Excel </a>
 							</li>
@@ -89,6 +90,20 @@
 							<li>
 								<a href="#">
 								Print Invoice </a>
+							</li> -->
+							<li>
+								<a href="#">
+								Schedule </a>
+							</li>
+							<li>
+								<a href="#">
+								Release </a>
+							</li>
+							<li class="divider">
+							</li>
+							<li>
+								<a href="#">
+								 Cancel Order</a>
 							</li>
 						</ul>
 					</div>
@@ -101,7 +116,7 @@
 							<a href="#tab_1" data-toggle="tab">
 							Details </a>
 						</li>
-						<li>
+						<!-- <li>
 							<a href="#tab_2" data-toggle="tab">
 							Invoices <span class="badge badge-success">
 							4 </span>
@@ -120,7 +135,7 @@
 						<li>
 							<a href="#tab_5" data-toggle="tab">
 							History </a>
-						</li>
+						</li> -->
 					</ul>
 					<div class="tab-content">
 						<div class="tab-pane active" id="tab_1">
@@ -142,8 +157,8 @@
 													 Order #:
 												</div>
 												<div class="col-md-7 value">
-													 12313232 <span class="label label-info label-sm">
-													Email confirmation was sent </span>
+													 ${baseInfo.orderNo}  <!-- <span class="label label-info label-sm">
+													Email confirmation was sent </span> -->
 												</div>
 											</div>
 											<div class="row static-info">
@@ -151,7 +166,7 @@
 													 Order Date & Time:
 												</div>
 												<div class="col-md-7 value">
-													 Dec 27, 2013 7:16:25 PM
+													 ${baseInfo.orderDate}<!-- Dec 27, 2013 7:16:25 PM -->
 												</div>
 											</div>
 											<div class="row static-info">
@@ -176,7 +191,7 @@
 													 Payment Information:
 												</div>
 												<div class="col-md-7 value">
-													 Credit Card
+													 ${baseInfo.paymentType }
 												</div>
 											</div>
 										</div>
@@ -289,12 +304,12 @@
 									<div class="portlet grey-cascade box">
 										<div class="portlet-title">
 											<div class="caption">
-												<i class="fa fa-cogs"></i>Shopping Cart
+												<i class="fa fa-cogs"></i>OrderLine
 											</div>
-											<div class="actions">
+											<!-- <div class="actions">
 												<a href="#" class="btn btn-default btn-sm">
 												<i class="fa fa-pencil"></i> Edit </a>
-											</div>
+											</div> -->
 										</div>
 										<div class="portlet-body">
 											<div class="table-responsive">
@@ -302,25 +317,31 @@
 												<thead>
 												<tr>
 													<th>
-														 Product
+														 No.
 													</th>
 													<th>
-														 Item Status
+														 ItemId
 													</th>
 													<th>
-														 Original Price
+														 Line Status
 													</th>
 													<th>
-														 Price
+														 Description
 													</th>
 													<th>
 														 Quantity
 													</th>
 													<th>
-														 Tax Amount
+														 UnitPrice
 													</th>
 													<th>
-														 Tax Percent
+														 ShipNode
+													</th>
+													<th>
+														 Shipping Charge
+													</th>
+													<th>
+														 Tax Amount
 													</th>
 													<th>
 														 Discount Amount
@@ -331,130 +352,52 @@
 												</tr>
 												</thead>
 												<tbody>
-												<tr>
-													<td>
+												
+												<c:forEach items="${lineInfoList}" var="line">
+												    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
+												    
+											    <tr>
+											    	<td>
 														<a href="#">
-														Product 1 </a>
+														${line.PrimeLineNo}</a>
 													</td>
 													<td>
-														<span class="label label-sm label-success">
-														Available
+														${line.itemId}
 													</td>
 													<td>
-														 345.50$
+														<span class="label label-sm label-${line.status_class}">
+														${line.status}</span>
 													</td>
 													<td>
-														 345.50$
+														 ${line.itemDesc}
 													</td>
 													<td>
-														 2
+														 ${line.qty}
 													</td>
 													<td>
-														 2.00$
+														 ${line.UnitPrice}
 													</td>
 													<td>
-														 4%
+														 ${line.shipNode}
 													</td>
 													<td>
-														 0.00$
+														 ${line.lineShipCharge}
 													</td>
 													<td>
-														 691.00$
+														 ${line.lineTax}
+													</td>
+													<td>
+														 ${line.lineDisount}
+													</td>
+													<td>
+														 ${line.lineTatal}
 													</td>
 												</tr>
-												<tr>
-													<td>
-														<a href="#">
-														Product 1 </a>
-													</td>
-													<td>
-														<span class="label label-sm label-success">
-														Available
-													</td>
-													<td>
-														 345.50$
-													</td>
-													<td>
-														 345.50$
-													</td>
-													<td>
-														 2
-													</td>
-													<td>
-														 2.00$
-													</td>
-													<td>
-														 4%
-													</td>
-													<td>
-														 0.00$
-													</td>
-													<td>
-														 691.00$
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<a href="#">
-														Product 1 </a>
-													</td>
-													<td>
-														<span class="label label-sm label-success">
-														Available
-													</td>
-													<td>
-														 345.50$
-													</td>
-													<td>
-														 345.50$
-													</td>
-													<td>
-														 2
-													</td>
-													<td>
-														 2.00$
-													</td>
-													<td>
-														 4%
-													</td>
-													<td>
-														 0.00$
-													</td>
-													<td>
-														 691.00$
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<a href="#">
-														Product 1 </a>
-													</td>
-													<td>
-														<span class="label label-sm label-success">
-														Available
-													</td>
-													<td>
-														 345.50$
-													</td>
-													<td>
-														 345.50$
-													</td>
-													<td>
-														 2
-													</td>
-													<td>
-														 2.00$
-													</td>
-													<td>
-														 4%
-													</td>
-													<td>
-														 0.00$
-													</td>
-													<td>
-														 691.00$
-													</td>
-												</tr>
+												    
+												    
+												</c:forEach>
+												
+												
 												</tbody>
 												</table>
 											</div>
@@ -761,22 +704,23 @@
 </div>
 
 <form action="extra_search.html" method="POST">
-
 </form>
-
-
-
-
 <!-- END PAGE CONTENT-->
+
 <!-- BEGIN PAGE LEVEL PLUGINS -->
-<script type="text/javascript" src="../../assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 <!-- END PAGE LEVEL PLUGINS -->
+
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
-<script src="../../assets/admin/pages/scripts/ecommerce-orders-view.js"></script>
+<script src="../../assets/admin/pages/scripts/custom-orders-view.js"></script>
 <!-- END PAGE LEVEL SCRIPTS -->
+
 <script>
      jQuery(document).ready(function() {
         EcommerceOrdersView.init();
      });
  </script>
 <!-- END JAVASCRIPTS -->
+
+</body>
+<!-- END BODY -->
+</html>

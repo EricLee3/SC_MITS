@@ -542,7 +542,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				</li>
 				
 				<li>
-					<a href="#order">
+					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
 					오더관리 </span>
@@ -557,52 +557,17 @@ License: You must have a valid license purchased only from themeforest(the above
 							오더 조회</a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 2 </a>
-						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 3 </a>
+							<a class="ajaxify" href="/admin/orders/order_list.html?param1=3201">
+							출고오더 목록(Invoiced)</a>
 						</li>
 						<li>
 							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 4 </a>
+							오더처리 예외목록 </a>
 						</li>
 					</ul>
 				</li>
-				
-				<li>
-					<a href="#shipment">
-					<i class="fa fa-cogs"></i>
-					<span class="title">
-					출고관리 </span>
-					<span class="selected">
-					</span>
-					<span class="arrow">
-					</span>
-					</a>
-					<ul class="sub-menu">
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 1 </a>
-						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 2 </a>
-						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 3 </a>
-						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 4 </a>
-						</li>
-					</ul>
-				</li>
-				
 				<li class="last">
-					<a href="#return">
+					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
 					반풒오더 관리 </span>
@@ -620,11 +585,6 @@ License: You must have a valid license purchased only from themeforest(the above
 							<a class="ajaxify" href="/admin/returns/return_order_list.html">
 							반품오더 조회 </a>
 						</li>
-						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 2 </a>
-						</li>
-						
 					</ul>
 				</li>
 				
@@ -1419,7 +1379,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			Custom.init();
 			
 	   		$('.page-sidebar .ajaxify.start').click() // load the content for the dashboard page.
-	   		
+	   		/* 
 	   		$.address.change(function(event) {  
 	   		    // do something depending on the event.value property, e.g.  
 	   		    // $('#content').load(event.value + '.xml');  
@@ -1433,7 +1393,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	   			if($(this).attr('href').indexOf("#") > -1) return;
 	   		    $.address.value($(this).attr('href'));  
 	   		});
-	   		
+	   		 */
 	});
 </script>
 <!-- END JAVASCRIPTS -->
