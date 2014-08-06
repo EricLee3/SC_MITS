@@ -83,11 +83,11 @@
 	<!-- OUTRO > Order -->
 	<bean id="orderCreateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_OUTRO" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="0/120 * * * * ?" />
     </bean>
     <bean id="orderUpdateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderUpdateJob_OUTRO" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="0/120 * * * * ?" />
     </bean>
     <bean id="productSyncJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="syncProductJob_OUTRO" />
@@ -110,7 +110,7 @@
 	
 	
 	<!-- ========== Scheduler Setting ========== -->
-    <!-- <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
                 <ref bean="orderCreateJobTrigger_OUTRO"/>
@@ -118,11 +118,11 @@
                 <ref bean="productSyncJobTrigger_OUTRO"/>
                 
                 
-                <ref bean="orderCreateJobTrigger_JNS"/>
-                <ref bean="orderUpdateJobTrigger_JNS"/>
+                <!-- <ref bean="orderCreateJobTrigger_JNS"/>
+                <ref bean="orderUpdateJobTrigger_JNS"/> -->
             </list>
         </property>
-    </bean> -->
+    </bean>
 	<!-- ========== Scheduler Setting ========== -->
 	
 </beans>

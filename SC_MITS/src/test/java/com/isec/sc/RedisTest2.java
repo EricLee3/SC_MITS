@@ -75,9 +75,65 @@ public class RedisTest2 {
 	
 	
 	
-	
 	@Test
 	public void insertPlotChartDataMonth(){
+		
+		String key = "count:ISEC:ASPB:orders:";
+		
+		/**
+		데이타유형: {"yyyymm":"201408", "count":"150", "amount":"1500.00"}
+		**/
+/*		
+		['01/2013', 4],
+        ['02/2013', 8],
+        ['03/2013', 10],
+        ['04/2013', 12],
+        ['05/2013', 2125],
+        ['06/2013', 324],
+        ['07/2013', 1223],
+        ['08/2013', 1365],
+        ['09/2013', 250],
+        ['10/2013', 999],
+        ['11/2013', 390]
+		*/
+		
+		valueOps.set(key+"201301", "4");
+		valueOps.set(key+"201302", "8");
+		valueOps.set(key+"201303", "10");
+		valueOps.set(key+"201304", "12");
+		valueOps.set(key+"201305", "2125");
+		valueOps.set(key+"201306", "324");
+		valueOps.set(key+"201307", "1223");
+		valueOps.set(key+"201308", "1365");
+		valueOps.set(key+"201309", "250");
+		valueOps.set(key+"201310", "999");
+		valueOps.set(key+"201311", "390");
+		valueOps.set(key+"201312", "210");
+		
+		
+		String outro_key = "count:DA:OUTRO:orders:";
+		
+		
+		valueOps.set(outro_key+"201301", "2");
+		valueOps.set(outro_key+"201302", "4");
+		valueOps.set(outro_key+"201303", "5");
+		valueOps.set(outro_key+"201304", "6");
+		valueOps.set(outro_key+"201305", "1000");
+		valueOps.set(outro_key+"201306", "524");
+		valueOps.set(outro_key+"201307", "1000");
+		valueOps.set(outro_key+"201308", "700");
+		valueOps.set(outro_key+"201309", "150");
+		valueOps.set(outro_key+"201310", "555");
+		valueOps.set(outro_key+"201311", "290");
+		valueOps.set(outro_key+"201312", "200");
+		
+		//System.out.println("amount:"+valueOps.increment(key, 150.00));
+		
+	}
+	
+	
+	@Ignore
+	public void insertPlotChartDataMonth2(){
 		
 		String key = "amount:ISEC:ASPB:orders:";
 		

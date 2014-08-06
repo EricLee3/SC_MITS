@@ -223,7 +223,6 @@
 		EcommerceOrders.init('#datatable_orders');
 		
 	    var table = $('#datatable_orders').dataTable();
-	    
 	    var tableTools = new $.fn.dataTable.TableTools( table, {
 	        
 	    	"sSwfPath": "../../assets/global/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
@@ -247,6 +246,8 @@
 	      
 	    $( tableTools.fnContainer() ).insertAfter('div.btn-group'); 
 	    
+	    
+	    $('#btn_orderList').click();
 	});
 	
 	

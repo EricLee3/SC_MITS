@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ReleaseOrder CheckInventory="Y" DocumentType="0001"
-    EnterpriseCode="{0}" OrderNo="{1}"/>
+<ReleaseOrder CheckInventory="Y" DocumentType="{0}"
+    EnterpriseCode="{1}" OrderNo="{2}"/>

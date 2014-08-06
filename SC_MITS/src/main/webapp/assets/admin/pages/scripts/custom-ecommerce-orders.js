@@ -42,9 +42,9 @@ var EcommerceOrders = function () {
                     "url": "/orders/orderList.sc"  // ajax source
                 	
                 },
-//                "order": [
-//                          [2, "desc"]
-//                      ], // set first column as a default sort by asc
+                "order": [
+                          [2, "desc"]
+                      ], // set first column as a default sort by asc
                 
                 //"dom": "<'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'>>", // datatable layout
                 "dom":"<'row'<'col-md-8 col-sm-12'l><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",

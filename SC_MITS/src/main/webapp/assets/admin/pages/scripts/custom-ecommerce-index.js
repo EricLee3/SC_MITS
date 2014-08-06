@@ -407,6 +407,27 @@ var EcommerceIndex = function () {
                             { "data": "errorDate" }
                         ]
 	        });
+	        
+	        return;
+	        
+//	        var table = $('#table_order');
+//
+//	        // begin first table
+//	        table.dataTable({
+//	        	"paging":   false,
+//	            "ordering": false,
+//	            "info":     false,
+//	        	"processing": false,
+//	            "serverSide": true,
+//	            "dom":"",
+//	            "ajax": "/orders/orderListLast10.sc",
+//                "columns": [
+//                            { "data": "orderId" },
+//                            { "data": "orderDate" },
+//                            { "data": "orderAmount" },
+//                            { "data": "orderStatus" }
+//                        ]
+//	        });
 	    },
 	    
 	    

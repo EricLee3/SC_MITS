@@ -67,6 +67,8 @@ public class OrderService {
 	@Value("${sc.api.scheduleOrder.template}")
 	private String SCHEDULE_ORDER_TEMPLATE;
 	
+	@Value("${sc.api.releaseOrder.template}")
+	private String RELEASE_ORDER_TEMPLATE;
 	
 	/**
 	 * 오더목록조회 (판매오더, 반품오더)
@@ -134,12 +136,12 @@ public class OrderService {
 		// 페이지 최초접근시 또는 Reset일 경우 API호출하지 않고 바로 리턴처리
 		if( paramMap.get("action") == null){
 			
-			ModelAndView mav = new ModelAndView("jsonView");
-			mav.addObject("data","");
-			mav.addObject("recordsTotal", 0);
-			mav.addObject("recordsFiltered", 0);
-			
-			return mav;
+//			ModelAndView mav = new ModelAndView("jsonView");
+//			mav.addObject("data","");
+//			mav.addObject("recordsTotal", 0);
+//			mav.addObject("recordsFiltered", 0);
+//			
+//			return mav;
 		}
 		
 		
@@ -160,17 +162,22 @@ public class OrderService {
 		
 		String orderId = (String)paramMap.get("order_id");
 		
+		if(orderStatus == null || orderStatus.equals("")){
+			orderStatus = "";
+		}else{
+			orderStatus = "Status=\""+orderStatus+"\"";
+		}
 		
 		String getOrderList_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
 		+ "<Order DocumentType=\""+ doc_type +"\" "
-		   + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" Status=\"{2}\" OrderNo=\"{3}\" "
+		   + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" {2} OrderNo=\"{3}\" "
 		   // 오더번호 검색유형
-		   + "OrderNoQryType=\"LIKE\" "
+		   + "OrderNoQryType=\"LIKE\" FromStatus=\"1100\" ToStatus=\"3200\" "
 		   // 오더생성일  검색
 		   + "FromOrderDate=\""+paramMap.get("order_date_from")+"\" ToOrderDate=\""+paramMap.get("order_date_to")+"\" OrderDateQryType=\"BETWEEN\" > "
 		   // 오더목록 Sorting
 		   + "<OrderBy> "
-		      + "  <Attribute Desc=\"Y\" Name=\"EnterpriseCode\"/> "
+		      + "  <Attribute Desc=\"Y\" Name=\"OrderDate\"/> "
 		    + "</OrderBy> "
 		+ "</Order> ";
 		
@@ -258,7 +265,6 @@ public class OrderService {
 	 * 오더상세 조회
 	 * 
 	 * @param orderNo 오더번호
-	 * @param entCode 조직코드
 	 * @param docType 주문유형 
 	 * @return
 	 * @throws Exception
@@ -294,12 +300,22 @@ public class OrderService {
 		String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", el, XPathConstants.STRING);
 		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
 		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
+		String orderStatus = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
+		String orderStatus_class = env.getProperty("ui.status."+orderStatus);
+		if( orderStatus_class == null) orderStatus_class = "default";
+		
+		String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", el, XPathConstants.STRING);
+		
 		
 		baseInfoMap.put("orderNo", orderNo);
 		baseInfoMap.put("orderDate", ordreDate);
 		baseInfoMap.put("currency", currency);
 		baseInfoMap.put("totalAmount", totalAmount);
 		baseInfoMap.put("paymentType", paymentType);
+		baseInfoMap.put("orderStatus", orderStatus);
+		baseInfoMap.put("orderStatus_class", orderStatus_class );
+		baseInfoMap.put("sellerCode", sellerCode );
+		baseInfoMap.put("entCode", entCode );
 		
 		
 		//-------- 2. customer info
@@ -336,12 +352,19 @@ public class OrderService {
 		String billState = (String)xp.evaluate("PersonInfoBillTo/@State", el, XPathConstants.STRING);
 		String billZipcode = (String)xp.evaluate("PersonInfoBillTo/@ZipCode", el, XPathConstants.STRING);
 		
+		String billPhone = (String)xp.evaluate("PersonInfoBillTo/@DayPhone", el, XPathConstants.STRING);
+		String billFaxNo = (String)xp.evaluate("PersonInfoBillTo/@DayFaxNo", el, XPathConstants.STRING);
+		String billMPhone = (String)xp.evaluate("PersonInfoBillTo/@MobilePhone", el, XPathConstants.STRING);
+		
 		billInfoMap.put("billName", billFName +" "+ billLName);
 		billInfoMap.put("billAddr1", billAddr1);
 		billInfoMap.put("billAddr2", billAddr2);
 		billInfoMap.put("billCity", billCity);
 		billInfoMap.put("billState", billState);
 		billInfoMap.put("billZipcode", billZipcode);
+		billInfoMap.put("billPhone", billPhone);
+		billInfoMap.put("billMPhone", billMPhone);
+		billInfoMap.put("billFaxNo", billFaxNo);
 		
 		
 		//-------- 3. Order Line Info
@@ -521,7 +544,7 @@ public class OrderService {
 		logger.debug("##### [order_no]"+ order_no);
 		
 		
-		String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
+		String scheduleNrelease = "N";	// Schedule과 Release를 동시에 처리함.
 		
 		String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
 		
@@ -538,15 +561,15 @@ public class OrderService {
 		{
 		
 			// API Call
-			outputMsg = sterlingApiDelegate.comApiCall("getOrderList", inputXML);
-			
+			outputMsg = sterlingApiDelegate.comApiCall("scheduleOrder", inputXML);
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
-			Element el = doc.getDocumentElement();
 			
 			// TODD: Error 메세지 정규화 작업필요
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 				succ = "N";
 				mav.addObject("errorMsg", outputMsg);
+			}else{
+				mav.addObject("outputMsg", "Schedule Transaction was processed Successfully.");
 			}
 		
 		}
@@ -559,7 +582,62 @@ public class OrderService {
 			
 		}
 		mav.addObject("success", succ);
-		mav.addObject("outputMsg", outputMsg);
+		return mav;
+	}
+	
+	
+	
+	
+	
+	
+	
+	@RequestMapping(value = "/releaseOrder.sc")
+	public ModelAndView releaseOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
+	{
+		
+		logger.debug("##### Schedule Order API Called !!!");
+		
+		logger.debug("##### [doc_type]"+ doc_type);
+		logger.debug("##### [ent_code]"+ ent_code);
+		logger.debug("##### [order_no]"+ order_no);
+		
+		
+		String releaseOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(RELEASE_ORDER_TEMPLATE));
+		
+		MessageFormat msg = new MessageFormat(releaseOrderXML);
+		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, releaseOrderXML} );
+		logger.debug("##### [inputXML]"+inputXML); 
+		
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		String outputMsg =  "";
+		String succ = "Y";
+		
+		try
+		{
+		
+			// API Call
+			outputMsg = sterlingApiDelegate.comApiCall("releaseOrder", inputXML);
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+			
+			// TODD: Error 메세지 정규화 작업필요
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+				succ = "N";
+				mav.addObject("errorMsg", outputMsg);
+			}else{
+				mav.addObject("outputMsg", "Release Transaction was processed Successfully.");
+			}
+		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			succ = "N";
+			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			
+		}
+		mav.addObject("success", succ);
 		return mav;
 	}
 	

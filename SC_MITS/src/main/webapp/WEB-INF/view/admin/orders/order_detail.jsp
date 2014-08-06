@@ -65,6 +65,11 @@
 					<span class="hidden-480">
 					Back </span>
 					</a>
+					<a href="orders/orderDetail.do?docType=${docType}&entCode=${entCode}&orderNo=${orderNo}" class="btn default yellow-stripe ajaxify">
+					<i class="fa fa-refresh"></i>
+					<span class="hidden-480">
+					Reload </span>
+					</a>
 					<div class="btn-group">
 						<a class="btn default yellow-stripe" href="#" data-toggle="dropdown">
 						<i class="fa fa-cog"></i>
@@ -91,11 +96,11 @@
 								<a href="#">
 								Print Invoice </a>
 							</li> -->
-							<li>
+							<li id="tool_schedule">
 								<a href="#">
 								Schedule </a>
 							</li>
-							<li>
+							<li id="tool_release">
 								<a href="#">
 								Release </a>
 							</li>
@@ -174,16 +179,33 @@
 													 Order Status:
 												</div>
 												<div class="col-md-7 value">
-													<span class="label label-success">
-													Closed </span>
+													<span class="label label-${baseInfo.orderStatus_class }">
+													${baseInfo.orderStatus} </span>
 												</div>
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Grand Total:
+													 Enterprise :
 												</div>
 												<div class="col-md-7 value">
-													 $175.25
+													${baseInfo.entCode}
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+													 Seller:
+												</div>
+												<div class="col-md-7 value">
+													${baseInfo.sellerCode}
+												</div>
+											</div>
+											
+											<div class="row static-info">
+												<div class="col-md-5 name">
+													 Total Amount:
+												</div>
+												<div class="col-md-7 value">
+													${baseInfo.currency}${baseInfo.totalAmount}
 												</div>
 											</div>
 											<div class="row static-info">
@@ -214,23 +236,7 @@
 													 Customer Name:
 												</div>
 												<div class="col-md-7 value">
-													 Jhon Doe
-												</div>
-											</div>
-											<div class="row static-info">
-												<div class="col-md-5 name">
-													 Email:
-												</div>
-												<div class="col-md-7 value">
-													 jhon@doe.com
-												</div>
-											</div>
-											<div class="row static-info">
-												<div class="col-md-5 name">
-													 State:
-												</div>
-												<div class="col-md-7 value">
-													 New York
+													 ${custInfo.custFName}&nbsp;${custInfo.custLName}
 												</div>
 											</div>
 											<div class="row static-info">
@@ -238,7 +244,44 @@
 													 Phone Number:
 												</div>
 												<div class="col-md-7 value">
-													 12234389
+													 ${custInfo.custPhone}
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+													 Email:
+												</div>
+												<div class="col-md-7 value">
+													 ${custInfo.custEmail}
+												</div>
+											</div>
+											
+											<div class="row static-info">
+												<div class="col-md-5 name">
+												&nbsp;
+												</div>
+												<div class="col-md-7 value">
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+												&nbsp;
+												</div>
+												<div class="col-md-7 value">
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+												&nbsp;
+												</div>
+												<div class="col-md-7 value">
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+												&nbsp;
+												</div>
+												<div class="col-md-7 value">
 												</div>
 											</div>
 										</div>
@@ -260,13 +303,24 @@
 										<div class="portlet-body">
 											<div class="row static-info">
 												<div class="col-md-12 value">
-													 Jhon Done<br>
-													 #24 Park Avenue Str<br>
-													 New York<br>
-													 Connecticut, 23456 New York<br>
-													 United States<br>
-													 T: 123123232<br>
-													 F: 231231232<br>
+												<!-- 
+													billInfoMap.put("billName", billFName +" "+ billLName);
+													billInfoMap.put("billAddr1", billAddr1);
+													billInfoMap.put("billAddr2", billAddr2);
+													billInfoMap.put("billCity", billCity);
+													billInfoMap.put("billState", billState);
+													billInfoMap.put("billZipcode", billZipcode);
+													billInfoMap.put("billPhone", billPhone);
+													billInfoMap.put("billMPhone", billMPhone);
+													billInfoMap.put("billFaxNo", billFaxNo);
+												 -->
+													 ${billInfo.billName}<br>
+													 ${billInfo.billAddr1}<br>
+													 ${billInfo.billAddr2}<br>
+													 ${billInfo.billCity}&nbsp;${billInfo.billState}&nbsp;${billInfo.billZipcode}<br>
+													 <br>
+													 Phone: ${billInfo.billPhone}&nbsp;${billInfo.billMPhone} <br>
+													 Fax: ${billInfo.billFaxNo}<br>
 												</div>
 											</div>
 										</div>
@@ -286,13 +340,13 @@
 										<div class="portlet-body">
 											<div class="row static-info">
 												<div class="col-md-12 value">
-													 Jhon Done<br>
-													 #24 Park Avenue Str<br>
-													 New York<br>
-													 Connecticut, 23456 New York<br>
-													 United States<br>
-													 T: 123123232<br>
-													 F: 231231232<br>
+													 ${billInfo.billName}<br>
+													 ${billInfo.billAddr1}<br>
+													 ${billInfo.billAddr2}<br>
+													 ${billInfo.billCity}&nbsp;${billInfo.billState}&nbsp;${billInfo.billZipcode}<br>
+													 <br>
+													 Phone: ${billInfo.billPhone}&nbsp;${billInfo.billMPhone} <br>
+													 Fax: ${billInfo.billFaxNo}<br>
 												</div>
 											</div>
 										</div>
@@ -374,7 +428,7 @@
 													<td>
 														 ${line.qty}
 													</td>
-													<td>
+													<td class="text-right">
 														 ${line.UnitPrice}
 													</td>
 													<td>
@@ -405,6 +459,9 @@
 									</div>
 								</div>
 							</div>
+							
+							<!-- START  Order Amount Summary Area -->
+							
 							<div class="row">
 								<div class="col-md-6">
 								</div>
@@ -461,7 +518,14 @@
 									</div>
 								</div>
 							</div>
+							
+							<!-- END  Order Amount Summary Area -->
+							
 						</div>
+						
+						
+						<!-- 
+						
 						<div class="tab-pane" id="tab_2">
 							<div class="table-container">
 								<div class="table-actions-wrapper">
@@ -695,6 +759,13 @@
 								</table>
 							</div>
 						</div>
+						
+						
+						
+						 -->
+						
+						
+						
 					</div>
 				</div>
 			</div>
@@ -703,7 +774,10 @@
 	</div>
 </div>
 
-<form action="extra_search.html" method="POST">
+<form name="form_action" id="form_action" method="POST">
+	<input type="hidden" name="doc_type" value="${docType}">
+	<input type="hidden" name="ent_code" value="${entCode}">
+	<input type="hidden" name="order_no" value="${orderNo}">
 </form>
 <!-- END PAGE CONTENT-->
 
@@ -717,7 +791,52 @@
 <script>
      jQuery(document).ready(function() {
         EcommerceOrdersView.init();
+        
+        // Schedule Order
+        $('#tool_schedule').click(function(e){
+        	e.preventDefault();
+        	
+        	ajaxCallApi(this, '/orders/scheduleOrder.sc');
+        	
+        });
+        
+        
+        // Release Order
+        $('#tool_release').click(function(e){
+        	e.preventDefault();
+        	
+        	ajaxCallApi(this, '/orders/releaseOrder.sc');
+        	
+        });
+        
      });
+     
+     function ajaxCallApi(eventObj, callUrl){
+    	 
+    	 
+    	 $.ajax({
+				url: callUrl,
+				data: $('#form_action').serialize(),
+				success:function(data)
+				{
+					
+					if(data.success == 'Y'){
+						alert(data.outputMsg);
+					}else{
+						alert(data.errorMsg);
+					}
+					
+				},
+				beforeSend:function(xhr, status){
+					Metronic.blockUI({
+		                boxed:true
+		             });
+	        	},
+				complete:function(xhr, status){
+					Metronic.unblockUI();
+	        	}
+		});
+     }
  </script>
 <!-- END JAVASCRIPTS -->
 
