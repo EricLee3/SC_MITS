@@ -1,4 +1,4 @@
-package com.isec.sc.intgr.http;
+package com.isec.sc.intgr.api.handler;
 
 import java.io.Reader;
 
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping(value="/sc")
-public class ScInventoryController {
+public class ScInventoryHandler {
 
 	
-	private static final Logger logger = LoggerFactory.getLogger(ScInventoryController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScInventoryHandler.class);
 	
 	
 	@RequestMapping(value = "/changeInventory.do")

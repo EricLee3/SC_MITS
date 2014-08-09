@@ -1386,21 +1386,26 @@ License: You must have a valid license purchased only from themeforest(the above
 			Custom.init();
 			
 	   		$('.page-sidebar .ajaxify.start').click() // load the content for the dashboard page.
-	   		/* 
+			
+	   		
+	   		// URL History Manage
 	   		$.address.change(function(event) {  
 	   		    // do something depending on the event.value property, e.g.  
 	   		    // $('#content').load(event.value + '.xml');  
 	   		    
 	   		    //alert(event.value);
+	   		    
+	   		    $('.page-sidebar .ajaxify[href="'+event.value+'"]').parent().parent('a').click();
 	   		 	$('.page-sidebar .ajaxify[href="'+event.value+'"]').click();
 	   		 
-	   		});  
+	   		});
+	   		
 	   		$('a').click(function() {  
 	   			
-	   			if($(this).attr('href').indexOf("#") > -1) return;
+	   			if($(this).attr('href').indexOf("#") > -1 || $(this).attr('href') == "javascript:;" ) return;
+	   			
 	   		    $.address.value($(this).attr('href'));  
 	   		});
-	   		 */
 	});
 </script>
 <!-- END JAVASCRIPTS -->

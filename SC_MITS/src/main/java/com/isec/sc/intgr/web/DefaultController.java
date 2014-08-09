@@ -26,15 +26,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
-import com.isec.sc.intgr.http.ScOrderShipmentController;
+import com.isec.sc.intgr.api.handler.ScOrderShipmentHandler;
 
 
 
 @Controller
 @PropertySource("classpath:mits.properties")
-public class DefaultService {
+public class DefaultController {
 
-	private static final Logger logger = LoggerFactory.getLogger(DefaultService.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultController.class);
 	
 	@Autowired	private Environment env;
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;

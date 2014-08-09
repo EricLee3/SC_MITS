@@ -29,6 +29,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.report.OrderReportService;
 
 
 
@@ -40,6 +41,8 @@ public class OrderProcessTask {
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 
+	@Autowired	private OrderReportService orderReportService;
+	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
@@ -49,21 +52,25 @@ public class OrderProcessTask {
 	
 	
 	/**
+	 * 오더생성 From Redis
 	 * 
-	 * @param redisKey
-	 * @param redisPushKey
-	 * @param redisErrKey
+	 * @param redisKey	MA에 전송한 최초 오더생성 정보 ( SC의 CreateOrder API의 Input XML)
+	 * @param redisPushKey MITS에서 오더생성 후 MA로 오더생성 성공여부를 전송하는 Key -> Ma는 이 정보를 확인해서 Placed로 변경한다.
+	 * @param redisErrKey MITS에서 오더생성시 에러가 발생할 경우 에러정보를 저장할 Redis Key
 	 */
     public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
+    	
+    	orderReportService.saveOrderReport("");
+    	
+    	
     	logger.debug("##### ["+redisKey+"] createOrder Task Started!!!");
-    	logger.debug("##### redisPushKey ["+redisPushKey+"]");
-    	logger.debug("##### redisErrKey ["+redisErrKey+"]");
+    	logger.debug("##### Push Key ["+redisPushKey+"]");
+    	logger.debug("##### Error Key ["+redisErrKey+"]");
     	
     	Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
     	
-		
 		
     	long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
@@ -88,6 +95,24 @@ public class OrderProcessTask {
 					
 					// 결과데이타 저장
 					listOps.leftPush(redisPushKey, orderSuccJSON);
+					
+					/**
+					 *  실시간 통계데이타 저장 (일별 채널별 Key에 값 Increase )
+					 *   1. 오더 카운트
+					 *     key - count:EntCode:SellerCode:현재일(YYYYMMDD)
+					 *     
+					 *   2. 오더 금액(결제금액)
+					 *     key - amount.EntCode:SellerCode:현재일(YYYYMMDD)
+					 *     
+					 *   3. Shipping 금액, Tax금액
+					 *     key - amaount.ship.EntCode:SellerCode:현재일(YYYYMMDD)
+					 *     key - amaount.tax.EntCode:SellerCode:현재일(YYYYMMDD)
+					 *     
+					 *   4. 판매자 정보 (판매자별 구매금액) - 고객정보 연동 후 가능
+					 *   
+					 */	
+					orderReportService.saveOrderReport("");
+					
 				
 				// Create 실패
 				}else if("0000".equals(status)){

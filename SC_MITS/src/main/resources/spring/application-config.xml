@@ -21,6 +21,16 @@
     p:usePool="${redis.usePool}"
     p:poolConfig-ref="jedisPoolConfig"/>
   
+  <!-- Report Redis Connection Info -->  
+  <bean id="reportConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+    p:host-name="${redis.host}" 
+    p:port="${redis.port}" 
+    p:password="${redis.pass}"
+    p:database="${redis.report.dbindex}"
+    p:timeout="${redis.timeout}" 
+    p:usePool="${redis.usePool}"
+    p:poolConfig-ref="jedisPoolConfig"/>
+  
 
   <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig"
    p:maxTotal="${redis.pool.maxTotal}"
@@ -33,6 +43,13 @@
   <bean id="maStringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
     p:connection-factory-ref="maConnectionFactory"
     p:defaultSerializer-ref="stringSerializer"  />
+    
+  
+  <!-- Report Connection -->
+  <bean id="reportStringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
+    p:connection-factory-ref="maConnectionFactory"
+    p:defaultSerializer-ref="stringSerializer"  />  
+    
     
   <bean id="stringSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer" />
   

@@ -51,7 +51,10 @@ public class RedisTest2 {
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	
 	
-	@Resource(name="maStringRedisTemplate")
+	@Autowired	private StringRedisTemplate reportStringRedisTemplate;
+	
+	
+	@Resource(name="reportStringRedisTemplate")
     private ValueOperations<String, String> valueOps;
 	
 	@Resource(name="maStringRedisTemplate")
@@ -229,7 +232,7 @@ public class RedisTest2 {
 	}
 	
 	
-	@Test
+	@Ignore
     public void TestGetOrderListMagento() {
 		
 		

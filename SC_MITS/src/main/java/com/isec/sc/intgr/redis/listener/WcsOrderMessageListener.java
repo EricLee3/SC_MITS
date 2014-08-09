@@ -16,7 +16,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
- 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
-import com.isec.sc.intgr.http.ScInventoryController;
+import com.isec.sc.intgr.api.handler.ScInventoryHandler;
 
 
 /**

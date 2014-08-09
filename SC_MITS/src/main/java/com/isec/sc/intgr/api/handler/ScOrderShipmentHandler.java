@@ -1,4 +1,4 @@
-package com.isec.sc.intgr.http;
+package com.isec.sc.intgr.api.handler;
 
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
@@ -34,10 +34,10 @@ import org.w3c.dom.NodeList;
 
 @Controller
 @RequestMapping(value="/sc")
-public class ScOrderShipmentController {
+public class ScOrderShipmentHandler {
 
 	
-	private static final Logger logger = LoggerFactory.getLogger(ScOrderShipmentController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScOrderShipmentHandler.class);
 	
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;

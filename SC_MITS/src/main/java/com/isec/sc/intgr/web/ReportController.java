@@ -44,9 +44,9 @@ import com.isec.sc.intgr.api.util.FileContentReader;
 @Controller
 @PropertySource("classpath:mits.properties")
 @RequestMapping("/reports")
-public class ReportService {
+public class ReportController {
 
-	private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReportController.class);
 	
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
@@ -65,6 +65,7 @@ public class ReportService {
 	public ModelAndView getOrderReportByCh( @RequestParam Map<String, String> paramMap ) throws Exception{ 
 		
 		
+		// TODO: property로 뺼것
 		String entCode[] = {"DA","ISEC"};
 		String sellerCode[] = {"OUTRO","ASPB"};;
 		

@@ -40,16 +40,15 @@ import com.isec.sc.intgr.api.util.FileContentReader;
 @Controller
 @PropertySource("classpath:mits.properties")
 @RequestMapping("/orders")
-public class OrderService {
+public class OrderController {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 	
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
-	
 	
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
@@ -224,7 +223,7 @@ public class OrderService {
 			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
 			if("".equals(status)) status = "Draft";
 			
-			String status_class = env.getProperty("ui.status."+status);
+			String status_class = env.getProperty("ui.status.css."+status);
 			if( status_class == null) status_class = "default";
 			
 			String linkParam = "docType="+doc_type+"&entCode="+enterPrise+"&orderNo="+orderNo;
@@ -301,7 +300,7 @@ public class OrderService {
 		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
 		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
 		String orderStatus = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
-		String orderStatus_class = env.getProperty("ui.status."+orderStatus);
+		String orderStatus_class = env.getProperty("ui.status.css."+orderStatus);
 		if( orderStatus_class == null) orderStatus_class = "default";
 		
 		String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", el, XPathConstants.STRING);
@@ -382,7 +381,7 @@ public class OrderService {
 			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
 			String qty = (String)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.STRING);
 			String status = (String)xp.evaluate("@Status", orderLineNodeList.item(i), XPathConstants.STRING);
-			String status_class = env.getProperty("ui.status."+status);
+			String status_class = env.getProperty("ui.status.css."+status);
 			if( status_class == null) status_class = "default";
 			
 			// Line Price, Charge, Tax Info

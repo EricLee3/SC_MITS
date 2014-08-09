@@ -31,8 +31,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.handler.ScInventoryHandler;
 import com.isec.sc.intgr.api.util.FileContentReader;
-import com.isec.sc.intgr.http.ScInventoryController;
 
 
 /**
