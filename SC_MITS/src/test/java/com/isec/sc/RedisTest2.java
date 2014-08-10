@@ -8,7 +8,9 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,8 +79,33 @@ public class RedisTest2 {
 	private String ch_ma_jns_order;
 	
 	
-	
 	@Test
+	public void printReportKeyDate(){
+		
+		String key = "count:Matrix:Matrix-R:orders:"+getCurrentDate();
+		String key1 = "amount:Matrix:Matrix-R:orders:"+getCurrentDate();
+		String key2 = "discount:Matrix:Matrix-R:orders:"+getCurrentDate();
+		String key3 = "shipping:Matrix:Matrix-R:orders:"+getCurrentDate();
+		String key4 = "tax:Matrix:Matrix-R:orders:"+getCurrentDate();
+		
+//		reportStringRedisTemplate.delete(key);
+//		reportStringRedisTemplate.delete(key1);
+//		reportStringRedisTemplate.delete(key2);
+//		reportStringRedisTemplate.delete(key3);
+//		reportStringRedisTemplate.delete(key4);
+		
+		
+		System.out.println("[count]"+valueOps.get(key));
+		System.out.println("[amount]"+valueOps.get(key1));
+		System.out.println("[discount]"+valueOps.get(key2));
+		System.out.println("[shipping]"+valueOps.get(key3));
+		System.out.println("[tax]"+valueOps.get(key4));
+		
+		
+	}
+	
+	
+	@Ignore
 	public void insertPlotChartDataMonth(){
 		
 		String key = "count:ISEC:ASPB:orders:";
@@ -263,4 +290,19 @@ public class RedisTest2 {
 		}
 		
     }
+	
+	
+	private static String getCurrentDate() {
+	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd");//dd/MM/yyyy
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+	    return strDate;
+	}
+	
+	private static String getCurrentDateTime() {
+	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+	    return strDate;
+	}
 }

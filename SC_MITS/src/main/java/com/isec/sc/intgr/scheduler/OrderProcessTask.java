@@ -61,9 +61,6 @@ public class OrderProcessTask {
     public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
     	
-    	orderReportService.saveOrderReport("");
-    	
-    	
     	logger.debug("##### ["+redisKey+"] createOrder Task Started!!!");
     	logger.debug("##### Push Key ["+redisPushKey+"]");
     	logger.debug("##### Error Key ["+redisErrKey+"]");
@@ -79,10 +76,10 @@ public class OrderProcessTask {
 			// 3. Call Sterling API by Type & Key
 			for(int i=0; i<dataCnt; i++){
 				
-				String xmlData = listOps.rightPop(redisKey);
+				String orderInputXml = listOps.rightPop(redisKey);
 				
 				// SC API 호출
-				HashMap<String, Object> result = sterlingApiDelegate.createOrder(xmlData);
+				HashMap<String, Object> result = sterlingApiDelegate.createOrder(orderInputXml);
 				String status = (String)result.get("status");
 				
 				
@@ -96,28 +93,11 @@ public class OrderProcessTask {
 					// 결과데이타 저장
 					listOps.leftPush(redisPushKey, orderSuccJSON);
 					
-					/**
-					 *  실시간 통계데이타 저장 (일별 채널별 Key에 값 Increase )
-					 *   1. 오더 카운트
-					 *     key - count:EntCode:SellerCode:현재일(YYYYMMDD)
-					 *     
-					 *   2. 오더 금액(결제금액)
-					 *     key - amount.EntCode:SellerCode:현재일(YYYYMMDD)
-					 *     
-					 *   3. Shipping 금액, Tax금액
-					 *     key - amaount.ship.EntCode:SellerCode:현재일(YYYYMMDD)
-					 *     key - amaount.tax.EntCode:SellerCode:현재일(YYYYMMDD)
-					 *     
-					 *   4. 판매자 정보 (판매자별 구매금액) - 고객정보 연동 후 가능
-					 *   
-					 */	
-					orderReportService.saveOrderReport("");
-					
 				
 				// Create 실패
 				}else if("0000".equals(status)){
 					
-					sendMsgMap.put("data", xmlData);
+					sendMsgMap.put("data", orderInputXml);
 					sendMsgMap.put("occure_date", cuurentDate());
 					
 					

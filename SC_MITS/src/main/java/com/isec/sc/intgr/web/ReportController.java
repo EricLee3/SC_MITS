@@ -49,12 +49,12 @@ public class ReportController {
 	private static final Logger logger = LoggerFactory.getLogger(ReportController.class);
 	
 	
-	@Autowired	private StringRedisTemplate maStringRedisTemplate;
+	@Autowired	private StringRedisTemplate reportStringRedisTemplate;
 	
-	@Resource(name="maStringRedisTemplate")
+	@Resource(name="reportStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
-	@Resource(name="maStringRedisTemplate")
+	@Resource(name="reportStringRedisTemplate")
 	private ValueOperations<String, String> valueOps;
 	
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
@@ -66,8 +66,8 @@ public class ReportController {
 		
 		
 		// TODO: property로 뺼것
-		String entCode[] = {"DA","ISEC"};
-		String sellerCode[] = {"OUTRO","ASPB"};;
+		String entCode[] = {"Matrix", "DA", "ISEC"};
+		String sellerCode[] = {"Matrix-R", "OUTRO", "ASPB"};;
 		
 		
 		// 검색일자 Parameter
@@ -125,7 +125,7 @@ public class ReportController {
 			String mm = i<10?"0"+i:String.valueOf(i);
 			
 			// Total Order Count
-			Set<String> cnt_key_names= maStringRedisTemplate.keys(orderCountKey_pre+startYear+mm);
+			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+startYear+mm);
 			List<String> cnt_list = valueOps.multiGet(cnt_key_names);
 			int orderCnt = 0;
 			for(String orderCount: cnt_list){
@@ -136,7 +136,7 @@ public class ReportController {
 			totlist.add( new String[]{startYear+"/"+mm, String.valueOf(orderCnt) } );
 			
 			// Total Order Amount
-			Set<String> amt_key_names= maStringRedisTemplate.keys(orderAmountKey_pre+startYear+mm);
+			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+startYear+mm);
 			List<String> amt_list = valueOps.multiGet(amt_key_names);
 			double orderAmount = 0.00;
 			for(String orderAmt: amt_list){

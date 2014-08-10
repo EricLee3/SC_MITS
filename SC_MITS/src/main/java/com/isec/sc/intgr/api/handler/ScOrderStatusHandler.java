@@ -1,6 +1,8 @@
 package com.isec.sc.intgr.api.handler;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.isec.sc.intgr.report.OrderReportService;
+
 @Controller
 @RequestMapping(value="/sc")
 public class ScOrderStatusHandler {
@@ -44,9 +48,65 @@ public class ScOrderStatusHandler {
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	
+	// Report Data 생성을 위한 Service Bean
+	@Autowired	private OrderReportService orderReportService;
 	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;	
+	
+	
+	
+	@RequestMapping(value = "/orderCreateAfter.do")
+	public void createOrderAfter(@RequestParam(required=false) String returnXML,
+			  @RequestParam(required=false) String status,	
+			  HttpServletResponse res) throws Exception{
+		
+		
+		logger.info("[returnXML]"+returnXML);
+		logger.info("[status]"+status);
+		
+		
+		// 1. Receive Message(retrunXML) Parsing
+		//Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(new File("/Users/ykjang/Dev/sterling/getOrderDetails_sample.xml")) );
+
+		
+		Element outputXML = doc.getDocumentElement();
+		
+		
+		String entCode = outputXML.getAttribute("EnterpriseCode");
+		String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
+		
+		Double totAmount = 0.00;
+		Double totCharge = 0.00;
+		Double totDiscount = 0.00;
+		Double totTax = 0.00;
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
+		NodeList orderLineList = (NodeList)xp.evaluate("/Order/OrderLines", outputXML, XPathConstants.NODESET);
+		
+		for( int i=0; i< orderLineList.getLength(); i++){
+			
+			totAmount +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@LineTotal", orderLineList.item(i), XPathConstants.NUMBER);
+			totCharge +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@Charges", orderLineList.item(i), XPathConstants.NUMBER);
+			totDiscount +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@Discount", orderLineList.item(i), XPathConstants.NUMBER);
+			totTax +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@Tax", orderLineList.item(i), XPathConstants.NUMBER);
+			
+		}
+		
+		HashMap<String, Double> priceMap = new HashMap<String, Double>();
+		priceMap.put("amount", totAmount);
+		priceMap.put("charge", totCharge);
+		priceMap.put("discount", totDiscount);
+		priceMap.put("tax", totTax);
+		
+		// Order Report Service 호출
+		orderReportService.saveOrderReportData(entCode, sellerCode, priceMap);
+		
+		
+		// 호출한 Sterling 서비스에 Response 전달
+		res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
+	}
 	
 	
 	
