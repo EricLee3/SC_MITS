@@ -75,6 +75,8 @@ public class OrderReportService {
 		logger.debug("[charge]"+ priceInfo.get("charge"));
 		logger.debug("[tax]"+ priceInfo.get("tax"));
 		
+		
+		// Count / Amount 누적
 		reportValueOps.increment(sum_count_key, 1);
 		reportValueOps.increment(sum_amount_key, priceInfo.get("amount"));
 		reportValueOps.increment(sum_discount_key, priceInfo.get("discount"));

@@ -48,8 +48,9 @@ public class ProductSyncTask {
         
     	try {
     		 
-    		logger.debug("##### syncProduct["+redisKey+"] Task Excuted!!!");
-    	  	logger.debug("##### redisErrKey["+redisErrKey+"]");
+    		logger.debug("##### [syncProduct] Job Task Started!!!");
+        	logger.debug("     ----- Read Key ["+redisKey+"]");
+        	logger.debug("     ----- Error Key ["+redisErrKey+"]");
     	  	
     			
     	  	long dataCnt =  listOps.size(redisKey);

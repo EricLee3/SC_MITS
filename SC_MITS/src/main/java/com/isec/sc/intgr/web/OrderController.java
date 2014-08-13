@@ -71,6 +71,7 @@ public class OrderController {
 	
 	/**
 	 * 오더목록조회 (판매오더, 반품오더)
+	 *  - 오더의 상태가 Create(1100) ~ Shipped(3700)까지만 조회
 	 * 
 	 * @param paramMap
 	 * @param doc_type
@@ -160,28 +161,41 @@ public class OrderController {
 		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
 		
 		String orderId = (String)paramMap.get("order_id");
+		String orderFromStatus = "1100";  // Created
+		String orderToStatus = "3200";    // Released 
 		
-		if(orderStatus == null || orderStatus.equals("")){
-			orderStatus = "";
-		}else{
-			orderStatus = "Status=\""+orderStatus+"\"";
+		// 오더상태구간별 검색일 경우
+		String orderStatusQryType_Text = "";
+		if("".equals(orderStatus)){
+			orderStatusQryType_Text = " FromStatus=\""+orderFromStatus+"\" ToStatus=\""+orderToStatus+"\" StatusQryType=\"BETWEEN\" ";
 		}
 		
+		
 		String getOrderList_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
-		+ "<Order DocumentType=\""+ doc_type +"\" "
-		   + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" {2} OrderNo=\"{3}\" "
-		   // 오더번호 검색유형
-		   + "OrderNoQryType=\"LIKE\" FromStatus=\"1100\" ToStatus=\"3200\" "
-		   // 오더생성일  검색
-		   + "FromOrderDate=\""+paramMap.get("order_date_from")+"\" ToOrderDate=\""+paramMap.get("order_date_to")+"\" OrderDateQryType=\"BETWEEN\" > "
-		   // 오더목록 Sorting
-		   + "<OrderBy> "
-		      + "  <Attribute Desc=\"Y\" Name=\"OrderDate\"/> "
-		    + "</OrderBy> "
+		   + "<Order DocumentType=\""+ doc_type +"\" "
+		     + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" "
+		     // 오더상태 검색유형
+		     + " Status=\"{2}\" {3} "
+		     // 오더번호 검색유형
+		     + " OrderNo=\"{4}\" OrderNoQryType=\"LIKE\" "
+		     // 오더생성일  검색
+		     + " FromOrderDate=\"{5}\" ToOrderDate=\"{6}\" OrderDateQryType=\"BETWEEN\" > "
+		     // 오더목록 Sorting
+		     + "<OrderBy> "
+		     + "  <Attribute Desc=\"Y\" Name=\"OrderDate\"/> "
+		     + "</OrderBy> "
 		+ "</Order> ";
 		
 	    MessageFormat msg = new MessageFormat(getOrderList_input);
-		String inputXML = msg.format(new String[] {entCode, sellerCode, orderStatus, orderId} );
+		String inputXML = msg.format(new String[] {
+				                                entCode,
+				                                sellerCode, 
+												"A".equals(orderStatus)?"":orderStatus, 
+												orderStatusQryType_Text,
+												orderId,
+												paramMap.get("order_date_from"),
+												paramMap.get("order_date_to")
+		} );
 		logger.debug("[inputXML]"+inputXML); 
 		
 		
@@ -218,12 +232,14 @@ public class OrderController {
 			String orderDate = (String)xp.evaluate("@OrderDate", orderNodeList.item(i), XPathConstants.STRING);
 			String enterPrise = (String)xp.evaluate("@EnterpriseCode", orderNodeList.item(i), XPathConstants.STRING);
 			String sellerOrg = (String)xp.evaluate("@SellerOrganizationCode", orderNodeList.item(i), XPathConstants.STRING);
+			
 			String billToID = (String)xp.evaluate("@BillToID", orderNodeList.item(i), XPathConstants.STRING);
+			
 			String totalAmount = (String)xp.evaluate("@OriginalTotalAmount", orderNodeList.item(i), XPathConstants.STRING);
 			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
 			if("".equals(status)) status = "Draft";
 			
-			String status_class = env.getProperty("ui.status.css."+status);
+			String status_class = env.getProperty("ui.status."+status+".cssname");
 			if( status_class == null) status_class = "default";
 			
 			String linkParam = "docType="+doc_type+"&entCode="+enterPrise+"&orderNo="+orderNo;
@@ -295,12 +311,11 @@ public class OrderController {
 		HashMap<String, Object> baseInfoMap = new HashMap<String, Object>();
 		
 		String ordreDate = (String)xp.evaluate("@OrderDate", el, XPathConstants.STRING);
-		// String totalAmount = (String)xp.evaluate("@TotalAdjustmentAmount", el, XPathConstants.STRING);
 		String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", el, XPathConstants.STRING);
 		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
 		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
 		String orderStatus = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
-		String orderStatus_class = env.getProperty("ui.status.css."+orderStatus);
+		String orderStatus_class = env.getProperty("ui.status."+orderStatus+".cssname");
 		if( orderStatus_class == null) orderStatus_class = "default";
 		
 		String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", el, XPathConstants.STRING);
@@ -315,6 +330,30 @@ public class OrderController {
 		baseInfoMap.put("orderStatus_class", orderStatus_class );
 		baseInfoMap.put("sellerCode", sellerCode );
 		baseInfoMap.put("entCode", entCode );
+		
+		
+		// 주문 전체 가격정보
+		Double totLineSub = 0.00;
+		Double totCharge = 0.00;
+		Double totDiscount = 0.00;
+		Double totTax = 0.00;
+		
+		/*
+		 * XML
+		 * <OverallTotals GrandCharges="20.00" GrandDiscount="20.00"
+        	GrandTax="20.00" GrandTotal="2408.00" HdrCharges="0.00"
+        	HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="2388.00"/>
+		 */
+		totLineSub = (Double)xp.evaluate("/Order/OverallTotals/@LineSubTotal", el, XPathConstants.NUMBER);
+		totCharge = (Double)xp.evaluate("/Order/OverallTotals/@GrandCharges", el, XPathConstants.NUMBER);
+		totDiscount = (Double)xp.evaluate("/Order/OverallTotals/@GrandDiscount", el, XPathConstants.NUMBER);
+		totTax = (Double)xp.evaluate("/Order/OverallTotals/@GrandTax", el, XPathConstants.NUMBER);
+		
+		baseInfoMap.put("totalLine", totLineSub);
+		baseInfoMap.put("totalCharge", totCharge);
+		baseInfoMap.put("totalDiscount", -totDiscount);
+		baseInfoMap.put("totalTax", totTax);
+		
 		
 		
 		//-------- 2. customer info
@@ -369,27 +408,52 @@ public class OrderController {
 		//-------- 3. Order Line Info
 		NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", el, XPathConstants.NODESET);
 		
-		List<HashMap<String,String>> orderLineList = new ArrayList<HashMap<String,String>>();
+		List<HashMap<String,Object>> orderLineList = new ArrayList<HashMap<String,Object>>();
 		for( int i=0; i<orderLineNodeList.getLength(); i++){
 			
-			HashMap<String,String> orderLineMap = new HashMap<String,String>();
+			HashMap<String,Object> orderLineMap = new HashMap<String,Object>();
 			
 			
 			// Line Basic Info
 			String lineKey = (String)xp.evaluate("@OrderLineKey", orderLineNodeList.item(i), XPathConstants.STRING);
 			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
 			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
-			String qty = (String)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.STRING);
 			String status = (String)xp.evaluate("@Status", orderLineNodeList.item(i), XPathConstants.STRING);
 			String status_class = env.getProperty("ui.status.css."+status);
 			if( status_class == null) status_class = "default";
 			
+			orderLineMap.put("lineKey", lineKey);
+			orderLineMap.put("PrimeLineNo", PrimeLineNo);
+			orderLineMap.put("shipNode", shipNode);
+			orderLineMap.put("status", status);
+			orderLineMap.put("status_class", status_class);
+			
+			
 			// Line Price, Charge, Tax Info
+			Double qty = (Double)xp.evaluate("LineOverallTotals/@OrderedQty", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			Double lineTatal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			Double UnitPrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			Double lineShipCharge = (Double)xp.evaluate("LineOverallTotals/@Charges", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			Double lineDisountCharge = (Double)xp.evaluate("LineOverallTotals/@Discount", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			Double lineTax= (Double)xp.evaluate("LineOverallTotals/@Tax", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			
+			/*
+			String qty = (String)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.STRING);
 			String lineTatal = (String)xp.evaluate("LinePriceInfo/@LineTotal", orderLineNodeList.item(i), XPathConstants.STRING);
 			String UnitPrice = (String)xp.evaluate("LinePriceInfo/@UnitPrice", orderLineNodeList.item(i), XPathConstants.STRING);
 			String lineShipCharge = (String)xp.evaluate("LineCharges/LineCharge[@ChargeCategory='Shipping' and @ChargeName='Shipping']/@ChargePerLine", orderLineNodeList.item(i), XPathConstants.STRING);
 			String lineDisountCharge = (String)xp.evaluate("LineCharges/LineCharge[@ChargeCategory='Discount' and @ChargeName='Discount']/@ChargePerLine", orderLineNodeList.item(i), XPathConstants.STRING);
 			String lineTax= (String)xp.evaluate("LineTaxes/LineTax[@ChargeCategory='Price']/@Tax", orderLineNodeList.item(i), XPathConstants.STRING);
+			*/
+			
+			orderLineMap.put("qty", qty);
+			orderLineMap.put("lineTatal", lineTatal);
+			orderLineMap.put("UnitPrice", UnitPrice);
+			orderLineMap.put("lineShipCharge", lineShipCharge);
+			orderLineMap.put("lineDisount", -lineDisountCharge);
+			orderLineMap.put("lineTax", lineTax);
+			
+			
 			
 			// Item Info
 			String itemId = (String)xp.evaluate("Item/@ItemID", orderLineNodeList.item(i), XPathConstants.STRING);
@@ -398,17 +462,7 @@ public class OrderController {
 			String uom = (String)xp.evaluate("Item/@UnitOfMeasure", orderLineNodeList.item(i), XPathConstants.STRING);
 			String pclass = (String)xp.evaluate("Item/@ProductClass", orderLineNodeList.item(i), XPathConstants.STRING);
 			 
-			orderLineMap.put("lineKey", lineKey);
-			orderLineMap.put("PrimeLineNo", PrimeLineNo);
-			orderLineMap.put("shipNode", shipNode);
-			orderLineMap.put("qty", qty);
-			orderLineMap.put("status", status);
-			orderLineMap.put("status_class", status_class);
-			orderLineMap.put("lineTatal", lineTatal);
-			orderLineMap.put("UnitPrice", UnitPrice);
-			orderLineMap.put("lineShipCharge", lineShipCharge);
-			orderLineMap.put("lineDisount", lineDisountCharge);
-			orderLineMap.put("lineTax", lineTax);
+			
 			
 			orderLineMap.put("itemId", itemId);
 			orderLineMap.put("itemDesc", itemDesc);

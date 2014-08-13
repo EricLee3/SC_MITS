@@ -57,47 +57,75 @@ public class ScOrderStatusHandler {
 	
 	
 	@RequestMapping(value = "/orderCreateAfter.do")
-	public void createOrderAfter(@RequestParam(required=false) String returnXML,
-			  @RequestParam(required=false) String status,	
+	public void createOrderAfter(@RequestParam String returnXML,
+			  @RequestParam String status,	
 			  HttpServletResponse res) throws Exception{
 		
 		
 		logger.info("[returnXML]"+returnXML);
+		logger.info("##### [Order Summary Process Started]");
 		logger.info("[status]"+status);
+		
+		if( status == null || !"1100".equals(status)){
+			
+			res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
+			return;
+		}
+		
 		
 		
 		// 1. Receive Message(retrunXML) Parsing
-		//Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(new File("/Users/ykjang/Dev/sterling/getOrderDetails_sample.xml")) );
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
+		// Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(new File("/Users/ykjang/Dev/sterling/getOrderDetails_sample.xml")) );
 
 		
 		Element outputXML = doc.getDocumentElement();
 		
-		
 		String entCode = outputXML.getAttribute("EnterpriseCode");
 		String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
+		logger.info("[entCode]"+entCode);
+		logger.info("[sellerCode]"+sellerCode);
 		
 		Double totAmount = 0.00;
+		Double totLineSub = 0.00;
 		Double totCharge = 0.00;
 		Double totDiscount = 0.00;
 		Double totTax = 0.00;
 		
+		/*
+		 * XML
+		 * <OverallTotals GrandCharges="20.00" GrandDiscount="20.00"
+        	GrandTax="20.00" GrandTotal="2408.00" HdrCharges="0.00"
+        	HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="2388.00"/>
+		 */
 		XPath xp = XPathFactory.newInstance().newXPath();
-		NodeList orderLineList = (NodeList)xp.evaluate("/Order/OrderLines", outputXML, XPathConstants.NODESET);
+		totAmount = (Double)xp.evaluate("/Order/OverallTotals/@GrandTotal", outputXML, XPathConstants.NUMBER);
+		
+		totLineSub = (Double)xp.evaluate("/Order/OverallTotals/@LineSubTotal", outputXML, XPathConstants.NUMBER);
+		totCharge = (Double)xp.evaluate("/Order/OverallTotals/@GrandCharges", outputXML, XPathConstants.NUMBER);
+		totDiscount = (Double)xp.evaluate("/Order/OverallTotals/@GrandDiscount", outputXML, XPathConstants.NUMBER);
+		totTax = (Double)xp.evaluate("/Order/OverallTotals/@GrandTax", outputXML, XPathConstants.NUMBER);
+		
+		
+		/*
+		NodeList orderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine", outputXML, XPathConstants.NODESET);
 		
 		for( int i=0; i< orderLineList.getLength(); i++){
 			
-			totAmount +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@LineTotal", orderLineList.item(i), XPathConstants.NUMBER);
-			totCharge +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@Charges", orderLineList.item(i), XPathConstants.NUMBER);
-			totDiscount +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@Discount", orderLineList.item(i), XPathConstants.NUMBER);
-			totTax +=  (Double)xp.evaluate("OrderLine/LineOverallTotals/@Tax", orderLineList.item(i), XPathConstants.NUMBER);
+			totAmount +=  (Double)xp.evaluate("LineOverallTotals/@LineTotal", orderLineList.item(i), XPathConstants.NUMBER);
+			totCharge +=  (Double)xp.evaluate("LineOverallTotals/@Charges", orderLineList.item(i), XPathConstants.NUMBER);
+			totDiscount +=  (Double)xp.evaluate("LineOverallTotals/@Discount", orderLineList.item(i), XPathConstants.NUMBER);
+			totTax +=  (Double)xp.evaluate("LineOverallTotals/@Tax", orderLineList.item(i), XPathConstants.NUMBER);
 			
 		}
+		*/
+		
 		
 		HashMap<String, Double> priceMap = new HashMap<String, Double>();
 		priceMap.put("amount", totAmount);
+		priceMap.put("lineTotal", totLineSub);
 		priceMap.put("charge", totCharge);
-		priceMap.put("discount", totDiscount);
+		priceMap.put("discount", -totDiscount);
 		priceMap.put("tax", totTax);
 		
 		// Order Report Service 호출

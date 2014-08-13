@@ -47,7 +47,7 @@
   
   <!-- Report Connection -->
   <bean id="reportStringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
-    p:connection-factory-ref="maConnectionFactory"
+    p:connection-factory-ref="reportConnectionFactory"
     p:defaultSerializer-ref="stringSerializer"  />  
     
     

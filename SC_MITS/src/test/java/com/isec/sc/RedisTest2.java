@@ -82,11 +82,11 @@ public class RedisTest2 {
 	@Test
 	public void printReportKeyDate(){
 		
-		String key = "count:Matrix:Matrix-R:orders:"+getCurrentDate();
-		String key1 = "amount:Matrix:Matrix-R:orders:"+getCurrentDate();
-		String key2 = "discount:Matrix:Matrix-R:orders:"+getCurrentDate();
-		String key3 = "shipping:Matrix:Matrix-R:orders:"+getCurrentDate();
-		String key4 = "tax:Matrix:Matrix-R:orders:"+getCurrentDate();
+		String key = "count:DA:OUTRO:orders:"+getCurrentDate();
+		String key1 = "amount:DA:OUTRO:orders:"+getCurrentDate();
+		String key2 = "discount:DA:OUTRO:orders:"+getCurrentDate();
+		String key3 = "shipping:DA:OUTRO:orders:"+getCurrentDate();
+		String key4 = "tax:DA:OUTRO:orders:"+getCurrentDate();
 		
 //		reportStringRedisTemplate.delete(key);
 //		reportStringRedisTemplate.delete(key1);

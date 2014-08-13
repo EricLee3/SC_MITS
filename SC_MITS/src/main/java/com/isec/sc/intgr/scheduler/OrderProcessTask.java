@@ -23,13 +23,11 @@ import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
-import com.isec.sc.intgr.report.OrderReportService;
 
 
 
@@ -41,8 +39,6 @@ public class OrderProcessTask {
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 
-	@Autowired	private OrderReportService orderReportService;
-	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
 	
@@ -61,9 +57,10 @@ public class OrderProcessTask {
     public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
     	
-    	logger.debug("##### ["+redisKey+"] createOrder Task Started!!!");
-    	logger.debug("##### Push Key ["+redisPushKey+"]");
-    	logger.debug("##### Error Key ["+redisErrKey+"]");
+    	logger.debug("##### [createOrder] Job Task Started!!!");
+    	logger.debug("     ----- Read Key ["+redisKey+"]");
+    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
+    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
     	
     	Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -84,8 +81,10 @@ public class OrderProcessTask {
 				
 				
 				// Create 성공
+				// TODO: ScOrderStatusHandler에서 처리하도록 수정
 				if("1100".equals(status)){
 					
+					// TODO: sellerCode 저장추가
 					String orderSuccJSON = mapper.writeValueAsString(result);
 					logger.debug("[Create Order Successful]");
 					logger.debug("[orderSucc JSON]"+orderSuccJSON);
@@ -126,9 +125,10 @@ public class OrderProcessTask {
      */
 	public void updateOrderStatus(String redisKey, String redisPushKey, String redisErrKey){
         
-		logger.debug("##### ["+redisKey+"] udpateOrderStatuss Task Started!!!");
-	  	logger.debug("##### redisPushKey ["+redisPushKey+"]");
-	  	logger.debug("##### redisErrKey["+redisErrKey+"]");
+		logger.debug("##### [updateOrderStatus] Job Task Started!!!");
+    	logger.debug("     ----- Read Key ["+redisKey+"]");
+    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
+    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
 	  	
 	  	Map<String,String> sendMsgMap = new HashMap<String,String>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -138,8 +138,6 @@ public class OrderProcessTask {
 	  	logger.debug("["+redisKey+"] data length: "+dataCnt);
 		
 		try{
-			
-			logger.debug("[list.size-read]"+listOps.size(redisKey));
 			
 			// 3. Call Sterling API by Type & Key
 			for(int i=0; i<listOps.size(redisKey); i++){

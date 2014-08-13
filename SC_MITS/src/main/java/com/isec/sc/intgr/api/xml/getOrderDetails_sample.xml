@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order AuthorizationExpirationDate="2014-06-11T17:13:54-04:00"
+    CarrierAccountNo="" CarrierServiceCode=""
+    ChargeActualFreightFlag="N"
+    CustomerEMailID="yg.jang@isecommerce.co.kr" CustomerPONo=""
+    DeliveryCode="" Division="" DocumentType="0001" DraftOrderFlag="N"
+    EnterpriseCode="Matrix" EntryType="" FreightTerms=""
+    HasStateChanged="Y" HoldFlag="N" HoldReasonCode=""
+    MaxOrderStatus="1500" MaxOrderStatusDesc="Scheduled"
+    MinOrderStatus="1500" MinOrderStatusDesc="Scheduled"
+    NotifyAfterShipmentFlag="N" OrderDate="2014-06-11T17:13:54-04:00"
+    OrderHeaderKey="2014061117135437059" OrderName=""
+    OrderNo="100000031" OrderType="" OriginalTax="0.00"
+    OriginalTotalAmount="150.00" OtherCharges="0.00"
+    PaymentStatus="AWAIT_PAY_INFO" PersonalizeCode="" PriorityCode=""
+    PriorityNumber="0" Purpose="" SCAC="" ScacAndService=""
+    ScacAndServiceKey="" SearchCriteria1="" SearchCriteria2=""
+    SellerOrganizationCode="Matrix-R" Status="Scheduled"
+    TaxExemptFlag="N" TaxExemptionCertificate="" TaxJurisdiction=""
+    TaxPayerId="" TermsCode="" TotalAdjustmentAmount="0.00" isHistory="N">
+    <PriceInfo Currency="USD" EnterpriseCurrency="USD"
+        ReportingConversionDate="2014-06-11T17:13:54-04:00"
+        ReportingConversionRate="1.00" TotalAmount="150.00"/>
+    <OrderAudits>
+        <OrderAudit AuditTransactionId=""
+            OrderAuditKey="2014061117142637078"
+            OrderHeaderKey="2014061117135437059" ReasonCode=""
+            ReasonText="" Reference1="" Reference2="" Reference3=""
+            Reference4="" XMLFlag="Y">
+            <Order DocumentType="0001" EnterpriseCode="Matrix" OrderNo="100000031"/>
+            <OrderAuditLevels>
+                <OrderAuditLevel ModificationLevel="ORDER"
+                    ModificationLevelScreenName="Order" OrderLineKey="" OrderReleaseKey="">
+                    <OrderAuditDetails>
+                        <OrderAuditDetail Action="" AuditType="OrderHeader">
+                            <Attributes>
+                                <Attribute ModificationType="OTHERS"
+                                    Name="HoldReasonCode" NewValue=" " OldValue="SYSTEM"/>
+                                <Attribute
+                                    ModificationType="PAYMENT_STATUS"
+                                    Name="PaymentStatus"
+                                    NewValue="AWAIT_PAY_INFO" OldValue="AWAIT_AUTH"/>
+                                <Attribute ModificationType="HOLD"
+                                    Name="HoldFlag" NewValue="N" OldValue="Y"/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail Action="" AuditType="OrderHoldType">
+                            <IDs>
+                                <ID Name="HoldType" Value="YCD_DUPLICATE_ORDER"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute Name="OrderAuditKey"
+                                    NewValue="2014061117142637078" OldValue=""/>
+                                <Attribute Name="Status" NewValue="1300" OldValue="1100"/>
+                                <Attribute Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute Name="Modifyts"
+                                    NewValue="2014-06-11T17:14:26" OldValue="2014-06-11T17:13:54"/>
+                                <Attribute Name="TransactionId"
+                                    NewValue="ORDER_CHANGE" OldValue="ORDER_CREATE"/>
+                                <Attribute Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail Action="" AuditType="OrderHoldType">
+                            <IDs>
+                                <ID Name="HoldType" Value="YCD_FRAUD_CHECK"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute Name="OrderAuditKey"
+                                    NewValue="2014061117142637078" OldValue=""/>
+                                <Attribute Name="Status" NewValue="1300" OldValue="1100"/>
+                                <Attribute Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute Name="Modifyts"
+                                    NewValue="2014-06-11T17:14:26" OldValue="2014-06-11T17:13:54"/>
+                                <Attribute Name="TransactionId"
+                                    NewValue="ORDER_CHANGE" OldValue="ORDER_CREATE"/>
+                                <Attribute Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                    </OrderAuditDetails>
+                    <ModificationTypes>
+                        <ModificationType Name="OTHERS" ScreenName="Change Other Attributes"/>
+                        <ModificationType Name="HOLD_TYPE" ScreenName="Hold Type Modifications"/>
+                    </ModificationTypes>
+                </OrderAuditLevel>
+            </OrderAuditLevels>
+        </OrderAudit>
+        <OrderAudit AuditTransactionId=""
+            OrderAuditKey="2014061117143637083"
+            OrderHeaderKey="2014061117135437059" ReasonCode=""
+            ReasonText="" Reference1="" Reference2="" Reference3=""
+            Reference4="" XMLFlag="Y">
+            <Order DocumentType="0001" EnterpriseCode="Matrix" OrderNo="100000031"/>
+            <OrderAuditLevels>
+                <OrderAuditLevel ModificationLevel="ORDER"
+                    ModificationLevelScreenName="Order" OrderLineKey="" OrderReleaseKey="">
+                    <OrderAuditDetails>
+                        <OrderAuditDetail Action="" AuditType="OrderHeader">
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="PAYMENT_STATUS"
+                                    Name="PaymentStatus"
+                                    NewValue="AUTHORIZED" OldValue="AWAIT_PAY_INFO"/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                    </OrderAuditDetails>
+                    <ModificationTypes>
+                        <ModificationType Name="OTHERS" ScreenName="Change Other Attributes"/>
+                        <ModificationType Name="PAYMENT_STATUS" ScreenName="Change Payment Status"/>
+                    </ModificationTypes>
+                </OrderAuditLevel>
+            </OrderAuditLevels>
+        </OrderAudit>
+        <OrderAudit AuditTransactionId=""
+            OrderAuditKey="2014061117153637100"
+            OrderHeaderKey="2014061117135437059" ReasonCode=""
+            ReasonText="" Reference1="" Reference2="" Reference3=""
+            Reference4="" XMLFlag="Y">
+            <Order DocumentType="0001" EnterpriseCode="Matrix" OrderNo="100000031"/>
+            <OrderAuditLevels>
+                <OrderAuditLevel ModificationLevel="ORDER"
+                    ModificationLevelScreenName="Order" OrderLineKey="" OrderReleaseKey="">
+                    <OrderAuditDetails>
+                        <OrderAuditDetail Action="" AuditType="OrderHeader">
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="PAYMENT_STATUS"
+                                    Name="PaymentStatus"
+                                    NewValue="AWAIT_PAY_INFO" OldValue="AUTHORIZED"/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value=""/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MAX_DELIVERY"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value=""/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MAX_SHIPMENT"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value=""/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MIN_DELIVERY"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value=""/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MIN_SHIPMENT"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                    </OrderAuditDetails>
+                    <ModificationTypes>
+                        <ModificationType Name="OTHERS" ScreenName="Change Other Attributes"/>
+                    </ModificationTypes>
+                </OrderAuditLevel>
+                <OrderAuditLevel ModificationLevel="ORDER_LINE"
+                    OrderLineKey="2014061117135437060" OrderReleaseKey="">
+                    <OrderLine PrimeLineNo="1" SubLineNo="1"/>
+                    <OrderAuditDetails>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value="2014061117135437060"/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MAX_DELIVERY"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value="2014061117135437060"/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MAX_SHIPMENT"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value="2014061117135437060"/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MIN_DELIVERY"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                        <OrderAuditDetail AuditType="OrderDate">
+                            <IDs>
+                                <ID Name="OrderHeaderKey" Value="2014061117135437059"/>
+                                <ID Name="OrderLineKey" Value="2014061117135437060"/>
+                                <ID Name="OrderReleaseKey" Value=""/>
+                                <ID Name="DateTypeId" Value="MIN_SHIPMENT"/>
+                            </IDs>
+                            <Attributes>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Lockid" NewValue="1" OldValue="0"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="ExpectedDate"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyts"
+                                    NewValue="20140611171536" OldValue="20140611171354"/>
+                                <Attribute
+                                    ModificationType="CHANGE_ORDER_DATE"
+                                    Name="Modifyprogid"
+                                    NewValue="Console" OldValue=""/>
+                            </Attributes>
+                        </OrderAuditDetail>
+                    </OrderAuditDetails>
+                </OrderAuditLevel>
+            </OrderAuditLevels>
+        </OrderAudit>
+    </OrderAudits>
+    <OrderLines>
+        <OrderLine AllocationDate="2014-06-11T00:00:00-04:00"
+            CarrierAccountNo="" CarrierServiceCode=""
+            CustomerLinePONo="" CustomerPONo="" DeliveryCode=""
+            DepartmentCode="" FreightTerms="" HoldFlag="N"
+            HoldReasonCode="" ImportLicenseNo="" InvoicedQty="0.00"
+            KitCode="" LineSeqNo="1.1" LineType="" MaxLineStatus="1500"
+            MaxLineStatusDesc="Scheduled" MinLineStatus="1500"
+            MinLineStatusDesc="Scheduled" OpenQty="1.00"
+            OrderHeaderKey="2014061117135437059"
+            OrderLineKey="2014061117135437060" OrderedQty="1.00"
+            OriginalOrderedQty="1.00" OtherCharges="0.00"
+            PackListType="" PersonalizeCode="" PersonalizeFlag=""
+            PickableFlag="Y" PrimeLineNo="1" Purpose=""
+            RemainingQty="1.00" ReservationID="" ReservationPool=""
+            SCAC="" ScacAndService="" ScacAndServiceKey=""
+            ShipNode="Matrix_WH1" ShipTogetherNo="" SplitQty="0.00"
+            Status="Scheduled" StatusQuantity="1.00" SubLineNo="1" isHistory="N">
+            <Item CostCurrency="" CountryOfOrigin="" CustomerItem=""
+                CustomerItemDesc="" ECCNNo="" HarmonizedCode="" ISBN=""
+                ItemDesc="" ItemID="2500536180001"
+                ItemShortDesc="Valve Polished Black/Black Iridium"
+                ItemWeight="0.00" ItemWeightUOM="LBS"
+                ManufacturerItem="551" ManufacturerItemDesc=""
+                ManufacturerName="OAKLEY" NMFCClass="" NMFCCode=""
+                NMFCDescription="" ProductClass="GOOD" ProductLine=""
+                ScheduleBCode="" SupplierItem="" SupplierItemDesc=""
+                TaxProductCode="" UPCCode="" UnitCost="0.00" UnitOfMeasure="EACH"/>
+            <LinePriceInfo DiscountPercentage="0.00" LineTotal="150.00"
+                ListPrice="0.00" RetailPrice="0.00" TaxableFlag="N" UnitPrice="150.00"/>
+            <Instructions NumberOfInstructions="0"/>
+            <References/>
+            <KitLines NumberOfKitLines="0"/>
+            <AdditionalAddresses NumberOfAdditionalAddresses="0"/>
+            <Schedules>
+                <Schedule
+                    ExpectedDeliveryDate="2014-06-11T17:15:36-04:00"
+                    ExpectedShipmentDate="2014-06-11T17:15:36-04:00"
+                    OrderHeaderKey="2014061117135437059"
+                    OrderLineKey="2014061117135437060"
+                    OrderLineScheduleKey="201406111720153637098"
+                    ScheduleNo="2" TagNumber=""/>
+            </Schedules>
+            <LineOverallTotals Charges="15.00" Discount="5.00"
+                ExtendedPrice="150.00" LineTotal="150.00"
+                OptionPrice="0.00" PricingQty="1.00" Tax="7.00" UnitPrice="150.00"/>
+            <LineInvoicedTotals Charges="0.00" Discount="0.00"
+                ExtendedPrice="0.00" LineTotal="0.00" OptionPrice="0.00"
+                PricingQty="0.00" Tax="0.00" UnitPrice="0.00"/>
+            <LineRemainingTotals Charges="0.00" Discount="0.00"
+                ExtendedPrice="150.00" LineTotal="150.00"
+                OptionPrice="0.00" PricingQty="1.00" Tax="0.00" UnitPrice="150.00"/>
+            <LineCharges/>
+            <LineTaxes/>
+            <OrderStatuses>
+                <OrderStatus OrderHeaderKey="2014061117135437059"
+                    OrderLineKey="2014061117135437060"
+                    OrderLineScheduleKey="201406111720153637098"
+                    OrderReleaseStatusKey="201406111796153637099"
+                    PipelineKey="YCD_SALES-9.3" Status="1500"
+                    StatusDate="2014-06-11T17:15:36-04:00"
+                    StatusDescription="Scheduled" StatusQty="1.00" TotalQuantity="1.00"/>
+            </OrderStatuses>
+        </OrderLine>
+    </OrderLines>
+    <Instructions NumberOfInstructions="0"/>
+    <PersonInfoShipTo AddressLine1="abcd" AddressLine2=""
+        AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6=""
+        AlternateEmailID="" Beeper="" City="California" Company=""
+        Country="US" DayFaxNo="" DayPhone="1234567" Department=""
+        EMailID="yg.jang@isecommerce.co.kr" EveningFaxNo=""
+        EveningPhone="" FirstName="sc" JobTitle="" LastName="team"
+        MiddleName="" MobilePhone="1234567" OtherPhone="" PersonID=""
+        PersonInfoKey="2014061020442933964" State="" Suffix="" Title="" ZipCode="12345"/>
+    <PersonInfoBillTo AddressLine1="abcd" AddressLine2=""
+        AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6=""
+        AlternateEmailID="" Beeper="" City="California" Company=""
+        Country="US" DayFaxNo="" DayPhone="1234567" Department=""
+        EMailID="yg.jang@isecommerce.co.kr" EveningFaxNo=""
+        EveningPhone="" FirstName="sc" JobTitle="" LastName="team"
+        MiddleName="" MobilePhone="1234567" OtherPhone="" PersonID=""
+        PersonInfoKey="2014061020442933964" State="" Suffix="" Title="" ZipCode="12345"/>
+    <AdditionalAddresses NumberOfAdditionalAddresses="0"/>
+    <References/>
+    <PaymentMethods>
+        <PaymentMethod AwaitingAuthInterfaceAmount="0.00"
+            AwaitingChargeInterfaceAmount="0.00" ChargeSequence="0"
+            CheckNo="" CheckReference="" CreditCardExpDate=""
+            CreditCardName="" CreditCardType="" CustomerPONo=""
+            DisplayCreditCardNo="" IncompletePaymentType="Y"
+            MaxChargeLimit="0.00" PaymentKey="201406111786135437061"
+            PaymentReference1="" PaymentReference2=""
+            PaymentReference3="" PaymentType="CREDIT_CARD"
+            RequestedAuthAmount="0.00" RequestedChargeAmount="0.00"
+            SuspendAnyMoreCharges="N" TotalAuthorized="0.00"
+            TotalCharged="0.00" TotalRefundedAmount="0.00" UnlimitedCharges="Y"/>
+    </PaymentMethods>
+    <ChargeTransactionDetails AdditionalExpectedAuthorizations="0.00"
+        TotalCredits="0.00" TotalDebits="0.00"
+        TotalOpenAuthorizations="0.00" TotalOpenBookings="150.00"
+        TotalTransferredIn="0.00" TotalTransferredOut="0.00">
+        <ChargeTransactionDetail AuditTransactionID=""
+            AuthorizationExpirationDate="2014-06-11T17:13:54-04:00"
+            AuthorizationID="" BookAmount="150.00"
+            ChargeTransactionKey="2014061117135437064"
+            ChargeType="CREATE_ORDER"
+            CollectionDate="2014-06-11T17:13:54-04:00"
+            CreditAmount="0.00" DebitAmount="0.00"
+            DistributedAmount="0.00" HoldAgainstBook=""
+            OpenAuthorizedAmount="0.00"
+            OrderHeaderKey="2014061117135437059" OrderInvoiceKey=""
+            PaymentKey="" RequestAmount="0.00" SettledAmount="0.00"
+            Status="OPEN" TransactionDate="2014-06-11T17:13:54-04:00" UserExitStatus="">
+            <CreditCardTransactions/>
+        </ChargeTransactionDetail>
+    </ChargeTransactionDetails>
+    <OverallTotals GrandCharges="0.00" GrandDiscount="0.00"
+        GrandTax="0.00" GrandTotal="150.00" HdrCharges="0.00"
+        HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="150.00"/>
+    <InvoicedTotals GrandCharges="0.00" GrandDiscount="0.00"
+        GrandTax="0.00" GrandTotal="0.00" HdrCharges="0.00"
+        HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="0.00"/>
+    <RemainingTotals GrandCharges="0.00" GrandDiscount="0.00"
+        GrandTax="0.00" GrandTotal="150.00" HdrCharges="0.00"
+        HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="150.00"/>
+    <HeaderCharges/>
+    <HeaderTaxes/>
+    <OrderStatuses>
+        <OrderStatus OrderHeaderKey="2014061117135437059"
+            OrderLineKey="2014061117135437060"
+            OrderLineScheduleKey="201406111720153637098"
+            OrderReleaseStatusKey="201406111796153637099"
+            PipelineKey="YCD_SALES-9.3" Status="1500"
+            StatusDate="2014-06-11T17:15:36-04:00"
+            StatusDescription="Scheduled" StatusQty="1.00" TotalQuantity="1.00"/>
+    </OrderStatuses>
+</Order>
