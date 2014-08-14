@@ -33,11 +33,11 @@ var EcommerceOrders = function () {
             },
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
                 "lengthMenu": [
-                    [20, 50, 100, 150, -1],
-                    [20, 50, 100, 150, "All"] // change per page values here
+                    [5, 20, 50, 100, 150, -1],
+                    [5, 20, 50, 100, 150, "All"] // change per page values here
                 ],
-                "pageLength": 20, // default record count per page
-                "serverSide": false, 
+                "pageLength": 10, // default record count per page
+                "serverSide": true, 
                 "ajax": {
                     "url": "/orders/orderList.sc"  // ajax source
                 	

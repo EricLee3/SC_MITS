@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Page PageNumber="{0}" PageSize="{1}"
+    PaginationStrategy="GENERIC" Refresh="Y" XMLPath="">
+    <ReferenceData/>
+    <API Name="{2}">
+        <Input>
+            {3}
+        </Input>
+        <Template/>
+    </API>
+</Page>

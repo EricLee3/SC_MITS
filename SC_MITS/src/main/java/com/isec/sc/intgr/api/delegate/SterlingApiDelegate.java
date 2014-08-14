@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -66,6 +67,9 @@ public class SterlingApiDelegate {
 	private String getOrderReleaseList_template;
 	
 	
+	@Value("${sc.api.getPage.template}")
+	private String getPage_template;
+	
 	public SterlingApiDelegate() {
 		
 	}
@@ -83,6 +87,61 @@ public class SterlingApiDelegate {
 		return outputXML;
 	}
 	
+	
+	/**
+	 *  Sterling List Type의 API에 대한 Paging 처리
+	 *  
+	 * @param pageNumber
+	 * @param pageSize
+	 * @param callApi
+	 * @param inputXML
+	 * @return
+	 * @throws Exception
+	 */
+	public HashMap<String, Object> getPageApi(int pageNumber, int pageSize, String callApi, String inputXML) throws Exception{
+		
+		
+		
+		String template = FileContentReader.readContent(getClass().getResourceAsStream(getPage_template));
+		
+		MessageFormat msg = new MessageFormat(template);
+		String xmlData = msg.format(new String[] {String.valueOf(pageNumber), String.valueOf(pageSize), callApi, inputXML} );
+		logger.debug("[getPage intputXML]"+xmlData);
+		
+		
+		Document doc = null;
+		HashMap<String, Object> returnMap = new HashMap<String, Object>();
+		
+		try{
+			
+			
+			sterlingHTTPConnector.setApi("getPage");
+			sterlingHTTPConnector.setData(xmlData);
+			
+			String outputXML = sterlingHTTPConnector.run();
+			logger.debug("[getPage outputXML]"+outputXML);
+			
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+			Element el = doc.getDocumentElement();
+			
+			XPath xp = XPathFactory.newInstance().newXPath();
+			
+			
+			returnMap.put("isFirstPage", (String)xp.evaluate("@IsFirstPage", el, XPathConstants.STRING));
+			returnMap.put("isLastPage", (String)xp.evaluate("@IsLastPage", el, XPathConstants.STRING));
+			returnMap.put("isValidPage", (String)xp.evaluate("@IsValidPage", el, XPathConstants.STRING));
+			returnMap.put("pageNumber", (String)xp.evaluate("@PageNumber", el, XPathConstants.STRING));
+			returnMap.put("pageSetToken", (String)xp.evaluate("@PageSetToken", el, XPathConstants.STRING));
+			
+			returnMap.put("output", (Node)xp.evaluate("/Page/Output", el, XPathConstants.NODE));
+			
+			
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
+		
+		return returnMap;
+	}
 	
 	public String manageItem(String xmlData) throws Exception{
 		
@@ -359,4 +418,5 @@ public class SterlingApiDelegate {
 		return releaseKeyList;
 		
 	}
+	
 }

@@ -155,14 +155,17 @@ public class OrderController {
 			logger.debug("[orderNo.length]"+orderNos.length); 
 		
 		
-		String entCode = (String)paramMap.get("ent_code");
-		String sellerCode = (String)paramMap.get("seller_code");
-		String orderStatus = (String)paramMap.get("order_status");
+		String orderId = (String)paramMap.get("order_id")==null?"":(String)paramMap.get("order_id");
+		String entCode = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
+		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
+		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
+		String toDate = paramMap.get("order_date_to")==null?"":paramMap.get("order_date_to");
+		
+		String orderStatus = (String)paramMap.get("order_status")==null?"":(String)paramMap.get("order_status");
 		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
 		
-		String orderId = (String)paramMap.get("order_id");
 		String orderFromStatus = "1100";  // Created
-		String orderToStatus = "3200";    // Released 
+		String orderToStatus = "9000";    // Cancelled 
 		
 		// 오더상태구간별 검색일 경우
 		String orderStatusQryType_Text = "";
@@ -171,8 +174,8 @@ public class OrderController {
 		}
 		
 		
-		String getOrderList_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
-		   + "<Order DocumentType=\""+ doc_type +"\" "
+		String getOrderList_input = ""
+		     + "<Order DocumentType=\""+ doc_type +"\" "
 		     + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" "
 		     // 오더상태 검색유형
 		     + " Status=\"{2}\" {3} "
@@ -193,36 +196,50 @@ public class OrderController {
 												"A".equals(orderStatus)?"":orderStatus, 
 												orderStatusQryType_Text,
 												orderId,
-												paramMap.get("order_date_from"),
-												paramMap.get("order_date_to")
+												fromDate,
+												toDate
 		} );
 		logger.debug("[inputXML]"+inputXML); 
 		
 		
 		// API Call
-		String outputXML = sterlingApiDelegate.comApiCall("getOrderList", inputXML);
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
-		Element el = doc.getDocumentElement();
+		
+		int pageRowNumber = Integer.parseInt(paramMap.get("start"));
+		int pageSize = Integer.parseInt(paramMap.get("length")); 
+		
+		int pageNumber = pageRowNumber==0?1: (pageRowNumber/pageSize)+1; 
+		logger.debug("[pageNumber]" + pageNumber);
+		
+		
+		HashMap<String, Object> resultMap = sterlingApiDelegate.getPageApi(pageNumber, pageSize, "getOrderList", inputXML);
+		
+		/**
+		 * returnMap.put("isFirstPage", (String)xp.evaluate("@IsFirstPage", el, XPathConstants.STRING));
+			returnMap.put("isLastPage", (String)xp.evaluate("@IsLastPage", el, XPathConstants.STRING));
+			returnMap.put("isValidPage", (String)xp.evaluate("@IsValidPage", el, XPathConstants.STRING));
+			returnMap.put("pageNumber", (String)xp.evaluate("@PageNumber", el, XPathConstants.STRING));
+			returnMap.put("pageSetToken", (String)xp.evaluate("@PageSetToken", el, XPathConstants.STRING));
+			
+			returnMap.put("dataList", (NodeList)xp.evaluate("/Page/Output", el, XPathConstants.NODESET));
+		 */
+		
+		Node orderListNode = (Node)resultMap.get("output");
+		
 		
 		XPath xp = XPathFactory.newInstance().newXPath();
+		String totCnt = (String)xp.evaluate("OrderList/@TotalOrderList", orderListNode, XPathConstants.STRING);
+		logger.debug("[totCnt]" + totCnt);
 		
 		
-		String tCnt = (String)xp.evaluate("@TotalOrderList", el, XPathConstants.STRING);
-		logger.debug("[tCnt]" + tCnt);
+//		int iDisplayLength = pageSize < 0 ? totCnt:pageSize;
+//		
+//		int iDisplayStart = Integer.parseInt( (String)paramMap.get("start"));
+//		int iEnd = pageNumber + iDisplayLength;
+//		iEnd = iEnd > totCnt ? totCnt:iEnd;
 		
-/*		
-		int iTotalRecords = Integer.parseInt(tCnt);
-		int iDisplayLength = Integer.parseInt( (String)paramMap.get("length") );
-		iDisplayLength = iDisplayLength < 0 ? iTotalRecords:iDisplayLength;
 		
-		int iDisplayStart = Integer.parseInt( (String)paramMap.get("start"));
-		int iEnd = iDisplayStart + iDisplayLength;
-		iEnd = iEnd > iTotalRecords ? iTotalRecords:iEnd;
-*/		
 		
-//		for(int i=iDisplayStart; i<iEnd; i++){
-		
-		NodeList orderNodeList = (NodeList)xp.evaluate("/OrderList/Order", el, XPathConstants.NODESET);
+		NodeList orderNodeList = (NodeList)xp.evaluate("OrderList/Order", orderListNode, XPathConstants.NODESET);
 		ArrayList<Object> data = new ArrayList<Object>();
 		
 		for(int i=0; i<orderNodeList.getLength(); i++){
@@ -260,11 +277,9 @@ public class OrderController {
 
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("data",data);
-//		mav.addObject("draw", paramMap.get("draw"));
-//		mav.addObject("recordsTotal", iTotalRecords);
-//		mav.addObject("recordsFiltered", iTotalRecords);
-		mav.addObject("recordsTotal", tCnt);
-		mav.addObject("recordsFiltered", tCnt);
+		mav.addObject("draw", paramMap.get("draw"));
+		mav.addObject("recordsTotal", totCnt);
+		mav.addObject("recordsFiltered", totCnt);
 		
 		String custActionType = (String)paramMap.get("customActionType"); 
 		if ("group_action".equals(custActionType)) {
@@ -419,7 +434,7 @@ public class OrderController {
 			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
 			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
 			String status = (String)xp.evaluate("@Status", orderLineNodeList.item(i), XPathConstants.STRING);
-			String status_class = env.getProperty("ui.status.css."+status);
+			String status_class = env.getProperty("ui.status."+orderStatus+".cssname");
 			if( status_class == null) status_class = "default";
 			
 			orderLineMap.put("lineKey", lineKey);
@@ -430,7 +445,7 @@ public class OrderController {
 			
 			
 			// Line Price, Charge, Tax Info
-			Double qty = (Double)xp.evaluate("LineOverallTotals/@OrderedQty", orderLineNodeList.item(i), XPathConstants.NUMBER);
+			Double qty = (Double)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.NUMBER);
 			Double lineTatal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", orderLineNodeList.item(i), XPathConstants.NUMBER);
 			Double UnitPrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", orderLineNodeList.item(i), XPathConstants.NUMBER);
 			Double lineShipCharge = (Double)xp.evaluate("LineOverallTotals/@Charges", orderLineNodeList.item(i), XPathConstants.NUMBER);
