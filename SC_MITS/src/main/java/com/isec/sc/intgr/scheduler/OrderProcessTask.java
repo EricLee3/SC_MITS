@@ -176,8 +176,7 @@ public class OrderProcessTask {
 						logger.debug("[releaseKeys]"+releaseKeys.get(j));
 						
 						/**
-						 * TODO:
-						 * 현재는 MITS가 Shipment처리를 담당하나 향후에는 CUBE가 출고지시를 할수 있도록 Release된 주문정보를
+						 * TODO: 현재는 MITS가 Shipment처리를 담당하나 향후에는 CUBE가 출고지시를 할수 있도록 Release된 주문정보를
 						 * Cube로 전송하고 SC(MITS)는 CUBE의 출고확정정보를 받아 Shipped로 주문의 상태를 변경하는 방식으로 변경필요 
 						 */
 						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment(releaseKeys.get(j), docType, entCode, orderId);

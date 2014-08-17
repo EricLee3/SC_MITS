@@ -2,10 +2,15 @@ package com.isec.sc.intgr.web;
 
 import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -61,13 +66,24 @@ public class ReportController {
 	@Autowired	private Environment env;
 	
 	
+	
+	
+	/**
+	 * 오더 Report ( Chart 데이타 조회)
+	 *  - 월별 오더금액, 오더건수
+	 *  - Total 오더금액, 오더건수
+	 *  - TODO: Shipping, Discount, Tax금액 집계처리
+	 *  
+	 * @param paramMap 시작년월/종료년월
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/getOrderReportByCh.sc")
 	public ModelAndView getOrderReportByCh( @RequestParam Map<String, String> paramMap ) throws Exception{ 
 		
-		
-		// TODO: property로 뺼것
-		String entCode[] = {"Matrix", "DA", "ISEC"};
-		String sellerCode[] = {"Matrix-R", "OUTRO", "ASPB"};;
+		// TODO: 채널정보 property로 뺼것
+		String entCode[] = {"DA", "ISEC"};
+		String sellerCode[] = {"OUTRO", "ASPB"};
 		
 		
 		// 검색일자 Parameter
@@ -86,7 +102,7 @@ public class ReportController {
 		
 		int endMonth =  12;
 		
-		HashMap<String, Object> chMap = new HashMap<String, Object>();
+		List<HashMap<String, Object>> chDataList = new ArrayList<HashMap<String, Object>>();
 		
 		// 채널별
 		for( int i=0; i<sellerCode.length; i++){
@@ -107,7 +123,11 @@ public class ReportController {
 			dataMap.put("count", cnt_list);
 			dataMap.put("amount", amt_list);
 			
-			chMap.put(sellerCode[i], dataMap);
+			HashMap<String, Object> chMap = new HashMap<String, Object>();
+			chMap.put("chName", sellerCode[i]);
+			chMap.put("chData", dataMap);
+			
+			chDataList.add(chMap);
 		}
 		
 		
@@ -149,7 +169,7 @@ public class ReportController {
 		}
 		
 		ModelAndView mav = new ModelAndView("jsonView");
-		mav.addObject("data", chMap);
+		mav.addObject("data", chDataList);
 		mav.addObject("tot_count", tot_orderCnt);
 		mav.addObject("tot_amount", tot_orderAmount);
 		mav.addObject("tot_cnt_data", totlist);
@@ -157,5 +177,96 @@ public class ReportController {
 		return mav;   
 	}
 	
-
+	
+	
+	@RequestMapping(value = "/getOrderOverAll.sc")
+	public ModelAndView getOrderOverAll( @RequestParam String startDate,  @RequestParam String endDate, @RequestParam int term) throws Exception{ 
+		
+		
+		String orderCountKey_pre = "count:*:*:orders:";
+		String orderAmountKey_pre = "amount:*:*:orders:";
+		
+		int tot_order_count = 0;
+		double tot_order_amount = 0.00;
+		double tot_order_avg_amount = 0.00;
+		
+		
+		for( int i = -term; i<=0; i++){
+			
+			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+calcDate(endDate, i));
+			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+calcDate(endDate, i));
+			
+//			Iterator<String> itr = cnt_key_names.iterator();
+//			while(itr.hasNext()){
+//				logger.debug("[key]"+itr.next());
+//			}
+			
+			
+			// Order Count
+			List<String> cnt_list = valueOps.multiGet(cnt_key_names);
+			for(String orderCount: cnt_list){
+				tot_order_count += Integer.parseInt(orderCount);
+			}
+			
+			// Order Amount
+			List<String> amt_list = valueOps.multiGet(amt_key_names);
+			for(String orderAmount: amt_list){
+				tot_order_amount += Integer.parseInt(orderAmount);
+			}
+		}
+		
+		tot_order_avg_amount = tot_order_amount/tot_order_count;
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		mav.addObject("tot_order_count", tot_order_count);
+		mav.addObject("tot_order_amount", tot_order_amount);
+		mav.addObject("tot_order_avg_amount", tot_order_avg_amount);
+		return mav;   
+	}
+	
+	
+	
+	public static String calcDate(String dateForm, int days)  
+    {  
+        String date = dateForm;  
+        int year = Integer.parseInt(date.substring(0, 4));  
+        int month = Integer.parseInt(date.substring(4, 6)) - 1;  
+        int dayOfMonth = Integer.parseInt(date.substring(6, 8));  
+  
+        GregorianCalendar cal = new GregorianCalendar(year, month, dayOfMonth);  
+        SimpleDateFormat timeform = new SimpleDateFormat("yyyyMMdd");  
+        cal.add(Calendar.DAY_OF_MONTH, days);  
+        Date d = cal.getTime();  
+          
+        return timeform.format(d);  
+    }
+	
+	public static String calcYearMonth(String dateForm, int mon)  
+    {  
+        String date = dateForm;  
+        int year = Integer.parseInt(date.substring(0, 4));  
+        int month = Integer.parseInt(date.substring(4, 6)) - 1;  
+        int dayOfMonth = Integer.parseInt(date.substring(6, 8));  
+  
+        GregorianCalendar cal = new GregorianCalendar(year, month, dayOfMonth);  
+        SimpleDateFormat timeform = new SimpleDateFormat("yyyyMMdd");  
+        cal.add(Calendar.MONTH, mon);  
+        Date d = cal.getTime();  
+          
+        return timeform.format(d);  
+    }
+	
+	private static String getCurrentDate() {
+	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd");//dd/MM/yyyy
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+	    return strDate;
+	}
+	
+	private static String getCurrentDateTime() {
+	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+	    return strDate;
+	}
 }

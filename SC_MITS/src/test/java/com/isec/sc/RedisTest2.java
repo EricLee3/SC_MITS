@@ -10,10 +10,15 @@ import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,6 +46,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import scala.annotation.meta.setter;
+
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.FileContentReader;
 
@@ -65,7 +72,8 @@ public class RedisTest2 {
 	@Resource(name="maStringRedisTemplate")
 	private HashOperations<String, String, Object> hashOps;
 	
-	@Resource(name="maStringRedisTemplate")
+	
+	@Resource(name="reportStringRedisTemplate")
 	private ZSetOperations<String, String> zSetOps;
 	
 
@@ -79,7 +87,7 @@ public class RedisTest2 {
 	private String ch_ma_jns_order;
 	
 	
-	@Test
+	@Ignore
 	public void printReportKeyDate(){
 		
 		String key = "count:DA:OUTRO:orders:"+getCurrentDate();
@@ -100,10 +108,180 @@ public class RedisTest2 {
 		System.out.println("[discount]"+valueOps.get(key2));
 		System.out.println("[shipping]"+valueOps.get(key3));
 		System.out.println("[tax]"+valueOps.get(key4));
+	}
+	
+	
+	public static int dateSum(String dateForm, int days)  
+    {  
+        String date = dateForm;  
+        int year = Integer.parseInt(date.substring(0, 4));  
+        int month = Integer.parseInt(date.substring(4, 6)) - 1;  
+        int dayOfMonth = Integer.parseInt(date.substring(6, 8));  
+  
+        GregorianCalendar cal = new GregorianCalendar(year, month, dayOfMonth);  
+        SimpleDateFormat timeform = new SimpleDateFormat("yyyyMMdd");  
+        cal.add(Calendar.DAY_OF_MONTH, days);  
+        Date d = cal.getTime();  
+          
+        return Integer.parseInt(timeform.format(d));  
+    }
+	
+	public static String calcYearMonth(String dateForm, int mon)  
+    {  
+        String date = dateForm;  
+        int year = Integer.parseInt(date.substring(0, 4));  
+        int month = Integer.parseInt(date.substring(4, 6)) - 1;  
+        int dayOfMonth = Integer.parseInt(date.substring(6, 8));  
+  
+        GregorianCalendar cal = new GregorianCalendar(year, month, dayOfMonth);  
+        SimpleDateFormat timeform = new SimpleDateFormat("yyyyMMdd");  
+        cal.add(Calendar.MONTH, mon);  
+        Date d = cal.getTime();  
+          
+        return timeform.format(d);  
+    } 
+	
+	
+	@Test
+	public void SortedSetTest() throws Exception{
+		
+		// End Month Random Create
+		int start = 50;
+		int end = 100;
+
+		double range = end - start + 5;
+		Random randomGenerator = new Random();
+		
+		/*
+		for(int i=0; i<=30; i++){
+			
+			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
+			
+			
+			//System.out.println(dateSum(Integer.parseInt("20140701"), i));
+			//zSetOps.add("count:ISEC:ASPB", "10", dateSum(Integer.parseInt("20140701"), i));
+			
+			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140601", i), String.valueOf(randomInt5to10));
+			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140601", i), String.valueOf(randomInt5to10*1000));
+			
+			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10));
+			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10*1000));
+		}
+		
+		for(int i=0; i<=16; i++){
+			
+			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
+			
+			//System.out.println(dateSum(Integer.parseInt("20140701"), i));
+			//zSetOps.add("count:ISEC:ASPB", "10", dateSum(Integer.parseInt("20140701"), i));
+			
+			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140801", i), String.valueOf(randomInt5to10));
+			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140801", i), String.valueOf(randomInt5to10*1000));
+		}
+		*/
+		
+		for(int i=0; i<=30; i++){
+			
+			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
+			int randomInt5to10_ = (int)(randomGenerator.nextDouble() * range + start);
+			
+			//System.out.println(dateSum(Integer.parseInt("20140701"), i));
+			//zSetOps.add("count:ISEC:ASPB", "10", dateSum(Integer.parseInt("20140701"), i));
+			
+			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140801", i), String.valueOf(randomInt5to10));
+			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140801", i), String.valueOf(randomInt5to10_*1000));
+		}
+		
+		
+		String orderCountKey_pre = "count:*:*:orders:";
+		String orderAmountKey_pre = "amount:*:*:orders:";
+		
+		// Today
+		/*Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+getCurrentDate());
+		List<String> cnt_list = valueOps.multiGet(cnt_key_names);
+		int totCnt = 0;
+		for(String orderCount: cnt_list){
+			System.out.println("[orderCount]"+orderCount);
+			totCnt += Integer.parseInt(orderCount);
+		}
+		System.out.println("[totCnt]"+totCnt);*/
+		
+		// Yesterday
+/*		Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+dateSum(getCurrentDate(), -1));
+		Iterator<String> itr = cnt_key_names.iterator();
+		while(itr.hasNext()){
+			System.out.println(itr.next());
+		}
+		
+		List<String> cnt_list = valueOps.multiGet(cnt_key_names);
+		int totCnt = 0;
+		for(String orderCount: cnt_list){
+			System.out.println("[orderCount]"+orderCount);
+			totCnt += Integer.parseInt(orderCount);
+		}
+		System.out.println("[totCnt]"+totCnt);*/
+		
+		
+		int tot_cnt = 0;
+		double tot_amt = 0.00;
+		
+		// Last 7 Day
+		// for( int i = -7; i<=-1; i++){
+		
+		// This month
+		int currDay = Integer.parseInt(getCurrentDate().substring(6,8));
+		String currYearMonth = getCurrentDate().substring(0,6);
+		// for( int i = 1; i<=currDay; i++){
+			
+		// Last Month
+		String lastYearMonth = calcYearMonth(getCurrentDate(), -1).substring(0,6);
+		
+		for( int i = 1; i<=31; i++){
+			
+			String dd = i<10?"0"+i:String.valueOf(i);
+			
+			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+lastYearMonth+dd);
+			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+lastYearMonth+dd);
+			
+			Iterator<String> itr = cnt_key_names.iterator();
+			while(itr.hasNext()){
+				System.out.println(itr.next());
+			}
+			
+			// Order Count
+			List<String> cnt_list = valueOps.multiGet(cnt_key_names);
+			for(String orderCount: cnt_list){
+//				System.out.println("[orderCount]"+orderCount);
+				tot_cnt += Integer.parseInt(orderCount);
+			}
+			
+			// Order Amount
+			List<String> amt_list = valueOps.multiGet(amt_key_names);
+			for(String orderAmount: amt_list){
+//				System.out.println("[orderAmount]"+orderAmount);
+				tot_amt += Integer.parseInt(orderAmount);
+			}
+						
+		}
+		System.out.println("[tot_cnt]"+tot_cnt);
+		System.out.println("[tot_amt]"+tot_amt);
+		
+		
+		
+		// Last 3 Month
+		
+		
+		
+		
+//		Set<String> dataSet = zSetOps.rangeByScore("count:ISEC:ASPB", Integer.parseInt("20140701"), Integer.parseInt("20140703"));
+//		
+//		Iterator<String> itr = dataSet.iterator();
+//		while(itr.hasNext()){
+//			System.out.println(itr.next());
+//		}
 		
 		
 	}
-	
 	
 	@Ignore
 	public void insertPlotChartDataMonth(){

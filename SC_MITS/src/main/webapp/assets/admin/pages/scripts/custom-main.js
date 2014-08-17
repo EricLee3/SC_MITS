@@ -4,7 +4,7 @@ Custom module for you to write your own javascript functions
 var Custom = function () {
 
 
-// basic form validation
+	// basic form validation
     var handleValidation1 = function(formName) {
         // for more info visit the official plugin documentation:
             // http://docs.jquery.com/Plugins/Validation
@@ -96,21 +96,21 @@ var Custom = function () {
 
         //main function
         init: function () {
-         $.ajaxSetup({
-         cache: true,
-         dataType: 'json',
-         error: function(xhr, status, error){
-         alert('An error occurred: ' + error);
-         },
-         timeout: 100000,
-         type: 'POST',
-         url:''
-         });
-        },
+	         $.ajaxSetup({
+		         cache: true,
+		         dataType: 'json',
+		         error: function(xhr, status, error){
+			         alert('An error occurred: ' + error);
+		         },
+		         timeout: 50000,
+		         type: 'POST',
+		         url:''
+	           });
+	        },
 
-        setFormValidation: function (formName) {
-         handleValidation1(formName);
-        }
+	        setFormValidation: function (formName) {
+	        	handleValidation1(formName);
+	        }
     };
 
 }();

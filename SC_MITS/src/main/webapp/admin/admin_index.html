@@ -52,7 +52,7 @@
 </div>
 <!-- END PAGE HEADER-->
 <!-- BEGIN PAGE CONTENT-->
-<div class="row">
+<div class="row" id="order_overall">
 	<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 margin-bottom-10">
 		<div class="dashboard-stat blue-madison">
 			<div class="visual">
@@ -133,13 +133,21 @@
 							<a href="#portlet_tab2" data-toggle="tab" id="statistics_amounts_tab2">
 							Order Amount </a>
 						</li>
-						<li class="active">
+						<li>
 							<a href="#portlet_tab1" data-toggle="tab" id="statistics_amounts_tab1">
 							Order Count </a>
 						</li>
+						<li class="active">
+							<a href="#portlet_tab0" data-toggle="tab" id="statistics_amounts_tab0">
+							Total </a>
+						</li>
 					</ul>
 					<div class="tab-content">
-						<div class="tab-pane active" id="portlet_tab1">
+						<div class="tab-pane active" id="portlet_tab0">
+							<div id="statistics_0" class="chart">
+							</div>
+						</div>
+						<div class="tab-pane" id="portlet_tab1">
 							<div id="statistics_1" class="chart">
 							</div>
 						</div>
@@ -766,7 +774,7 @@
 		 // set DatePicker Menu
 		 EcommerceIndex.initDashboardDaterange();
 		 
-		 // get Order Overview Data
+		 // get Order Overview Data - tableData
 		 EcommerceIndex.getOrderOverviewData();
 		 
 		 
@@ -785,7 +793,8 @@
    					
    					$('#ptl_bd_orderChart ul > li:last > a').tab('show');
    					
-   					EcommerceIndex.refreshChart($('#ptl_bd_orderChart ul > li.active').index());
+   					//EcommerceIndex.refreshChart($('#ptl_bd_orderChart ul > li.active').index());
+   					EcommerceIndex.refreshChart();
    					
    				},
    				beforeSend:function(xhr, status){
