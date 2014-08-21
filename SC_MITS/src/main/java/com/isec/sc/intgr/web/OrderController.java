@@ -84,16 +84,6 @@ public class OrderController {
 							@RequestParam(defaultValue="0001" ) String doc_type,
 							@RequestParam(required=false, value="orderNo[]") String[] orderNos ) throws Exception{ 
 		
-		
-		/*
-		 * 	getOrderReleaseList Sample Input XML
-			String getOrderReleaseList_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><OrderRelease DocumentType=\"\" EnterpriseCode=\"\" SalesOrderNoQryType=\"\" "
-				+ "SalesOrderNo=\"\" QueryTypeDesc=\"\" ReleaseNo=\"\" BuyerOrganizationCodeQryType=\"\" BuyerOrganizationCode=\"\" "
-				+ "SellerOrganizationCodeQryType=\"\" SellerOrganizationCode=\"\" ShipNodeQryType=\"\" "
-				+ "ShipNode=\"\" ReceivingNodeQryType=\"\" ReceivingNode=\"\" DeliveryMethod=\"\" "
-				+ "ReqShipDateQryType=\"BETWEEN\" ReqDeliveryDateQryType=\"BETWEEN\" OrderDateQryType=\"BETWEEN\" ></OrderRelease>";
-		 */
-		
 		/**
 		 * -------Custom Action 일 경우 - 컬럼값 변경
 		 * draw=34&
@@ -112,39 +102,9 @@ public class OrderController {
 		 * customActionType=group_action&
 		 * customActionName=Close&
 		 * id[]=1&id[]=2&id[]=3&id[]=4&id[]=5
-		 * 
-		 * -------일반 Action 일 경우 - 검색
-		 * start=0&
-		 * length=20& 
-		 * action=filter&
-		 * order_id=1&
-		 * order_date_from=&
-		 * order_date_to=&
-		 * ent_code=2&
-		 * seller_code=3&
-		 * bill_to_id=&
-		 * total_amount=&
-		 * order_status=pending
-		 * doc_type
 		 */
-		
-		
-		
 		logger.debug("doc_Type: "+doc_type); 
 		logger.debug("action: "+paramMap.get("action")); 
-		
-		// 페이지 최초접근시 또는 Reset일 경우 API호출하지 않고 바로 리턴처리
-		if( paramMap.get("action") == null){
-			
-//			ModelAndView mav = new ModelAndView("jsonView");
-//			mav.addObject("data","");
-//			mav.addObject("recordsTotal", 0);
-//			mav.addObject("recordsFiltered", 0);
-//			
-//			return mav;
-		}
-		
-		
 		logger.debug("start: "+paramMap.get("start")); 
 		logger.debug("length: "+paramMap.get("length")); 
 		logger.debug("draw: "+paramMap.get("draw")); 
@@ -155,11 +115,61 @@ public class OrderController {
 			logger.debug("[orderNo.length]"+orderNos.length); 
 		
 		
+		// 페이지 최초접근시 또는 Reset일 경우 API호출하지 않고 바로 리턴처리
+		/*
+		if( paramMap.get("action") == null){
+			
+			ModelAndView mav = new ModelAndView("jsonView");
+			mav.addObject("data","");
+			mav.addObject("recordsTotal", 0);
+			mav.addObject("recordsFiltered", 0);
+			
+			return mav;
+		}
+		*/
+		
+		// Sorting tag Generation
+		logger.debug("order[0][column]: "+paramMap.get("order[0][column]")); 
+		logger.debug("order[0][dir]: "+paramMap.get("order[0][dir]"));
+		
+		String sortTag = "";
+		String sortColumn = "";
+		String sortDirTag = "N";
+			
+	    int sortColumnIdx = Integer.parseInt(paramMap.get("order[0][column]"));
+		String sortDir = paramMap.get("order[0][dir]");
+		if("desc".equals(sortDir)) sortDirTag = "Y";
+		
+		switch (sortColumnIdx) {
+			case 2:
+				sortColumn = "OrderNo";
+				break;
+			case 3:
+				sortColumn = "OrderDate";
+				break;
+			case 4:
+				sortColumn = "EnterpriseCode";
+				break;
+			case 5:
+				sortColumn = "SellerOrganizationCode";
+				break;
+			case 11:
+				sortColumn = "Status";
+				break;
+			default:
+				sortColumn = "OrderDate"; sortDir = "Y";
+				break;
+		}
+		sortTag = "<OrderBy><Attribute Desc=\""+sortDirTag+"\" Name=\""+sortColumn+"\"/></OrderBy> ";
+		
+		
+		// Search Filter Parameter
 		String orderId = (String)paramMap.get("order_id")==null?"":(String)paramMap.get("order_id");
 		String entCode = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
 		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
 		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
 		String toDate = paramMap.get("order_date_to")==null?"":paramMap.get("order_date_to");
+		String email = paramMap.get("email")==null?"":paramMap.get("email");
 		
 		String orderStatus = (String)paramMap.get("order_status")==null?"":(String)paramMap.get("order_status");
 		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
@@ -174,19 +184,22 @@ public class OrderController {
 		}
 		
 		
+		// Input XML Creation
 		String getOrderList_input = ""
 		     + "<Order DocumentType=\""+ doc_type +"\" "
 		     + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" "
-		     // 오더상태 검색유형
+		     
+		     // 오더상태 검색
 		     + " Status=\"{2}\" {3} "
-		     // 오더번호 검색유형
+		     // 오더번호 검색
 		     + " OrderNo=\"{4}\" OrderNoQryType=\"LIKE\" "
-		     // 오더생성일  검색
+		     // Email 검색
+		     + " CustomerEMailID=\"{7}\"  CustomerEMailIDQryType=\"LIKE\" "
+		     // 오더생성일 검색
 		     + " FromOrderDate=\"{5}\" ToOrderDate=\"{6}\" OrderDateQryType=\"BETWEEN\" > "
-		     // 오더목록 Sorting
-		     + "<OrderBy> "
-		     + "  <Attribute Desc=\"Y\" Name=\"OrderDate\"/> "
-		     + "</OrderBy> "
+		     
+		     + sortTag
+		
 		+ "</Order> ";
 		
 	    MessageFormat msg = new MessageFormat(getOrderList_input);
@@ -197,19 +210,18 @@ public class OrderController {
 												orderStatusQryType_Text,
 												orderId,
 												fromDate,
-												toDate
+												toDate,
+												email
 		} );
 		logger.debug("[inputXML]"+inputXML); 
 		
 		
 		// API Call
-		
 		int pageRowNumber = Integer.parseInt(paramMap.get("start"));
 		int pageSize = Integer.parseInt(paramMap.get("length")); 
 		
 		int pageNumber = pageRowNumber==0?1: (pageRowNumber/pageSize)+1; 
 		logger.debug("[pageNumber]" + pageNumber);
-		
 		
 		HashMap<String, Object> resultMap = sterlingApiDelegate.getPageApi(pageNumber, pageSize, "getOrderList", inputXML);
 		
@@ -230,49 +242,102 @@ public class OrderController {
 		String totCnt = (String)xp.evaluate("OrderList/@TotalOrderList", orderListNode, XPathConstants.STRING);
 		logger.debug("[totCnt]" + totCnt);
 		
-		
-//		int iDisplayLength = pageSize < 0 ? totCnt:pageSize;
-//		
-//		int iDisplayStart = Integer.parseInt( (String)paramMap.get("start"));
-//		int iEnd = pageNumber + iDisplayLength;
-//		iEnd = iEnd > totCnt ? totCnt:iEnd;
-		
-		
-		
+	
 		NodeList orderNodeList = (NodeList)xp.evaluate("OrderList/Order", orderListNode, XPathConstants.NODESET);
 		ArrayList<Object> data = new ArrayList<Object>();
 		
 		for(int i=0; i<orderNodeList.getLength(); i++){
 			
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			
 			String orderNo = (String)xp.evaluate("@OrderNo", orderNodeList.item(i), XPathConstants.STRING);
 			String orderDate = (String)xp.evaluate("@OrderDate", orderNodeList.item(i), XPathConstants.STRING);
 			String enterPrise = (String)xp.evaluate("@EnterpriseCode", orderNodeList.item(i), XPathConstants.STRING);
 			String sellerOrg = (String)xp.evaluate("@SellerOrganizationCode", orderNodeList.item(i), XPathConstants.STRING);
 			
-			String billToID = (String)xp.evaluate("@BillToID", orderNodeList.item(i), XPathConstants.STRING);
+			String custFname = (String)xp.evaluate("@CustomerFirstName", orderNodeList.item(i), XPathConstants.STRING);
+			String custLname = (String)xp.evaluate("@CustomerLastName", orderNodeList.item(i), XPathConstants.STRING);
+			String custName = custFname + " " + custLname;
 			
-			String totalAmount = (String)xp.evaluate("@OriginalTotalAmount", orderNodeList.item(i), XPathConstants.STRING);
+			String phone = (String)xp.evaluate("@CustomerPhoneNo", orderNodeList.item(i), XPathConstants.STRING);
+			String emailId = (String)xp.evaluate("@CustomerEMailID", orderNodeList.item(i), XPathConstants.STRING);
+			String currency = (String)xp.evaluate("PriceInfo/@Currency", orderNodeList.item(i), XPathConstants.STRING);
+			String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderNodeList.item(i), XPathConstants.STRING);
+			
+			String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", orderNodeList.item(i), XPathConstants.STRING);
+			
 			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
 			if("".equals(status)) status = "Draft";
-			
 			String status_class = env.getProperty("ui.status."+status+".cssname");
 			if( status_class == null) status_class = "default";
 			
-			String linkParam = "docType="+doc_type+"&entCode="+enterPrise+"&orderNo="+orderNo;
 			
-			data.add(new String[] { "<input type=\"checkbox\" name=\"orderNo[]\" value=\""+orderNo+"\">", 
-					orderNo,
-					orderDate,
-					enterPrise,
-					sellerOrg,
-					billToID,
-					totalAmount,
-				      "<span class=\"label label-sm label-"+status_class+"\">"+status+"</span>",
-				      "<a href=\"/orders/orderDetail.do?"+linkParam+"\"  class=\"btn default btn-xs blue-stripe ajaxify\"><i class=\"fa fa-search\"></i> View</a>",
-					});
+			dataMap.put("orderNo", orderNo);
+			dataMap.put("orderDate", orderDate);
+			dataMap.put("enterPrise", enterPrise);
+			dataMap.put("sellerOrg", sellerOrg);
+			dataMap.put("billName", custName);
+			dataMap.put("phone", phone);
+			dataMap.put("emailId", emailId);
+			dataMap.put("paymentType", paymentType);
+			dataMap.put("currency", currency);
+			dataMap.put("totalAmount", totalAmount);
+			dataMap.put("status", status);
+			dataMap.put("status_class", status_class);
+			
+			//-------- 3. Order Line Info
+			NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", orderNodeList.item(i), XPathConstants.NODESET);
+			logger.debug("orderLineNodeList.getLength()"+orderLineNodeList.getLength());
+			List<HashMap<String,Object>> orderLineList = new ArrayList<HashMap<String,Object>>();
+			
+			for( int lineIdx=0; lineIdx<orderLineNodeList.getLength(); lineIdx++){
+				
+				Node lineNode = orderLineNodeList.item(lineIdx);
+				
+				HashMap<String,Object> orderLineMap = new HashMap<String,Object>();
+				
+				
+				// Line Basic Info
+				String lineKey = (String)xp.evaluate("@OrderLineKey", lineNode, XPathConstants.STRING);
+				String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", lineNode, XPathConstants.STRING);
+				String lineStatus = (String)xp.evaluate("@Status", lineNode, XPathConstants.STRING);
+				
+				orderLineMap.put("lineKey", lineKey);
+				orderLineMap.put("PrimeLineNo", PrimeLineNo);
+				orderLineMap.put("status", lineStatus);
+				
+				// Line Price, Charge, Tax Info
+				Double qty = (Double)xp.evaluate("@OrderedQty", lineNode, XPathConstants.NUMBER);
+				Double lineTatal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.NUMBER);
+				Double UnitPrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.NUMBER);
+				Double lineShipCharge = (Double)xp.evaluate("LineOverallTotals/@Charges", lineNode, XPathConstants.NUMBER);
+				Double lineDisountCharge = (Double)xp.evaluate("LineOverallTotals/@Discount", lineNode, XPathConstants.NUMBER);
+				Double lineTax= (Double)xp.evaluate("LineOverallTotals/@Tax", lineNode, XPathConstants.NUMBER);
+				
+				orderLineMap.put("qty", qty);
+				orderLineMap.put("lineTotal", lineTatal);
+				orderLineMap.put("UnitPrice", UnitPrice);
+				orderLineMap.put("lineShipCharge", lineShipCharge);
+				orderLineMap.put("lineDisount", -lineDisountCharge);
+				orderLineMap.put("lineTax", lineTax);
+				
+				// Item Info
+				String itemId = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
+				String itemDesc = (String)xp.evaluate("Item/@ItemDesc", lineNode, XPathConstants.STRING); // Item Detail URL
+				String itemdShortDesc = (String)xp.evaluate("Item/@ItemShortDesc", lineNode, XPathConstants.STRING);
+				
+				orderLineMap.put("itemId", itemId);
+				orderLineMap.put("itemDesc", itemDesc);
+				orderLineMap.put("itemShortDesc", itemdShortDesc);
+				
+				orderLineList.add(orderLineMap);
+			}
+			
+			dataMap.put("lineList", orderLineList);
+			
+			data.add(dataMap);
+
 		}
-		
 	  
 
 		ModelAndView mav = new ModelAndView("jsonView");

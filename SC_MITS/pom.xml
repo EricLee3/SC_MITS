@@ -187,7 +187,11 @@
 		        <configuration>
 		          <!-- <url>http://localhost:8080/manager</url> -->
 		          <!-- <url>http://192.168.0.7:8080/manager</url> -->
-		          <url>http://192.168.2.116:8080/manager</url>
+		          <url>http://192.168.1.111:8080/manager/text</url>
+		          <server>mits_server</server>
+        		  <path>/</path>
+        		  <username>mitsadmin</username>
+      			  <password>mits1028</password>
 		        </configuration>
 			</plugin>
 		</plugins>

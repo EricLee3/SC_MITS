@@ -152,7 +152,7 @@ public class RedisTest2 {
 		double range = end - start + 5;
 		Random randomGenerator = new Random();
 		
-		/*
+		
 		for(int i=0; i<=30; i++){
 			
 			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
@@ -168,19 +168,10 @@ public class RedisTest2 {
 			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10*1000));
 		}
 		
-		for(int i=0; i<=16; i++){
-			
-			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
-			
-			//System.out.println(dateSum(Integer.parseInt("20140701"), i));
-			//zSetOps.add("count:ISEC:ASPB", "10", dateSum(Integer.parseInt("20140701"), i));
-			
-			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140801", i), String.valueOf(randomInt5to10));
-			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140801", i), String.valueOf(randomInt5to10*1000));
-		}
-		*/
 		
-		for(int i=0; i<=30; i++){
+		
+		
+		for(int i=0; i<=20; i++){
 			
 			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
 			int randomInt5to10_ = (int)(randomGenerator.nextDouble() * range + start);
@@ -283,7 +274,7 @@ public class RedisTest2 {
 		
 	}
 	
-	@Ignore
+	@Test
 	public void insertPlotChartDataMonth(){
 		
 		String key = "count:ISEC:ASPB:orders:";
@@ -340,7 +331,7 @@ public class RedisTest2 {
 	}
 	
 	
-	@Ignore
+	@Test
 	public void insertPlotChartDataMonth2(){
 		
 		String key = "amount:ISEC:ASPB:orders:";

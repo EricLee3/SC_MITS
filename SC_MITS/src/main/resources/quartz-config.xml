@@ -115,13 +115,13 @@
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="orderCreateJobTrigger_OUTRO"/>
+                <!-- <ref bean="orderCreateJobTrigger_OUTRO"/>
                 <ref bean="orderUpdateJobTrigger_OUTRO"/>
                 <ref bean="productSyncJobTrigger_OUTRO"/>
                 
                 
                 <ref bean="orderCreateJobTrigger_JNS"/>
-                <ref bean="orderUpdateJobTrigger_JNS"/>
+                <ref bean="orderUpdateJobTrigger_JNS"/> -->
             </list>
         </property>
     </bean>

@@ -42,8 +42,56 @@ var EcommerceOrders = function () {
                     "url": "/orders/orderList.sc"  // ajax source
                 	
                 },
+                "columnDefs": [ 
+                               {
+                                   // The `data` parameter refers to the data for the cell (defined by the
+                                   // `data` option, which defaults to the column being worked with, in
+                                   // this case `data: 0`.
+                                   "render": function ( data, type, row ) {
+                                	   
+                                	   //console.debug(row);
+                                       return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>';
+                                   },
+                                   "targets": 11
+                               },
+                               {
+                            	   "render": function(data, type, row){
+                            		   
+                            		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
+                            	   },
+                            	   "targets": 12
+                               },
+                               { "visible": false,  "targets": [] }
+                               
+                           ],
+                "columns": [
+                            { 
+                            	"data": function render(data, type, row)
+		                            	{
+		                            		return '<input type="checkbox" name="orderNo[]" value=""+orderNo+"">';
+		                            	},
+                              "orderable":false,
+                            },
+                            { 
+                            	"class":          'details-control',
+                                "orderable":      false,
+                                "data":           null,
+                                "defaultContent": '<span class="row-details row-details-close"></span>'
+	                        },
+                            { "data": "orderNo" },
+                            { "data": "orderDate" },
+                            { "data": "enterPrise" },
+                            { "data": "sellerOrg" },
+                            { "data": "billName", "orderable":false},
+                            { "data": "phone", "orderable":false },
+                            { "data": "emailId", "orderable":false },
+                            { "data": "paymentType", "orderable":false },
+                            { "data": "totalAmount", "orderable":false },
+                            { "data": "status", "orderable":true },
+                            { "data": null, "orderable":false }
+                        ],
                 "order": [
-                          [2, "desc"]
+                          [3, "desc"]
                       ], // set first column as a default sort by asc
                 
                 //"dom": "<'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'>>", // datatable layout
@@ -68,8 +116,6 @@ var EcommerceOrders = function () {
 //     	                            "aButtons":    [ "csv", "xls", "pdf" ]
 //     	                        }
 //     	                    ]
-                
-                
 //                    "aButtons": [{
 //                        "sExtends": "pdf",
 //                        "sButtonText": "PDF"
@@ -94,8 +140,67 @@ var EcommerceOrders = function () {
             }
         });
         
+        /* Formatting function for row details */
+        function fnFormatDetails(oTable, nTr) {
+            var aData = oTable.fnGetData(nTr);
+            var sOut = '<table>';
+            
+            for(var i=0; i<aData['lineList'].length; i++){
+            	
+            	/*
+            	 * orderLineMap.put("qty", qty);
+				orderLineMap.put("lineTatal", lineTatal);
+				orderLineMap.put("UnitPrice", UnitPrice);
+				orderLineMap.put("lineShipCharge", lineShipCharge);
+				orderLineMap.put("lineDisount", -lineDisountCharge);
+				orderLineMap.put("lineTax", lineTax);
+            	 * 
+            	 */
+            	
+            	sOut += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
+            	sOut += '<td>' + aData['lineList'][i]['PrimeLineNo'] + '</td>';
+            	sOut += '<td>ItemID:</td><td>' + aData['lineList'][i]['itemId'] + '</td>';
+            	sOut += '<td></td><td>' + aData['lineList'][i]['itemShortDesc'] + '</td>';
+            	sOut += '<td>UnitPrice:</td><td>' + aData['lineList'][i]['UnitPrice'] + '</td>';
+            	sOut += '<td>Qty:</td><td>' + aData['lineList'][i]['qty'] + '</td>';
+            	sOut += '<td>Status:</td><td>' + aData['lineList'][i]['status'] + '</td>';
+            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
+            	sOut += '<td>Charge:</td><td>' + aData['lineList'][i]['lineShipCharge'] + '</td>';
+            	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';
+            	sOut += '<td>Discount:</td><td>' + aData['lineList'][i]['lineDisount'] + '</td>';
+            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
+            	sOut += '<td>LineTotal:</td><td>' + aData['lineList'][i]['lineTotal'] + '</td>';
+            	sOut += "</tr>";
+            }
+        
+            sOut += '</table>';
+
+            return sOut;
+        }
+        
         var tableWrapper = $(table_name+'_wrapper'); // datatable creates the table wrapper by adding with id {your_table_jd}_wrapper
         tableWrapper.find('.dataTables_length select').select2(); // initialize select2 dropdown
+        
+        var table = $(table_name).dataTable();
+        
+        /* Add event listener for opening and closing details
+         * Note that the indicator for showing which row is open is not controlled by DataTables,
+         * rather it is done here
+         */
+        table.on('click', ' tbody td .row-details', function () {
+            var nTr = $(this).parents('tr')[0];
+            if (table.fnIsOpen(nTr)) {
+                /* This row is already open - close it */
+                $(this).addClass("row-details-close").removeClass("row-details-open");
+                table.fnClose(nTr);
+            } else {
+                /* Open this row */
+                $(this).addClass("row-details-open").removeClass("row-details-close");
+                table.fnOpen(nTr, fnFormatDetails(table, nTr), 'details');
+            }
+        });
+        
+        
 
         // handle group actionsubmit button click
         grid.getTableWrapper().on('click', '.table-group-action-submit', function (e) {
