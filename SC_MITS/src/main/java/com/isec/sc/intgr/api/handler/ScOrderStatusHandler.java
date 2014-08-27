@@ -55,7 +55,16 @@ public class ScOrderStatusHandler {
 	private ListOperations<String, String> listOps;	
 	
 	
-	
+	/**
+	 * 오더 최소생성 후 처리
+	 *  1. 오더건수, 금액 집
+	 * 
+	 * 
+	 * @param returnXML
+	 * @param status
+	 * @param res
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/orderCreateAfter.do")
 	public void createOrderAfter(@RequestParam String returnXML,
 			  @RequestParam String status,	
@@ -76,7 +85,6 @@ public class ScOrderStatusHandler {
 		
 		// 1. Receive Message(retrunXML) Parsing
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
-		// Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(new File("/Users/ykjang/Dev/sterling/getOrderDetails_sample.xml")) );
 
 		
 		Element outputXML = doc.getDocumentElement();

@@ -355,7 +355,7 @@ var EcommerceIndex = function () {
     var chartData = new Object();
     
     
-    // Get DashBoard Data Using Ajax
+    // Get DashBoard Data Using Ajax - Top Pannel ( Lifetime Sales, Total Orders, Average Orders)
     var getOrderOverAll = function(startDate, endDate, term){
     	
     	$.ajax({
@@ -364,6 +364,11 @@ var EcommerceIndex = function () {
 			success:function(jsonData)
 			{
 				
+				// $('#ds_tot_amaunt').html(String.fromCharCode('0x20A9')+jsonData.tot_order_amount.toFixed(2));
+				$('#ds_tot_amaunt').html(jsonData.tot_order_amount.toFixed(2));
+				$('#ds_tot_orders').html(jsonData.tot_order_count + '');
+				$('#ds_tot_charge').html(jsonData.tot_charge_amount.toFixed(2));
+				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2));
 				
 			},
 			beforeSend:function(xhr, status){

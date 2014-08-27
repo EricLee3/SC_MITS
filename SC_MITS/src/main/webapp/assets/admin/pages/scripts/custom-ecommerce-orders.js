@@ -33,8 +33,8 @@ var EcommerceOrders = function () {
             },
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
                 "lengthMenu": [
-                    [5, 20, 50, 100, 150, -1],
-                    [5, 20, 50, 100, 150, "All"] // change per page values here
+                    [10, 20, 50, 100, 150, -1],
+                    [10, 20, 50, 100, 150, "All"] // change per page values here
                 ],
                 "pageLength": 10, // default record count per page
                 "serverSide": true, 
@@ -42,36 +42,36 @@ var EcommerceOrders = function () {
                     "url": "/orders/orderList.sc"  // ajax source
                 	
                 },
+                "fnRowCallback"  : function(nRow,aData,iDisplayIndex) {
+                	//$('td:eq(8)', nRow).addClass( "pull-right");
+                },
                 "columnDefs": [ 
                                {
-                                   // The `data` parameter refers to the data for the cell (defined by the
-                                   // `data` option, which defaults to the column being worked with, in
-                                   // this case `data: 0`.
                                    "render": function ( data, type, row ) {
                                 	   
                                 	   //console.debug(row);
                                        return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>';
                                    },
-                                   "targets": 11
+                                   "targets": 9  // Status Icon
                                },
                                {
                             	   "render": function(data, type, row){
                             		   
                             		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
                             	   },
-                            	   "targets": 12
+                            	   "targets": 10	// View Button
                                },
                                { "visible": false,  "targets": [] }
                                
                            ],
                 "columns": [
-                            { 
-                            	"data": function render(data, type, row)
-		                            	{
-		                            		return '<input type="checkbox" name="orderNo[]" value=""+orderNo+"">';
-		                            	},
-                              "orderable":false,
-                            },
+//                            { 
+//                            	"data": function render(data, type, row)
+//		                            	{
+//		                            		return '<input type="checkbox" name="orderNo[]" value=""+orderNo+"">';
+//		                            	},
+//                              "orderable":false,
+//                            },
                             { 
                             	"class":          'details-control',
                                 "orderable":      false,
@@ -79,23 +79,31 @@ var EcommerceOrders = function () {
                                 "defaultContent": '<span class="row-details row-details-close"></span>'
 	                        },
                             { "data": "orderNo" },
-                            { "data": "orderDate" },
+                            { 
+                        	  "data": function render(data, type, row)
+	                            	  {
+	                            		return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
+	                            	  }
+                            },
                             { "data": "enterPrise" },
                             { "data": "sellerOrg" },
                             { "data": "billName", "orderable":false},
                             { "data": "phone", "orderable":false },
                             { "data": "emailId", "orderable":false },
-                            { "data": "paymentType", "orderable":false },
-                            { "data": "totalAmount", "orderable":false },
+//                            { "data": "paymentType", "orderable":false },
+                            { "data": function render(data, type, row)
+                      	  				{
+                        					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
+                      	  				}, "orderable":false },
                             { "data": "status", "orderable":true },
                             { "data": null, "orderable":false }
                         ],
                 "order": [
-                          [3, "desc"]
+                          [2, "desc"]
                       ], // set first column as a default sort by asc
                 
                 //"dom": "<'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'>>", // datatable layout
-                "dom":"<'row'<'col-md-8 col-sm-12'l><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
+                "dom":"<'row'<'col-md-4 col-sm-12'l><'col-md-8 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
                 
                 
 //                "tableTools": {
@@ -143,7 +151,14 @@ var EcommerceOrders = function () {
         /* Formatting function for row details */
         function fnFormatDetails(oTable, nTr) {
             var aData = oTable.fnGetData(nTr);
-            var sOut = '<table>';
+            var sOut = '<table width="00%">';
+            
+            
+//            sOut += '<tr><td colspan="18">&nbsp;</td>';
+//            sOut += '<td>Payment Type:</td><td >' + aData['paymentType'] + '</td>';
+//        	sOut += '<td>Total Amount:</td><td class="pull-right">' + aData['currency'] +' '+ aData['totalAmount'] + '</td>';
+//            sOut += "</tr>";
+            
             
             for(var i=0; i<aData['lineList'].length; i++){
             	
@@ -163,16 +178,16 @@ var EcommerceOrders = function () {
             	sOut += '<td></td><td>' + aData['lineList'][i]['itemShortDesc'] + '</td>';
             	sOut += '<td>UnitPrice:</td><td>' + aData['lineList'][i]['UnitPrice'] + '</td>';
             	sOut += '<td>Qty:</td><td>' + aData['lineList'][i]['qty'] + '</td>';
-            	sOut += '<td>Status:</td><td>' + aData['lineList'][i]['status'] + '</td>';
+            	sOut += '<td>Status:</td><td>  <span class="label label-sm label-'+aData['lineList'][i]['status_class']+' ">'+aData['lineList'][i]['status']+'</span></td>';
             	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
             	sOut += '<td>Charge:</td><td>' + aData['lineList'][i]['lineShipCharge'] + '</td>';
             	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';
             	sOut += '<td>Discount:</td><td>' + aData['lineList'][i]['lineDisount'] + '</td>';
             	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
-            	sOut += '<td>LineTotal:</td><td>' + aData['lineList'][i]['lineTotal'] + '</td>';
+            	sOut += '<td>LineTotal:</td><td class="pull-right">' + aData['lineList'][i]['lineTotal'] + '</td>';
             	sOut += "</tr>";
             }
-        
+            
             sOut += '</table>';
 
             return sOut;

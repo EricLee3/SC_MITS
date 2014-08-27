@@ -82,8 +82,11 @@ public class ReportController {
 	public ModelAndView getOrderReportByCh( @RequestParam Map<String, String> paramMap ) throws Exception{ 
 		
 		// TODO: 채널정보 property로 뺼것
-		String entCode[] = {"DA", "ISEC"};
-		String sellerCode[] = {"OUTRO", "ASPB"};
+//		String entCode[] = {"DA", "ISEC"};
+//		String sellerCode[] = {"OUTRO", "ASPB"};
+		
+		String entCode[] = {"ISEC"};
+		String sellerCode[] = {"ASPB"};
 		
 		
 		// 검색일자 Parameter
@@ -183,11 +186,17 @@ public class ReportController {
 	public ModelAndView getOrderOverAll( @RequestParam String startDate,  @RequestParam String endDate, @RequestParam int term) throws Exception{ 
 		
 		
-		String orderCountKey_pre = "count:*:*:orders:";
-		String orderAmountKey_pre = "amount:*:*:orders:";
+//		String orderCountKey_pre = "count:*:*:orders:";
+//		String orderAmountKey_pre = "amount:*:*:orders:";
+		
+		String orderCountKey_pre = "count:ISEC:ASPB:orders:";
+		String orderAmountKey_pre = "amount:ISEC:ASPB:orders:";
+		
+		String orderChargeKey_pre = "shipping:*:*:orders:";
 		
 		int tot_order_count = 0;
 		double tot_order_amount = 0.00;
+		double tot_charge_amount = 0.00;
 		double tot_order_avg_amount = 0.00;
 		
 		
@@ -195,11 +204,12 @@ public class ReportController {
 			
 			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+calcDate(endDate, i));
 			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+calcDate(endDate, i));
+			Set<String> charge_key_names= reportStringRedisTemplate.keys(orderChargeKey_pre+calcDate(endDate, i));
 			
-//			Iterator<String> itr = cnt_key_names.iterator();
-//			while(itr.hasNext()){
-//				logger.debug("[key]"+itr.next());
-//			}
+			Iterator<String> itr = cnt_key_names.iterator();
+			while(itr.hasNext()){
+				logger.debug("[key]"+itr.next());
+			}
 			
 			
 			// Order Count
@@ -211,15 +221,25 @@ public class ReportController {
 			// Order Amount
 			List<String> amt_list = valueOps.multiGet(amt_key_names);
 			for(String orderAmount: amt_list){
-				tot_order_amount += Integer.parseInt(orderAmount);
+				tot_order_amount += Double.parseDouble(orderAmount);
+			}
+			
+			// Order Charge(Shipping)
+			List<String> charge_list = valueOps.multiGet(charge_key_names);
+			for(String chargeAmount: charge_list){
+				tot_charge_amount += Double.parseDouble(chargeAmount);
 			}
 		}
 		
-		tot_order_avg_amount = tot_order_amount/tot_order_count;
+		if(tot_order_count == 0) 
+			tot_order_avg_amount = 0;
+		else
+			tot_order_avg_amount =  tot_order_amount/tot_order_count;
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("tot_order_count", tot_order_count);
 		mav.addObject("tot_order_amount", tot_order_amount);
+		mav.addObject("tot_charge_amount", tot_charge_amount);
 		mav.addObject("tot_order_avg_amount", tot_order_avg_amount);
 		return mav;   
 	}

@@ -110,7 +110,8 @@ var Custom = function () {
 
 	        setFormValidation: function (formName) {
 	        	handleValidation1(formName);
-	        }
+	        },
+	        
     };
 
 }();

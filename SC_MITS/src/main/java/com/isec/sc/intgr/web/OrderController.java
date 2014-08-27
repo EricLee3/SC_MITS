@@ -69,6 +69,9 @@ public class OrderController {
 	@Value("${sc.api.releaseOrder.template}")
 	private String RELEASE_ORDER_TEMPLATE;
 	
+	@Value("${sc.api.cancelOrder.template}")
+	private String CANCEL_ORDER_TEMPLATE;
+	
 	/**
 	 * 오더목록조회 (판매오더, 반품오더)
 	 *  - 오더의 상태가 Create(1100) ~ Shipped(3700)까지만 조회
@@ -116,7 +119,6 @@ public class OrderController {
 		
 		
 		// 페이지 최초접근시 또는 Reset일 경우 API호출하지 않고 바로 리턴처리
-		/*
 		if( paramMap.get("action") == null){
 			
 			ModelAndView mav = new ModelAndView("jsonView");
@@ -126,7 +128,6 @@ public class OrderController {
 			
 			return mav;
 		}
-		*/
 		
 		// Sorting tag Generation
 		logger.debug("order[0][column]: "+paramMap.get("order[0][column]")); 
@@ -141,19 +142,19 @@ public class OrderController {
 		if("desc".equals(sortDir)) sortDirTag = "Y";
 		
 		switch (sortColumnIdx) {
-			case 2:
+			case 1:
 				sortColumn = "OrderNo";
 				break;
-			case 3:
+			case 2:
 				sortColumn = "OrderDate";
 				break;
-			case 4:
+			case 3:
 				sortColumn = "EnterpriseCode";
 				break;
-			case 5:
+			case 4:
 				sortColumn = "SellerOrganizationCode";
 				break;
-			case 11:
+			case 9:
 				sortColumn = "Status";
 				break;
 			default:
@@ -169,7 +170,11 @@ public class OrderController {
 		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
 		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
 		String toDate = paramMap.get("order_date_to")==null?"":paramMap.get("order_date_to");
-		String email = paramMap.get("email")==null?"":paramMap.get("email");
+		
+		String cust_fname = paramMap.get("cust_fname")==null?"":paramMap.get("cust_fname");
+		String cust_lname = paramMap.get("cust_lname")==null?"":paramMap.get("cust_lname");
+		String cust_phone = paramMap.get("cust_phone")==null?"":paramMap.get("cust_phone");
+		String cust_email = paramMap.get("cust_email")==null?"":paramMap.get("cust_email");
 		
 		String orderStatus = (String)paramMap.get("order_status")==null?"":(String)paramMap.get("order_status");
 		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
@@ -193,6 +198,13 @@ public class OrderController {
 		     + " Status=\"{2}\" {3} "
 		     // 오더번호 검색
 		     + " OrderNo=\"{4}\" OrderNoQryType=\"LIKE\" "
+		     // 고객명 검색
+		     + " CustomerFirstName=\"{8}\"  CustomerLastName=\"{9}\" CustomerFirstNameQryType=\"LIKE\" CustomerLastNameQryType=\"LIKE\" "
+		     
+		     // 전화번호 검색
+		     + " CustomerPhoneNo=\"{10}\"  CustomerPhoneNoQryType=\"LIKE\" "
+		     
+		     
 		     // Email 검색
 		     + " CustomerEMailID=\"{7}\"  CustomerEMailIDQryType=\"LIKE\" "
 		     // 오더생성일 검색
@@ -211,8 +223,11 @@ public class OrderController {
 												orderId,
 												fromDate,
 												toDate,
-												email
-		} );
+												cust_email,
+												cust_fname,
+												cust_lname,
+												cust_phone
+										} );
 		logger.debug("[inputXML]"+inputXML); 
 		
 		
@@ -287,7 +302,6 @@ public class OrderController {
 			
 			//-------- 3. Order Line Info
 			NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", orderNodeList.item(i), XPathConstants.NODESET);
-			logger.debug("orderLineNodeList.getLength()"+orderLineNodeList.getLength());
 			List<HashMap<String,Object>> orderLineList = new ArrayList<HashMap<String,Object>>();
 			
 			for( int lineIdx=0; lineIdx<orderLineNodeList.getLength(); lineIdx++){
@@ -305,6 +319,11 @@ public class OrderController {
 				orderLineMap.put("lineKey", lineKey);
 				orderLineMap.put("PrimeLineNo", PrimeLineNo);
 				orderLineMap.put("status", lineStatus);
+				if("".equals(status)) status = "Draft";
+				String lineStatus_class = env.getProperty("ui.status."+lineStatus+".cssname");
+				if( lineStatus_class == null) status_class = "default";
+				orderLineMap.put("status_class", lineStatus_class);
+				
 				
 				// Line Price, Charge, Tax Info
 				Double qty = (Double)xp.evaluate("@OrderedQty", lineNode, XPathConstants.NUMBER);
@@ -493,7 +512,6 @@ public class OrderController {
 			
 			HashMap<String,Object> orderLineMap = new HashMap<String,Object>();
 			
-			
 			// Line Basic Info
 			String lineKey = (String)xp.evaluate("@OrderLineKey", orderLineNodeList.item(i), XPathConstants.STRING);
 			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
@@ -507,7 +525,6 @@ public class OrderController {
 			orderLineMap.put("shipNode", shipNode);
 			orderLineMap.put("status", status);
 			orderLineMap.put("status_class", status_class);
-			
 			
 			// Line Price, Charge, Tax Info
 			Double qty = (Double)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.NUMBER);
@@ -533,16 +550,12 @@ public class OrderController {
 			orderLineMap.put("lineDisount", -lineDisountCharge);
 			orderLineMap.put("lineTax", lineTax);
 			
-			
-			
 			// Item Info
 			String itemId = (String)xp.evaluate("Item/@ItemID", orderLineNodeList.item(i), XPathConstants.STRING);
 			String itemDesc = (String)xp.evaluate("Item/@ItemDesc", orderLineNodeList.item(i), XPathConstants.STRING);
 			String itemdShortDesc = (String)xp.evaluate("Item/@ItemShortDesc", orderLineNodeList.item(i), XPathConstants.STRING);
 			String uom = (String)xp.evaluate("Item/@UnitOfMeasure", orderLineNodeList.item(i), XPathConstants.STRING);
 			String pclass = (String)xp.evaluate("Item/@ProductClass", orderLineNodeList.item(i), XPathConstants.STRING);
-			 
-			
 			
 			orderLineMap.put("itemId", itemId);
 			orderLineMap.put("itemDesc", itemDesc);
@@ -553,7 +566,36 @@ public class OrderController {
 			orderLineList.add(orderLineMap);
 		}
 		
-		// TODO: OrderLine Grand Total 계산
+		
+		//-------- 3. Note Info
+		NodeList noteNodeList = (NodeList)xp.evaluate("Notes/Note", el, XPathConstants.NODESET);
+		
+		List<HashMap<String,Object>> noteList = new ArrayList<HashMap<String,Object>>();
+		for( int i=0; i<noteNodeList.getLength(); i++){
+			
+			HashMap<String,Object> noteMap = new HashMap<String,Object>();
+			
+			// Date, User, Reason, Contact Type, Contact Reference, Notes
+			String noteDate = (String)xp.evaluate("@ContactTime", noteNodeList.item(i), XPathConstants.STRING);
+			String noteUser = (String)xp.evaluate("@ContactUser", noteNodeList.item(i), XPathConstants.STRING);
+			String noteUserName = (String)xp.evaluate("User/@Username", noteNodeList.item(i), XPathConstants.STRING);
+			String noteReason = (String)xp.evaluate("@ReasonCode", noteNodeList.item(i), XPathConstants.STRING);
+			String noteContactType = (String)xp.evaluate("@ContactType", noteNodeList.item(i), XPathConstants.STRING);
+			String noteContactRef = (String)xp.evaluate("@ContactReference", noteNodeList.item(i), XPathConstants.STRING);
+			String noteText = (String)xp.evaluate("@NoteText", noteNodeList.item(i), XPathConstants.STRING);
+			
+			noteMap.put("noteDate", noteDate);
+			noteMap.put("noteUser", noteUser);
+			noteMap.put("noteUserName", noteUserName);
+			noteMap.put("noteReason", noteReason);
+			noteMap.put("noteContactType", noteContactType);
+			noteMap.put("noteContactRef", noteContactRef);
+			noteMap.put("noteText", noteText);
+			
+			noteList.add(noteMap);
+		}
+		
+		
 		
 		
 		ModelAndView mav = new ModelAndView("");
@@ -564,8 +606,10 @@ public class OrderController {
 		mav.addObject("baseInfo", baseInfoMap);
 		mav.addObject("custInfo", custInfoMap);
 		mav.addObject("billInfo", billInfoMap);
-		mav.addObject("shipInfo", billInfoMap); // 일단 Bill정보를 Ship정보 그대로 사용
+		mav.addObject("shipInfo", billInfoMap); // TODO: 일단 Bill정보를 Ship정보 그대로 사용. 수정필
 		mav.addObject("lineInfoList", orderLineList);
+		
+		mav.addObject("noteList", noteList);
 		
 		mav.setViewName("admin/orders/order_detail");
 		return mav;
@@ -677,7 +721,7 @@ public class OrderController {
 		logger.debug("##### [order_no]"+ order_no);
 		
 		
-		String scheduleNrelease = "N";	// Schedule과 Release를 동시에 처리함.
+		String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
 		
 		String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
 		
@@ -717,10 +761,6 @@ public class OrderController {
 		mav.addObject("success", succ);
 		return mav;
 	}
-	
-	
-	
-	
 	
 	
 	
@@ -773,6 +813,59 @@ public class OrderController {
 		mav.addObject("success", succ);
 		return mav;
 	}
+	
+	
+	
+	
+	@RequestMapping(value = "/cancelOrder.sc")
+	public ModelAndView cancelOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
+	{
+		
+		logger.debug("##### Schedule Order API Called !!!");
+		
+		logger.debug("##### [doc_type]"+ doc_type);
+		logger.debug("##### [ent_code]"+ ent_code);
+		logger.debug("##### [order_no]"+ order_no);
+		
+		
+		String cancelOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_TEMPLATE));
+		
+		MessageFormat msg = new MessageFormat(cancelOrderXML);
+		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no} );
+		logger.debug("##### [inputXML_CancelOrder]"+inputXML); 
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		String outputMsg =  "";
+		String succ = "Y";
+		
+		try
+		{
+			// API Call
+			outputMsg = sterlingApiDelegate.comApiCall("cancelOrder", inputXML);
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+			
+			// TODD: Error 메세지 정규화 작업필요
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+				succ = "N";
+				mav.addObject("errorMsg", outputMsg);
+			}else{
+				mav.addObject("outputMsg", "Cancel Order Transaction was processed Successfully.");
+			}
+		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			succ = "N";
+			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			
+		}
+		mav.addObject("success", succ);
+		return mav;
+	}
+	
+	
 	
 	
 	@RequestMapping(value = "/errorList.sc")

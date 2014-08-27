@@ -58,27 +58,16 @@ var EcommerceOrdersView = function () {
         });
     }
 
-    var handleCreditMemos = function () {
+    var handleNotes = function () {
 
         var grid = new Datatable();
         
         grid.init({
             src: $("#datatable_credit_memos"),
-            onSuccess: function (grid) {
-                // execute some code after table records loaded
-            },
-            onError: function (grid) {
-                // execute some code on network or other general error  
-            },
+            
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
-                "lengthMenu": [
-                    [20, 50, 100, 150, -1],
-                    [20, 50, 100, 150, "All"] // change per page values here
-                ],
-                "pageLength": 10, // default record count per page
-                "ajax": {
-                    "url": "demo/ecommerce_order_credit_memos.php", // ajax source
-                },
+                
+            	"serverSide": false, 
                 "columnDefs": [{ // define columns sorting options(by default all columns are sortable extept the first checkbox column)
                     'orderable': true,
                     'targets': [0]
@@ -204,14 +193,18 @@ var EcommerceOrdersView = function () {
 
         //main function to initiate the module
         init: function () {
+        	
+        	handleNotes();
+        	
             // initPickers();
             
             /*
             handleInvoices();
-            handleCreditMemos();
             handleShipment();
             handleHistory();
             */
+        	
+        	
         }
 
     };
