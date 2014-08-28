@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order Action="MODIFY" DocumentType="{0}"
+    EnterpriseCode="{1}" OrderNo="{2}" SellerOrganizationCode="{3}">
+    <Notes>
+        <Note  ContactTime="{4}" ContactUser="{5}" ReasonCode="{6}"
+            ContactType="{7}" ContactReference="{8}"  NoteText="{9}" VisibleToAll="Y"/>
+    </Notes>
+</Order>

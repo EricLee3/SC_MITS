@@ -56,7 +56,7 @@
 		<div class="portlet">
 			<div class="portlet-title">
 				<div class="caption">
-					<i class="fa fa-shopping-cart"></i>오더번호: ${orderNo} | 오더 생성일: <span class="hidden-480" id="title_order_date">
+					<i class="fa fa-shopping-cart"></i>오더번호:${orderNo} | 오더 생성일:<span class="hidden-480" id="title_order_date">
 					${baseInfo.orderDate} <!-- Dec 27, 2013 7:16:25 --> </span>
 				</div>
 				<div class="actions">
@@ -65,20 +65,11 @@
 					<span class="hidden-480">
 					Back </span>
 					</a>
-					<a href="orders/orderDetail.do?docType=${docType}&entCode=${entCode}&orderNo=${orderNo}" class="btn default yellow-stripe ajaxify" id="tool_reload">
+					<a href="javascript:pageReload();" class="btn default yellow-stripe" id="tool_reload">
 					<i class="fa fa-refresh"></i>
 					<span class="hidden-480">
 					Reload </span>
 					</a>
-					<a class="btn btn-sm red" href="javascript:;" id="tool_schedule">
-					Release
-					<i class="fa fa-edit"></i>
-					</a>
-					<a class="btn btn-sm red" href="javascript:;" id="tool_cancel">
-					Cancel
-					<i class="fa fa-edit"></i>
-					</a>
-					
 					<!-- <div class="btn-group">
 						<a class="btn default yellow-stripe" href="#" data-toggle="dropdown">
 						<i class="fa fa-cog"></i>
@@ -95,24 +86,6 @@
 								<a href="#">
 								Export to CSV </a>
 							</li>
-							<li>
-								<a href="#">
-								Export to XML </a>
-							</li>
-							<li class="divider">
-							</li>
-							<li>
-								<a href="#">
-								Print Invoice </a>
-							</li>
-							<li id="tool_schedule">
-								<a href="#">
-								Schedule </a>
-							</li>
-							<li id="tool_release">
-								<a href="#">
-								Release </a>
-							</li>
 							<li class="divider">
 							</li>
 							<li>
@@ -126,7 +99,7 @@
 			<div class="portlet-body">
 				<div class="tabbable">
 					<ul class="nav nav-tabs nav-tabs-lg">
-						<li class="active">
+						<li>
 							<a href="#tab_1" data-toggle="tab">
 							주문상세정보 </a>
 						</li>
@@ -152,7 +125,7 @@
 						</li>
 					</ul>
 					<div class="tab-content">
-						<div class="tab-pane active" id="tab_1">
+						<div class="tab-pane" id="tab_1">
 							<div class="row">
 								<div class="col-md-6 col-sm-12">
 									<div class="portlet yellow-crusta box">
@@ -161,6 +134,14 @@
 												<i class="fa fa-cogs"></i>Order Details
 											</div>
 											<div class="actions">
+												<a class="btn default btn-sm" href="javascript:;" id="tool_schedule">
+												주문확정
+												<i class="fa fa-edit"></i>
+												</a>
+												<a class="btn red btn-sm" href="javascript:;" id="tool_cancel">
+												주문취소
+												<i class="fa fa-edit"></i>
+												</a>
 											</div>
 										</div>
 										<div class="portlet-body">
@@ -532,8 +513,162 @@
 							
 						</div>
 						
-						
+						<!-- Notes Tab -->
 						<div class="tab-pane" id="tab_2">
+						
+						
+							<div class="row">
+							<div class="col-md-12">
+								<div class="portlet box blue-hoki">
+									<div class="portlet-title">
+										<div class="caption">
+											<i class="fa fa-gift"></i>Input Contact Information
+										</div>
+										<div class="tools">
+											<a href="javascript:;" class="collapse">
+											</a>
+											<!-- <a href="#portlet-config" data-toggle="modal" class="config">
+											</a>
+											<a href="javascript:;" class="reload">
+											</a>
+											<a href="javascript:;" class="remove">
+											</a> -->
+										</div>
+										
+										<div class="actions">
+											<a class="btn btn-default btn-sm" href="javascript:;" id="btn_save_note">
+											Save
+											<i class="fa fa-edit"></i>
+											</a>
+										</div>
+									</div>
+									<div class="portlet-body form">
+										<!-- BEGIN FORM-->
+										<form class="form-horizontal" id="form_save_note">
+											<input type="hidden" name="doc_type" value="${docType}">
+											<input type="hidden" name="ent_code" value="${entCode}">
+											<input type="hidden" name="order_no" value="${orderNo}">
+											<input type="hidden" name="seller_code" value="${baseInfo.sellerCode}">
+										
+										
+											<div class="form-body">
+												<!-- <h4 class="form-section">Basic Information</h4> -->
+												
+												<!-- Alert Message Area -->
+												<div class="alert alert-danger display-hide">
+													<button class="close" data-close="alert"></button>
+													You have some form errors. Please check below.
+												</div>
+												<div class="alert alert-success display-hide">
+													<button class="close" data-close="alert"></button>
+													Your form validation is successful!
+												</div>
+												<!-- Alert Message Area -->
+												
+												<div class="row">
+													<div class="col-md-5">
+														<div class="form-group">
+															<label class="control-label col-md-3">Contact Time <span class="required">
+															* </span>
+															</label>
+															<div class="col-md-5">
+																<div class="input-group date date-picker" data-date-format="yyyy-mm-dd" data-date-start-date="+0d">
+																	<input type="text" class="form-control" readonly name="contact_date_day">
+																	<span class="input-group-btn">
+																		<button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+																	</span>
+																</div>
+															</div>
+															<div class="col-md-4">
+																<div class="input-group">
+																	<input type="text" class="form-control timepicker timepicker-24" readOnly name="contact_date_time">
+																	<span class="input-group-btn">
+																		<button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+																	</span>
+																</div>
+															</div>
+															
+															
+														</div>
+													</div>
+													<div class="col-md-3">
+														<div class="form-group">
+															<label class="control-label col-md-4">Contact User <span class="required">
+															* </span>
+															</label>
+															<div class="col-md-8">
+																<div class="input-group">
+																	<span class="input-group-addon">
+																	<i class="fa fa-user"></i>
+																	</span>
+																	<input type="text" name="contact_user" data-required="1" class="form-control"/>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label class="control-label col-md-4">Reason Code <span class="required">
+															* </span>
+															</label>
+															<div class="col-md-8">
+																<select class="form-control" name="contact_reason">
+																	<option value="">Select</option>
+																	<option value="BACKORDER_INFO">Backorder Information</option>
+																	<option value="CALLED_CUSTOMER">Called Customer</option>
+																</select>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-4">
+														<div class="form-group">
+															<label class="control-label col-md-4">Contact Type
+															</label>
+															<div class="col-md-8">
+																<select class="form-control" name="contact_type">
+																	<option value="">Select</option>
+																	<option value="EMAIL"">E-mail</option>
+																	<option value="PHONE">Phone</option>
+																</select>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label class="control-label col-md-4">Contact Reference
+															</label>
+															<div class="col-md-8">
+																<div class="input-group">
+																	<span class="input-group-addon">
+																	<i class="fa fa-user"></i>
+																	</span>
+																	<input type="text" name="contact_ref" data-required="1" class="form-control"/>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12">
+														<div class="form-group">
+															<label class="control-label col-md-1">Add Note
+															</label>
+															<div class="col-md-11">
+																<textarea class="form-control" rows="3" name="contact_note"></textarea>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</form>
+										<!-- END FORM-->
+									</div>
+								</div>
+								</div>
+							</div>
+						
 							<div class="table-container">
 								<table class="table table-striped table-bordered table-hover" id="datatable_credit_memos">
 								<thead>
@@ -587,10 +722,7 @@
 							</div>
 						</div>
 						
-						
-						<!-- 
-						
-						<div class="tab-pane" id="tab_3">
+						<!-- <div class="tab-pane" id="tab_3">
 							<div class="table-container">
 								<div class="table-actions-wrapper">
 									<span>
@@ -677,8 +809,9 @@
 								</tbody>
 								</table>
 							</div>
-						</div>
+						</div> -->
 						
+						<!-- Shipment Tab -->
 						<div class="tab-pane" id="tab_4">
 							<div class="table-container">
 								<table class="table table-striped table-bordered table-hover" id="datatable_shipment">
@@ -740,6 +873,9 @@
 								</table>
 							</div>
 						</div>
+						
+						
+						<!-- History Tab -->
 						<div class="tab-pane" id="tab_5">
 							<div class="table-container">
 								<table class="table table-striped table-bordered table-hover" id="datatable_history">
@@ -799,8 +935,6 @@
 						</div>
 						
 						
-						
-						
 					</div>
 				</div>
 			</div>
@@ -824,65 +958,39 @@
 <!-- END PAGE LEVEL SCRIPTS -->
 
 <script>
-     jQuery(document).ready(function() {
-        EcommerceOrdersView.init();
+	jQuery(document).ready(function() {
         
-        // Schedule Order ( and Release)
-        $('#tool_schedule').click(function(e){
-        	
-        	if( confirm("Are you sure release this order?")){
-        		e.preventDefault();
-            	ajaxCallApi(this, '/orders/scheduleOrder.sc');
-        	}
-        	
-        });
+		OrderDetailView.init();
         
-        
-        // Cancel Order
-        $('#tool_cancel').click(function(e){
-        	
-        	if( confirm("Are you sure cancel this order?")){
-        		e.preventDefault();
-            	ajaxCallApi(this, '/orders/cancelOrder.sc');
-        	}
-        	
-        }); 
-        
-        
+		
+		// 오더상세 날짜 포맷변경
         $('#title_order_date').html(moment('${baseInfo.orderDate}', moment.ISO_8601).format("YYYY-MM-DD HH:mm"));
         $('#order_date').html($('#title_order_date').html());
+		
+        $('.nav.nav-tabs li').eq(order_detail_tab_index).addClass('active');
+        $('.tab-content .tab-pane').eq(order_detail_tab_index).addClass("active");
         
         
      });
      
-     function ajaxCallApi(eventObj, callUrl){
-    	 
-    	 
-    	 $.ajax({
-				url: callUrl,
-				data: $('#form_action').serialize(),
-				success:function(data)
-				{
-					
-					if(data.success == 'Y'){
-						alert(data.outputMsg);
-						$('#tool_reload').click();
-						
-					}else{
-						alert(data.errorMsg);
-					}
-					
-				},
-				beforeSend:function(xhr, status){
-					Metronic.blockUI({
-		                boxed:true
-		             });
-	        	},
-				complete:function(xhr, status){
-					Metronic.unblockUI();
-	        	}
+	function pageReload(){
+		
+		Metronic.blockUI({
+			target:'.page-content-wrapper',
+            boxed:true
+        });
+		
+		order_detail_tab_index = $('.nav.nav-tabs li[class="active"]').index();
+		$('.page-content-body').load('orders/orderDetail.do?docType=${docType}&entCode=${entCode}&orderNo=${orderNo}', function(){
+			
+			window.setTimeout(function () {
+               Metronic.unblockUI('.page-content-wrapper');
+            }, 100);
 		});
-     }
+	}
+ 
+     
+     
  </script>
 <!-- END JAVASCRIPTS -->
 

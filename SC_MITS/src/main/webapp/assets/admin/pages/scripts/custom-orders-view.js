@@ -1,6 +1,6 @@
-var EcommerceOrdersView = function () {
+var OrderDetailView = function () {
 
-
+	
     var handleInvoices = function () {
 
         var grid = new Datatable();
@@ -173,40 +173,142 @@ var EcommerceOrdersView = function () {
         });
     }
 
-    var initPickers = function () {
-        //init date pickers
-        $('.date-picker').datepicker({
-            rtl: Metronic.isRTL(),
-            autoclose: true
-        });
+    var handleDatePickers = function () {
 
-        $(".datetime-picker").datetimepicker({
-            isRTL: Metronic.isRTL(),
-            autoclose: true,
-            todayBtn: true,
-            pickerPosition: (Metronic.isRTL() ? "bottom-right" : "bottom-left"),
-            minuteStep: 10
-        });
+        if (jQuery().datepicker) {
+            $('.date-picker').datepicker({
+                rtl: Metronic.isRTL(),
+                orientation: "left",
+                autoclose: true
+            });
+            //$('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+        }
+        
+        // handle input group button click
+//        $('.date-picker').parent('.input-group').on('click', '.input-group-btn.day', function(e){
+//            e.preventDefault();
+//            $(this).parent('.input-group').find('.date-picker').datepicker('showWidget');
+//        });
     }
+
+    var handleTimePickers = function () {
+
+    	if (jQuery().timepicker) {
+            $('.timepicker-default').timepicker({
+                autoclose: true,
+                showSeconds: true,
+                minuteStep: 1
+            });
+
+            $('.timepicker-no-seconds').timepicker({
+                autoclose: true,
+                minuteStep: 5
+            });
+
+            $('.timepicker-24').timepicker({
+                autoclose: true,
+                minuteStep: 5,
+                showSeconds: false,
+                showMeridian: false
+            });
+
+            // handle input group button click
+            $('.timepicker').parent('.input-group').on('click', '.input-group-btn.time', function(e){
+                e.preventDefault();
+                $(this).parent('.input-group').find('.timepicker').timepicker('showWidget');
+            });
+        }
+    }
+    
+    
+    var ajaxCallApi = function(eventObj, callUrl){
+    	
+    	$.ajax({
+			url: callUrl,
+			data: $('#form_action').serialize(),
+			success:function(data)
+			{
+				
+				if(data.success == 'Y'){
+					alert(data.outputMsg);
+					pageReload();
+					
+				}else{
+					alert(data.errorMsg);
+				}
+				
+			},
+//			beforeSend:function(xhr, status){
+//				Metronic.blockUI({
+//	                boxed:true
+//	             });
+//        	},
+//			complete:function(xhr, status){
+//				Metronic.unblockUI();
+//        	}
+    	});
+    }
+    
 
     return {
 
         //main function to initiate the module
         init: function () {
         	
-        	handleNotes();
+        	handleDatePickers();
+        	handleTimePickers();
         	
-            // initPickers();
-            
             /*
+            handleNotes();
             handleInvoices();
             handleShipment();
             handleHistory();
             */
         	
         	
-        }
+        	// Schedule Order ( and Release)
+            $('#tool_schedule').click(function(e){
+            	if( confirm("Are you sure release this order?")){
+            		e.preventDefault();
+            		ajaxCallApi(this, '/orders/scheduleOrder.sc');
+            	}
+            });
+            
+            
+            // Cancel Order
+            $('#tool_cancel').click(function(e){
+            	if( confirm("Are you sure cancel this order?")){
+            		e.preventDefault();
+            		ajaxCallApi(this, '/orders/cancelOrder.sc');
+            	}
+            }); 
+            
+        	
+            // Event Handler - Save Note
+        	$('#btn_save_note').click(function(event){
+    			
+    			$.ajax({
+    				url: '/orders/addNotes.sc',
+    				data: $('#form_save_note').serialize(),
+    				success:function(data)
+    				{
+    					
+    					if(data.success == 'Y'){
+    						alert(data.outputMsg);
+    						pageReload();
+    						
+    					}else{
+    						alert(data.errorMsg);
+    					}
+    				}
+    			})
+    			
+    			event.preventDefault();
+    			
+    		});
+        	
+        } // End init
 
-    };
+    }; // End return
 
 }();

@@ -62,7 +62,6 @@ public class OrderController {
 	@Value("${sc.api.createOrderLine.template}")
 	private String CREATE_ORDERLINE_TEMPLATE;
 	
-	
 	@Value("${sc.api.scheduleOrder.template}")
 	private String SCHEDULE_ORDER_TEMPLATE;
 	
@@ -71,6 +70,10 @@ public class OrderController {
 	
 	@Value("${sc.api.cancelOrder.template}")
 	private String CANCEL_ORDER_TEMPLATE;
+	
+	@Value("${sc.api.changeOrder.addNote.template}")
+	private String CHANGE_ORDER_ADD_NOTE_TEMPLATE;
+	
 	
 	/**
 	 * 오더목록조회 (판매오더, 반품오더)
@@ -702,7 +705,7 @@ public class OrderController {
 	}
 	
 	/**
-	 * Schedule Order
+	 * Schedule Order - Release까지 같이 처리함.
 	 * 
 	 * 
 	 * @param doc_type 오더유형
@@ -763,7 +766,14 @@ public class OrderController {
 	}
 	
 	
-	
+	/**
+	 * 주문 확정 ( Release ) - 사용안함. Schedule Order에서 Release까지 같이 처리
+	 * 
+	 * @param doc_type
+	 * @param ent_code
+	 * @param order_no
+	 * @return
+	 */
 	@RequestMapping(value = "/releaseOrder.sc")
 	public ModelAndView releaseOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
 	{
@@ -816,7 +826,14 @@ public class OrderController {
 	
 	
 	
-	
+	/**
+	 * 주문 취소
+	 * 
+	 * @param doc_type
+	 * @param ent_code
+	 * @param order_no
+	 * @return
+	 */
 	@RequestMapping(value = "/cancelOrder.sc")
 	public ModelAndView cancelOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
 	{
@@ -865,6 +882,95 @@ public class OrderController {
 		return mav;
 	}
 	
+	/**
+	 * Change Order - Add Notes
+	 * 
+	 * @param paramMap
+	 * @return
+	 */
+	@RequestMapping(value = "/addNotes.sc")
+	public ModelAndView addNotes(@RequestParam Map<String, String> paramMap)
+	{
+		
+		
+		logger.debug("[doc_type]" + paramMap.get("doc_type"));
+		logger.debug("[ent_code]" + paramMap.get("ent_code"));
+		logger.debug("[order_no]" + paramMap.get("order_no"));
+		
+		/*
+		 * <Order Action="MODIFY" DocumentType="{0}"
+			    EnterpriseCode="{1}" OrderNo="{2}" SellerOrganizationCode="{3}">
+			    <Notes>
+			        <Note  ContactTime="{4}" ContactUser="{5}" ReasonCode="{6}"
+			            ContactType="{7}" ContactReference="{8}"  NoteText="{9}" VisibleToAll="Y"/>
+			    </Notes>
+			</Order>
+		 * 
+		 */
+		
+		String contact_date_day = paramMap.get("contact_date_day");
+		String contact_date_time = paramMap.get("contact_date_time");
+		String contact_date = contact_date_day+"T"+contact_date_time+":00";
+		
+		String contact_seller = paramMap.get("seller_code");
+		String contact_user = paramMap.get("contact_user");
+		String contact_reason = paramMap.get("contact_reason");
+		String contact_type = paramMap.get("contact_type");
+		String contact_ref = paramMap.get("contact_ref");
+		String contact_note = paramMap.get("contact_note");
+		
+		logger.debug("[contcat_date]" + contact_date_day);
+		logger.debug("[contact_user]" + paramMap.get("contact_user"));
+		logger.debug("[contact_reason]" + paramMap.get("contact_reason"));
+		logger.debug("[contact_type]" + paramMap.get("contact_type"));
+		logger.debug("[contact_ref]" + paramMap.get("contact_ref"));
+		logger.debug("[contact_note]" + paramMap.get("contact_note"));
+		
+		
+		String addNoteXML = FileContentReader.readContent(getClass().getResourceAsStream(CHANGE_ORDER_ADD_NOTE_TEMPLATE));
+		
+		MessageFormat msg = new MessageFormat(addNoteXML);
+		String inputXML = msg.format(new String[] {paramMap.get("doc_type"), paramMap.get("ent_code"), paramMap.get("order_no"),
+								contact_seller,
+								contact_date,
+								contact_user,
+								contact_reason,
+								contact_type,
+								contact_ref,
+								contact_note				
+							} );
+		logger.debug("##### [inputXML_CancelOrder]"+inputXML); 
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		String outputMsg =  "";
+		String succ = "Y";
+		
+		try
+		{
+			// API Call
+			outputMsg = sterlingApiDelegate.comApiCall("changeOrder", inputXML);
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+			
+			// TODD: Error 메세지 정규화 작업필요
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+				succ = "N";
+				mav.addObject("errorMsg", outputMsg);
+			}else{
+				mav.addObject("outputMsg", "Cancel Order Transaction was processed Successfully.");
+			}
+		
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			succ = "N";
+			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			
+		}
+		mav.addObject("success", succ);
+		return mav;
+	}
 	
 	
 	
