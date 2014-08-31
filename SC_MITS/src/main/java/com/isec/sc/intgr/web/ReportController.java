@@ -189,15 +189,25 @@ public class ReportController {
 //		String orderCountKey_pre = "count:*:*:orders:";
 //		String orderAmountKey_pre = "amount:*:*:orders:";
 		
+		// TODO: 오픈전 키값 변경 - SLV:ASPB
 		String orderCountKey_pre = "count:ISEC:ASPB:orders:";
 		String orderAmountKey_pre = "amount:ISEC:ASPB:orders:";
 		
+//		String orderCountKey_pre = "count:Aurora:Auro_Store_1:orders:";
+//		String orderAmountKey_pre = "amount:Aurora:Auro_Store_1:orders:";
+		
+		// TODO: 오픈전 키값 변경 - SLV:ASPB
 		String orderChargeKey_pre = "shipping:*:*:orders:";
+		String orderTaxKey_pre = "tax:*:*:orders:";
+		String orderDiscountKey_pre = "discount:*:*:orders:";
 		
 		int tot_order_count = 0;
 		double tot_order_amount = 0.00;
 		double tot_charge_amount = 0.00;
-		double tot_order_avg_amount = 0.00;
+		double tot_tax_amount = 0.00;
+		double tot_discount_amount = 0.00;
+		
+		//double tot_order_avg_amount = 0.00;
 		
 		
 		for( int i = -term; i<=0; i++){
@@ -205,6 +215,8 @@ public class ReportController {
 			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+calcDate(endDate, i));
 			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+calcDate(endDate, i));
 			Set<String> charge_key_names= reportStringRedisTemplate.keys(orderChargeKey_pre+calcDate(endDate, i));
+			Set<String> tax_key_names= reportStringRedisTemplate.keys(orderTaxKey_pre+calcDate(endDate, i));
+			Set<String> discount_key_names= reportStringRedisTemplate.keys(orderDiscountKey_pre+calcDate(endDate, i));
 			
 			Iterator<String> itr = cnt_key_names.iterator();
 			while(itr.hasNext()){
@@ -215,6 +227,7 @@ public class ReportController {
 			// Order Count
 			List<String> cnt_list = valueOps.multiGet(cnt_key_names);
 			for(String orderCount: cnt_list){
+//				logger.debug("[]"+orderCount);
 				tot_order_count += Integer.parseInt(orderCount);
 			}
 			
@@ -229,18 +242,34 @@ public class ReportController {
 			for(String chargeAmount: charge_list){
 				tot_charge_amount += Double.parseDouble(chargeAmount);
 			}
+			
+			// Order Tax
+			List<String> tax_list = valueOps.multiGet(tax_key_names);
+			for(String taxAmount: tax_list){
+				tot_tax_amount += Double.parseDouble(taxAmount);
+			}
+			
+			// Order Discount
+			List<String> discount_list = valueOps.multiGet(discount_key_names);
+			for(String discountAmount: discount_list){
+				tot_discount_amount += Double.parseDouble(discountAmount);
+			}
 		}
 		
-		if(tot_order_count == 0) 
-			tot_order_avg_amount = 0;
-		else
-			tot_order_avg_amount =  tot_order_amount/tot_order_count;
+//		if(tot_order_count == 0) 
+//			tot_order_avg_amount = 0;
+//		else
+//			tot_order_avg_amount =  tot_order_amount/tot_order_count;
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("tot_order_count", tot_order_count);
 		mav.addObject("tot_order_amount", tot_order_amount);
+		
 		mav.addObject("tot_charge_amount", tot_charge_amount);
-		mav.addObject("tot_order_avg_amount", tot_order_avg_amount);
+		mav.addObject("tot_tax_amount", tot_tax_amount);
+		mav.addObject("tot_discount_amount", tot_discount_amount);
+		
+//		mav.addObject("tot_order_avg_amount", tot_order_avg_amount);
 		return mav;   
 	}
 	

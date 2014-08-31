@@ -95,7 +95,7 @@ var EcommerceOrders = function () {
                       	  				{
                         					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
                       	  				}, "orderable":false },
-                            { "data": "status", "orderable":true },
+                            { "data": "status", "orderable":false },
                             { "data": null, "orderable":false }
                         ],
                 "order": [

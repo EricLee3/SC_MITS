@@ -358,6 +358,12 @@ var EcommerceIndex = function () {
     // Get DashBoard Data Using Ajax - Top Pannel ( Lifetime Sales, Total Orders, Average Orders)
     var getOrderOverAll = function(startDate, endDate, term){
     	
+    	Metronic.blockUI({
+            target: '.dashboard-stat',
+            iconOnly: true,
+            boxed: false
+         });
+    	
     	$.ajax({
 			url: '/reports/getOrderOverAll.sc',
 			data: "startDate="+startDate+"&endDate="+endDate+"&term="+term,
@@ -367,20 +373,15 @@ var EcommerceIndex = function () {
 				// $('#ds_tot_amaunt').html(String.fromCharCode('0x20A9')+jsonData.tot_order_amount.toFixed(2));
 				$('#ds_tot_amaunt').html(jsonData.tot_order_amount.toFixed(2));
 				$('#ds_tot_orders').html(jsonData.tot_order_count + '');
-				$('#ds_tot_charge').html(jsonData.tot_charge_amount.toFixed(2));
-				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2));
+				$('#ds_tot_charge').html( (jsonData.tot_charge_amount+jsonData.tot_tax_amount).toFixed(2));
+				$('#ds_tot_discount').html(jsonData.tot_discount_amount.toFixed(2));
+//				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2));
 				
 			},
-			beforeSend:function(xhr, status){
-				Metronic.blockUI({
-	                target: '#order_overall',
-	                boxed:true
-	             });
-        	},
 			complete:function(xhr, status){
 				window.setTimeout(function () {
-	                Metronic.unblockUI('#order_overall');
-	            }, 500);
+	                Metronic.unblockUI('.dashboard-stat');
+	            }, 200);
         	}
     	});
     	
@@ -388,8 +389,98 @@ var EcommerceIndex = function () {
     };
     
     
+    var initTable_common = function(id, tableData) {
+    	
+    	var common_colDef = [ 
+		                      {
+		                   	   "render": function(data, type, row){
+		                   		   
+		                   		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
+		                   	   },
+		                   	   "targets": 6	// View Button
+		                      },
+		                      { "visible": false,  "targets": [2] }
+		                      
+		                  ];
+    	var common_cols = [
+	                           { "data": "orderNo" },
+	                           { "data": function render(data, type)
+	                     	  			{
+	   		                    	    return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
+	   		                    	} 
+	                           },
+	                           { "data": "enterPrise" },
+	                           { "data": "sellerOrg" },
+	                           { "data": function render(data, type)
+	                 	  				{
+	                   					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
+	                 	  				} 
+	                           },
+	                           { "data": function render(data, type)
+	   		      	  				{
+	   		        					return '<span class="label label-xs label-'+data['status_class']+' ">'+data['status']+'</span>';
+	   		      	  				} 
+		   		                },
+		   		                { "data": null, "orderable":false }
+	                       ];
+    	
+    	var new_table = $(id);
+    	new_table.dataTable({
+        	"paging":   false,
+            "ordering": false,
+            "info":     false,
+        	"processing": false,
+            "serverSide": false,
+            "dom":"",
+            "data": tableData,
+            "columnDefs": common_colDef,
+            "columns": common_cols
+        });
+    	
+    }
+    
+    // Orders Overview - Error List
+    var initTable_overviews = function(data) {
+    	
+    	initTable_common('#table_new_list', data.newList);
+    	initTable_common('#table_pending_list', data.pendingList);
+    	initTable_common('#table_shipped_list', data.shippedList);
+    	initTable_common('#table_cancelled_list', data.cancellList);
+    	
+    	// Error List
+    	var err_table = $('#table_error_list');
+    	err_table.dataTable({
+        	"paging":   false,
+            "ordering": false,
+            "info":     false,
+        	"processing": false,
+            "serverSide": false,
+            "dom":"",
+            "data": data.errList,
+            "columns": [
+                        { "data": "orderId" },
+                        { "data": "errorDate" },
+                        { "data": "sellerCode" },
+                        { "data": "errorMsg" },
+                        { "data": function(data, type){
+                 		   			return '<a href="/orders/orderDetail.do?docType=0001&orderNo='+data['orderId']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
+                 	   			  }
+                 	   },
+                    ]
+        });
+    };
     
     
+    var reload_table_overview = function(table_id, data){
+    	
+    	if(data == null || data == "" || data.length == 0) return;
+    		
+    	var newTable = $(table_id).dataTable();
+			
+			newTable.fnClearTable();
+			newTable.fnAddData(data);
+			newTable.fnDraw();
+    }
     
 
     return {
@@ -422,8 +513,63 @@ var EcommerceIndex = function () {
             
             
         },
-    
-    	initDashboardDaterange: function () {
+	    
+	    
+	    setOrderOverviewList: function(mode) {
+	    	Metronic.blockUI({
+	    		
+                target: '#pt_order_overview',
+                imageOnly:true
+             });
+	    	
+	    	
+	    	$.ajax({
+   				url: '/orders/orderOverviewList.sc',
+   				success:function(data)
+   				{
+   					if(mode == 'reload'){
+   						reload_table_overview('#table_new_list', data.newList);
+   						reload_table_overview('#table_pending_list', data.pendingList);
+   						reload_table_overview('#table_shipped_list', data.shippedList);
+   						reload_table_overview('#table_cancelled_list', data.cancellList);
+   						reload_table_overview('#table_error_list', data.errList);
+   						
+   					}else{
+   						initTable_overviews(data);
+   					}
+   					
+   					
+   				},
+   				complete:function(xhr, status){
+   					window.setTimeout(function () {
+   		                Metronic.unblockUI('#pt_order_overview');
+   		            }, 100);
+   	        	}
+    		});
+	        
+	    },
+	    
+	    
+	    setOrderChartData: function(data) {
+	    	chartData = data;
+	    },
+	    
+	    // Tab Chart Ajax Refresh
+	    refreshChart: function(index){
+	    	
+	    	totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+	    	
+//	    	switch(index) {
+//	    		case 0: totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+//	    		case 1: orderAmountChart(chartData.data);
+//	    		case 2: orderCountChart(chartData.data);
+//	    	}
+	    	
+	    },
+	    
+	    
+	    
+	    initDashboardDaterange: function () {
 
     		$('#dashboard-report-range').daterangepicker(
     			{
@@ -485,67 +631,6 @@ var EcommerceIndex = function () {
 	        
 	        
 	        getOrderOverAll(moment().format('YYYYMMDD'), moment().format('YYYYMMDD'), 0);
-	    },
-	    
-	    
-	    getOrderOverviewData: function() {
-	    	var table = $('#table_error_order');
-
-	        // begin first table
-	        table.dataTable({
-	        	"paging":   false,
-	            "ordering": false,
-	            "info":     false,
-	        	"processing": false,
-	            "serverSide": true,
-	            "dom":"",
-	            "ajax": "/orders/errorList.sc",
-                "columns": [
-                            { "data": "orderId" },
-                            { "data": "entCode" },
-                            { "data": "sellerCode" },
-                            { "data": "errorDate" }
-                        ]
-	        });
-	        
-	        return;
-	        
-//	        var table = $('#table_order');
-//
-//	        // begin first table
-//	        table.dataTable({
-//	        	"paging":   false,
-//	            "ordering": false,
-//	            "info":     false,
-//	        	"processing": false,
-//	            "serverSide": true,
-//	            "dom":"",
-//	            "ajax": "/orders/orderListLast10.sc",
-//                "columns": [
-//                            { "data": "orderId" },
-//                            { "data": "orderDate" },
-//                            { "data": "orderAmount" },
-//                            { "data": "orderStatus" }
-//                        ]
-//	        });
-	    },
-	    
-	    
-	    setOrderChartData: function(data) {
-	    	chartData = data;
-	    },
-	    
-	    // Tab Chart Ajax Refresh
-	    refreshChart: function(index){
-	    	
-	    	totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
-	    	
-//	    	switch(index) {
-//	    		case 0: totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
-//	    		case 1: orderAmountChart(chartData.data);
-//	    		case 2: orderCountChart(chartData.data);
-//	    	}
-	    	
 	    }
 
     };

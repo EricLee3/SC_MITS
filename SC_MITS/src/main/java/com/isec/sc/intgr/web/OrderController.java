@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -157,9 +159,6 @@ public class OrderController {
 			case 4:
 				sortColumn = "SellerOrganizationCode";
 				break;
-			case 9:
-				sortColumn = "Status";
-				break;
 			default:
 				sortColumn = "OrderDate"; sortDir = "Y";
 				break;
@@ -280,7 +279,8 @@ public class OrderController {
 			String phone = (String)xp.evaluate("@CustomerPhoneNo", orderNodeList.item(i), XPathConstants.STRING);
 			String emailId = (String)xp.evaluate("@CustomerEMailID", orderNodeList.item(i), XPathConstants.STRING);
 			String currency = (String)xp.evaluate("PriceInfo/@Currency", orderNodeList.item(i), XPathConstants.STRING);
-			String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderNodeList.item(i), XPathConstants.STRING);
+//			String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderNodeList.item(i), XPathConstants.STRING);
+			String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderNodeList.item(i), XPathConstants.STRING);	// Discount 포함
 			
 			String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", orderNodeList.item(i), XPathConstants.STRING);
 			
@@ -413,7 +413,9 @@ public class OrderController {
 		HashMap<String, Object> baseInfoMap = new HashMap<String, Object>();
 		
 		String ordreDate = (String)xp.evaluate("@OrderDate", el, XPathConstants.STRING);
-		String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", el, XPathConstants.STRING);
+//		String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", el, XPathConstants.STRING);
+		String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", el, XPathConstants.STRING);	// Discount 포함
+		
 		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
 		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
 		String orderStatus = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
@@ -973,17 +975,55 @@ public class OrderController {
 	}
 	
 	
-	
-	@RequestMapping(value = "/errorList.sc")
-	public ModelAndView getOrderErrorList(@RequestParam Map<String, String> paramMap) throws Exception{
+	/**
+	 * Orders Overview 조회 - Dashboard > Orders Overviews
+	 * - 오더상태별 최근 오더목록 조회
+	 *    - 신규오더
+	 *    - 주문확정 대기
+	 *    - 출고완료
+	 *    - 주문취소
+	 *    - 에러
+	 *    
+	 * 
+	 * @param paramMap
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/orderOverviewList.sc")
+	public ModelAndView getOrderOverviewList(@RequestParam Map<String, String> paramMap) throws Exception{
 		
+		String docType = (String)paramMap.get("doc_type");
+		if( docType == null || "".equals(docType)){
+			docType = "0001";
+		};
 		
-		String entCode = "DA";
-		String sellerCode = "OUTRO";
+//		String entCode = "DA";
+//		String sellerCode = "OUTRO";
+		
+		// TODO: 향후 로그인 유저의 조직정보로 세팅
+		String entCode = "*";
+		String sellerCode = "*";
 		
 		String errListKey = entCode + ":" + sellerCode + ":order:error";
 		
+		Set<String> cnt_key_names= maStringRedisTemplate.keys(errListKey);
+		Iterator<String> itr = cnt_key_names.iterator();
 		
+		List<HashMap<String,Object>> errList = new ArrayList<HashMap<String, Object>>();
+		while(itr.hasNext()){
+			
+			String errKey = itr.next();
+			logger.debug("[key]"+errKey);
+			
+			
+			// TODO: 건수 변경
+			List<String> errorDataList = listOps.range(errKey, 0, 6);
+			for( String jsonData:  errorDataList){
+				
+				HashMap<String,Object> result = new ObjectMapper().readValue(jsonData, HashMap.class);
+				errList.add(result);
+			}
+		}
 		/*
 		 * String errorJSON = "{ 'docType':'0001', 'entCode':'DA' 'sellerCode':'OUTRO' orderId:'0001', "
 				+ " orderXML:'<xml>',"
@@ -992,21 +1032,111 @@ public class OrderController {
 				+ " errorDate:'2013-11-23 14:30' "
 				+ "}";
 		 */
-		 
-		List<String> errorList = listOps.range(errListKey, 0, 7);
 		
-		List<HashMap<String,Object>> dataList = new ArrayList<HashMap<String, Object>>();
-		
-		for( String jsonData:  errorList){
-			
-			HashMap<String,Object> result = new ObjectMapper().readValue(jsonData, HashMap.class);
-			dataList.add(result);
-		}
 		
 		ModelAndView mav = new ModelAndView("jsonView");
-		mav.addObject("data",dataList);
-		
+		mav.addObject("newList",getOrderOverviewList(docType, entCode, sellerCode, "") );	// New Order List - Top10
+		mav.addObject("releaseList",getOrderOverviewList(docType, entCode, sellerCode, "3200") );	// 주문확정대기 리스트 TODO: BackOrdered건도 추가
+		mav.addObject("shippedList",getOrderOverviewList(docType, entCode, sellerCode, "3700") ); // 출고완료 리스트
+		mav.addObject("cancellList",getOrderOverviewList(docType, entCode, sellerCode, "9000") ); // 주문취소 리스트
+		mav.addObject("errList",errList);
 		
 		return mav;
+	}
+	
+	
+	/**
+	 * 오더상태별 오더목록 조회 - Dashboard > Orders Overview
+	 * 	 신규주문건 - All
+	 *	 주문확정대기 건 - BackOrdered,  3200 - Partially Released, Released
+	 *	 출고완료목록 - 3700 Shipped
+	 *	 주문취소건  - 9000 Cancelled
+	 * 
+	 * 
+	 * @param docType
+	 * @param entCode
+	 * @param sellerCode
+	 * @param orderStatus
+	 * @return
+	 * @throws Exception
+	 */
+	private ArrayList<HashMap<String, String>> getOrderOverviewList(String docType, String entCode, String sellerCode, String orderStatus) throws Exception{ 
+
+		
+		entCode = "*".equals(entCode)?"":entCode;
+		sellerCode = "*".equals(sellerCode)?"":sellerCode;
+		
+		logger.debug("[status]"+ orderStatus);
+		
+		
+		String rowCount = "7";
+		
+		// Input XML Creation
+		String getOrderList_input = ""
+		+ "<Order DocumentType=\""+ docType +"\" "
+		+ " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" Status=\"{2}\" "
+		+ " MaximumRecords  = \"{3}\"  >"
+		// Descending OrderDate
+		+ "<OrderBy><Attribute Desc=\"Y\" Name=\"OrderDate\"/></OrderBy> "
+		
+		+ "</Order> ";
+		
+		MessageFormat msg = new MessageFormat(getOrderList_input);
+		String inputXML = msg.format(new String[] {
+		                                entCode,
+		                                sellerCode, 
+		                                orderStatus,
+		                                rowCount
+								} );
+		logger.debug("[inputXML]"+inputXML); 
+		
+		
+		// API Call
+		
+		String outputXML = sterlingApiDelegate.comApiCall("getOrderList", inputXML);
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
+		NodeList orderNodeList = (NodeList)xp.evaluate("OrderList/Order", doc, XPathConstants.NODESET);
+		
+		ArrayList<HashMap<String, String>> orderList = new ArrayList<HashMap<String, String>>();
+		
+		for(int i=0; i<orderNodeList.getLength(); i++){
+		
+			HashMap<String, String> dataMap = new HashMap<String, String>();
+			
+			String orderNo = (String)xp.evaluate("@OrderNo", orderNodeList.item(i), XPathConstants.STRING);
+			String orderDate = (String)xp.evaluate("@OrderDate", orderNodeList.item(i), XPathConstants.STRING);
+			String enterPrise = (String)xp.evaluate("@EnterpriseCode", orderNodeList.item(i), XPathConstants.STRING);
+			String sellerOrg = (String)xp.evaluate("@SellerOrganizationCode", orderNodeList.item(i), XPathConstants.STRING);
+			
+			String custFname = (String)xp.evaluate("@CustomerFirstName", orderNodeList.item(i), XPathConstants.STRING);
+			String custLname = (String)xp.evaluate("@CustomerLastName", orderNodeList.item(i), XPathConstants.STRING);
+			String custName = custFname + " " + custLname;
+			
+			String currency = (String)xp.evaluate("PriceInfo/@Currency", orderNodeList.item(i), XPathConstants.STRING);
+//			String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderNodeList.item(i), XPathConstants.STRING);
+			String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderNodeList.item(i), XPathConstants.STRING);	// Discount 포함
+			
+			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
+			if("".equals(status)) status = "Draft";
+			String status_class = env.getProperty("ui.status."+status+".cssname");
+			if( status_class == null) status_class = "default";
+		
+			dataMap.put("orderNo", orderNo);
+			dataMap.put("orderDate", orderDate);
+			dataMap.put("enterPrise", enterPrise);
+			dataMap.put("sellerOrg", sellerOrg);
+			dataMap.put("custName", custName);
+			dataMap.put("currency", currency);
+			dataMap.put("totalAmount", totalAmount);
+			dataMap.put("status", status);
+			dataMap.put("status_class", status_class);
+			
+			orderList.add(dataMap);
+		}
+		
+		
+		return orderList;   
 	}
 }

@@ -235,9 +235,9 @@
 								<option value="">Select...</option>
 								<option value="A">All</option>
 								<option value="1100">Created</option>
-								<option value="1500">Scheduled</option>
 								<option value="3200">Released</option>
 								<option value="3700">Shipped</option>
+								<option value="9000">Cancelled</option>
 							</select>
 						</td>
 						<td>
@@ -258,14 +258,6 @@
 	</div>
 </div>
 <!-- END PAGE CONTENT-->
-<script type="text/javascript" src="../../assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
-<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/ColReorder/js/dataTables.colReorder.min.js"></script>
-<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/Scroller/js/dataTables.scroller.min.js"></script>
-
-<script type="text/javascript" src="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
-
-<script type="text/javascript" src="../../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 
 <script src="../../assets/global/scripts/custom-datatable.js"></script>
 <script src="../../assets/admin/pages/scripts/custom-ecommerce-orders.js"></script>
@@ -314,11 +306,11 @@
 	}
 	
 	
-	var param1var = getQueryVariable("param1");
-	
 	function getQueryVariable(variable) {
 	  //var query = window.location.search.substring(1);
 	  var query = window.location.search.toString();
+	  
+	  alert(query);
 	  
 	  if(query.indexOf('?') == -1 ) return '';
 	  query = query.substring(query.indexOf('?')+1);

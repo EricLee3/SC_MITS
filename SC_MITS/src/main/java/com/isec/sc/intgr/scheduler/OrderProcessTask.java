@@ -48,7 +48,7 @@ public class OrderProcessTask {
 	
 	
 	/**
-	 * 오더생성 From Redis
+	 * Create Order From MA(Magento, WCS)
 	 * 
 	 * @param redisKey	MA에 전송한 최초 오더생성 정보 ( SC의 CreateOrder API의 Input XML)
 	 * @param redisPushKey MITS에서 오더생성 후 MA로 오더생성 성공여부를 전송하는 Key -> Ma는 이 정보를 확인해서 Placed로 변경한다.
@@ -118,6 +118,10 @@ public class OrderProcessTask {
     
     
     /**
+     * Create Shipment처리 ( OUTRO Test 전용)
+     *  - MA에서 Order Captured 된 상태의 정보를 받아 Create Shipment를 실행하는 메서드
+     *  - 실 운영에서는 사용하지 않.
+     * 
      * 
      * @param redisKey
      * @param redisPushKey

@@ -15,6 +15,19 @@
 	<bean id="productSyncBean" class="com.isec.sc.intgr.scheduler.ProductSyncTask"/>
 	
 	<!-- ========== Job Detail ========== -->
+    <!-- ASPB - Order -->
+    <bean id="orderCreateJob_ASPB" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>createOrder</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ma.aspb.order}</value>
+	    		<value>${key.ma.aspb.orderUpdate.S2M}</value>
+	    		<value>${key.ma.aspb.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+    <!-- ASPB - Order -->
     
     <!-- OUTRO - Order -->
     <bean id="orderCreateJob_OUTRO" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
@@ -80,20 +93,27 @@
 	
 	
 	<!-- ========== Job Trigger Setting ========== -->
+	<!-- ASPB > Order -->
+	<bean id="orderCreateJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderCreateJob_ASPB" />
+        <property name="cronExpression" value="0 0/10 * * * ?" />
+    </bean>
+	
+	
 	<!-- OUTRO > Order -->
 	<bean id="orderCreateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_OUTRO" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="0 0/20 * * * ?" />
     </bean>
     <bean id="orderUpdateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderUpdateJob_OUTRO" />
         <property name="startDelay" value="10000" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="10 0/20 * * * ?" />
     </bean>
     <bean id="productSyncJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="syncProductJob_OUTRO" />
         <property name="startDelay" value="20000" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="30 0/20 * * * ?" />
     </bean>
     
     
@@ -101,12 +121,12 @@
     <bean id="orderCreateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_JNS" />
         <property name="startDelay" value="10000" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="0 0/30 * * * ?" />
     </bean>
     <bean id="orderUpdateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderUpdateJob_JNS" />
         <property name="startDelay" value="10000" />
-        <property name="cronExpression" value="0/60 * * * * ?" />
+        <property name="cronExpression" value="10 0/30 * * * ?" />
     </bean>
 	<!-- ========== Job Trigger Setting ========== -->
 	
@@ -115,13 +135,17 @@
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <!-- <ref bean="orderCreateJobTrigger_OUTRO"/>
+            	<!-- ASPB -->
+                <ref bean="orderCreateJobTrigger_ASPB"/>
+                
+                <!-- OUTRO -->
+                <ref bean="orderCreateJobTrigger_OUTRO"/>
                 <ref bean="orderUpdateJobTrigger_OUTRO"/>
                 <ref bean="productSyncJobTrigger_OUTRO"/>
                 
-                
+                <!-- JNS -->
                 <ref bean="orderCreateJobTrigger_JNS"/>
-                <ref bean="orderUpdateJobTrigger_JNS"/> -->
+                <ref bean="orderUpdateJobTrigger_JNS"/>
             </list>
         </property>
     </bean>
