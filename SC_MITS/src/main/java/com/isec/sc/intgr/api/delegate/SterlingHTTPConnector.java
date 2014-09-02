@@ -1,7 +1,11 @@
 package com.isec.sc.intgr.api.delegate;
 
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Component;
 
 import com.isec.sc.intgr.api.util.HTTPClient;
@@ -17,6 +21,7 @@ public class SterlingHTTPConnector {
 	private String api;
 	private String data;
 	
+	private static final Logger logger = LoggerFactory.getLogger(SterlingHTTPConnector.class);
 	
 	public SterlingHTTPConnector() {
 		
@@ -39,22 +44,21 @@ public class SterlingHTTPConnector {
 		*/
 	}
 
-	public String run() {
+	public String run() throws Exception{
 		
-//		System.out.println("========= Input XML Message =========");
-		System.out.println(param);
 		
 		MessageFormat fmt = new MessageFormat(param);
-		String newParam = fmt.format(new String[] { user, password, api, data });
+		String newParam = fmt.format(new String[] { user, password, api, URLEncoder.encode(data, "UTF-8") });
+		
+		// newParam = URLEncoder.encode(newParam, "UTF-8");
+		logger.debug("[SC API Input Param]"+newParam);
 		
 		HTTPClient client = new HTTPClient(url);
 		client.setMethod("POST");
 		client.setInputContent(newParam);
-		client.setDebug(false);
+		client.setDebug(true);
 		client.invoke();
 		
-//		System.out.println("========= Output XML Message =========");
-//		System.out.println(client.getOutputContent());
 		
 		return client.getOutputContent();
 	}

@@ -134,10 +134,10 @@
 												<i class="fa fa-cogs"></i>Order Details
 											</div>
 											<div class="actions">
-												<a class="btn default btn-sm" href="javascript:;" id="tool_schedule">
-												주문확정
+												<!-- <a class="btn default btn-sm" href="javascript:;" id="tool_release">
+												출고요청
 												<i class="fa fa-edit"></i>
-												</a>
+												</a> -->
 												<a class="btn red btn-sm" href="javascript:;" id="tool_cancel">
 												주문취소
 												<i class="fa fa-edit"></i>

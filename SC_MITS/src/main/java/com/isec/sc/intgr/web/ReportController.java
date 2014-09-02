@@ -190,8 +190,11 @@ public class ReportController {
 //		String orderAmountKey_pre = "amount:*:*:orders:";
 		
 		// TODO: 오픈전 키값 변경 - SLV:ASPB
-		String orderCountKey_pre = "count:ISEC:ASPB:orders:";
-		String orderAmountKey_pre = "amount:ISEC:ASPB:orders:";
+//		String orderCountKey_pre = "count:ISEC:ASPB:orders:";
+//		String orderAmountKey_pre = "amount:ISEC:ASPB:orders:";
+		
+		String orderCountKey_pre = "count:SLV:ASPB:orders:";
+		String orderAmountKey_pre = "amount:SLV:ASPB:orders:";
 		
 //		String orderCountKey_pre = "count:Aurora:Auro_Store_1:orders:";
 //		String orderAmountKey_pre = "amount:Aurora:Auro_Store_1:orders:";

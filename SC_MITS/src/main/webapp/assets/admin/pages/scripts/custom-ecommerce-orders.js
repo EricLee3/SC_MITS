@@ -95,7 +95,7 @@ var EcommerceOrders = function () {
                       	  				{
                         					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
                       	  				}, "orderable":false },
-                            { "data": "status", "orderable":false },
+                            { "data": "status_text", "orderable":false },
                             { "data": null, "orderable":false }
                         ],
                 "order": [
@@ -178,7 +178,7 @@ var EcommerceOrders = function () {
             	sOut += '<td></td><td>' + aData['lineList'][i]['itemShortDesc'] + '</td>';
             	sOut += '<td>UnitPrice:</td><td>' + aData['lineList'][i]['UnitPrice'] + '</td>';
             	sOut += '<td>Qty:</td><td>' + aData['lineList'][i]['qty'] + '</td>';
-            	sOut += '<td>Status:</td><td>  <span class="label label-sm label-'+aData['lineList'][i]['status_class']+' ">'+aData['lineList'][i]['status']+'</span></td>';
+            	sOut += '<td>Status:</td><td>'+aData['lineList'][i]['status_text']+'</td>';
             	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
             	sOut += '<td>Charge:</td><td>' + aData['lineList'][i]['lineShipCharge'] + '</td>';
             	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';

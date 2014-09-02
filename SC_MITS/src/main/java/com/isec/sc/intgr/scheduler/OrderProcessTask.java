@@ -9,6 +9,7 @@
 
 package com.isec.sc.intgr.scheduler;
 
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -26,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 
@@ -62,10 +66,6 @@ public class OrderProcessTask {
     	logger.debug("     ----- Push Key ["+redisPushKey+"]");
     	logger.debug("     ----- Error Key ["+redisErrKey+"]");
     	
-    	Map<String,String> sendMsgMap = new HashMap<String,String>();
-		ObjectMapper mapper = new ObjectMapper();
-    	
-		
     	long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
 		
@@ -73,46 +73,46 @@ public class OrderProcessTask {
 			// 3. Call Sterling API by Type & Key
 			for(int i=0; i<dataCnt; i++){
 				
+				
+				// Get Input XML from Redis
 				String orderInputXml = listOps.rightPop(redisKey);
+				logger.debug("[Create Order input XML]"+ orderInputXml);
 				
 				// SC API 호출
-				HashMap<String, Object> result = sterlingApiDelegate.createOrder(orderInputXml);
-				String status = (String)result.get("status");
+				String outputXML = sterlingApiDelegate.createOrder(orderInputXml);
 				
+				// 에러처리
+				Document doc = sterlingApiDelegate.processCreateOrderError(orderInputXml, outputXML, redisErrKey);
 				
-				// Create 성공
-				// TODO: ScOrderStatusHandler에서 처리하도록 수정
-				if("1100".equals(status)){
+				// 결과처리 (정상일 경우)
+				if( doc != null){
 					
-					// TODO: sellerCode 저장추가
-					String orderSuccJSON = mapper.writeValueAsString(result);
 					logger.debug("[Create Order Successful]");
-					logger.debug("[orderSucc JSON]"+orderSuccJSON);
 					
-					// 결과데이타 저장
+					HashMap<String, String> resultMap = new HashMap<String, String>();
+					
+					resultMap.put("status", "1100");
+					resultMap.put("orderHeaderKey", doc.getDocumentElement().getAttribute("OrderHeaderKey"));
+					resultMap.put("entCode", doc.getDocumentElement().getAttribute("EnterpriseCode"));
+					resultMap.put("orderId", doc.getDocumentElement().getAttribute("OrderNo"));
+					resultMap.put("docType", doc.getDocumentElement().getAttribute("DocumentType"));
+					
+					String sellerCode = redisKey.split(":")[1];	// SLV:ASPB:order
+					resultMap.put("sellerCode", sellerCode);
+					
+					ObjectMapper mapper = new ObjectMapper();
+					String orderSuccJSON = mapper.writeValueAsString(resultMap);
+					logger.debug("[Update OrderStatus - Redis Data]"+orderSuccJSON);
+					
+					// Put OrderStaus to Redis
 					listOps.leftPush(redisPushKey, orderSuccJSON);
-					
-				
-				// Create 실패
-				}else if("0000".equals(status)){
-					
-					sendMsgMap.put("data", orderInputXml);
-					sendMsgMap.put("occure_date", cuurentDate());
-					
-					
-					// Java Object(Map) to JSON	
-					String orderErrJSON = mapper.writeValueAsString(sendMsgMap);
-					logger.debug("Create Order Error occured");
-					logger.debug("[orderErr JSON]"+orderErrJSON);
-					
-					// 실패데이타 저장
-					listOps.leftPush(redisErrKey, orderErrJSON);
 				}
 			}
 			
 		}catch(Exception e){
 			logger.debug("##### Create Order Task Exeption Occured");
 			e.printStackTrace();
+			
 		}
     }
     
@@ -221,15 +221,6 @@ public class OrderProcessTask {
 		}
 		
 	}
-    
-    
-	private String cuurentDate(){
-		
-		SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat ( "yyyy.MM.dd HH:mm:ss", Locale.KOREA );
-		Date currentTime = new Date ( );
-		String mTime = mSimpleDateFormat.format ( currentTime );
-		
-		return mTime;
-  	}
+	
 
   }

@@ -266,8 +266,8 @@ var OrderDetailView = function () {
             */
         	
         	
-        	// Schedule Order ( and Release)
-            $('#tool_schedule').click(function(e){
+        	// Release Order ( Schedule and Release)
+            $('#tool_release').click(function(e){
             	if( confirm("Are you sure release this order?")){
             		e.preventDefault();
             		ajaxCallApi(this, '/orders/scheduleOrder.sc');

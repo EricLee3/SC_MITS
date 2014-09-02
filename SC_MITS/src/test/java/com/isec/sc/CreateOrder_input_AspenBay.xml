@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order DocumentType="0001" EnterpriseCode="SLV" SellerOrganizationCode="ASPB" PaymentStatus="AUTHORIZED">
+	
+	<OrderLines>
+
+		<OrderLine OrderedQty="2">
+			<Item ItemID="ASPB_ITEM_0001" UnitOfMeasure="EACH" ItemShortDesc="Capri Blue Blue Signature Jar BOHO-LUXE" ItemDesc="http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html"/>
+			<LinePriceInfo IsLinePriceForInformationOnly="N" IsPriceLocked="Y" UnitPrice="49000.00"/>
+			<LineCharges>
+				<LineCharge ChargeCategory="Shipping" ChargeName="Shipping" ChargePerLine="10.00" />
+				<LineCharge ChargeCategory="Discount" ChargeName="Discount" ChargePerLine="5.00" />
+			</LineCharges>
+			<LineTaxes>
+				<LineTax ChargeCategory="Price" TaxName="Tax" TaxableFlag="Y" Tax="0.00" />
+			</LineTaxes>
+		</OrderLine>
+
+		<OrderLine OrderedQty="3">
+			<Item ItemID="ASPB_ITEM_0001" UnitOfMeasure="EACH" ItemShortDesc="Capri Blue Diffuser BLUE JEAN" ItemDesc="http://www.aspenbay.co.kr/capri-blue/capri-blue-diffuser-blue-jean.html"/>
+			<LinePriceInfo IsLinePriceForInformationOnly="N" IsPriceLocked="Y" UnitPrice="59000.00"/>
+			<LineCharges>
+				<LineCharge ChargeCategory="Shipping" ChargeName="Shipping" ChargePerLine="10.00" />
+				<LineCharge ChargeCategory="Discount" ChargeName="Discount" ChargePerLine="5.00" />
+			</LineCharges>
+			<LineTaxes>
+				<LineTax ChargeCategory="Price" TaxName="Tax" TaxableFlag="Y" Tax="0.00" />
+			</LineTaxes>
+		</OrderLine>
+
+	</OrderLines>
+
+	<PersonInfoShipTo FirstName="길동" LastName="홍" EMailID="yg.jang@isecommerce.co.kr" DayPhone="02-1234-5678" MobilePhone="010-1234-5678" AddressLine1="강남구 삼성동 78번지" AddressLine2="삼안빌딩 7층 SC-Team" ZipCode="123-456" City="서울" Country="KR" />
+	
+	<PersonInfoBillTo  FirstName="길동" LastName="홍" EMailID="yg.jang@isecommerce.co.kr" DayPhone="02-1234-5678" MobilePhone="010-1234-5678" AddressLine1="강남구 삼성동 78번지" AddressLine2="삼안빌딩 7층 SC-Team" ZipCode="123-456" City="서울" Country="KR" />
+
+	<PaymentMethods>
+		<PaymentMethod PaymentType="CREDIT_CARD" CreditCardNo="0000000000000000"></PaymentMethod>
+	</PaymentMethods>
+</Order>

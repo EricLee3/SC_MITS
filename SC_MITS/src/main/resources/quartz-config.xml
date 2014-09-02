@@ -96,7 +96,7 @@
 	<!-- ASPB > Order -->
 	<bean id="orderCreateJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_ASPB" />
-        <property name="cronExpression" value="0 0/10 * * * ?" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 	
 	

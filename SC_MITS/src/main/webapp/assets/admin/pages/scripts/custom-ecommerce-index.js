@@ -418,7 +418,7 @@ var EcommerceIndex = function () {
 	                           },
 	                           { "data": function render(data, type)
 	   		      	  				{
-	   		        					return '<span class="label label-xs label-'+data['status_class']+' ">'+data['status']+'</span>';
+	   		        					return '<span class="label label-xs label-'+data['status_class']+' ">'+data['status_text']+'</span>';
 	   		      	  				} 
 		   		                },
 		   		                { "data": null, "orderable":false }
@@ -443,7 +443,7 @@ var EcommerceIndex = function () {
     var initTable_overviews = function(data) {
     	
     	initTable_common('#table_new_list', data.newList);
-    	initTable_common('#table_pending_list', data.pendingList);
+    	initTable_common('#table_pending_list', data.releaseList);
     	initTable_common('#table_shipped_list', data.shippedList);
     	initTable_common('#table_cancelled_list', data.cancellList);
     	
@@ -458,12 +458,12 @@ var EcommerceIndex = function () {
             "dom":"",
             "data": data.errList,
             "columns": [
-                        { "data": "orderId" },
-                        { "data": "errorDate" },
-                        { "data": "sellerCode" },
-                        { "data": "errorMsg" },
+                        { "data": "orderNo" },
+                        { "data": "err_code" },
+                        { "data": "err_desc" },
+                        { "data": "err_date" },
                         { "data": function(data, type){
-                 		   			return '<a href="/orders/orderDetail.do?docType=0001&orderNo='+data['orderId']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
+                 		   			return '<a href="#" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
                  	   			  }
                  	   },
                     ]

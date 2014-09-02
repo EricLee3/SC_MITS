@@ -107,33 +107,33 @@ public class OrderCreateMsgListener implements MessageListener {
 				String xmlData = listOps.rightPop(key);
 				
 				// SC API 호출
-				HashMap<String, Object> result = sterlingApiDelegate.createOrder(xmlData);
-				String status = (String)result.get("status");
-				
-				
-				if("1100".equals(status)){
-					
-					String orderSuccJSON = mapper.writeValueAsString(result);
-					logger.debug("[orderSuccJSON]"+orderSuccJSON);
-					logger.debug("[pushKey]"+pushKey);
-					
-					listOps.leftPush(pushKey, orderSuccJSON);
-				
-				// 에러발생시 별도의 에러키값으로 저장
-				}else if("0000".equals(status)){
-					
-					sendMsgMap.put("data", xmlData);
-					sendMsgMap.put("occure_date", cuurentDate());
-					
-					
-					// Java Object(Map) to JSON	
-					String orderErrJSON = mapper.writeValueAsString(sendMsgMap);
-					logger.debug("Create Order Error occured");
-					logger.debug("[orderErrJSON]"+orderErrJSON);
-					
-					
-					listOps.leftPush(errKey, orderErrJSON);
-				}
+//				HashMap<String, Object> result = sterlingApiDelegate.createOrder(xmlData);
+//				String status = (String)result.get("status");
+//				
+//				
+//				if("1100".equals(status)){
+//					
+//					String orderSuccJSON = mapper.writeValueAsString(result);
+//					logger.debug("[orderSuccJSON]"+orderSuccJSON);
+//					logger.debug("[pushKey]"+pushKey);
+//					
+//					listOps.leftPush(pushKey, orderSuccJSON);
+//				
+//				// 에러발생시 별도의 에러키값으로 저장
+//				}else if("0000".equals(status)){
+//					
+//					sendMsgMap.put("data", xmlData);
+//					sendMsgMap.put("occure_date", cuurentDate());
+//					
+//					
+//					// Java Object(Map) to JSON	
+//					String orderErrJSON = mapper.writeValueAsString(sendMsgMap);
+//					logger.debug("Create Order Error occured");
+//					logger.debug("[orderErrJSON]"+orderErrJSON);
+//					
+//					
+//					listOps.leftPush(errKey, orderErrJSON);
+//				}
 			}
 			
 			

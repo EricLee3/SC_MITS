@@ -181,47 +181,37 @@ public class OrderController {
 		String orderStatus = (String)paramMap.get("order_status")==null?"":(String)paramMap.get("order_status");
 		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
 		
-		String orderFromStatus = "1100";  // Created
-		String orderToStatus = "9000";    // Cancelled 
-		
 		// 오더상태구간별 검색일 경우
-		String orderStatusQryType_Text = "";
-		if("".equals(orderStatus)){
-			orderStatusQryType_Text = " FromStatus=\""+orderFromStatus+"\" ToStatus=\""+orderToStatus+"\" StatusQryType=\"BETWEEN\" ";
-		}
-		
+//		String orderStatusQryType_Text = "";
+//		if("".equals(orderStatus) || "A".equals(orderStatus)){
+//			orderStatusQryType_Text = " FromStatus=\""+orderFromStatus+"\" ToStatus=\""+orderToStatus+"\" StatusQryType=\"BETWEEN\" ";
+//		}else{
+//			orderStatusQryType_Text = " Status=\""+ orderStatus +"\" StatusQryType=\"EQ\" "; 
+//		}
 		
 		// Input XML Creation
 		String getOrderList_input = ""
 		     + "<Order DocumentType=\""+ doc_type +"\" "
-		     + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" "
-		     
-		     // 오더상태 검색
-		     + " Status=\"{2}\" {3} "
+		     + " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" DraftOrderFlag=\"N\" "
+		     // 오더상태
+		     + " Status=\"{2}\" "
 		     // 오더번호 검색
-		     + " OrderNo=\"{4}\" OrderNoQryType=\"LIKE\" "
-		     // 고객명 검색
-		     + " CustomerFirstName=\"{8}\"  CustomerLastName=\"{9}\" CustomerFirstNameQryType=\"LIKE\" CustomerLastNameQryType=\"LIKE\" "
-		     
-		     // 전화번호 검색
-		     + " CustomerPhoneNo=\"{10}\"  CustomerPhoneNoQryType=\"LIKE\" "
-		     
-		     
-		     // Email 검색
-		     + " CustomerEMailID=\"{7}\"  CustomerEMailIDQryType=\"LIKE\" "
+		     + " OrderNo=\"{3}\" OrderNoQryType=\"LIKE\" "
 		     // 오더생성일 검색
-		     + " FromOrderDate=\"{5}\" ToOrderDate=\"{6}\" OrderDateQryType=\"BETWEEN\" > "
-		     
+		     + " FromOrderDate=\"{4}\" ToOrderDate=\"{5}\" OrderDateQryType=\"BETWEEN\" "
+		     // Email 검색
+		     + " CustomerEMailID=\"{6}\"  CustomerEMailIDQryType=\"LIKE\" "
+		     // 고객명/전화번호 검색
+		     + " CustomerFirstName=\"{7}\"  CustomerLastName=\"{8}\" CustomerFirstNameQryType=\"LIKE\" CustomerLastNameQryType=\"LIKE\" "
+		     + " CustomerPhoneNo=\"{9}\"  CustomerPhoneNoQryType=\"LIKE\" >"
 		     + sortTag
-		
 		+ "</Order> ";
 		
 	    MessageFormat msg = new MessageFormat(getOrderList_input);
 		String inputXML = msg.format(new String[] {
 				                                entCode,
 				                                sellerCode, 
-												"A".equals(orderStatus)?"":orderStatus, 
-												orderStatusQryType_Text,
+				                                orderStatus,
 												orderId,
 												fromDate,
 												toDate,
@@ -284,10 +274,12 @@ public class OrderController {
 			
 			String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", orderNodeList.item(i), XPathConstants.STRING);
 			
-			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
-			if("".equals(status)) status = "Draft";
-			String status_class = env.getProperty("ui.status."+status+".cssname");
-			if( status_class == null) status_class = "default";
+			
+			String minStatus = (String)xp.evaluate("@MinOrderStatus", orderNodeList.item(i), XPathConstants.STRING);
+			String maxStatus = (String)xp.evaluate("@MaxOrderStatus", orderNodeList.item(i), XPathConstants.STRING);
+			String defaultText = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
+			
+			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
 			
 			
 			dataMap.put("orderNo", orderNo);
@@ -300,8 +292,10 @@ public class OrderController {
 			dataMap.put("paymentType", paymentType);
 			dataMap.put("currency", currency);
 			dataMap.put("totalAmount", totalAmount);
-			dataMap.put("status", status);
-			dataMap.put("status_class", status_class);
+			dataMap.put("minStatus", minStatus);
+			dataMap.put("maxStatus", maxStatus);
+			dataMap.put("status_text", status[0]);
+			dataMap.put("status_class", status[1]);
 			
 			//-------- 3. Order Line Info
 			NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", orderNodeList.item(i), XPathConstants.NODESET);
@@ -321,12 +315,7 @@ public class OrderController {
 				
 				orderLineMap.put("lineKey", lineKey);
 				orderLineMap.put("PrimeLineNo", PrimeLineNo);
-				orderLineMap.put("status", lineStatus);
-				if("".equals(status)) status = "Draft";
-				String lineStatus_class = env.getProperty("ui.status."+lineStatus+".cssname");
-				if( lineStatus_class == null) status_class = "default";
-				orderLineMap.put("status_class", lineStatus_class);
-				
+				orderLineMap.put("status_text", lineStatus);
 				
 				// Line Price, Charge, Tax Info
 				Double qty = (Double)xp.evaluate("@OrderedQty", lineNode, XPathConstants.NUMBER);
@@ -418,23 +407,24 @@ public class OrderController {
 		
 		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
 		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
-		String orderStatus = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
-		String orderStatus_class = env.getProperty("ui.status."+orderStatus+".cssname");
-		if( orderStatus_class == null) orderStatus_class = "default";
-		
 		String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", el, XPathConstants.STRING);
 		
+		
+		String minStatus = (String)xp.evaluate("@MinOrderStatus", el, XPathConstants.STRING);
+		String maxStatus = (String)xp.evaluate("@MaxOrderStatus", el, XPathConstants.STRING);
+		String defaultText = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
+		
+		String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
 		
 		baseInfoMap.put("orderNo", orderNo);
 		baseInfoMap.put("orderDate", ordreDate);
 		baseInfoMap.put("currency", currency);
 		baseInfoMap.put("totalAmount", totalAmount);
 		baseInfoMap.put("paymentType", paymentType);
-		baseInfoMap.put("orderStatus", orderStatus);
-		baseInfoMap.put("orderStatus_class", orderStatus_class );
+		baseInfoMap.put("orderStatus", status[0]);
+		baseInfoMap.put("orderStatus_class", status[1] );
 		baseInfoMap.put("sellerCode", sellerCode );
 		baseInfoMap.put("entCode", entCode );
-		
 		
 		// 주문 전체 가격정보
 		Double totLineSub = 0.00;
@@ -457,8 +447,6 @@ public class OrderController {
 		baseInfoMap.put("totalCharge", totCharge);
 		baseInfoMap.put("totalDiscount", -totDiscount);
 		baseInfoMap.put("totalTax", totTax);
-		
-		
 		
 		//-------- 2. customer info
 		// CustomerEMailID="" CustomerFirstName="" CustomerLastName="" CustomerPhoneNo
@@ -521,15 +509,19 @@ public class OrderController {
 			String lineKey = (String)xp.evaluate("@OrderLineKey", orderLineNodeList.item(i), XPathConstants.STRING);
 			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
 			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
-			String status = (String)xp.evaluate("@Status", orderLineNodeList.item(i), XPathConstants.STRING);
-			String status_class = env.getProperty("ui.status."+orderStatus+".cssname");
-			if( status_class == null) status_class = "default";
+			
+			
+			String minLineStatus = (String)xp.evaluate("@MinLineStatus", orderLineNodeList.item(i), XPathConstants.STRING);
+			String maxLineStatus = (String)xp.evaluate("@MaxLineStatus", orderLineNodeList.item(i), XPathConstants.STRING);
+			String defaultLineText = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
+			
+			String[] lineStatus = genOrderStatusText(minLineStatus, maxLineStatus, defaultLineText);
 			
 			orderLineMap.put("lineKey", lineKey);
 			orderLineMap.put("PrimeLineNo", PrimeLineNo);
 			orderLineMap.put("shipNode", shipNode);
-			orderLineMap.put("status", status);
-			orderLineMap.put("status_class", status_class);
+			orderLineMap.put("status", lineStatus[0]);
+			orderLineMap.put("status_class", lineStatus[1]);
 			
 			// Line Price, Charge, Tax Info
 			Double qty = (Double)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.NUMBER);
@@ -571,7 +563,6 @@ public class OrderController {
 			orderLineList.add(orderLineMap);
 		}
 		
-		
 		//-------- 3. Note Info
 		NodeList noteNodeList = (NodeList)xp.evaluate("Notes/Note", el, XPathConstants.NODESET);
 		
@@ -599,9 +590,6 @@ public class OrderController {
 			
 			noteList.add(noteMap);
 		}
-		
-		
-		
 		
 		ModelAndView mav = new ModelAndView("");
 		mav.addObject("docType", docType);
@@ -1074,7 +1062,7 @@ public class OrderController {
 		// Input XML Creation
 		String getOrderList_input = ""
 		+ "<Order DocumentType=\""+ docType +"\" "
-		+ " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" Status=\"{2}\" "
+		+ " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" DraftOrderFlag=\"N\" Status=\"{2}\" "
 		+ " MaximumRecords  = \"{3}\"  >"
 		// Descending OrderDate
 		+ "<OrderBy><Attribute Desc=\"Y\" Name=\"OrderDate\"/></OrderBy> "
@@ -1118,10 +1106,13 @@ public class OrderController {
 //			String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderNodeList.item(i), XPathConstants.STRING);
 			String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderNodeList.item(i), XPathConstants.STRING);	// Discount 포함
 			
-			String status = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
-			if("".equals(status)) status = "Draft";
-			String status_class = env.getProperty("ui.status."+status+".cssname");
-			if( status_class == null) status_class = "default";
+			
+			String minStatus = (String)xp.evaluate("@MinOrderStatus", orderNodeList.item(i), XPathConstants.STRING);
+			String maxStatus = (String)xp.evaluate("@MaxOrderStatus", orderNodeList.item(i), XPathConstants.STRING);
+			String defaultText = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
+			
+			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
+			
 		
 			dataMap.put("orderNo", orderNo);
 			dataMap.put("orderDate", orderDate);
@@ -1130,13 +1121,38 @@ public class OrderController {
 			dataMap.put("custName", custName);
 			dataMap.put("currency", currency);
 			dataMap.put("totalAmount", totalAmount);
-			dataMap.put("status", status);
-			dataMap.put("status_class", status_class);
+			dataMap.put("status_text", status[0]);
+			dataMap.put("status_class", status[1]);
 			
 			orderList.add(dataMap);
 		}
 		
 		
 		return orderList;   
+	}
+	
+	
+	private String[] genOrderStatusText(String minStatus, String maxStatus, String defaultText){
+		
+		String statusText[] = {"",""};
+		
+		// Status Text
+		if(minStatus.equals(maxStatus)){
+			statusText[0] = env.getProperty("ui.status.text.kr."+maxStatus);
+			
+			// 오더상태 매핑항목에 없는 경우 SC상태명 그대로 사용
+			if( statusText[0]  == null) {
+				statusText[0]  = defaultText; 
+			}
+		// 부분처리인 경우 SC상태명 그대로 사용
+		}else{
+			statusText[0]  = defaultText;
+		}
+		
+		// Status Button CSS
+		statusText[1]  = env.getProperty("ui.status.cssname."+maxStatus);
+		if( statusText[1] == null) statusText[1] = "default";
+		
+		return statusText;
 	}
 }
