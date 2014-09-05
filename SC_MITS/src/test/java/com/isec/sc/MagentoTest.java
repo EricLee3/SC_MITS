@@ -54,6 +54,7 @@ import org.xml.sax.InputSource;
 import scala.annotation.meta.setter;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
 
 
@@ -100,7 +101,7 @@ public class MagentoTest {
 					+"</LineTaxes>"
 				+"</OrderLine>"
 				+"<OrderLine OrderedQty=\"3\">"
-					+"<Item ItemID=\"ASPB_ITEM_0001\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Diffuser BLUE JEAN\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-diffuser-blue-jean.html\"/>"
+					+"<Item ItemID=\"ASPB_ITEM_0002\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Diffuser BLUE JEAN\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-diffuser-blue-jean.html\"/>"
 					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"59000.00\"/>"
 					+"<LineCharges>"
 						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
@@ -112,7 +113,7 @@ public class MagentoTest {
 				+"</OrderLine>"
 			+"</OrderLines>"
 			+"<PersonInfoShipTo FirstName=\"홍\" LastName=\"길동\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1234-5678\" MobilePhone=\"010-1234-5678\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
-			+"<PersonInfoBillTo  FirstName=\"홍\" LastName=\"길동\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1234-5678\" MobilePhone=\"010-1234-5678\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
+			+"<PersonInfoBillTo  FirstName=\"이\" LastName=\"순신\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1111-2222\" MobilePhone=\"010-1111-2222\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
 			+"<PaymentMethods>"
 				+"<PaymentMethod PaymentType=\"CREDIT_CARD\" CreditCardNo=\"0000000000000000\">"+"</PaymentMethod>"
 			+"</PaymentMethods>"
@@ -173,8 +174,29 @@ public class MagentoTest {
 	
 	
 	@Test
-	public void testUnescapeJava() {
-	    String sJava="\\\\xec\\\\x82\\\\xbc\\\\xec\\\\x84\\\\xb1\\\\xeb\\\\x8f\\\\x99";
-	    System.out.println("StringEscapeUtils.unescapeJava(sJava):\n" + StringEscapeUtils.unescapeJava(sJava));
+	public void deleteKeyData() {
+	    String key = "SLV:ASPB:order:update:S2M";
+	    
+	    long dataCnt =  listOps.size(key);
+	    System.out.println("orderCreate Update count:::"+dataCnt);
+	    
+	    
+	    //maStringRedisTemplate.delete(key);
+	    
+	    
+	    List<String> orderList = listOps.range(key, 0, -1);
+	   
+	    for(int i=0; i<dataCnt; i++){
+	    	
+	    }
+	    
+	   
+	}
+	
+	
+	@Test
+	public void etcTeset() {
+	    System.out.println( CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm"));
+	   
 	}
 }

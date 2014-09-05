@@ -42,6 +42,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
 
 
@@ -215,11 +216,11 @@ public class ReportController {
 		
 		for( int i = -term; i<=0; i++){
 			
-			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+calcDate(endDate, i));
-			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+calcDate(endDate, i));
-			Set<String> charge_key_names= reportStringRedisTemplate.keys(orderChargeKey_pre+calcDate(endDate, i));
-			Set<String> tax_key_names= reportStringRedisTemplate.keys(orderTaxKey_pre+calcDate(endDate, i));
-			Set<String> discount_key_names= reportStringRedisTemplate.keys(orderDiscountKey_pre+calcDate(endDate, i));
+			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+CommonUtil.calcDate(endDate, i));
+			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+CommonUtil.calcDate(endDate, i));
+			Set<String> charge_key_names= reportStringRedisTemplate.keys(orderChargeKey_pre+CommonUtil.calcDate(endDate, i));
+			Set<String> tax_key_names= reportStringRedisTemplate.keys(orderTaxKey_pre+CommonUtil.calcDate(endDate, i));
+			Set<String> discount_key_names= reportStringRedisTemplate.keys(orderDiscountKey_pre+CommonUtil.calcDate(endDate, i));
 			
 			Iterator<String> itr = cnt_key_names.iterator();
 			while(itr.hasNext()){
@@ -278,47 +279,5 @@ public class ReportController {
 	
 	
 	
-	public static String calcDate(String dateForm, int days)  
-    {  
-        String date = dateForm;  
-        int year = Integer.parseInt(date.substring(0, 4));  
-        int month = Integer.parseInt(date.substring(4, 6)) - 1;  
-        int dayOfMonth = Integer.parseInt(date.substring(6, 8));  
-  
-        GregorianCalendar cal = new GregorianCalendar(year, month, dayOfMonth);  
-        SimpleDateFormat timeform = new SimpleDateFormat("yyyyMMdd");  
-        cal.add(Calendar.DAY_OF_MONTH, days);  
-        Date d = cal.getTime();  
-          
-        return timeform.format(d);  
-    }
 	
-	public static String calcYearMonth(String dateForm, int mon)  
-    {  
-        String date = dateForm;  
-        int year = Integer.parseInt(date.substring(0, 4));  
-        int month = Integer.parseInt(date.substring(4, 6)) - 1;  
-        int dayOfMonth = Integer.parseInt(date.substring(6, 8));  
-  
-        GregorianCalendar cal = new GregorianCalendar(year, month, dayOfMonth);  
-        SimpleDateFormat timeform = new SimpleDateFormat("yyyyMMdd");  
-        cal.add(Calendar.MONTH, mon);  
-        Date d = cal.getTime();  
-          
-        return timeform.format(d);  
-    }
-	
-	private static String getCurrentDate() {
-	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd");//dd/MM/yyyy
-	    Date now = new Date();
-	    String strDate = sdfDate.format(now);
-	    return strDate;
-	}
-	
-	private static String getCurrentDateTime() {
-	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-	    Date now = new Date();
-	    String strDate = sdfDate.format(now);
-	    return strDate;
-	}
 }

@@ -23,10 +23,6 @@ public class SterlingHTTPConnector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SterlingHTTPConnector.class);
 	
-	public SterlingHTTPConnector() {
-		
-	}
-	
 	public SterlingHTTPConnector(String url, String user, String password, String param) {
 		
 		

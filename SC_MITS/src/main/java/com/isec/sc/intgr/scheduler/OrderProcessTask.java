@@ -10,6 +10,7 @@
 package com.isec.sc.intgr.scheduler;
 
 import java.io.ByteArrayInputStream;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,13 +26,16 @@ import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.util.FileContentReader;
 
 
 
@@ -50,6 +54,9 @@ public class OrderProcessTask {
 	private ValueOperations<String, String> valueOps;
 	
 	
+	@Value("${sc.api.scheduleOrder.template}")
+	private String SCHEDULE_ORDER_TEMPLATE;
+	
 	
 	/**
 	 * Create Order From MA(Magento, WCS)
@@ -61,12 +68,12 @@ public class OrderProcessTask {
     public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
     	
-    	logger.debug("##### [createOrder] Job Task Started!!!");
-    	logger.debug("     ----- Read Key ["+redisKey+"]");
-    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
-    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
-    	
-    	long dataCnt =  listOps.size(redisKey);
+	    	logger.debug("##### [createOrder] Job Task Started!!!");
+	    	logger.debug("     ----- Read Key ["+redisKey+"]");
+	    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
+	    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
+	    	
+	    	long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
 		
 		try{
@@ -89,13 +96,18 @@ public class OrderProcessTask {
 					
 					logger.debug("[Create Order Successful]");
 					
-					HashMap<String, String> resultMap = new HashMap<String, String>();
 					
+					String orderHeaderKey = doc.getDocumentElement().getAttribute("OrderHeaderKey");
+					String entCode = doc.getDocumentElement().getAttribute("EnterpriseCode");
+					String orderId = doc.getDocumentElement().getAttribute("OrderNo");
+					String docType =  doc.getDocumentElement().getAttribute("DocumentType");
+
+					HashMap<String, String> resultMap = new HashMap<String, String>();
 					resultMap.put("status", "1100");
-					resultMap.put("orderHeaderKey", doc.getDocumentElement().getAttribute("OrderHeaderKey"));
-					resultMap.put("entCode", doc.getDocumentElement().getAttribute("EnterpriseCode"));
-					resultMap.put("orderId", doc.getDocumentElement().getAttribute("OrderNo"));
-					resultMap.put("docType", doc.getDocumentElement().getAttribute("DocumentType"));
+					resultMap.put("orderHeaderKey", orderHeaderKey);
+					resultMap.put("entCode", entCode);
+					resultMap.put("orderId", orderId);
+					resultMap.put("docType", docType);
 					
 					String sellerCode = redisKey.split(":")[1];	// SLV:ASPB:order
 					resultMap.put("sellerCode", sellerCode);
@@ -106,6 +118,40 @@ public class OrderProcessTask {
 					
 					// Put OrderStaus to Redis
 					listOps.leftPush(redisPushKey, orderSuccJSON);
+					
+					
+					
+					
+					// Schedule & Release 처리
+					logger.debug("[Order Schedule & Release Started]");
+					String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
+					String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
+					
+					MessageFormat msg = new MessageFormat(scheduleOrderXML);
+					String inputXML = msg.format(new String[] {docType, entCode, orderId, scheduleNrelease} );
+					logger.debug("##### [inputXML]"+inputXML); 
+					
+					try
+					{
+					
+						// API Call
+						String outputMsg = sterlingApiDelegate.comApiCall("scheduleOrder", inputXML);
+						doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+						
+						// TODD: Error 메세지 정규화 작업필요
+						if("Errors".equals(doc.getFirstChild().getNodeName())){
+							// TODO: Release API호출 자동화 예외처리
+						}
+					
+					}
+					catch(Exception e)
+					{
+						// TODO: Release API호출 자동화 예외처리
+						e.printStackTrace();
+						
+					}
+					logger.debug("[Order Schedule & Release End]");
+					
 				}
 			}
 			
@@ -116,8 +162,108 @@ public class OrderProcessTask {
 		}
     }
     
-    
-    /**
+	
+	/**
+	 * 
+	 * 주문확정정보 전송 후 응답 수신 From Redis (From Cube)
+	 * 
+	 * SC에서 릴리즈된 주문건의 Cube전송 이후(주문확정정보 전송)
+	 * Cube의 Reponse를 받아 처리하는 메서드
+	 * 
+	 *  - 정상응답인 경우 
+	 *   - Cube로 부터 전달받은 출고번호로 SC의 CreateShipment 호출 -> Include In Shipment로 변경 (3350) [출고준비중]
+	 *   - Ma로 Release 정보 전송 - Ma는 [배송준비중]으로 상태변경 
+	 *   
+	 *  - 에러인 경우 (주문확정정보가 
+	 *   - 에러메세지 확인후 조치 -> 기존데이타 Redisdㅔ서 삭제 -> 주문확정정보 재전송 
+	 *   
+	 *   - TODO: MA 전송처리는 Handler클래스에서 처리 고려
+	 *    
+	 *  - Redis Read Key: SLV:ASPB:order:update:C2S
+	 *  - Redis Push Key: SLV:ASPB:order:update:S2M
+	 *  
+	 *  - 주기: 5분 마다
+	 *  
+	 * @param redisKey
+	 * @param redisPushKey
+	 * @param redisErrKey
+	 */
+	public void processReleaseReturn(String redisKey, String redisPushKey, String redisErrKey){
+	
+	}
+	
+	/**
+	 * 출고확정정보 응답 수신 (From Cube)
+	 * 
+	 *  - Cube에서 출고확정된 주문정보를 전달받아 SC의 ConfirmShiment를 호출 
+	 *  - SC의 주문상태 Shipped로 변경 --> MA로 출고정보 전송 --> 배송중
+	 *  
+	 *  - TODO: MA로의 출고정보 전송처리는 Handler클래스에서 처리 고려
+	 *  
+	 *  - Redis Read Key: SLV:ASPB:order:update:C2S
+	 *  - Redis Push Key: SLV:ASPB:order:update:S2M
+	 *  
+	 *  - 주기: 5분 마다
+	 *  
+	 * @param redisKey
+	 * @param redisPushKey
+	 * @param redisErrKey
+	 */
+	public void processConfirmShipment(String redisKey, String redisPushKey, String redisErrKey){
+	
+	}
+
+	
+	/**
+	 * 주문취소 처리결과 수신 (From Cube)
+	 *  - 
+	 *  
+	 * @param redisKey
+	 * @param redisPushKey
+	 * @param redisErrKey
+	 */
+	public void processCancelReturn(String redisKey, String redisPushKey, String redisErrKey){
+	
+	}
+	
+	/**
+	 * 품절취소 수신 (From Cube)
+	 *  - 
+	 *  
+	 * @param redisKey
+	 * @param redisPushKey
+	 * @param redisErrKey
+	 */
+	public void processSolOutCancel(String redisKey, String redisPushKey, String redisErrKey){
+	
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
      * Create Shipment처리 ( OUTRO Test 전용)
      *  - MA에서 Order Captured 된 상태의 정보를 받아 Create Shipment를 실행하는 메서드
      *  - 실 운영에서는 사용하지 않.
@@ -222,5 +368,4 @@ public class OrderProcessTask {
 		
 	}
 	
-
-  }
+}

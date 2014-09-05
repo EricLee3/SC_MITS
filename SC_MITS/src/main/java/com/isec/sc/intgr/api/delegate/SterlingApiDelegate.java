@@ -449,7 +449,7 @@ public class SterlingApiDelegate {
 			resultMap.put("err_code", errCode);
 			resultMap.put("err_desc", errDesc);
 			resultMap.put("err_xml", inputXML);
-			resultMap.put("err_date", CommonUtil.cuurentDate());
+			resultMap.put("err_date", CommonUtil.cuurentDateFromFormat("yyyy-MM-dd HH:mm:ss"));
 			
 			// Java Object(Map) to JSON	
 			String orderErrJSON = mapper.writeValueAsString(resultMap);

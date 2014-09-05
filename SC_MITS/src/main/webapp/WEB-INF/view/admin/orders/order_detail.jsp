@@ -134,10 +134,10 @@
 												<i class="fa fa-cogs"></i>Order Details
 											</div>
 											<div class="actions">
-												<!-- <a class="btn default btn-sm" href="javascript:;" id="tool_release">
-												출고요청
+												<a class="btn default btn-sm" href="javascript:;" id="tool_release">
+												주문확정 전송
 												<i class="fa fa-edit"></i>
-												</a> -->
+												</a>
 												<a class="btn red btn-sm" href="javascript:;" id="tool_cancel">
 												주문취소
 												<i class="fa fa-edit"></i>
@@ -254,7 +254,8 @@
 													 ${billInfo.billAddr2}<br>
 													 ${billInfo.billCity}&nbsp;${billInfo.billState}&nbsp;${billInfo.billZipcode}<br>
 													 <br>
-													 Phone: ${billInfo.billPhone}&nbsp;${billInfo.billMPhone} <br>
+													 Phone: ${billInfo.billPhone}<br>
+													 Mobile: ${billInfo.billMPhone}<br>
 													 Fax: ${billInfo.billFaxNo}<br>
 												</div>
 											</div>
@@ -273,13 +274,14 @@
 										<div class="portlet-body">
 											<div class="row static-info">
 												<div class="col-md-12 value">
-													 ${billInfo.billName}<br>
-													 ${billInfo.billAddr1}<br>
-													 ${billInfo.billAddr2}<br>
-													 ${billInfo.billCity}&nbsp;${billInfo.billState}&nbsp;${billInfo.billZipcode}<br>
+													 ${shipInfo.shipName}<br>
+													 ${shipInfo.shipAddr1}<br>
+													 ${shipInfo.shipAddr2}<br>
+													 ${shipInfo.shipCity}&nbsp;${shipInfo.shipState}&nbsp;${shipInfo.shipZipcode}<br>
 													 <br>
-													 Phone: ${billInfo.billPhone}&nbsp;${billInfo.billMPhone} <br>
-													 Fax: ${billInfo.billFaxNo}<br>
+													 Phone: ${shipInfo.shipPhone}<br>
+													 Mobile: ${shipInfo.shipMPhone}<br>
+													 Fax: ${shipInfo.shipFaxNo}<br>
 												</div>
 											</div>
 										</div>
@@ -329,6 +331,8 @@
 												<div class="col-md-7 value text-right">
 													 ${baseInfo.totalDiscount}
 												</div>
+											</div>
+											<div class="row static-info">
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">

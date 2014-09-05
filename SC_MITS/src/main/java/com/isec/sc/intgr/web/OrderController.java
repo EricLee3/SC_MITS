@@ -171,7 +171,9 @@ public class OrderController {
 		String entCode = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
 		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
 		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
+		if(!"".equals(fromDate)) fromDate = fromDate+"T00:00:00";
 		String toDate = paramMap.get("order_date_to")==null?"":paramMap.get("order_date_to");
+		if(!"".equals(toDate)) toDate = toDate+"T23:59:59";
 		
 		String cust_fname = paramMap.get("cust_fname")==null?"":paramMap.get("cust_fname");
 		String cust_lname = paramMap.get("cust_lname")==null?"":paramMap.get("cust_lname");
@@ -471,6 +473,7 @@ public class OrderController {
 			PersonInfoKey="" State="" Suffix="" TaxGeoCode="" Title="" ZipCode=""/>
 		*/
 		HashMap<String, Object> billInfoMap = new HashMap<String, Object>();
+		HashMap<String, Object> shipInfoMap = new HashMap<String, Object>();
 		
 		// Name, Addr1, Addr2, City, State, ZipCode, Phone, MobilePhone, Fax
 		
@@ -495,6 +498,29 @@ public class OrderController {
 		billInfoMap.put("billPhone", billPhone);
 		billInfoMap.put("billMPhone", billMPhone);
 		billInfoMap.put("billFaxNo", billFaxNo);
+		
+		
+		String shipFName = (String)xp.evaluate("PersonInfoShipTo/@FirstName", el, XPathConstants.STRING);
+		String shipLName = (String)xp.evaluate("PersonInfoShipTo/@LastName", el, XPathConstants.STRING);
+		String shipAddr1 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine1", el, XPathConstants.STRING);
+		String shipAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", el, XPathConstants.STRING);
+		String shipCity = (String)xp.evaluate("PersonInfoShipTo/@City", el, XPathConstants.STRING);
+		String shipState = (String)xp.evaluate("PersonInfoShipTo/@State", el, XPathConstants.STRING);
+		String shipZipcode = (String)xp.evaluate("PersonInfoShipTo/@ZipCode", el, XPathConstants.STRING);
+		
+		String shipPhone = (String)xp.evaluate("PersonInfoShipTo/@DayPhone", el, XPathConstants.STRING);
+		String shipFaxNo = (String)xp.evaluate("PersonInfoShipTo/@DayFaxNo", el, XPathConstants.STRING);
+		String shipMPhone = (String)xp.evaluate("PersonInfoShipTo/@MobilePhone", el, XPathConstants.STRING);
+		
+		shipInfoMap.put("shipName", shipFName +" "+ shipLName);
+		shipInfoMap.put("shipAddr1", shipAddr1);
+		shipInfoMap.put("shipAddr2", shipAddr2);
+		shipInfoMap.put("shipCity", shipCity);
+		shipInfoMap.put("shipState", shipState);
+		shipInfoMap.put("shipZipcode", shipZipcode);
+		shipInfoMap.put("shipPhone", shipPhone);
+		shipInfoMap.put("shipMPhone", shipMPhone);
+		shipInfoMap.put("shipFaxNo", shipFaxNo);
 		
 		
 		//-------- 3. Order Line Info
@@ -599,7 +625,7 @@ public class OrderController {
 		mav.addObject("baseInfo", baseInfoMap);
 		mav.addObject("custInfo", custInfoMap);
 		mav.addObject("billInfo", billInfoMap);
-		mav.addObject("shipInfo", billInfoMap); // TODO: 일단 Bill정보를 Ship정보 그대로 사용. 수정필
+		mav.addObject("shipInfo", shipInfoMap); 
 		mav.addObject("lineInfoList", orderLineList);
 		
 		mav.addObject("noteList", noteList);
@@ -1026,7 +1052,7 @@ public class OrderController {
 		mav.addObject("newList",getOrderOverviewList(docType, entCode, sellerCode, "") );	// New Order List - Top10
 		mav.addObject("releaseList",getOrderOverviewList(docType, entCode, sellerCode, "3200") );	// 주문확정대기 리스트 TODO: BackOrdered건도 추가
 		mav.addObject("shippedList",getOrderOverviewList(docType, entCode, sellerCode, "3700") ); // 출고완료 리스트
-		mav.addObject("cancellList",getOrderOverviewList(docType, entCode, sellerCode, "9000") ); // 주문취소 리스트
+		mav.addObject("cancellList",getOrderOverviewList(docType, entCode, sellerCode, "1300") ); // 주문취소 리스트
 		mav.addObject("errList",errList);
 		
 		return mav;
