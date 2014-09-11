@@ -200,7 +200,6 @@ public class ScOrderStatusHandler {
 		logger.info("[maxOrderStatus]"+maxOrderStatus);
 		
 		// 조직코드, 판매조직으로 Redis 저장키 생성
-		String pushKey = entCode+":"+sellerCode+":order:update:S2M";
 		
 		
 		// Scheduled 
@@ -217,7 +216,8 @@ public class ScOrderStatusHandler {
 			if(minOrderStatus.equals(maxOrderStatus)){
 				
 				logger.debug("[Order Release Hanlder Started]");
-				processReleaseAfter(outputXML, pushKey);
+				
+				processReleaseAfter(outputXML, entCode, sellerCode);
 			}
 		}
 		
@@ -250,7 +250,7 @@ public class ScOrderStatusHandler {
 		else if("9000".equals(maxOrderStatus))
 		{
 			logger.debug("[Order Cancel Hanlder Started]");
-			processCancelAfter(outputXML, pushKey);
+			processCancelAfter(outputXML, entCode, sellerCode);
 		}
 		
 		
@@ -271,13 +271,12 @@ public class ScOrderStatusHandler {
 	 * @param outputXML
 	 * @param sendMsgMap
 	 */
-	private void updateScheduleStauts(Element outputXML, String pushKey) throws Exception{
+	private void updateScheduleStauts(Element outputXML, String entCode, String sellerCode) throws Exception{
 	
+		
 		// 공통정보
 		String orderKey = outputXML.getAttribute("OrderHeaderKey"); // 오더헤더키
 		String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
-		String entCode = outputXML.getAttribute("EnterpriseCode"); // 조직코드
-		String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
 		String docType = outputXML.getAttribute("DocumentType"); // 오더유형
 		String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
 		String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
@@ -305,18 +304,20 @@ public class ScOrderStatusHandler {
 		// JSON 변환
 		ObjectMapper mapper = new ObjectMapper();
 		String outputMsg = mapper.writeValueAsString(sendMsgMap);
-		logger.debug("[outputKey]"+pushKey);
 		logger.debug("[outputMsg]"+outputMsg);
 		
 		
-		// RedisDB에 메세지 저장
-		listOps.leftPush(pushKey, outputMsg);
+		// RedisKey for SC -> MA
+		String pushKey = entCode+":"+sellerCode+":order:update:S2M";
+		logger.debug("[outputKey]"+pushKey);
 		
+		// Push Data
+		listOps.leftPush(pushKey, outputMsg);
 	}
 	
 	
 	/**
-	 * 주문확정 전송 - Release 후처리
+	 * Schedule & Release 후처리 프로세스(주문확정전송, SC->Cube) 
 	 * 
 	 * 
 	 * 정상적으로 Released 상태로 변경된 주문정보를 Cube로 전송 - Cube가 수신하는 Redis Key - 하는 메서드
@@ -327,15 +328,13 @@ public class ScOrderStatusHandler {
 	 * @param pushKey Cube가 사용하는 Redis Key
 	 * @throws Exception
 	 */
-	private void processReleaseAfter(Element outputXML, String pushKey) throws Exception{
+	private void processReleaseAfter(Element outputXML, String entCode, String sellerCode) throws Exception{
 		
 		try{
 			
 			// 공통정보 추출
 			String orderKey = outputXML.getAttribute("OrderHeaderKey");
 			String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
-			String entCode = outputXML.getAttribute("EnterpriseCode"); // 조직코드
-			String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
 			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
 			String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
 			String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
@@ -491,16 +490,38 @@ public class ScOrderStatusHandler {
 			// JSON 변환
 			ObjectMapper mapper = new ObjectMapper();
 			String outputMsg = mapper.writeValueAsString(sendMsgMap);
-			logger.debug("[pushKey]"+pushKey);
 			logger.debug("[pushMessage ]"+outputMsg);
 			
+			// RedisKey for SC -> CUBE
+			String pushKey = entCode+":"+sellerCode+":order:update:S2C";
+			logger.debug("[pushKey]"+pushKey);
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
+			
+			
+			
+			
+			
+			// RedisKey for CUBE -> SC 
+			// TODO: Test 용, 큐브연동후 삭제 할 것
+			sendMsgMap.put("status", "3201"); // 3201
+			String outputMsgTest = mapper.writeValueAsString(sendMsgMap);
+			
+			
+			String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
+			logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
+			// RedisDB에 메세지 저장
+			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
+			
+			
+			
+			
 			
 			logger.debug("[Order Release Hanlder Started]");
 		
 		}catch(Exception e){
 			
+			// TODO:릴리즈정보 큐브전송시 예외처리필요
 			e.printStackTrace();
 			throw new Exception();
 		}
@@ -509,23 +530,22 @@ public class ScOrderStatusHandler {
 	
 	
 	/**
-	 * 전체 취소인 경우에만 처리
-	 *  
+	 * 주문취소 후처리 프로세스 (SC->Ma)
+	 *  - SC의 주문취소처리 후 SC에서 Ma로 주문취소정보를 전달하는 주문취소 후처리 프로세스 
+	 *  - 전체주문취소인 경우만 해당
 	 * 
 	 * @param outputXML
 	 * @param sendMsgMap
 	 * @param pushKey
 	 * @throws Exception
 	 */
-	private void processCancelAfter(Element outputXML, String pushKey) throws Exception{
+	private void processCancelAfter(Element outputXML, String entCode, String sellerCode) throws Exception{
 		
 		try{
 		
 			// 공통정보 추출
 			String orderKey = outputXML.getAttribute("OrderHeaderKey");
 			String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
-			String entCode = outputXML.getAttribute("EnterpriseCode"); // 조직코드
-			String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
 			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
 			String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
 			String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
@@ -593,8 +613,12 @@ public class ScOrderStatusHandler {
 			// JSON 변환
 			ObjectMapper mapper = new ObjectMapper();
 			String outputMsg = mapper.writeValueAsString(sendMsgMap);
-			logger.debug("[outputKey]"+pushKey);
 			logger.debug("[outputMsg]"+outputMsg);
+			
+			
+			// RedisKey for SC -> MA
+			String pushKey = entCode+":"+sellerCode+":order:update:S2M";
+			logger.debug("[outputKey]"+pushKey);
 			
 			
 			// RedisDB에 메세지 저장

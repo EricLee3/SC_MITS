@@ -27,6 +27,17 @@
 	    	</list>
 	    </property>
 	</bean>
+	<bean id="orderReleaseJob_ASPB" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>processReleaseReturn</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ca.aspb.orderUpdate.C2S}</value>
+	    		<value>${key.ma.aspb.orderUpdate.S2M}</value>
+	    		<value>${key.ma.aspb.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
     <!-- ASPB - Order -->
     
     <!-- OUTRO - Order -->
@@ -98,7 +109,10 @@
         <property name="jobDetail" ref="orderCreateJob_ASPB" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
-	
+	<bean id="orderReleaseJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderReleaseJob_ASPB" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
 	
 	<!-- OUTRO > Order -->
 	<bean id="orderCreateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
@@ -137,6 +151,7 @@
             <list>
             	<!-- ASPB -->
                 <ref bean="orderCreateJobTrigger_ASPB"/>
+                <ref bean="orderReleaseJobTrigger_ASPB"/>
                 
                 <!-- OUTRO -->
                 <ref bean="orderCreateJobTrigger_OUTRO"/>

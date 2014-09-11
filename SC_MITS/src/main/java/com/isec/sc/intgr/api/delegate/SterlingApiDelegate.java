@@ -268,14 +268,14 @@ public class SterlingApiDelegate {
 	}
 	
 	
-	public HashMap<String, String> createShipment(String releaseNo, String docType, String entCode, String orderId) throws Exception{
+	public HashMap<String, String> createShipment(String shipmentNo, String releaseNo, String docType, String entCode, String orderId) throws Exception{
 		
 		
 		// Generate SC API Input XML	
 		String template = FileContentReader.readContent(getClass().getResourceAsStream(createShipment_template));
 		
 		MessageFormat msg = new MessageFormat(template);
-		String xmlData = msg.format(new String[] {releaseNo, docType, entCode, orderId} );
+		String xmlData = msg.format(new String[] {shipmentNo, releaseNo, docType, entCode, orderId} );
 		logger.debug("[createShipment intputXML]"+xmlData);
 		
 		
@@ -323,7 +323,7 @@ public class SterlingApiDelegate {
 	
 	
 	/**
-	 * 오더의 ReleaseKey 정보 조회
+	 * 오더의 ReleaseNo 정보 조회
 	 * 
 	 * @param docType
 	 * @param entCode
@@ -372,10 +372,12 @@ public class SterlingApiDelegate {
 				NodeList orderReleaseNodeList = (NodeList)xp.evaluate("/OrderReleaseList/OrderRelease", ele, XPathConstants.NODESET);
 				
 				for(int i=0; i<orderReleaseNodeList.getLength(); i++){
-					String releaseKey = (String)xp.evaluate("@OrderReleaseKey", orderReleaseNodeList.item(i), XPathConstants.STRING);
-					logger.debug("releaseKey:::"+releaseKey);
+//					String releaseKey = (String)xp.evaluate("@OrderReleaseKey", orderReleaseNodeList.item(i), XPathConstants.STRING);
+					String releaseNo = (String)xp.evaluate("@ReleaseNo", orderReleaseNodeList.item(i), XPathConstants.STRING);
+					logger.debug("ReleaseNo:::"+releaseNo);
 					
-					releaseKeyList.add(releaseKey);
+//					releaseKeyList.add(releaseKey);
+					releaseKeyList.add(releaseNo);
 				}
 			}
 			

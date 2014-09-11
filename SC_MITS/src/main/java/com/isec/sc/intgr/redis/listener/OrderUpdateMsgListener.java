@@ -131,7 +131,7 @@ public class OrderUpdateMsgListener implements MessageListener {
 						logger.debug("[releaseKeys]"+releaseKeys.get(i));
 						
 						// Sterling API Call
-						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment(releaseKeys.get(i), docType, entCode, orderId);
+						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("",releaseKeys.get(i), docType, entCode, orderId);
 						
 						String apiStatus = resultMap.get("status");
 						logger.debug("[apiStatus]"+apiStatus);
