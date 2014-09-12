@@ -57,6 +57,13 @@ public class OrderProcessTask {
 	/**
 	 * Create Order From MA(Magento, WCS)
 	 * 
+	 * MA로 부터 전송된 주문정보로 SC의 주문생성 API(createOrder)를 수행하고,
+	 * 정상일 경우 SC의 schedule&releaseOrder를 바로 실행시킨다.
+	 * 
+	 * Order Release이후의 처리는
+	 * ScOrderStatusHandler의 updateOrderStatus가 처리한다.
+	 * 
+	 * 
 	 * @param redisKey	MA에 전송한 최초 오더생성 정보 ( SC의 CreateOrder API의 Input XML)
 	 * @param redisPushKey MITS에서 오더생성 후 MA로 오더생성 성공여부를 전송하는 Key -> Ma는 이 정보를 확인해서 Placed로 변경한다.
 	 * @param redisErrKey MITS에서 오더생성시 에러가 발생할 경우 에러정보를 저장할 Redis Key
@@ -65,9 +72,6 @@ public class OrderProcessTask {
         
     	
 	    	logger.debug("##### [createOrder] Job Task Started!!!");
-	    	logger.debug("     ----- Read Key ["+redisKey+"]");
-	    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
-	    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
 	    	
 	    	long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
@@ -156,6 +160,8 @@ public class OrderProcessTask {
 			e.printStackTrace();
 			
 		}
+		
+		logger.debug("##### [createOrder] Job Task End!!!");
     }
     
 	
@@ -163,9 +169,11 @@ public class OrderProcessTask {
 	 * 
 	 * 주문확정정보 응답 수신프로세스 From Redis (From Cube)
 	 * 
-	 * 주문확정정보 Cube전송 후
-	 * Cube의 처리결과를 받아 정상일 경우 Create Shipment API(출고생성)를 호출하는 프로세스
+	 * Cube의 처리결과를 받아 Create Shipment API(출고생성)를 호출하는 프로세스
 	 * 부분취소가 일어난 경우 Release된 오더라인만 출고생성됨.
+	 * 
+	 * createShipment 이후의 처리는
+	 * ScOrderShipmentHandler의 shipmentProcess가 처리한다.
 	 * 
 	 * 
 	 * TODO: Cube 응답정보에서 출고번호 전송되는지 여부 확인 - 가능할 경우 Redis항목추가, 출고번호로 Create Shipment 호출가능여부 확인 
@@ -203,9 +211,6 @@ public class OrderProcessTask {
 	
 		
 		logger.debug("##### [processReleaseReturn] Job Task Started!!!");
-	    	logger.debug("     ----- Read Key ["+redisKey+"]");
-	    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
-	    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
 	    	
 	    	long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
@@ -244,11 +249,16 @@ public class OrderProcessTask {
 					
 					// "confirmed":[{"orderReleaseKey":"20140905192954126894","primeLineNo":"1","qty":"2.00","itemId":"ASPB_ITEM_0001"}]
 					
-					ArrayList<HashMap<String, String>> releaseNoList = (ArrayList<HashMap<String, String>>)dataMap.get("confirmed");
-					for(int j=0; j<releaseNoList.size(); j++){
+//					ArrayList<HashMap<String, String>> releaseNoList = (ArrayList<HashMap<String, String>>)dataMap.get("confirmed");
+					
+					// Order Release Key 조회
+					ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
+					
+					for(int j=0; j<releaseKeys.size(); j++){
 						
-						logger.debug("[releaseNos]"+releaseNoList.get(j).get("primeLineNo"));
-						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("", releaseNoList.get(j).get("primeLineNo"), docType, entCode, orderId);
+						// TODO: Cube연동시 ShipmentNo 적용필요
+//						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("", releaseNoList.get(j).get("orderReleaseKey"));
+						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
 						
 					}
 				
@@ -260,8 +270,6 @@ public class OrderProcessTask {
 			logger.debug("Create Shipment Error occured!!!");
 			e.printStackTrace();
 		}
-		
-		
 		
 		logger.debug("##### [processReleaseReturn] Job Task End!!!");
 	}
@@ -393,20 +401,19 @@ public class OrderProcessTask {
 					logger.debug("[orderId]"+orderId);
 					
 					// Order Release Key 조회
-					ArrayList<String> releaseNos = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
+					ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
 					
-					for(int j=0; j<releaseNos.size(); j++){
+					for(int j=0; j<releaseKeys.size(); j++){
 						
-						logger.debug("[releaseNos]"+releaseNos.get(j));
+						logger.debug("[releaseKeys]"+releaseKeys.get(j));
 						
 						/**
 						 * TODO: 현재는 MITS가 Shipment처리를 담당하나 향후에는 CUBE가 출고지시를 할수 있도록 Release된 주문정보를
 						 * Cube로 전송하고 SC(MITS)는 CUBE의 출고확정정보를 받아 Shipped로 주문의 상태를 변경하는 방식으로 변경필요 
 						 */
-						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("", releaseNos.get(j), docType, entCode, orderId);
+						HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
 						
-						String apiStatus = resultMap.get("status");
-						logger.debug("[apiStatus]"+apiStatus);
+						String apiStatus = resultMap.get("succ");
 						
 						/*
 						 * TODO: Release 번호에 따라 Shipment가 별도로 생성되는 경우는 거의 없음
@@ -414,10 +421,7 @@ public class OrderProcessTask {
 						 *       이런 경우를 제외하면 CreateShipment는 모든 ReleaseKey에 대해 한번만 수행됨.
 						 *       따라서 루프처리시 발생하는 에러(사실 에러가 아님)와 실제 에러에 대한 구분이 필요. 
 						 */
-						if("0000".equals(apiStatus)){
-							// TODO: 에러처리
-						}else{
-							
+						if("Y".equals(apiStatus)){
 							/**
 							 * confirm shipment 처리 후 Ma로 shipment 정보를 전송하기 위해
 							 * Ma의 Key값이 되는 오더번호를 별도로 저장해 놓는다. 
@@ -426,6 +430,8 @@ public class OrderProcessTask {
 							logger.debug("[shipmentNo]"+shipmentNo);
 							
 							valueOps.set(shipmentNo, orderId);
+						}else{
+							// TODO: 에러처리
 						}
 						
 					} // End loop ReleaseKey

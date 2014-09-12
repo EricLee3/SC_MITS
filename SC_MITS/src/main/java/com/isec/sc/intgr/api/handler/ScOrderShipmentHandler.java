@@ -50,41 +50,143 @@ public class ScOrderShipmentHandler {
 	private ValueOperations<String, String> valueOps;
 	
 
+	/**
+	 * Create Shipment 후처리 프로세스
+	 * 
+	 * CreateShipment 후처리: MA로 출고생성정보 전달.
+	 * 
+	 * @param returnXML
+	 * @param res
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createShipmentPostProcess.do")
+	public void createShipmentPostProcess(@RequestParam(required=false) String returnXML,								  
+								  HttpServletResponse res) throws Exception{
+		
+		logger.debug("##### createShipmentPostProcess Started !!!");
+		logger.info("[returnXML]"+returnXML);
+		
+		// 1. Receive Message(retrunXML) Parsing
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
+		Element el = doc.getDocumentElement();
+		
+		String shipmentKey = el.getAttribute("ShipmentKey");
+		String shipmentNo = el.getAttribute("ShipmentNo");
+		String entCode = el.getAttribute("EnterpriseCode");
+		String sellerCode = el.getAttribute("SellerOrganizationCode");
+		String status = el.getAttribute("Status");
+		String docType = el.getAttribute("DocumentType");
+		
+		String pushKeyToMa = entCode+":"+sellerCode+":order:update:S2M";
+		String pushKeyToCa = entCode+":"+sellerCode+":order:update:S2C";
+		
+		logger.debug("[shipmentKey]"+shipmentKey);
+		logger.debug("[shipmentNo]"+shipmentNo);
+		logger.debug("[entCode]"+entCode);
+		logger.debug("[sellerCode]"+sellerCode);
+		logger.debug("[status]"+status);
+		
+		
+		// 2. Shimpment OutPut 데이타 생성
+		Map<String,Object> sendMsgMap = new HashMap<String,Object>();
+		String outputMsg = "";
+		
+		/*
+		 * {"orderId":"오더번호","status":"3350","orderHeaderKey":"오더헤더키","docType":"0001",”entCode":"SLV",
+			”sellerCode”:”ASPB”, "OrderReleaseKey":"주문확정키", "ReleaseNo:"주문확정호번호","shipmentKey":"출고키", "shipmentNo":"출고번호"
+			"confirmed":[ 
+			    {"itemId":"상품코드","qty":"주문수량"},
+			    {"itemId":"상품코드","qty":"주문수량"}
+			] }
+		 */
+		sendMsgMap.put("status","3350"); // Include In Shipment
+		sendMsgMap.put("docType",docType);
+		sendMsgMap.put("entCode",entCode);
+		sendMsgMap.put("sellerCode",sellerCode);
+		sendMsgMap.put("shipmentKey",shipmentKey);
+		sendMsgMap.put("shipmentNo",shipmentNo);
+		
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
+		
+		// ShipmentLine List 
+		NodeList shipmentLineNode = (NodeList)xp.evaluate("/Shipment/ShipmentLines/ShipmentLine", el, XPathConstants.NODESET);
+		
+		// 오더번호, 릴리즈번호
+		String orderHeaderKey = (String)xp.evaluate("@OrderHeaderKey", shipmentLineNode.item(0), XPathConstants.STRING);
+		String orderNo = (String)xp.evaluate("@OrderNo", shipmentLineNode.item(0), XPathConstants.STRING);
+		String orderReleaseKey = (String)xp.evaluate("@OrderReleaseKey", shipmentLineNode.item(0), XPathConstants.STRING);
+		String releaseNo = (String)xp.evaluate("@ReleaseNo", shipmentLineNode.item(0), XPathConstants.STRING);
+		
+		sendMsgMap.put("orderHeaderKey",orderHeaderKey);
+		sendMsgMap.put("orderId",orderNo);
+		sendMsgMap.put("orderReleaseKey",orderReleaseKey);
+		sendMsgMap.put("releaseNo",releaseNo);
+		
+		// Item정보
+		List<HashMap<String,String>> itemList = new ArrayList<HashMap<String,String>>();
+		for(int i=0; i<shipmentLineNode.getLength(); i++){
+			
+			HashMap<String, String> itemMap = new HashMap<String, String>();
+			String itemId = (String)xp.evaluate("@ItemID", shipmentLineNode.item(i), XPathConstants.STRING);
+			String qty = (String)xp.evaluate("@Quantity", shipmentLineNode.item(i), XPathConstants.STRING);
+			
+			itemMap.put("itemId", itemId);
+			itemMap.put("qty", qty);
+			
+			itemList.add(itemMap);
+		}
+		sendMsgMap.put("confirmed",itemList);
+		
+		
+		// 3. JSON 변환
+		ObjectMapper mapper = new ObjectMapper();
+		outputMsg = mapper.writeValueAsString(sendMsgMap);
+		logger.debug("[pushKeyToMa]"+pushKeyToMa);
+		logger.debug("[pushData]"+outputMsg);
+		
+		// 4. RedisDB에 메세지 저장
+		listOps.leftPush(pushKeyToMa, outputMsg);
+		
+		
+		logger.debug("##### createShipmentPostProcess End !!!");
+		
+		// 5. 호출한 Sterling 서비스에 Response 전달
+		res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
+			
+		
+	}
 	
-	@RequestMapping(value = "/shipment.do")
-	public void shipmentProcess(@RequestParam(required=false) String returnXML,
-								  @RequestParam(required=false) String status,	
+	
+	@RequestMapping(value = "/confirmShipmentPostProcess.do")
+	public void confirmShipmentPostProcess(@RequestParam(required=false) String returnXML,								  
 								  HttpServletResponse res) throws Exception{
 		
 		
-		
+		logger.debug("##### confirmShipmentPostProcess started !!!");
 		logger.info("[returnXML]"+returnXML);
-		logger.info("[status]"+status);
 		
 		
 		// 1. Receive Message(retrunXML) Parsing
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
 		Element el = doc.getDocumentElement();
 		
-		
-		XPath xp = XPathFactory.newInstance().newXPath();
-		
-		
 		String shipmentKey = el.getAttribute("ShipmentKey");
 		String shipmentNo = el.getAttribute("ShipmentNo");
 		
 		String entCode = el.getAttribute("EnterpriseCode");
 		String sellerCode = el.getAttribute("SellerOrganizationCode");
+		String status = el.getAttribute("Status");
+		String docType = el.getAttribute("DocumentType");
 		
-		String pushKey = entCode+":"+sellerCode+":order:update:S2M";
-		logger.debug("[pushKey]"+pushKey);
-		
+		String pushKeyToMa = entCode+":"+sellerCode+":order:update:S2M";
+		String pushKeyToCa = entCode+":"+sellerCode+":order:update:S2C";
 		
 		logger.debug("[shipmentKey]"+shipmentKey);
 		logger.debug("[shipmentNo]"+shipmentNo);
 		logger.debug("[entCode]"+entCode);
 		logger.debug("[sellerCode]"+sellerCode);
-		
+		logger.debug("[status]"+status);
 		
 		
 		// 2. Shimpment OutPut 데이타 생성
@@ -92,115 +194,116 @@ public class ScOrderShipmentHandler {
 		String outputMsg = "";
 		
 		
-		// Shipment Created
-		if("1100".equals(status)){
-			
-			// TODO: 
-			
-		
-		// Shipment Confirmed
-		}else if("1400".equals(status)){
-			
-			// Shipment 기본정보 추출
-			String currency = (String)xp.evaluate("@Currency", el, XPathConstants.STRING);
-			logger.debug("[currency]" + currency);
-			
-			String expectedDeliveryDate = (String)xp.evaluate("@ExpectedDeliveryDate", el, XPathConstants.STRING);
-			logger.debug("[expectedDeliveryDate]" + expectedDeliveryDate);
-			
-			String totalActualCharge = (String)xp.evaluate("@TotalActualCharge", el, XPathConstants.STRING);
-			logger.debug("[totalActualCharge]" + totalActualCharge);
-			
-			
-			
-			// Pack Container별 Item정보 추출(N건)
-			NodeList containerNodeList = (NodeList)xp.evaluate("/Shipment/Containers/Container", el, XPathConstants.NODESET);
-			logger.debug("[containerNodeList]"+containerNodeList.getLength());
-			
-			List<HashMap<String,Object>> containerList = new ArrayList<HashMap<String,Object>>();
-			String[] releaseKeys = new String[containerNodeList.getLength()];
-			
-			// Container List
-			for(int i=0; i<containerNodeList.getLength(); i++){
-				
-				
-				HashMap<String,Object> containerMap = new HashMap<String,Object>();
-				
-				
-				String carrierCode = (String)xp.evaluate("@SCAC", containerNodeList.item(i), XPathConstants.STRING);
-				String trackingNo = (String)xp.evaluate("@TrackingNo", containerNodeList.item(i), XPathConstants.STRING);
-				
-				logger.debug("---------------------------------------"+i);
-				logger.debug("[carrierCode]"+carrierCode);
-				logger.debug("[trackingNo]"+trackingNo);
-				
-				
-				// TODO: 배송사코드 MA와 매핑필요
-				containerMap.put("carrierCode", entCode.equals("DA")?"custom":carrierCode);
-				containerMap.put("carrierTitle", carrierCode);
-				containerMap.put("trackingNo", trackingNo);
-				
-				
-				// Item List 
-				NodeList itemNodeList = (NodeList)xp.evaluate("ContainerDetails/ContainerDetail", containerNodeList.item(i), XPathConstants.NODESET);
-				List<HashMap<String,String>> itemList = new ArrayList<HashMap<String,String>>();
-				for(int j=0; j<itemNodeList.getLength(); j++){
-					
-					
-					HashMap<String, String> itemMap = new HashMap<String, String>();
-					String itemId = (String)xp.evaluate("@ItemID", itemNodeList.item(j), XPathConstants.STRING);
-					String qty = (String)xp.evaluate("@Quantity", itemNodeList.item(j), XPathConstants.STRING);
-					
-					itemMap.put("itemId", itemId);
-					itemMap.put("qty", qty);
-					
-					logger.debug("---------------------------------------"+i);
-					logger.debug("[itemId]"+itemId);
-					logger.debug("[qty]"+qty);
-					
-					itemList.add(itemMap);
-				}
-				
-				containerMap.put("items", itemList);
-				
-				
-				containerList.add(containerMap);
+		/**
+		 * {"orderId":"","status":"3700","orderHeaderKey":"","docType":"0001",”entCode":"SLV",
+			”sellerCode”:”ASPB”,
+			"totalCharge":"총비용","expDeliveryDate":"배송예정일","currency":"통화",
+			“shippment”:[ 
+			{
+			 "carrierCode":"배송업체코드", "carrierTitle":" 배송업체명", "trackingNo":"송장번호", 
+			"items":[
+			{"itemId":" 상품코드",  "qty":" 수량 "} ,
+			 {"itemId":" 상품코드 ",  "qty":" 수량 "}
+			]
+			 },
+			{
+			 "carrierCode":" 배송업체코드 ", "carrierTitle":" 배송업체명 ", 
+			"trackingNo":"송장번호", 
+			"items":[
+			{"itemId":" 상품코드",  "qty":" 수량 "} ,
+			 {"itemId":" 상품코드 ",  "qty":" 수량 "}
+			]
+			 }
 			}
 			
+			{"totalCharge":"0.00","expDeliveryDate":"2014-09-11T20:48:00+09:00","docType":"0001","status":"3700","shipment":[],"sellerCode":"ASPB","orderId":null,"currency":"KRW","entCode":"SLV"}
+
+		 */
+		sendMsgMap.put("status","3700"); // Include In Shipment
+		sendMsgMap.put("docType",docType);
+		sendMsgMap.put("entCode",entCode);
+		sendMsgMap.put("sellerCode",sellerCode);
+		
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
+		
+		// Shipment 기본정보 추출
+		String currency = (String)xp.evaluate("@Currency", el, XPathConstants.STRING);
+		logger.debug("[currency]" + currency);
+		String expectedDeliveryDate = (String)xp.evaluate("@ExpectedDeliveryDate", el, XPathConstants.STRING);
+		logger.debug("[expectedDeliveryDate]" + expectedDeliveryDate);
+		String totalActualCharge = (String)xp.evaluate("@TotalActualCharge", el, XPathConstants.STRING);
+		logger.debug("[totalActualCharge]" + totalActualCharge);
+		
+		// Pack Container별 Item정보 추출(N건)
+		NodeList containerNodeList = (NodeList)xp.evaluate("/Shipment/Containers/Container", el, XPathConstants.NODESET);
+		logger.debug("[containerNodeList]"+containerNodeList.getLength());
+		
+		List<HashMap<String,Object>> containerList = new ArrayList<HashMap<String,Object>>();
+		String[] releaseKeys = new String[containerNodeList.getLength()];
+		
+
+		// TODO: Confirm Shipment 처리 변경필요
+		// Container List
+		for(int i=0; i<containerNodeList.getLength(); i++){
 			
-			String orderId = valueOps.get(shipmentNo);
-			logger.debug("[orderId]"+orderId);
+			HashMap<String,Object> containerMap = new HashMap<String,Object>();
 			
-			sendMsgMap.put("orderId", orderId);	// 오더번호
-			sendMsgMap.put("shipment", containerList);	// 출고정보
-			sendMsgMap.put("status", "3700"); // 오더상태 (Shipped)
+			String carrierCode = (String)xp.evaluate("@SCAC", containerNodeList.item(i), XPathConstants.STRING);
+			String trackingNo = (String)xp.evaluate("@TrackingNo", containerNodeList.item(i), XPathConstants.STRING);
 			
-			sendMsgMap.put("expDeliveryDate", expectedDeliveryDate);	// 배송예정일
-			sendMsgMap.put("totalCharge", totalActualCharge);	// 총배송비용
-			sendMsgMap.put("currency", currency);	// 통화
+			logger.debug("---------------------------------------"+i);
+			logger.debug("[carrierCode]"+carrierCode);
+			logger.debug("[trackingNo]"+trackingNo);
 			
+			// TODO: 배송사코드 MA와 매핑필요
+			containerMap.put("carrierCode", entCode.equals("DA")?"custom":carrierCode);
+			containerMap.put("carrierTitle", carrierCode);
+			containerMap.put("trackingNo", trackingNo);
 			
-		}else{
+			// Item List 
+			NodeList itemNodeList = (NodeList)xp.evaluate("ContainerDetails/ContainerDetail", containerNodeList.item(i), XPathConstants.NODESET);
+			List<HashMap<String,String>> itemList = new ArrayList<HashMap<String,String>>();
+			for(int j=0; j<itemNodeList.getLength(); j++){
+				
+				
+				HashMap<String, String> itemMap = new HashMap<String, String>();
+				String itemId = (String)xp.evaluate("@ItemID", itemNodeList.item(j), XPathConstants.STRING);
+				String qty = (String)xp.evaluate("@Quantity", itemNodeList.item(j), XPathConstants.STRING);
+				
+				itemMap.put("itemId", itemId);
+				itemMap.put("qty", qty);
+				
+				itemList.add(itemMap);
+			}
 			
-			res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
-			return;
+			containerMap.put("items", itemList);
+			containerList.add(containerMap);
 		}
 		
-		
+		String orderId = valueOps.get(shipmentNo);
+		logger.debug("[orderId]"+orderId);
+		sendMsgMap.put("orderId", orderId);	// 오더번호
+		sendMsgMap.put("shipment", containerList);	// 출고정보
+		sendMsgMap.put("expDeliveryDate", expectedDeliveryDate);	// 배송예정일
+		sendMsgMap.put("totalCharge", totalActualCharge);	// 총배송비용
+		sendMsgMap.put("currency", currency);	// 통화
 		
 		
 		// 3. JSON 변환
 		ObjectMapper mapper = new ObjectMapper();
 		outputMsg = mapper.writeValueAsString(sendMsgMap);
-		logger.debug("[outputMsg]"+outputMsg);
+		logger.debug("[pushKeyToMa]"+pushKeyToMa);
+		logger.debug("[pushData]"+outputMsg);
 		
 		// 4. RedisDB에 메세지 저장
-		listOps.leftPush(pushKey, outputMsg);
+		listOps.leftPush(pushKeyToMa, outputMsg);
 		
+		
+		logger.debug("##### confirmShipmentPostProcess end !!!");
 		
 		// 5. 호출한 Sterling 서비스에 Response 전달
 		res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
-		
 		
 	}
 	

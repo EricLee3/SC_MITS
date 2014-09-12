@@ -268,19 +268,21 @@ public class SterlingApiDelegate {
 	}
 	
 	
-	public HashMap<String, String> createShipment(String shipmentNo, String releaseNo, String docType, String entCode, String orderId) throws Exception{
+	public HashMap<String, String> createShipment(String shipmentNo, String releaseKey) throws Exception{
 		
 		
 		// Generate SC API Input XML	
 		String template = FileContentReader.readContent(getClass().getResourceAsStream(createShipment_template));
 		
 		MessageFormat msg = new MessageFormat(template);
-		String xmlData = msg.format(new String[] {shipmentNo, releaseNo, docType, entCode, orderId} );
+//		String xmlData = msg.format(new String[] {shipmentNo, releaseNo, docType, entCode, orderId} );
+		String xmlData = msg.format(new String[] {shipmentNo, releaseKey} );
 		logger.debug("[createShipment intputXML]"+xmlData);
 		
 		
 		Document doc = null;
 		HashMap<String, String> resultMap = new HashMap<String, String>();
+		resultMap.put("succ", "N");
 		
 		try {
 			
@@ -298,13 +300,13 @@ public class SterlingApiDelegate {
 			// Error 발생
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 
-				// 상세예외처리 필요
-				resultMap.put("status", "0000");
+				resultMap.put("succ", "N");
 				
 			}else{
 				
 				Element ele = doc.getDocumentElement();
 				
+				resultMap.put("succ", "Y");
 				resultMap.put("status", "3350");
 				resultMap.put("shipmentNo", ele.getAttribute("ShipmentNo"));
 			}
@@ -372,12 +374,12 @@ public class SterlingApiDelegate {
 				NodeList orderReleaseNodeList = (NodeList)xp.evaluate("/OrderReleaseList/OrderRelease", ele, XPathConstants.NODESET);
 				
 				for(int i=0; i<orderReleaseNodeList.getLength(); i++){
-//					String releaseKey = (String)xp.evaluate("@OrderReleaseKey", orderReleaseNodeList.item(i), XPathConstants.STRING);
-					String releaseNo = (String)xp.evaluate("@ReleaseNo", orderReleaseNodeList.item(i), XPathConstants.STRING);
-					logger.debug("ReleaseNo:::"+releaseNo);
+					String releaseKey = (String)xp.evaluate("@OrderReleaseKey", orderReleaseNodeList.item(i), XPathConstants.STRING);
+//					String releaseNo = (String)xp.evaluate("@ReleaseNo", orderReleaseNodeList.item(i), XPathConstants.STRING);
+					logger.debug("releaseKey:::"+releaseKey);
 					
-//					releaseKeyList.add(releaseKey);
-					releaseKeyList.add(releaseNo);
+					releaseKeyList.add(releaseKey);
+//					releaseKeyList.add(releaseNo);
 				}
 			}
 			

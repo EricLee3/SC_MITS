@@ -249,7 +249,6 @@ public class ScOrderStatusHandler {
 		// Cancelled (전체취소)
 		else if("9000".equals(maxOrderStatus))
 		{
-			logger.debug("[Order Cancel Hanlder Started]");
 			processCancelAfter(outputXML, entCode, sellerCode);
 		}
 		
@@ -490,15 +489,15 @@ public class ScOrderStatusHandler {
 			// JSON 변환
 			ObjectMapper mapper = new ObjectMapper();
 			String outputMsg = mapper.writeValueAsString(sendMsgMap);
-			logger.debug("[pushMessage ]"+outputMsg);
-			
+
 			// RedisKey for SC -> CUBE
 			String pushKey = entCode+":"+sellerCode+":order:update:S2C";
+			
+			logger.debug("[pushMessage ]"+outputMsg);
 			logger.debug("[pushKey]"+pushKey);
+			
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
-			
-			
 			
 			
 			
@@ -540,6 +539,8 @@ public class ScOrderStatusHandler {
 	 * @throws Exception
 	 */
 	private void processCancelAfter(Element outputXML, String entCode, String sellerCode) throws Exception{
+		
+		logger.debug("[Order Cancel Hanlder Started]");
 		
 		try{
 		
@@ -584,7 +585,7 @@ public class ScOrderStatusHandler {
 				orderLineMap.put("orderLineKey", orderLineKey);
 				orderLineMap.put("primeLineNo", primeLineNo);
 				orderLineMap.put("orderReleaseKey", orderReleaseKey);
-				orderLineMap.put("orderDt", CommonUtil.cuurentDateFromFormat("yyyyMMddHHmmss"));
+//				orderLineMap.put("orderDt", CommonUtil.cuurentDateFromFormat("yyyyMMddHHmmss"));
 				// 상품/가격 정보
 				orderLineMap.put("itemId", itemID);
 				orderLineMap.put("qty", orderedQty);
@@ -604,31 +605,45 @@ public class ScOrderStatusHandler {
 			sendMsgMap.put("sellerCode", sellerCode);
 			
 			sendMsgMap.put("status", "9000");
-			sendMsgMap.put("canceled", "true");
 			String trDate = CommonUtil.cuurentDateFromFormat("yyyyMMddHHmmss");
 			sendMsgMap.put("trDate", trDate);
 			sendMsgMap.put("cancelList", cancelList);
 			
 			
 			// JSON 변환
+			/*
+			 * {"orderHeaderKey":"20140912152100132437",
+			 *  "docType":"0001","status":"9000",
+			 *  "cancelList":[
+			 *      {"orderLineKey":"20140912152100132438","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"1","itemNm":"","salePrice":"49000.00","qty":"0.00","itemId":"ASPB_ITEM_0001"},
+			 *      {"orderLineKey":"20140912152100132439","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"2","itemNm":"","salePrice":"59000.00","qty":"0.00","itemId":"ASPB_ITEM_0002"}
+			 *      ],
+			 *  "sellerCode":"ASPB",
+			 *  "trDate":"20140912174848",
+			 *  "orderId":"Y100000368",
+			 *  "entCode":"SLV"}
+
+			 * 
+			 * 
+			 */
 			ObjectMapper mapper = new ObjectMapper();
 			String outputMsg = mapper.writeValueAsString(sendMsgMap);
-			logger.debug("[outputMsg]"+outputMsg);
-			
 			
 			// RedisKey for SC -> MA
 			String pushKey = entCode+":"+sellerCode+":order:update:S2M";
-			logger.debug("[outputKey]"+pushKey);
 			
+			logger.debug("[cancel Data]"+outputMsg);
+			logger.debug("[pushKey]"+pushKey);
 			
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
 			
-			logger.debug("[Order Cancel Hanlder End]");
 			
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new Exception();
 		}
+		
+		logger.debug("##### [Order Cancel Hanlder End]");
 	}
 }

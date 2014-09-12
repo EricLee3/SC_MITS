@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Shipment ShipmentNo="{0}">
     <OrderReleases>
-        <OrderRelease ReleaseNo="{1}">
-            <Order DocumentType="{2}" EnterpriseCode="{3}" OrderNo="{4}"/>
+        <OrderRelease OrderReleaseKey="{1}">
         </OrderRelease>
     </OrderReleases>
 </Shipment>

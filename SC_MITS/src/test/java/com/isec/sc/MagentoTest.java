@@ -172,24 +172,64 @@ public class MagentoTest {
 	
 	}
 	
-	
 	@Test
 	public void deleteKeyData() {
-	    String key = "SLV:ASPB:order:update:S2M";
+		
+	    String key = "SLV:ASPB:order";
+	    String key1 = "SLV:ASPB:order:update:S2M";
+	    String key2 = "SLV:ASPB:order:update:M2S";
+	    String key3 = "SLV:ASPB:order:update:S2C";
+	    String key4 = "SLV:ASPB:order:update:C2S";
 	    
-	    long dataCnt =  listOps.size(key);
-	    System.out.println("orderCreate Update count:::"+dataCnt);
+	    String errorKey = "SLV:ASPB:order:error";
 	    
 	    
-	    //maStringRedisTemplate.delete(key);
+	    maStringRedisTemplate.delete(key);
+	    maStringRedisTemplate.delete(key1);
+	    maStringRedisTemplate.delete(key2);
+	    maStringRedisTemplate.delete(key3);
+	    maStringRedisTemplate.delete(key4);
+	    maStringRedisTemplate.delete(errorKey);
+	}
+	
+	@Test
+	public void getListData() {
+		
+	    String key = "SLV:ASPB:order";
+	    String key1 = "SLV:ASPB:order:update:S2M";
+	    String key2 = "SLV:ASPB:order:update:M2S";
+	    String key3 = "SLV:ASPB:order:update:S2C";
+	    String key4 = "SLV:ASPB:order:update:C2S";
+	    
+	    String errorKey = "SLV:ASPB:order:error";
 	    
 	    
 	    List<String> orderList = listOps.range(key, 0, -1);
-	   
-	    for(int i=0; i<dataCnt; i++){
-	    	
+	    System.out.println( "[SLV:ASPB:order]" +orderList.size());
+	    
+	    List<String> orderList1 = listOps.range(key1, 0, -1);
+	    System.out.println( "[SLV:ASPB:order:update:S2M]" +orderList1.size());
+	    
+	    List<String> orderList2 = listOps.range(key2, 0, -1);
+	    System.out.println( "[SLV:ASPB:order:update:M2S]" +orderList2.size());
+	    
+	    List<String> orderList3 = listOps.range(key3, 0, -1);
+	    System.out.println( "[SLV:ASPB:order:update:S2C]" +orderList3.size());
+	    
+	    List<String> orderList4 = listOps.range(key4, 0, -1);
+	    System.out.println( "[SLV:ASPB:order:update:C2S]" +orderList4.size());
+	    
+	    
+	    List<String> errorList = listOps.range(errorKey, 0, -1);
+	    System.out.println( "[SLV:ASPB:order:error]" +errorList.size());
+	    
+	    for(int i=0; i<orderList1.size(); i++){
+	    		System.out.println( "[S2M Data]" +orderList1.get(i));
 	    }
 	    
+	    for(int i=0; i<orderList3.size(); i++){
+	    		System.out.println( "[S2C Data]" +orderList3.get(i));
+	    }
 	   
 	}
 	
