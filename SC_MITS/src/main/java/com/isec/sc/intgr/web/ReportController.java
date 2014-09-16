@@ -187,15 +187,15 @@ public class ReportController {
 	public ModelAndView getOrderOverAll( @RequestParam String startDate,  @RequestParam String endDate, @RequestParam int term) throws Exception{ 
 		
 		
-//		String orderCountKey_pre = "count:*:*:orders:";
-//		String orderAmountKey_pre = "amount:*:*:orders:";
+		String orderCountKey_pre = "count:*:*:orders:";
+		String orderAmountKey_pre = "amount:*:*:orders:";
 		
 		// TODO: 오픈전 키값 변경 - SLV:ASPB
 //		String orderCountKey_pre = "count:ISEC:ASPB:orders:";
 //		String orderAmountKey_pre = "amount:ISEC:ASPB:orders:";
 		
-		String orderCountKey_pre = "count:SLV:ASPB:orders:";
-		String orderAmountKey_pre = "amount:SLV:ASPB:orders:";
+//		String orderCountKey_pre = "count:SLV:ASPB:orders:";
+//		String orderAmountKey_pre = "amount:SLV:ASPB:orders:";
 		
 //		String orderCountKey_pre = "count:Aurora:Auro_Store_1:orders:";
 //		String orderAmountKey_pre = "amount:Aurora:Auro_Store_1:orders:";

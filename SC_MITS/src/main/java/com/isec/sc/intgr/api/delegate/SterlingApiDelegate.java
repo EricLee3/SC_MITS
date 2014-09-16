@@ -31,7 +31,6 @@ import org.xml.sax.SAXException;
 
 import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
-import com.isec.sc.intgr.redis.listener.OrderCreateMsgListener;
 
 
 
@@ -158,6 +157,37 @@ public class SterlingApiDelegate {
 		return returnMap;
 	}
 	
+	
+	public String createOrder(String xmlData) throws Exception{
+		
+		logger.debug("[createOrder intputXML]"+xmlData);
+		
+		String outputXML = "";
+		
+		try {
+			
+			sterlingHTTPConnector.setApi(sc_order_create);
+			sterlingHTTPConnector.setData(xmlData);
+			
+			outputXML = sterlingHTTPConnector.run();
+			logger.debug("[CreateOrder outputXML]"+outputXML);
+			
+			
+		} catch (SAXException e) {
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return outputXML;
+		
+	}
+	
+	
 	public String manageItem(String xmlData) throws Exception{
 		
 		
@@ -238,37 +268,9 @@ public class SterlingApiDelegate {
 	}
 	
 	
-	public String createOrder(String xmlData) throws Exception{
-		
-		logger.debug("[createOrder intputXML]"+xmlData);
-		
-		String outputXML = "";
-		
-		try {
-			
-			sterlingHTTPConnector.setApi(sc_order_create);
-			sterlingHTTPConnector.setData(xmlData);
-			
-			outputXML = sterlingHTTPConnector.run();
-			logger.debug("[CreateOrder outputXML]"+outputXML);
-			
-			
-		} catch (SAXException e) {
-			e.printStackTrace();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			
-			e.printStackTrace();
-		}
-		
-		return outputXML;
-		
-	}
 	
 	
-	public HashMap<String, String> createShipment(String shipmentNo, String releaseKey) throws Exception{
+	public int createShipment(String shipmentNo, String releaseKey) throws Exception{
 		
 		
 		// Generate SC API Input XML	
@@ -281,8 +283,7 @@ public class SterlingApiDelegate {
 		
 		
 		Document doc = null;
-		HashMap<String, String> resultMap = new HashMap<String, String>();
-		resultMap.put("succ", "N");
+		int result = 0;
 		
 		try {
 			
@@ -294,22 +295,13 @@ public class SterlingApiDelegate {
 			
 			
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+			// Error 처리
 			logger.debug("result:::"+doc.getFirstChild().getNodeName());
-			
-			
-			// Error 발생
-			if("Errors".equals(doc.getFirstChild().getNodeName())){
-
-				resultMap.put("succ", "N");
-				
+			if("Erros".equals(doc.getFirstChild().getNodeName())){
 			}else{
-				
-				Element ele = doc.getDocumentElement();
-				
-				resultMap.put("succ", "Y");
-				resultMap.put("status", "3350");
-				resultMap.put("shipmentNo", ele.getAttribute("ShipmentNo"));
+				result = 1;
 			}
+			
 			
 		} catch (SAXException e) {
 			e.printStackTrace();
@@ -319,7 +311,7 @@ public class SterlingApiDelegate {
 			e.printStackTrace();
 		}
 		
-		return resultMap;
+		return result;
 		
 	}
 	

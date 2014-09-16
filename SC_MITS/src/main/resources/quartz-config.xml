@@ -27,9 +27,22 @@
 	    	</list>
 	    </property>
 	</bean>
+	
 	<bean id="orderReleaseJob_ASPB" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
-	    <property name="targetMethod"><value>processReleaseReturn</value></property>
+	    <property name="targetMethod"><value>processOrderRelease</value></property>
+	    <property name="arguments">
+	    	<list>
+	    		<value>${key.ca.aspb.order.release}</value>
+	    		<value>${key.ma.aspb.orderUpdate.S2M}</value>
+	    		<value>${key.ma.aspb.order.error}</value>
+	    	</list>
+	    </property>
+	</bean>
+	
+	<bean id="orderStatusUpdateJob_ASPB" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
+	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
 	    <property name="arguments">
 	    	<list>
 	    		<value>${key.ca.aspb.orderUpdate.C2S}</value>
@@ -109,8 +122,15 @@
         <property name="jobDetail" ref="orderCreateJob_ASPB" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
-	<bean id="orderReleaseJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    
+    
+    <bean id="orderReleaseJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderReleaseJob_ASPB" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+    
+	<bean id="orderStatusUpdateJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="orderStatusUpdateJob_ASPB" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
 	
@@ -129,7 +149,6 @@
         <property name="startDelay" value="20000" />
         <property name="cronExpression" value="30 0/20 * * * ?" />
     </bean>
-    
     
     <!-- JNS > Order -->
     <bean id="orderCreateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
@@ -152,15 +171,16 @@
             	<!-- ASPB -->
                 <ref bean="orderCreateJobTrigger_ASPB"/>
                 <ref bean="orderReleaseJobTrigger_ASPB"/>
+                <ref bean="orderStatusUpdateJobTrigger_ASPB"/>
                 
                 <!-- OUTRO -->
                 <ref bean="orderCreateJobTrigger_OUTRO"/>
-                <ref bean="orderUpdateJobTrigger_OUTRO"/>
+                <!-- <ref bean="orderUpdateJobTrigger_OUTRO"/> -->
                 <ref bean="productSyncJobTrigger_OUTRO"/>
                 
                 <!-- JNS -->
                 <ref bean="orderCreateJobTrigger_JNS"/>
-                <ref bean="orderUpdateJobTrigger_JNS"/>
+                <!-- <ref bean="orderUpdateJobTrigger_JNS"/> -->
             </list>
         </property>
     </bean>

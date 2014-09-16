@@ -73,8 +73,7 @@ public class ScOrderStatusHandler {
 		
 		if( returnXML == null || "".equals(returnXML)){
 			
-			// TODO: 예외처리필요
-			
+			// TODO: createOrder 후처리 예외처리필요
 			res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
 			return;
 		}
@@ -92,15 +91,50 @@ public class ScOrderStatusHandler {
 		//  Created Status Check 
 		if( !"1100".equals(minOrderStatus) || !"1100".equals(maxOrderStatus)){
 			
+			// TODO: createOrder 후처리 예외처리
 			res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
 			return;
 		}
 		
 		String entCode = outputXML.getAttribute("EnterpriseCode");
 		String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
+		String orderHeaderKey = outputXML.getAttribute("OrderHeaderKey");
+		String orderId = outputXML.getAttribute("OrderNo");
+		String docType =  outputXML.getAttribute("DocumentType");
+		
 		logger.info("[entCode]"+entCode);
 		logger.info("[sellerCode]"+sellerCode);
+		logger.info("[orderHeaderKey]"+orderHeaderKey);
+		logger.info("[orderId]"+orderId);
+		logger.info("[docType]"+docType);
+
 		
+		//-------------------- Store Redis Data For Ma & Release
+		HashMap<String, String> resultMap = new HashMap<String, String>();
+		resultMap.put("status", "1100");
+		resultMap.put("orderHeaderKey", orderHeaderKey);
+		resultMap.put("entCode", entCode);
+		resultMap.put("orderId", orderId);
+		resultMap.put("docType", docType);
+		resultMap.put("sellerCode", sellerCode);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String orderSuccJSON = mapper.writeValueAsString(resultMap);
+		logger.debug("[Update OrderStatus - Redis Data]"+orderSuccJSON);
+		
+		
+		// Put OrderStaus to Redis For MA
+		String redisPushKey = entCode+":"+sellerCode+":order:update:S2M";
+		listOps.leftPush(redisPushKey, orderSuccJSON);
+		
+		
+		// Put OrderStaus to Redis For SC - OMC에 자동릴리즈를 하기 위해 별도의 릴리즈대상 키에 생성된 오더정보 저장
+		String redisPushKeyForRelease = entCode+":"+sellerCode+":order:release";
+		listOps.leftPush(redisPushKeyForRelease, orderSuccJSON);
+		
+		
+		
+		//-------------------- Order Data Summary
 		logger.debug("[Order Summary Process Started]");
 		Double totAmount = 0.00;
 		Double totLineSub = 0.00;
@@ -122,7 +156,6 @@ public class ScOrderStatusHandler {
 		totDiscount = (Double)xp.evaluate("/Order/OverallTotals/@GrandDiscount", outputXML, XPathConstants.NUMBER);
 		totTax = (Double)xp.evaluate("/Order/OverallTotals/@GrandTax", outputXML, XPathConstants.NUMBER);
 		
-		
 		/*
 		NodeList orderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine", outputXML, XPathConstants.NODESET);
 		
@@ -135,7 +168,6 @@ public class ScOrderStatusHandler {
 			
 		}
 		*/
-		
 		HashMap<String, Double> priceMap = new HashMap<String, Double>();
 		priceMap.put("amount", totAmount);
 		priceMap.put("lineTotal", totLineSub);

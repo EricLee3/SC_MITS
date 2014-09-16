@@ -63,6 +63,7 @@ public class ScOrderShipmentHandler {
 	public void createShipmentPostProcess(@RequestParam(required=false) String returnXML,								  
 								  HttpServletResponse res) throws Exception{
 		
+
 		logger.debug("##### createShipmentPostProcess Started !!!");
 		logger.info("[returnXML]"+returnXML);
 		
@@ -148,8 +149,75 @@ public class ScOrderShipmentHandler {
 		// 4. RedisDB에 메세지 저장
 		listOps.leftPush(pushKeyToMa, outputMsg);
 		
-		
 		logger.debug("##### createShipmentPostProcess End !!!");
+		
+		
+		
+		/*
+		 * Cube로 부터 출고확정정보 
+		 * 
+		 * {
+		 *  "orderId":"","status":"3700","orderHeaderKey":"","docType":"0001",”entCode":"SLV",
+			”sellerCode”:”ASPB”, 
+			"totalCharge":"총비용","expDeliveryDate":"배송예정일","currency":"통화",
+			“shipment”:[ 
+			 {
+				"shipmentNo":"출고번호", "shipNode":"ISEC_WH1",
+				"carrierCode":"배송업체코드", "carrierTitle":" 배송업체명", "trackingNo":"송장번호", 
+				"items":[
+						 {"itemId":" 상품코드",  "qty":" 수량 "} ,
+						 {"itemId":" 상품코드 ",  "qty":" 수량 "}
+						]
+			 },
+			 {
+				"shipmentNo":"출고번호", "shipNode":"ISEC_WH1",
+				"carrierCode":" 배송업체코드 ", "carrierTitle":" 배송업체명 ", 
+				"trackingNo":"송장번호", 
+				"items":[
+						{"itemId":" 상품코드",  "qty":" 수량 "} ,
+						 {"itemId":" 상품코드 ",  "qty":" 수량 "}
+						]
+			 }
+			} 
+		 */		
+		// RedisKey for CUBE -> SC 
+		// TODO: Test 용, 큐브연동후 삭제 할 것
+		Map<String,Object> sendMsgMap_C2S = new HashMap<String,Object>();
+		
+		try{
+		
+		
+		List<HashMap<String,Object>> shipmentList = new ArrayList<HashMap<String,Object>>();
+		HashMap<String, Object> lineMap = new HashMap<String, Object>();
+		lineMap.put("shipmentNo", shipmentNo);
+		lineMap.put("shipNode", "ISEC_WH1");
+		lineMap.put("carrierCode", "19991214183438453");
+		lineMap.put("trackingNo", "1111111111");;
+		lineMap.put("items", sendMsgMap.get("confirmed"));
+		
+		shipmentList.add(lineMap);
+		
+		
+		sendMsgMap_C2S = sendMsgMap;
+		sendMsgMap_C2S.put("status", "3700"); // 3700
+		sendMsgMap_C2S.put("shipment",shipmentList);
+		sendMsgMap_C2S.remove("confirmed"); 
+		
+		
+		String outputMsgTest = mapper.writeValueAsString(sendMsgMap_C2S);
+		
+		
+		String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
+		logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
+		// RedisDB에 메세지 저장
+		listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
+		
+		
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
 		
 		// 5. 호출한 Sterling 서비스에 Response 전달
 		res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");

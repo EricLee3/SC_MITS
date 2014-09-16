@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Either ShipmentKey OR (ShipmentNo, ShipNode and SellerOrganizationCode) must be provided -->
+<Shipment SellerOrganizationCode="{0}" ShipNode="{1}"
+    ShipmentNo="{2}"/>

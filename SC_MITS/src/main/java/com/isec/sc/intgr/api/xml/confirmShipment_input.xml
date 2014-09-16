@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Shipment 
+    DocumentType="{0}" EnterpriseCode="{1}"
+    SellerOrganizationCode="{2}" 
+    ShipmentNo="{3}" ShipNode="{4}" TrackingNo="{5}">
+    <ScacAndService OrganizationCode="{6}"
+        ScacAndServiceKey="{7}"/>
+</Shipment>
