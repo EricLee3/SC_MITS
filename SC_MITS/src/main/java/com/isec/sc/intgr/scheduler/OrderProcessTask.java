@@ -226,7 +226,7 @@ public class OrderProcessTask {
     				
     				
     				// Create Shipment
-    				if("3201".equals(status)){
+    				if("3202".equals(status)){
     				
     					
     					/*
@@ -336,6 +336,7 @@ public class OrderProcessTask {
 //			ArrayList<HashMap<String, String>> releaseNoList = (ArrayList<HashMap<String, String>>)dataMap.get("confirmed");
 		
 		// Order Release Key 조회
+		// TODO: 하나의 주문에 릴리즈가 2건이상일 경우(현재는 발생하지 않음)의 로직설계 필요
 		ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
 		
 		for(int j=0; j<releaseKeys.size(); j++){

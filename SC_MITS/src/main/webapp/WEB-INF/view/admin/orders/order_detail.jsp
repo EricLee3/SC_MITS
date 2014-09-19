@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
 <!-- BEGIN PAGE HEADER-->
@@ -105,7 +106,12 @@
 						</li>
 						<li>
 							<a href="#tab_2" data-toggle="tab">
-							Contact History </a>
+							Contact History
+						    <c:if test="${! empty( noteList ) }">
+						        <span class="badge badge-info">
+								${fn:length(noteList)} </span>
+						    </c:if> 
+							</a>
 						</li>
 						<!-- <li>
 							<a href="#tab_3" data-toggle="tab">
@@ -410,7 +416,8 @@
 													</td>
 													<td>
 														${line.itemId}
-														<a class="btn btn-xs blue-hoki pull-right" href="${line.itemDesc}" target="_blank"> Details </a>
+														<a href="${line.itemDesc}" class="pull-right" target="_blank">
+														<span class="label label-sm label-info">Details</span> </a>
 													</td>
 													<td>
 														 ${line.itemdShortDesc}

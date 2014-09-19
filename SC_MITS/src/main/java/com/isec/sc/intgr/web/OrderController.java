@@ -394,6 +394,12 @@ public class OrderController {
 		// API Call
 		String outputXML = sterlingApiDelegate.comApiCall("getOrderDetails", inputXML);
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		
+		
+		logger.debug("[Order Detail]"+orderNo);
+		logger.debug(outputXML);
+		
+		
 		Element el = doc.getDocumentElement();
 		
 		XPath xp = XPathFactory.newInstance().newXPath();
@@ -1162,22 +1168,26 @@ public class OrderController {
 		
 		String statusText[] = {"",""};
 		
-		// Status Text
-		if(minStatus.equals(maxStatus)){
-			statusText[0] = env.getProperty("ui.status.text.kr."+maxStatus);
+		String mappingText = env.getProperty("ui.status.text.kr."+maxStatus);
+		String mappingTextCss = env.getProperty("ui.status.cssname."+maxStatus);
+				
+		// 오더상태 매핑항목에 없는 경우 SC상태명 그대로 사용
+		if( mappingText  == null ) {
+			statusText[0]  = defaultText; 
+			statusText[1] = "default";
 			
-			// 오더상태 매핑항목에 없는 경우 SC상태명 그대로 사용
-			if( statusText[0]  == null) {
-				statusText[0]  = defaultText; 
-			}
-		// 부분처리인 경우 SC상태명 그대로 사용
-		}else{
-			statusText[0]  = defaultText;
+			return statusText;
 		}
 		
-		// Status Button CSS
-		statusText[1]  = env.getProperty("ui.status.cssname."+maxStatus);
-		if( statusText[1] == null) statusText[1] = "default";
+		if(minStatus.equals(maxStatus)){
+			statusText[0] = mappingText;
+			statusText[1]  = mappingTextCss;
+			
+		// 부분처리인 경우 SC상태명 그대로 사용
+		}else{
+			statusText[0]  = "부분 "+mappingText;
+			statusText[1] = "warning";
+		}
 		
 		return statusText;
 	}

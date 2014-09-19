@@ -228,7 +228,7 @@ public class ScOrderStatusHandler {
 		String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
 		String minOrderStatus = outputXML.getAttribute("MinOrderStatus");	// 최대 오더상태 코드값
 		
-		logger.info("[maxOrderStatus]"+maxOrderStatus);
+		logger.info("[minOrderStatus]"+minOrderStatus);
 		logger.info("[maxOrderStatus]"+maxOrderStatus);
 		
 		// 조직코드, 판매조직으로 Redis 저장키 생성
@@ -250,6 +250,12 @@ public class ScOrderStatusHandler {
 				logger.debug("[Order Release Hanlder Started]");
 				
 				processReleaseAfter(outputXML, entCode, sellerCode);
+			}else{
+				
+				logger.debug("[Partially Released  Started]");
+				// TODO: Partially Released일 경우 운영자 Alert처리 
+				
+				
 			}
 		}
 		
@@ -281,6 +287,10 @@ public class ScOrderStatusHandler {
 		// Cancelled (전체취소)
 		else if("9000".equals(maxOrderStatus))
 		{
+			
+			logger.debug("[Order Cancel Hanlder Started]");
+			
+			
 			processCancelAfter(outputXML, entCode, sellerCode);
 		}
 		
@@ -535,7 +545,7 @@ public class ScOrderStatusHandler {
 			
 			// RedisKey for CUBE -> SC 
 			// TODO: Test 용, 큐브연동후 삭제 할 것
-			sendMsgMap.put("status", "3201"); // 3201
+			sendMsgMap.put("status", "3202"); // 3202
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap);
 			
 			
@@ -608,7 +618,9 @@ public class ScOrderStatusHandler {
 				String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus/@OrderReleaseKey", lineNode, XPathConstants.STRING);
 				
 				String itemID = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
-				String orderedQty = (String)xp.evaluate("@OrderedQty", lineNode, XPathConstants.STRING);
+//				String orderedQty = (String)xp.evaluate("@OrderedQty", lineNode, XPathConstants.STRING);
+//				String orderedQty = (String)xp.evaluate("@ChangeInOrderedQty", lineNode, XPathConstants.STRING);
+				String orderedQty = (String)xp.evaluate("@OriginalOrderedQty", lineNode, XPathConstants.STRING);
 				String itemNm = (String)xp.evaluate("@ItemShortDesc", lineNode, XPathConstants.STRING);
 				String salePrice = (String)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.STRING);
 				String lineTotal = (String)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.STRING);
@@ -639,22 +651,22 @@ public class ScOrderStatusHandler {
 			sendMsgMap.put("status", "9000");
 			String trDate = CommonUtil.cuurentDateFromFormat("yyyyMMddHHmmss");
 			sendMsgMap.put("trDate", trDate);
-			sendMsgMap.put("cancelList", cancelList);
+			sendMsgMap.put("cancelled", cancelList);
 			
 			
 			// JSON 변환
 			/*
-			 * {"orderHeaderKey":"20140912152100132437",
-			 *  "docType":"0001","status":"9000",
-			 *  "cancelList":[
-			 *      {"orderLineKey":"20140912152100132438","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"1","itemNm":"","salePrice":"49000.00","qty":"0.00","itemId":"ASPB_ITEM_0001"},
-			 *      {"orderLineKey":"20140912152100132439","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"2","itemNm":"","salePrice":"59000.00","qty":"0.00","itemId":"ASPB_ITEM_0002"}
-			 *      ],
-			 *  "sellerCode":"ASPB",
-			 *  "trDate":"20140912174848",
-			 *  "orderId":"Y100000368",
-			 *  "entCode":"SLV"}
-
+			 * {"orderHeaderKey":"20140917162100147011",
+			 * "docType":"0001","status":"9000",
+			 * "cancelled":[
+			 * 		{"orderLineKey":"20140917162100147012","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"1","itemNm":"","salePrice":"49000.00",
+			 * 			"qty":"0.00","itemId":"ASPB_ITEM_0001"},
+			 * 		{"orderLineKey":"20140917162100147013","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"2","itemNm":"","salePrice":"59000.00",
+			 * 			"qty":"0.00","itemId":"ASPB_ITEM_0002"},
+			 * 		{"orderLineKey":"20140917162100147014","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"3","itemNm":"","salePrice":"59000.00",
+			 * 			"qty":"0.00","itemId":"ASPB_ITEM_0003"}
+			 * ],"sellerCode":"ASPB","trDate":"20140917163656","orderId":"Y100000406","entCode":"SLV"}
+			 * 
 			 * 
 			 * 
 			 */

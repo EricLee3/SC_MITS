@@ -56,7 +56,7 @@ var EcommerceIndex = function () {
     	}
     	
         var plot_statistics = $.plot(
-            $("#statistics_1"), 
+            $("#statistics_2"), 
             seriesDataSet,
                 
             {
@@ -126,7 +126,7 @@ var EcommerceIndex = function () {
 
         var previousPoint = null;
 
-        $("#statistics_1").bind("plothover", function (event, pos, item) {
+        $("#statistics_2").bind("plothover", function (event, pos, item) {
             $("#x").text(pos.x.toFixed(2));
             $("#y").text(pos.y.toFixed(2));
             if (item) {
@@ -272,7 +272,7 @@ var EcommerceIndex = function () {
 		}
 		
 	    var plot_statistics = $.plot(
-	        $("#statistics_2"), 
+	        $("#statistics_1"), 
 	        seriesDataSet,
 	        {
 	        	series: {
@@ -329,7 +329,7 @@ var EcommerceIndex = function () {
 	    );
 	
 	    var previousPoint = null;
-	    $("#statistics_2").bind("plothover", function (event, pos, item) {
+	    $("#statistics_1").bind("plothover", function (event, pos, item) {
 	        $("#x").text(pos.x.toFixed(2));
 	        $("#y").text(pos.y.toFixed(2));
 	        if (item) {
@@ -504,11 +504,11 @@ var EcommerceIndex = function () {
             });
         	
         	$('#statistics_amounts_tab1').on('shown.bs.tab', function (e) {
-                orderCountChart(chartData.data);
+        		orderAmountChart(chartData.data);
             });
         	
             $('#statistics_amounts_tab2').on('shown.bs.tab', function (e) {
-                orderAmountChart(chartData.data);
+            	orderCountChart(chartData.data);
             });
             
             

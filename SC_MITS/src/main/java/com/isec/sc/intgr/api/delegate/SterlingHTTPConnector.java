@@ -47,12 +47,12 @@ public class SterlingHTTPConnector {
 		String newParam = fmt.format(new String[] { user, password, api, URLEncoder.encode(data, "UTF-8") });
 		
 		// newParam = URLEncoder.encode(newParam, "UTF-8");
-		logger.debug("[SC API Input Param]"+newParam);
+//		logger.debug("[SC API Input Param]"+newParam);
 		
 		HTTPClient client = new HTTPClient(url);
 		client.setMethod("POST");
 		client.setInputContent(newParam);
-		client.setDebug(true);
+		client.setDebug(false);
 		client.invoke();
 		
 		

@@ -83,28 +83,18 @@ public class ReportController {
 	public ModelAndView getOrderReportByCh( @RequestParam Map<String, String> paramMap ) throws Exception{ 
 		
 		// TODO: 채널정보 property로 뺼것
-//		String entCode[] = {"DA", "ISEC"};
-//		String sellerCode[] = {"OUTRO", "ASPB"};
+		String entCode[] = {"SLV", "DA", "ISEC"};
+		String sellerCode[] = {"ASPB", "OUTRO", "JNS"};
+		String sellerCodeName[] = {"Aspen Bay", "Outro", "J&S US"};
 		
-		String entCode[] = {"ISEC"};
-		String sellerCode[] = {"ASPB"};
+//		String entCode[] = {"ISEC"};
+//		String sellerCode[] = {"ASPB"};
 		
 		
-		// 검색일자 Parameter
-		int startYear = 2013;
+		// TODO: 기간설정
+		int startYear = 2014;
 		int startMonth = 6;
-		
-		
-		// End Month Random Create
-		int start = 5;
-		int end = 10;
-
-		double range = end - start + 1;
-		Random randomGenerator = new Random();
-		int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
-		
-		
-		int endMonth =  12;
+		int endMonth =  9;
 		
 		List<HashMap<String, Object>> chDataList = new ArrayList<HashMap<String, Object>>();
 		
@@ -120,15 +110,32 @@ public class ReportController {
 				String cntKey = "count:"+entCode[i]+":"+sellerCode[i]+":orders:"+startYear+mm;
 				String amtKey = "amount:"+entCode[i]+":"+sellerCode[i]+":orders:"+startYear+mm;
 				
-				cnt_list.add( new String[]{startYear+"/"+mm, valueOps.get(cntKey)} );
-				amt_list.add( new String[]{startYear+"/"+mm, valueOps.get(amtKey)} );
+				Set<String> cnt_key_names= reportStringRedisTemplate.keys(cntKey+"*");
+				List<String> orderCntList = valueOps.multiGet(cnt_key_names);
+				int orderCnt = 0;
+				for(String orderCount: orderCntList){
+					orderCnt += Integer.parseInt(orderCount);
+				}
+				
+				Set<String> amt_key_names= reportStringRedisTemplate.keys(amtKey+"*");
+				List<String> orderAmtList = valueOps.multiGet(amt_key_names);
+				int orderAmt = 0;
+				for(String orderAmount: orderAmtList){
+					orderAmt += Integer.parseInt(orderAmount);
+				}
+				
+//				cnt_list.add( new String[]{startYear+"/"+mm, valueOps.get(cntKey)} );
+				cnt_list.add( new String[]{startYear+"/"+mm, orderCnt+""} );
+//				cnt_list.add( new String[]{startYear+"/"+mm, valueOps.get(cntKey)} );
+				amt_list.add( new String[]{startYear+"/"+mm, orderAmt+""} );
+				
 			}
 			HashMap<String, List<String[]>> dataMap = new HashMap<String, List<String[]>>();
 			dataMap.put("count", cnt_list);
 			dataMap.put("amount", amt_list);
 			
 			HashMap<String, Object> chMap = new HashMap<String, Object>();
-			chMap.put("chName", sellerCode[i]);
+			chMap.put("chName", sellerCodeName[i]);
 			chMap.put("chData", dataMap);
 			
 			chDataList.add(chMap);
@@ -149,7 +156,7 @@ public class ReportController {
 			String mm = i<10?"0"+i:String.valueOf(i);
 			
 			// Total Order Count
-			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+startYear+mm);
+			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+startYear+mm+"*");
 			List<String> cnt_list = valueOps.multiGet(cnt_key_names);
 			int orderCnt = 0;
 			for(String orderCount: cnt_list){
@@ -160,7 +167,7 @@ public class ReportController {
 			totlist.add( new String[]{startYear+"/"+mm, String.valueOf(orderCnt) } );
 			
 			// Total Order Amount
-			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+startYear+mm);
+			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+startYear+mm+"*");
 			List<String> amt_list = valueOps.multiGet(amt_key_names);
 			double orderAmount = 0.00;
 			for(String orderAmt: amt_list){

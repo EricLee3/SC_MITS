@@ -2,6 +2,7 @@ package com.isec.sc.intgr.api.handler;
 
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.util.FileContentReader;
+
 @Controller
 @RequestMapping(value="/sc")
 public class ScOrderShipmentHandler {
@@ -39,8 +43,10 @@ public class ScOrderShipmentHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ScOrderShipmentHandler.class);
 	
+	private static final String API_GET_SHIPMENT_DETAILS = "getShipmentDetails";
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
+	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
 	@Resource(name="maStringRedisTemplate")
@@ -50,6 +56,10 @@ public class ScOrderShipmentHandler {
 	private ValueOperations<String, String> valueOps;
 	
 
+	@Value("${sc.api.getShipmentDetails.template}")
+	private String GET_SHIPMENT_DETAILS_TEMPLATE;
+	
+	
 	/**
 	 * Create Shipment 후처리 프로세스
 	 * 
@@ -186,31 +196,30 @@ public class ScOrderShipmentHandler {
 		
 		try{
 		
-		
-		List<HashMap<String,Object>> shipmentList = new ArrayList<HashMap<String,Object>>();
-		HashMap<String, Object> lineMap = new HashMap<String, Object>();
-		lineMap.put("shipmentNo", shipmentNo);
-		lineMap.put("shipNode", "ISEC_WH1");
-		lineMap.put("carrierCode", "19991214183438453");
-		lineMap.put("trackingNo", "1111111111");;
-		lineMap.put("items", sendMsgMap.get("confirmed"));
-		
-		shipmentList.add(lineMap);
-		
-		
-		sendMsgMap_C2S = sendMsgMap;
-		sendMsgMap_C2S.put("status", "3700"); // 3700
-		sendMsgMap_C2S.put("shipment",shipmentList);
-		sendMsgMap_C2S.remove("confirmed"); 
-		
-		
-		String outputMsgTest = mapper.writeValueAsString(sendMsgMap_C2S);
-		
-		
-		String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
-		logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
-		// RedisDB에 메세지 저장
-		listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
+			List<HashMap<String,Object>> shipmentList = new ArrayList<HashMap<String,Object>>();
+			HashMap<String, Object> lineMap = new HashMap<String, Object>();
+			lineMap.put("shipmentNo", shipmentNo);
+			lineMap.put("shipNode", "ISEC_WH1");
+			lineMap.put("carrierCode", "19991214183438453");
+			lineMap.put("trackingNo", "1111111111");;
+			lineMap.put("items", sendMsgMap.get("confirmed"));
+			
+			shipmentList.add(lineMap);
+			
+			
+			sendMsgMap_C2S = sendMsgMap;
+			sendMsgMap_C2S.put("status", "3700"); // 3700
+			sendMsgMap_C2S.put("shipment",shipmentList);
+			sendMsgMap_C2S.remove("confirmed"); 
+			
+			
+			String outputMsgTest = mapper.writeValueAsString(sendMsgMap_C2S);
+			
+			
+			String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
+			logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
+			// RedisDB에 메세지 저장
+			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
 		
 		
 		}catch(Exception e){
@@ -226,6 +235,40 @@ public class ScOrderShipmentHandler {
 	}
 	
 	
+	/**
+	 * Confirm Shipment 후처리 프로세스
+	 * 
+	 * confirmShipment 후처리: MA로 출고확정정보 전달.
+	 * 
+	 * 
+			{"orderId":"","status":"3700","orderHeaderKey":"","docType":"0001",”entCode":"SLV",
+				”sellerCode”:”ASPB”,
+				"totalCharge":"총비용","expDeliveryDate":"배송예정일","currency":"통화",
+				“shippment”:[ 
+				{
+				 "carrierCode":"배송업체코드", "carrierTitle":" 배송업체명", "trackingNo":"송장번호", 
+				"items":[
+				{"itemId":" 상품코드",  "qty":" 수량 "} ,
+				 {"itemId":" 상품코드 ",  "qty":" 수량 "}
+				]
+				 },
+				{
+				 "carrierCode":" 배송업체코드 ", "carrierTitle":" 배송업체명 ", 
+				"trackingNo":"송장번호", 
+				"items":[
+				{"itemId":" 상품코드",  "qty":" 수량 "} ,
+				 {"itemId":" 상품코드 ",  "qty":" 수량 "}
+				]
+				 }
+			}
+			
+			{"totalCharge":"0.00","expDeliveryDate":"2014-09-11T20:48:00+09:00","docType":"0001","status":"3700","shipment":[],"sellerCode":"ASPB","orderId":null,"currency":"KRW","entCode":"SLV"}
+
+	 * 
+	 * @param returnXML
+	 * @param res
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/confirmShipmentPostProcess.do")
 	public void confirmShipmentPostProcess(@RequestParam(required=false) String returnXML,								  
 								  HttpServletResponse res) throws Exception{
@@ -241,6 +284,7 @@ public class ScOrderShipmentHandler {
 		
 		String shipmentKey = el.getAttribute("ShipmentKey");
 		String shipmentNo = el.getAttribute("ShipmentNo");
+		String shipNode = el.getAttribute("ShipNode");
 		
 		String entCode = el.getAttribute("EnterpriseCode");
 		String sellerCode = el.getAttribute("SellerOrganizationCode");
@@ -250,6 +294,7 @@ public class ScOrderShipmentHandler {
 		String pushKeyToMa = entCode+":"+sellerCode+":order:update:S2M";
 		String pushKeyToCa = entCode+":"+sellerCode+":order:update:S2C";
 		
+		logger.debug("[docType]" + docType);
 		logger.debug("[shipmentKey]"+shipmentKey);
 		logger.debug("[shipmentNo]"+shipmentNo);
 		logger.debug("[entCode]"+entCode);
@@ -262,37 +307,6 @@ public class ScOrderShipmentHandler {
 		String outputMsg = "";
 		
 		
-		/**
-		 * {"orderId":"","status":"3700","orderHeaderKey":"","docType":"0001",”entCode":"SLV",
-			”sellerCode”:”ASPB”,
-			"totalCharge":"총비용","expDeliveryDate":"배송예정일","currency":"통화",
-			“shippment”:[ 
-			{
-			 "carrierCode":"배송업체코드", "carrierTitle":" 배송업체명", "trackingNo":"송장번호", 
-			"items":[
-			{"itemId":" 상품코드",  "qty":" 수량 "} ,
-			 {"itemId":" 상품코드 ",  "qty":" 수량 "}
-			]
-			 },
-			{
-			 "carrierCode":" 배송업체코드 ", "carrierTitle":" 배송업체명 ", 
-			"trackingNo":"송장번호", 
-			"items":[
-			{"itemId":" 상품코드",  "qty":" 수량 "} ,
-			 {"itemId":" 상품코드 ",  "qty":" 수량 "}
-			]
-			 }
-			}
-			
-			{"totalCharge":"0.00","expDeliveryDate":"2014-09-11T20:48:00+09:00","docType":"0001","status":"3700","shipment":[],"sellerCode":"ASPB","orderId":null,"currency":"KRW","entCode":"SLV"}
-
-		 */
-		sendMsgMap.put("status","3700"); // Include In Shipment
-		sendMsgMap.put("docType",docType);
-		sendMsgMap.put("entCode",entCode);
-		sendMsgMap.put("sellerCode",sellerCode);
-		
-		
 		XPath xp = XPathFactory.newInstance().newXPath();
 		
 		// Shipment 기본정보 추출
@@ -303,59 +317,125 @@ public class ScOrderShipmentHandler {
 		String totalActualCharge = (String)xp.evaluate("@TotalActualCharge", el, XPathConstants.STRING);
 		logger.debug("[totalActualCharge]" + totalActualCharge);
 		
-		// Pack Container별 Item정보 추출(N건)
-		NodeList containerNodeList = (NodeList)xp.evaluate("/Shipment/Containers/Container", el, XPathConstants.NODESET);
-		logger.debug("[containerNodeList]"+containerNodeList.getLength());
+		String carrierTitle = (String)xp.evaluate("@SCAC", el, XPathConstants.STRING);
+		logger.debug("[carrierTitle]" + carrierTitle);
 		
-		List<HashMap<String,Object>> containerList = new ArrayList<HashMap<String,Object>>();
-		String[] releaseKeys = new String[containerNodeList.getLength()];
+		String trackingNo = (String)xp.evaluate("@TrackingNo", el, XPathConstants.STRING);
+		logger.debug("[trackingNo]" + trackingNo);
 		
-
-		// TODO: Confirm Shipment 처리 변경필요
-		// Container List
-		for(int i=0; i<containerNodeList.getLength(); i++){
+		
+		// Item List 추출
+		NodeList shipmentItemNodeList = (NodeList)xp.evaluate("/Shipment/ShipmentLines/ShipmentLine", el, XPathConstants.NODESET);
+		logger.debug("[shipmentItemNodeList]"+shipmentItemNodeList.getLength());
+		
+		List<HashMap<String,String>> itemList = new ArrayList<HashMap<String,String>>();
+		for(int i=0; i<shipmentItemNodeList.getLength(); i++){
+		
+			HashMap<String,String> itemMap = new HashMap<String,String>();
 			
-			HashMap<String,Object> containerMap = new HashMap<String,Object>();
+			String itemId = (String)xp.evaluate("@ItemID", shipmentItemNodeList.item(i), XPathConstants.STRING);
+			String qty = (String)xp.evaluate("@Quantity", shipmentItemNodeList.item(i), XPathConstants.STRING);
 			
-			String carrierCode = (String)xp.evaluate("@SCAC", containerNodeList.item(i), XPathConstants.STRING);
-			String trackingNo = (String)xp.evaluate("@TrackingNo", containerNodeList.item(i), XPathConstants.STRING);
+			itemMap.put("itemId", itemId);
+			itemMap.put("qty", qty);
 			
-			logger.debug("---------------------------------------"+i);
-			logger.debug("[carrierCode]"+carrierCode);
-			logger.debug("[trackingNo]"+trackingNo);
-			
-			// TODO: 배송사코드 MA와 매핑필요
-			containerMap.put("carrierCode", entCode.equals("DA")?"custom":carrierCode);
-			containerMap.put("carrierTitle", carrierCode);
-			containerMap.put("trackingNo", trackingNo);
-			
-			// Item List 
-			NodeList itemNodeList = (NodeList)xp.evaluate("ContainerDetails/ContainerDetail", containerNodeList.item(i), XPathConstants.NODESET);
-			List<HashMap<String,String>> itemList = new ArrayList<HashMap<String,String>>();
-			for(int j=0; j<itemNodeList.getLength(); j++){
-				
-				
-				HashMap<String, String> itemMap = new HashMap<String, String>();
-				String itemId = (String)xp.evaluate("@ItemID", itemNodeList.item(j), XPathConstants.STRING);
-				String qty = (String)xp.evaluate("@Quantity", itemNodeList.item(j), XPathConstants.STRING);
-				
-				itemMap.put("itemId", itemId);
-				itemMap.put("qty", qty);
-				
-				itemList.add(itemMap);
-			}
-			
-			containerMap.put("items", itemList);
-			containerList.add(containerMap);
+			itemList.add(itemMap);
 		}
 		
-		String orderId = valueOps.get(shipmentNo);
-		logger.debug("[orderId]"+orderId);
-		sendMsgMap.put("orderId", orderId);	// 오더번호
-		sendMsgMap.put("shipment", containerList);	// 출고정보
-		sendMsgMap.put("expDeliveryDate", expectedDeliveryDate);	// 배송예정일
-		sendMsgMap.put("totalCharge", totalActualCharge);	// 총배송비용
-		sendMsgMap.put("currency", currency);	// 통화
+		// Shipment 저장
+		// TODO: carrierCode 매핑필요
+		HashMap<String,Object> shipmentMap = new HashMap<String,Object>();
+		shipmentMap.put("shipmentKey",shipmentKey);
+		shipmentMap.put("shipmentNo",shipmentNo);
+		shipmentMap.put("carrierCode", carrierTitle);
+		shipmentMap.put("carrierTitle", carrierTitle);
+		shipmentMap.put("trackingNo", trackingNo);
+		shipmentMap.put("items",itemList);
+		
+		// ShipmentList 저장
+		List<HashMap<String,Object>> shipmentList = new ArrayList<HashMap<String,Object>>();
+		shipmentList.add(shipmentMap);
+		
+		// Master Data 저장
+		sendMsgMap.put("status","3700"); // Shipped
+		
+		// Call getShipmentDetails - 오더번호를 찾기 위해 호출함.
+		String confirmShipment_template = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPMENT_DETAILS_TEMPLATE));
+		
+		MessageFormat msg = new MessageFormat(confirmShipment_template);
+		String inputXML = msg.format(new String[] {sellerCode, shipNode, shipmentNo} );
+		logger.debug("##### [getShipmentDetails inputXML]"+inputXML); 
+		
+		String outputXML = sterlingApiDelegate.comApiCall(API_GET_SHIPMENT_DETAILS, inputXML);
+		Document shipDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		
+		String orderId = (String)xp.evaluate("/Shipment/ShipmentLines/ShipmentLine[1]/@OrderNo", shipDoc.getDocumentElement(), XPathConstants.STRING);
+		logger.debug("[orderId]" + orderId);
+		
+		
+		sendMsgMap.put("orderId",orderId); // order Id
+		sendMsgMap.put("docType",docType);
+		sendMsgMap.put("entCode",entCode);
+		sendMsgMap.put("sellerCode",sellerCode);
+		sendMsgMap.put("expDeliveryDate", expectedDeliveryDate);	// 배송예정일 - WCS에서 필요
+		sendMsgMap.put("totalCharge", totalActualCharge);		// 총배송비용 - WCS에서 필요
+		sendMsgMap.put("currency", currency);					// 통화 - WCS에서 필요
+		
+		sendMsgMap.put("shipment", shipmentList);	// 출고정보
+		
+		
+		// Pack Container별 Item정보 추출(N건)
+//		NodeList containerNodeList = (NodeList)xp.evaluate("/Shipment/Containers/Container", el, XPathConstants.NODESET);
+//		logger.debug("[containerNodeList]"+containerNodeList.getLength());
+//		
+//		List<HashMap<String,Object>> containerList = new ArrayList<HashMap<String,Object>>();
+//		String[] releaseKeys = new String[containerNodeList.getLength()];
+//		
+//
+//		// TODO: Confirm Shipment 처리 변경필요
+//		// Container List
+//		for(int i=0; i<containerNodeList.getLength(); i++){
+//			
+//			HashMap<String,Object> containerMap = new HashMap<String,Object>();
+//			
+//			String carrierCode = (String)xp.evaluate("@SCAC", containerNodeList.item(i), XPathConstants.STRING);
+//			String trackingNo = (String)xp.evaluate("@TrackingNo", containerNodeList.item(i), XPathConstants.STRING);
+//			
+//			logger.debug("---------------------------------------"+i);
+//			logger.debug("[carrierCode]"+carrierCode);
+//			logger.debug("[trackingNo]"+trackingNo);
+//			
+//			// TODO: 배송사코드 MA와 매핑필요
+//			containerMap.put("carrierCode", entCode.equals("DA")?"custom":carrierCode);
+//			containerMap.put("carrierTitle", carrierCode);
+//			containerMap.put("trackingNo", trackingNo);
+//			
+//			// Item List 
+//			NodeList itemNodeList = (NodeList)xp.evaluate("ContainerDetails/ContainerDetail", containerNodeList.item(i), XPathConstants.NODESET);
+//			List<HashMap<String,String>> itemList = new ArrayList<HashMap<String,String>>();
+//			for(int j=0; j<itemNodeList.getLength(); j++){
+//				
+//				
+//				HashMap<String, String> itemMap = new HashMap<String, String>();
+//				String itemId = (String)xp.evaluate("@ItemID", itemNodeList.item(j), XPathConstants.STRING);
+//				String qty = (String)xp.evaluate("@Quantity", itemNodeList.item(j), XPathConstants.STRING);
+//				
+//				itemMap.put("itemId", itemId);
+//				itemMap.put("qty", qty);
+//				
+//				itemList.add(itemMap);
+//			}
+//			
+//			containerMap.put("items", itemList);
+//			containerList.add(containerMap);
+//		}
+		
+		
+//		sendMsgMap.put("orderId", orderId);	// 오더번호
+//		sendMsgMap.put("shipment", containerList);	// 출고정보
+//		sendMsgMap.put("expDeliveryDate", expectedDeliveryDate);	// 배송예정일
+//		sendMsgMap.put("totalCharge", totalActualCharge);	// 총배송비용
+//		sendMsgMap.put("currency", currency);	// 통화
 		
 		
 		// 3. JSON 변환

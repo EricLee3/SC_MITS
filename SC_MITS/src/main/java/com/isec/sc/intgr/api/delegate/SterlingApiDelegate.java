@@ -100,7 +100,7 @@ public class SterlingApiDelegate {
 		sterlingHTTPConnector.setData(inputXML);
 		
 		String outputXML = sterlingHTTPConnector.run();
-		logger.debug("[comApiCall outputXML]"+outputXML);
+//		logger.debug("[comApiCall outputXML]"+outputXML);
 		
 		return outputXML;
 	}
@@ -134,7 +134,7 @@ public class SterlingApiDelegate {
 			sterlingHTTPConnector.setData(xmlData);
 			
 			String outputXML = sterlingHTTPConnector.run();
-			logger.debug("[getPage outputXML]"+outputXML);
+//			logger.debug("[getPage outputXML]"+outputXML);
 			
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 			Element el = doc.getDocumentElement();
