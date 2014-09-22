@@ -33,6 +33,14 @@ public class OrderReportService {
 		
 	}
 	
+	/**
+	 * Create Order 건에 대한 일별 통계데이타 저장
+	 *  - 결제금액, 주문건수, 배송비/과세/할인금액 일별 집계 
+	 * 
+	 * @param entCode
+	 * @param sellerCode
+	 * @param priceInfo
+	 */
 	public void saveOrderReportData(String entCode, String sellerCode, HashMap<String, Double> priceInfo){
 		
 		// logger.debug("[]"+reportStringRedisTemplate.hasKey("count:ISEC:ASPB:orders:201301"));
@@ -83,6 +91,23 @@ public class OrderReportService {
 		reportValueOps.increment(sum_shipping_key, priceInfo.get("charge"));
 		reportValueOps.increment(sum_tax_key, priceInfo.get("tax"));
 		
+	}
+	
+	/**
+	 * 
+	 * @param entCode
+	 * @param sellerCode
+	 * @param cancelAmt
+	 */
+	public void saveCancelOrderAmount(String entCode, String sellerCode, double cancelAmt){
+		
+		// 현재날짜, Report Key 생성
+		String nowDate = getCurrentDate();
+		
+		String sum_cancel_cnt_key = "cancel_cnt:" + entCode + ":" + sellerCode + ":orders:" + nowDate;
+		String sum_cancel_amt_key = "cancel_amt:" + entCode + ":" + sellerCode + ":orders:" + nowDate;
+		reportValueOps.increment(sum_cancel_cnt_key, 1);
+		reportValueOps.increment(sum_cancel_amt_key, cancelAmt);
 	}
 	
 	private static String getCurrentDate() {

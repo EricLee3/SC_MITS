@@ -4,6 +4,50 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
+<!-- Order Cancel Modal Layter -->
+<div id="md_cancel_order" class="modal fade" tabindex="-1" data-width="450">
+<form class="horizontal-form" id="form_cancel">
+<input type="hidden" name="doc_type" value="${docType}">
+<input type="hidden" name="ent_code" value="${entCode}">
+<input type="hidden" name="order_no" value="${orderNo}">
+<input type="hidden" name="orderLineKey" value="">
+<input type="hidden" name="cancelType" value="order">
+
+
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+		<h4 class="modal-title">주문 취소</h4>
+	</div>
+	<div class="modal-body">
+		<div class="form-body">
+			<div class="form-group">
+				<label class="control-label">취소사유
+				</label>
+				<select class="form-control input-sm" name="cancel_reason">
+					<option value="">Select</option>
+					<option value="BACKORDER_INFO">Backorder Information</option>
+					<option value="CALLED_CUSTOMER">Called Customer</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="control-label">Comment
+				</label>
+				<textarea class="form-control input-sm" rows="3" name="cancel_note"></textarea>
+			</div>
+			<div class="alert alert-warning">
+				<strong>Warning!</strong>
+				취소처리를 한 후에는 주문상태를 원복할 수 없습니다.
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" data-dismiss="modal" class="btn btn-sm btn-default">Close</button>
+		<button type="button" class="btn btn-sm red" id="btn_cancel">Cancel Order</button>
+	</div>
+</form>
+</div>
+
+
 <!-- BEGIN PAGE HEADER-->
 <div class="row">
 	<div class="col-md-12">
@@ -144,7 +188,7 @@
 												주문확정 전송
 												<i class="fa fa-edit"></i>
 												</a>
-												<a class="btn red btn-sm" href="javascript:;" id="tool_cancel">
+												<a class="btn red btn-sm" data-toggle="modal" href="#md_cancel_order">
 												주문취소
 												<i class="fa fa-edit"></i>
 												</a>
@@ -363,12 +407,21 @@
 												<a href="#" class="btn btn-default btn-sm">
 												<i class="fa fa-pencil"></i> Edit </a>
 											</div> -->
+											<div class="actions">
+												<a class="btn red btn-sm" data-toggle="modal" href="javascript:cancelOrderLine();">
+												주문취소
+												<i class="fa fa-edit"></i>
+												</a>
+											</div>
 										</div>
 										<div class="portlet-body">
-											<div class="table-responsive">
-												<table class="table table-hover table-bordered table-striped">
+											<div class="table-container">
+												<table class="table table-hover table-bordered table-striped" id="table_orderLine">
 												<thead>
-												<tr>
+												<tr role="row" class="heading">
+													<th width="2%">
+														<!-- <input type="checkbox" class="group-checkable"> -->
+													</th>
 													<th>
 														 No.
 													</th>
@@ -410,7 +463,11 @@
 												    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
 												    
 											    <tr>
-											    	<td>
+													<td>
+														<input type="checkbox" name="orderLineKeys[]" value="${line.lineKey}">
+														<input type="hidden" name="status[]" value="${line.max_status}">
+													</td>
+													<td>
 														<a href="#" target="_blank">
 														${line.PrimeLineNo}</a>
 													</td>
@@ -533,7 +590,7 @@
 								<div class="portlet box blue-hoki">
 									<div class="portlet-title">
 										<div class="caption">
-											<i class="fa fa-gift"></i>Input Contact Information
+											<i class="fa fa-gift"></i>접촉이력 등록<!-- Input Contact Information -->
 										</div>
 										<div class="tools">
 											<a href="javascript:;" class="collapse">
@@ -555,7 +612,7 @@
 									</div>
 									<div class="portlet-body form">
 										<!-- BEGIN FORM-->
-										<form class="form-horizontal" id="form_save_note">
+										<form class="horizontal-form" id="form_save_note">
 											<input type="hidden" name="doc_type" value="${docType}">
 											<input type="hidden" name="ent_code" value="${entCode}">
 											<input type="hidden" name="order_no" value="${orderNo}">
@@ -577,77 +634,66 @@
 												<!-- Alert Message Area -->
 												
 												<div class="row">
-													<div class="col-md-5">
+													<div class="col-md-3">
 														<div class="form-group">
-															<label class="control-label col-md-3">Contact Time <span class="required">
-															* </span>
+															<label class="control-label">접촉일시
 															</label>
-															<div class="col-md-5">
-																<div class="input-group date date-picker" data-date-format="yyyy-mm-dd" data-date-start-date="+0d">
-																	<input type="text" class="form-control" readonly name="contact_date_day">
-																	<span class="input-group-btn">
-																		<button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
-																	</span>
-																</div>
-															</div>
-															<div class="col-md-4">
+															<div class="input-group" >
+																<input type="text" class="form-control input-sm date date-picker" data-date-format="yyyy-mm-dd" data-date-start-date="-1m" data-date-end-date="+0d" name="contact_date_day">
+																<span class="input-group-btn day">
+																	<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
+																</span>
 																<div class="input-group">
-																	<input type="text" class="form-control timepicker timepicker-24" readOnly name="contact_date_time">
+																	<!-- <input type="text" class="form-control input-sm timepicker timepicker-24" name="contact_date_time">
+																	<span class="input-group-btn time">
+																		<button class="btn btn-sm default" type="button"><i class="fa fa-clock-o"></i></button>
+																	</span> -->
+																	<input type="text" class="form-control input-sm" id="contact_clockface" name="contact_date_time">
 																	<span class="input-group-btn">
-																		<button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+																		<button class="btn btn-sm default" type="button" id="contact_clockface_toggle"><i class="fa fa-clock-o"></i></button>
 																	</span>
 																</div>
 															</div>
-															
-															
 														</div>
 													</div>
 													<div class="col-md-3">
 														<div class="form-group">
-															<label class="control-label col-md-4">Contact User <span class="required">
-															* </span>
+															<label class="control-label">접촉담당자
 															</label>
-															<div class="col-md-8">
-																<div class="input-group">
-																	<span class="input-group-addon">
-																	<i class="fa fa-user"></i>
-																	</span>
-																	<input type="text" name="contact_user" data-required="1" class="form-control"/>
-																</div>
+															<div class="input-group">
+																<span class="input-group-addon">
+																<i class="fa fa-user"></i>
+																</span>
+																<input type="text" name="contact_user" data-required="1" class="form-control input-sm"/>
 															</div>
 														</div>
 													</div>
-													<div class="col-md-4">
+													<div class="col-md-3">
 														<div class="form-group">
-															<label class="control-label col-md-4">Reason Code <span class="required">
-															* </span>
+															<label class="control-label">접촉사유
 															</label>
-															<div class="col-md-8">
-																<select class="form-control" name="contact_reason">
-																	<option value="">Select</option>
-																	<option value="BACKORDER_INFO">Backorder Information</option>
-																	<option value="CALLED_CUSTOMER">Called Customer</option>
-																</select>
-															</div>
+															<select class="form-control input-sm" name="contact_reason">
+																<option value="">Select</option>
+																<option value="BACKORDER_INFO">Backorder Information</option>
+																<option value="CALLED_CUSTOMER">Called Customer</option>
+															</select>
+														</div>
+													</div>
+													<div class="col-md-3">
+														<div class="form-group">
+															<label class="control-label">접촉수단
+															</label>
+															<select class="form-control input-sm" name="contact_type">
+																<option value="">Select</option>
+																<option value="PHONE">Phone</option>
+																<option value="EMAIL"">E-mail</option>
+															</select>
 														</div>
 													</div>
 												</div>
 												<div class="row">
 													<div class="col-md-4">
-														<div class="form-group">
-															<label class="control-label col-md-4">Contact Type
-															</label>
-															<div class="col-md-8">
-																<select class="form-control" name="contact_type">
-																	<option value="">Select</option>
-																	<option value="EMAIL"">E-mail</option>
-																	<option value="PHONE">Phone</option>
-																</select>
-															</div>
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="form-group">
+														<!-- <div class="form-group">
 															<label class="control-label col-md-4">Contact Reference
 															</label>
 															<div class="col-md-8">
@@ -658,17 +704,15 @@
 																	<input type="text" name="contact_ref" data-required="1" class="form-control"/>
 																</div>
 															</div>
-														</div>
+														</div> -->
 													</div>
 												</div>
 												<div class="row">
 													<div class="col-md-12">
 														<div class="form-group">
-															<label class="control-label col-md-1">Add Note
+															<label class="control-label">접촉내용
 															</label>
-															<div class="col-md-11">
-																<textarea class="form-control" rows="3" name="contact_note"></textarea>
-															</div>
+															<textarea class="form-control input-sm" rows="3" name="contact_note"></textarea>
 														</div>
 													</div>
 												</div>
@@ -998,6 +1042,23 @@
                Metronic.unblockUI('.page-content-wrapper');
             }, 100);
 		});
+	}
+	
+	
+	function cancelOrderLine(){
+		
+		var checked = $("#table_orderLine input[type='checkbox']:checked");
+		
+		var cancelKeys = "";
+		for(var i=0; i<checked.length; i++){
+			cancelKeys = cancelKeys+"|"+checked[i].value;
+		}
+		
+		$("#md_cancel_order input[name='cancelType]']").val('line');
+		$("#md_cancel_order input[name='orderLineKey]']").val(cancelKeys);
+		
+		
+		alert($("#md_cancel_order input[name='orderLineKey']").val());
 	}
  
      

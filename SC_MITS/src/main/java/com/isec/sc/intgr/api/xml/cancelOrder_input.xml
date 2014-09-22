@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Order Action="CANCEL" DocumentType="{0}"
+<Order DocumentType="{0}"
     EnterpriseCode="{1}" Override="Y"
     OrderNo=" {2}">
+    
+    <OrderLines>
+        <OrderLine Action="CANCEL" OrderedQty="0"  OrderLineKey="{3}">
+        </OrderLine>
+    </OrderLines>
+    
+    <Notes>
+        <Note ReasonCode="{4}"
+           NoteText="{5}" VisibleToAll="Y"/>
+    </Notes>
 </Order>

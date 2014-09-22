@@ -183,6 +183,8 @@ public class MagentoTest {
 	
 	}
 	
+	
+	
 	@Test
 	public void deleteKeyData() {
 		
@@ -297,5 +299,13 @@ public class MagentoTest {
 	public void etcTeset() {
 	    System.out.println( CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm"));
 	   
+	}
+	
+	@Test
+	public void deleteKeyDataVM() {
+	    
+	    String errorKey = "*:*:order:error";
+	    
+	    maStringRedisTemplate.delete(errorKey);
 	}
 }

@@ -185,10 +185,29 @@ var OrderDetailView = function () {
         }
         
         // handle input group button click
-//        $('.date-picker').parent('.input-group').on('click', '.input-group-btn.day', function(e){
-//            e.preventDefault();
-//            $(this).parent('.input-group').find('.date-picker').datepicker('showWidget');
-//        });
+        $('.date-picker').parent('.input-group').on('click', '.input-group-btn .day', function(e){
+            e.preventDefault();
+            $(this).parent('.input-group').find('.date-picker').datepicker('showWidget');
+        });
+    }
+    
+    var handleClockfaceTimePickers = function () {
+
+        if (!jQuery().clockface) {
+            return;
+        }
+
+
+        $('#contact_clockface').clockface({
+            format: 'HH:mm',
+            trigger: 'manual'
+        });
+
+        $('#contact_clockface_toggle').click(function (e) {
+            e.stopPropagation();
+            $('#contact_clockface').clockface('toggle');
+        });
+
     }
 
     var handleTimePickers = function () {
@@ -211,21 +230,25 @@ var OrderDetailView = function () {
                 showSeconds: false,
                 showMeridian: false
             });
-
+            
             // handle input group button click
-            $('.timepicker').parent('.input-group').on('click', '.input-group-btn.time', function(e){
-                e.preventDefault();
+            $('.timepicker').parent('.input-group').on('click', '.input-group-btn .time', function(e){
+            	e.preventDefault();
                 $(this).parent('.input-group').find('.timepicker').timepicker('showWidget');
             });
         }
     }
     
     
-    var ajaxCallApi = function(eventObj, callUrl){
+    var ajaxCallApi = function(eventObj, callUrl, formId){
+    	
+    	 Metronic.blockUI({
+            boxed:true
+         });
     	
     	$.ajax({
 			url: callUrl,
-			data: $('#form_action').serialize(),
+			data: $('#'+formId).serialize(),
 			success:function(data)
 			{
 				
@@ -243,9 +266,9 @@ var OrderDetailView = function () {
 //	                boxed:true
 //	             });
 //        	},
-//			complete:function(xhr, status){
-//				Metronic.unblockUI();
-//        	}
+			complete:function(xhr, status){
+				Metronic.unblockUI();
+        	}
     	});
     }
     
@@ -257,6 +280,7 @@ var OrderDetailView = function () {
         	
         	handleDatePickers();
         	handleTimePickers();
+        	handleClockfaceTimePickers();
         	
             /*
             handleNotes();
@@ -266,22 +290,25 @@ var OrderDetailView = function () {
             */
         	
         	
-        	// Release Order ( Schedule and Release)
-            $('#tool_release').click(function(e){
-            	if( confirm("Are you sure release this order?")){
-            		e.preventDefault();
-            		ajaxCallApi(this, '/orders/scheduleOrder.sc');
-            	}
-            });
+        	// Release Order (Schedule and Release)
+        $('#tool_release').click(function(e){
+        	if( confirm("Are you sure release this order?")){
+        		e.preventDefault();
+        		ajaxCallApi(this, '/orders/scheduleOrder.sc', 'form_action');
+        	}
+        });
             
             
-            // Cancel Order
-            $('#tool_cancel').click(function(e){
-            	if( confirm("Are you sure cancel this order?")){
-            		e.preventDefault();
-            		ajaxCallApi(this, '/orders/cancelOrder.sc');
-            	}
-            }); 
+        // Cancel Order 
+        $('#btn_cancel').click(function(e){
+        	//if( confirm("Are you sure cancel this order?")){
+        		e.preventDefault();
+        		ajaxCallApi(this, '/orders/cancelOrder.sc', 'form_cancel');
+        		
+        		var $modal = $('#md_cancel_order');
+   		    $modal.modal("hide");
+        	//}
+        }); 
             
         	
             // Event Handler - Save Note

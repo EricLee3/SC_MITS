@@ -10,7 +10,9 @@
   <!-- Root Context: defines shared resources visible to all other web components -->
   <context:component-scan base-package="com.isec.sc" />
   
-  <context:property-placeholder location="classpath:mits.properties"/>
+  <context:property-placeholder 
+  		location="classpath:mits.properties,
+  				  classpath:redis.properties"/>
   
   <bean id="maConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
     p:host-name="${redis.host}" 

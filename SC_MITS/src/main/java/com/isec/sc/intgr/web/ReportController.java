@@ -80,7 +80,7 @@ public class ReportController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/getOrderReportByCh.sc")
-	public ModelAndView getOrderReportByCh( @RequestParam Map<String, String> paramMap ) throws Exception{ 
+	public ModelAndView getOrderReportByCh( @RequestParam String startMonth, @RequestParam int term) throws Exception{ 
 		
 		// TODO: 채널정보 property로 뺼것
 		String entCode[] = {"SLV", "DA", "ISEC"};
@@ -92,23 +92,34 @@ public class ReportController {
 		
 		
 		// TODO: 기간설정
-		int startYear = 2014;
-		int startMonth = 6;
-		int endMonth =  9;
+//		int startYear = 2014;
+//		int startMonth = 6;
+//		int endMonth =  9;
 		
 		List<HashMap<String, Object>> chDataList = new ArrayList<HashMap<String, Object>>();
 		
-		// 채널별
+		// 채널별 통계데이타
 		for( int i=0; i<sellerCode.length; i++){
 			
 			List<String[]> cnt_list = new ArrayList<String[]>(); // Order Count List
 			List<String[]> amt_list = new ArrayList<String[]>(); // Order Amount List
 			
-			for(int j=startMonth; j<=endMonth; j++){
+			for(int j=0; j<term; j++){
 				
-				String mm = j<10?"0"+j:String.valueOf(j);
-				String cntKey = "count:"+entCode[i]+":"+sellerCode[i]+":orders:"+startYear+mm;
-				String amtKey = "amount:"+entCode[i]+":"+sellerCode[i]+":orders:"+startYear+mm;
+				int currYear = Integer.parseInt(startMonth.substring(0,4));
+				int currMonth= Integer.parseInt(startMonth.substring(4,6));
+				
+				currMonth = currMonth+j;
+				
+				if(currMonth == 13){
+					currYear = currYear + 1;
+					currMonth = 1;
+				}
+				String mm = currMonth<10?"0"+currMonth:""+currMonth;
+				logger.debug("[currDate]"+currYear+mm);
+				
+				String cntKey = "count:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm;
+				String amtKey = "amount:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm;
 				
 				Set<String> cnt_key_names= reportStringRedisTemplate.keys(cntKey+"*");
 				List<String> orderCntList = valueOps.multiGet(cnt_key_names);
@@ -125,9 +136,9 @@ public class ReportController {
 				}
 				
 //				cnt_list.add( new String[]{startYear+"/"+mm, valueOps.get(cntKey)} );
-				cnt_list.add( new String[]{startYear+"/"+mm, orderCnt+""} );
+				cnt_list.add( new String[]{currYear+"/"+mm, orderCnt+""} );
 //				cnt_list.add( new String[]{startYear+"/"+mm, valueOps.get(cntKey)} );
-				amt_list.add( new String[]{startYear+"/"+mm, orderAmt+""} );
+				amt_list.add( new String[]{currYear+"/"+mm, orderAmt+""} );
 				
 			}
 			HashMap<String, List<String[]>> dataMap = new HashMap<String, List<String[]>>();
@@ -145,18 +156,34 @@ public class ReportController {
 		// Total
 		String orderCountKey_pre = "count:*:*:orders:";
 		String orderAmountKey_pre = "amount:*:*:orders:";
+		String shipChargeKey_pre = "shipping:*:*:orders:";
+		String cancelAmountKey_pre = "cancel_amt:*:*:orders:";
 		
 		List<String[]> totlist = new ArrayList<String[]>();
 		List<String[]> amtList = new ArrayList<String[]>();
 		
 		int tot_orderCnt = 0;
 		double tot_orderAmount = 0.00;
-		for(int i=startMonth; i<=endMonth; i++){
+		double tot_shipCharge = 0.00;
+		double tot_cancelAmount = 0.00;
+		
+		
+		for(int i=0; i<term; i++){
 			
-			String mm = i<10?"0"+i:String.valueOf(i);
+			int currYear = Integer.parseInt(startMonth.substring(0,4));
+			int currMonth= Integer.parseInt(startMonth.substring(4,6));
+			
+			currMonth = currMonth+i;
+			
+			if(currMonth == 13){
+				currYear = currYear + 1;
+				currMonth = 1;
+			}
+			String mm = currMonth<10?"0"+currMonth:""+currMonth;
+			logger.debug("[currDate]"+currYear+mm);
 			
 			// Total Order Count
-			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+startYear+mm+"*");
+			Set<String> cnt_key_names= reportStringRedisTemplate.keys(orderCountKey_pre+currYear+mm+"*");
 			List<String> cnt_list = valueOps.multiGet(cnt_key_names);
 			int orderCnt = 0;
 			for(String orderCount: cnt_list){
@@ -164,10 +191,10 @@ public class ReportController {
 			}
 			
 			tot_orderCnt += orderCnt;
-			totlist.add( new String[]{startYear+"/"+mm, String.valueOf(orderCnt) } );
+			totlist.add( new String[]{currYear+"/"+mm, String.valueOf(orderCnt) } );
 			
 			// Total Order Amount
-			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+startYear+mm+"*");
+			Set<String> amt_key_names= reportStringRedisTemplate.keys(orderAmountKey_pre+currYear+mm+"*");
 			List<String> amt_list = valueOps.multiGet(amt_key_names);
 			double orderAmount = 0.00;
 			for(String orderAmt: amt_list){
@@ -175,21 +202,55 @@ public class ReportController {
 			}
 			
 			tot_orderAmount += orderAmount;
-			amtList.add( new String[]{startYear+"/"+mm, String.valueOf(orderAmount) } );
+			amtList.add( new String[]{currYear+"/"+mm, String.valueOf(orderAmount) } );
+			
+			
+			// Total Order Shipping Charge
+			Set<String> shp_key_names= reportStringRedisTemplate.keys(shipChargeKey_pre+currYear+mm+"*");
+			double shipCharge = 0.00;
+			for(String charge: valueOps.multiGet(shp_key_names)){
+				shipCharge += Double.parseDouble(charge);
+			}
+			tot_shipCharge += shipCharge;
+			
+			// Total Order Cancel Amount
+			Set<String> cancelAmt_key_names= reportStringRedisTemplate.keys(cancelAmountKey_pre+currYear+mm+"*");
+			double cancelAmount = 0.00;
+			for(String charge: valueOps.multiGet(cancelAmt_key_names)){
+				cancelAmount += Double.parseDouble(charge);
+			}
+			tot_cancelAmount += cancelAmount;
+			
 			
 		}
 		
 		ModelAndView mav = new ModelAndView("jsonView");
+		
 		mav.addObject("data", chDataList);
+		
+		// 항목별 총합
 		mav.addObject("tot_count", tot_orderCnt);
 		mav.addObject("tot_amount", tot_orderAmount);
+		mav.addObject("tot_shipping_charge", tot_shipCharge);
+		mav.addObject("tot_cancel_amount", tot_cancelAmount);
+		
+		// 항목별 월별 총합계 - 차트용
 		mav.addObject("tot_cnt_data", totlist);
 		mav.addObject("tot_amt_data", amtList);
 		return mav;   
 	}
 	
 	
-	
+	/**
+	 * 총주문금액, 총오더건수, 총비용, 환불금액 집계 데이타 조회
+	 * - 대시보드 화면 최상단 영역
+	 *  
+	 * @param startDate 검색시작
+	 * @param endDate 검색종료일
+	 * @param term 검색일
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/getOrderOverAll.sc")
 	public ModelAndView getOrderOverAll( @RequestParam String startDate,  @RequestParam String endDate, @RequestParam int term) throws Exception{ 
 		
@@ -211,12 +272,17 @@ public class ReportController {
 		String orderChargeKey_pre = "shipping:*:*:orders:";
 		String orderTaxKey_pre = "tax:*:*:orders:";
 		String orderDiscountKey_pre = "discount:*:*:orders:";
+		String orderCancelCntKey_pre = "cancel_cnt:*:*:orders:";
+		String orderCancelAmtKey_pre = "cancel_amt:*:*:orders:";
 		
 		int tot_order_count = 0;
 		double tot_order_amount = 0.00;
 		double tot_charge_amount = 0.00;
 		double tot_tax_amount = 0.00;
 		double tot_discount_amount = 0.00;
+		
+		int tot_cancel_count = 0;
+		double tot_cancel_amount = 0.00;
 		
 		//double tot_order_avg_amount = 0.00;
 		
@@ -228,6 +294,8 @@ public class ReportController {
 			Set<String> charge_key_names= reportStringRedisTemplate.keys(orderChargeKey_pre+CommonUtil.calcDate(endDate, i));
 			Set<String> tax_key_names= reportStringRedisTemplate.keys(orderTaxKey_pre+CommonUtil.calcDate(endDate, i));
 			Set<String> discount_key_names= reportStringRedisTemplate.keys(orderDiscountKey_pre+CommonUtil.calcDate(endDate, i));
+			Set<String> cancelCnt_key_names= reportStringRedisTemplate.keys(orderCancelCntKey_pre+CommonUtil.calcDate(endDate, i));
+			Set<String> cancelAmt_key_names= reportStringRedisTemplate.keys(orderCancelAmtKey_pre+CommonUtil.calcDate(endDate, i));
 			
 			Iterator<String> itr = cnt_key_names.iterator();
 			while(itr.hasNext()){
@@ -265,6 +333,18 @@ public class ReportController {
 			for(String discountAmount: discount_list){
 				tot_discount_amount += Double.parseDouble(discountAmount);
 			}
+			
+			// Cancel Count
+			List<String> cancelCnt_list = valueOps.multiGet(cancelCnt_key_names);
+			for(String cancelCount: cancelCnt_list){
+				tot_cancel_count += Double.parseDouble(cancelCount);
+			}
+			
+			// Cancel Amount
+			List<String> cancelAmt_list = valueOps.multiGet(cancelAmt_key_names);
+			for(String cancelAmount: cancelAmt_list){
+				tot_cancel_amount += Double.parseDouble(cancelAmount);
+			}
 		}
 		
 //		if(tot_order_count == 0) 
@@ -279,6 +359,9 @@ public class ReportController {
 		mav.addObject("tot_charge_amount", tot_charge_amount);
 		mav.addObject("tot_tax_amount", tot_tax_amount);
 		mav.addObject("tot_discount_amount", tot_discount_amount);
+		
+		mav.addObject("tot_cancel_count", tot_cancel_count);
+		mav.addObject("tot_cancel_amount", tot_cancel_amount);
 		
 //		mav.addObject("tot_order_avg_amount", tot_order_avg_amount);
 		return mav;   

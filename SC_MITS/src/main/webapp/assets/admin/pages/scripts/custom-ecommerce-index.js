@@ -1,5 +1,6 @@
 var EcommerceIndex = function () {
-
+	
+	// Chart Show Tooltip
     function showTooltip(x, y, labelX, labelY, lastLabel) {
         $('<div id="tooltip" class="chart-tooltip">' + (labelY.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')) + lastLabel+'<\/div>').css({
             position: 'absolute',
@@ -20,40 +21,41 @@ var EcommerceIndex = function () {
     
     var orderCountChart = function (dataSet) {
     	
-    	var lineColors = [ ["#f89f9f"],["#BAD9F5"] ];
-    	var seriesDataSet = new Array();
-    	
-    	for( var i=0; i<dataSet.length; i++){
-    		
-    		seriesDataSet[i] = {
-				data:dataSet[i].chData.count,
-                label: dataSet[i].chName,
-                lines: {
-                    fill: 0.0,
-                    lineWidth: 1.5
-                },
-                color: lineColors[i]	
-    		}
-    		
-    	}
-    	
-    	var seriesPointSet = new Array();
-    	for( var i=0; i<dataSet.length; i++){
-    		
-    		seriesPointSet[i] = {
-              data: dataSet[i].chData.count,
-              points: {
-                  show: true,
-                  fill: true,
-                  radius: 5,
-                  fillColor: "#f89f9f",
-                  lineWidth: 3
-              },
-              color: '#fff',
-              shadowSize: 0
-    		}
-    		
-    	}
+	    	var lineColors = [ ["#f89f9f"],["#BAD9F5"] ];
+	    	var seriesDataSet = new Array();
+	    	
+	    	// 
+	    	for( var i=0; i<dataSet.length; i++){
+	    		
+	    		seriesDataSet[i] = {
+					data:dataSet[i].chData.count,
+	                label: dataSet[i].chName,
+	                lines: {
+	                    fill: 0.0,
+	                    lineWidth: 1.5
+	                },
+	                color: lineColors[i]	
+	    		}
+	    		
+	    	}
+	    	
+	    	var seriesPointSet = new Array();
+	    	for( var i=0; i<dataSet.length; i++){
+	    		
+	    		seriesPointSet[i] = {
+	              data: dataSet[i].chData.count,
+	              points: {
+	                  show: true,
+	                  fill: true,
+	                  radius: 5,
+	                  fillColor: "#f89f9f",
+	                  lineWidth: 3
+	              },
+	              color: '#fff',
+	              shadowSize: 0
+	    		}
+	    		
+	    	}
     	
         var plot_statistics = $.plot(
             $("#statistics_2"), 
@@ -149,8 +151,8 @@ var EcommerceIndex = function () {
 
     var totalChart = function (totCount, totAmount) {
     	
-    	var lineColors = [ ["#f89f9f"],["#BAD9F5"] ];
-    	var seriesDataSet = new Array();
+	    	var lineColors = [ ["#f89f9f"],["#BAD9F5"] ];
+	    	var seriesDataSet = new Array();
 		seriesDataSet[0] = {
 			data:totCount,
             label: "오더건수",
@@ -355,43 +357,43 @@ var EcommerceIndex = function () {
     var chartData = new Object();
     
     
-    // Get DashBoard Data Using Ajax - Top Pannel ( Lifetime Sales, Total Orders, Average Orders)
+    // Get DashBoard Data Using Ajax - Top Pannel ( 총결제금액, 오더건수, 비용, 환불금액)
     var getOrderOverAll = function(startDate, endDate, term){
     	
-    	Metronic.blockUI({
-            target: '.dashboard-stat',
-            iconOnly: true,
-            boxed: false
-         });
+    		Metronic.blockUI({
+                target: '.dashboard-stat',
+                iconOnly: true,
+                boxed: false
+             });
     	
-    	$.ajax({
-			url: '/reports/getOrderOverAll.sc',
-			data: "startDate="+startDate+"&endDate="+endDate+"&term="+term,
-			success:function(jsonData)
-			{
-				
-				// $('#ds_tot_amaunt').html(String.fromCharCode('0x20A9')+jsonData.tot_order_amount.toFixed(2));
-				$('#ds_tot_amaunt').html(jsonData.tot_order_amount.toFixed(2));
-				$('#ds_tot_orders').html(jsonData.tot_order_count + '');
-				$('#ds_tot_charge').html( (jsonData.tot_charge_amount+jsonData.tot_tax_amount).toFixed(2));
-				$('#ds_tot_discount').html(jsonData.tot_discount_amount.toFixed(2));
-//				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2));
-				
-			},
-			complete:function(xhr, status){
-				window.setTimeout(function () {
-	                Metronic.unblockUI('.dashboard-stat');
-	            }, 200);
-        	}
-    	});
+    		$.ajax({
+    			url: '/reports/getOrderOverAll.sc',
+    			data: "startDate="+startDate+"&endDate="+endDate+"&term="+term,
+    			success:function(jsonData)
+    			{
+    				
+    				// $('#ds_tot_amaunt').html(String.fromCharCode('0x20A9')+jsonData.tot_order_amount.toFixed(2));
+    				$('#ds_tot_amount').html(jsonData.tot_order_amount.toFixed(2));
+    				$('#ds_tot_orders').html(jsonData.tot_order_count + '');
+    				$('#ds_tot_charge').html( (jsonData.tot_charge_amount+jsonData.tot_tax_amount+jsonData.tot_discount_amount).toFixed(2)); // 할인금액은 (-)로 관리됨
+    				$('#ds_tot_cancel_amt').html(jsonData.tot_cancel_amount.toFixed(2));
+    //				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2));
+    				
+    			},
+    			complete:function(xhr, status){
+    				window.setTimeout(function () {
+    	                Metronic.unblockUI('.dashboard-stat');
+    	            }, 200);
+        		}
+    		}); // End Ajax
     	
     	
-    };
+    }; // End Func getOrderOverAll
     
     
     var initTable_common = function(id, tableData) {
     	
-    	var common_colDef = [ 
+    		var common_colDef = [ 
 		                      {
 		                   	   "render": function(data, type, row){
 		                   		   
@@ -402,7 +404,7 @@ var EcommerceIndex = function () {
 		                      { "visible": false,  "targets": [2] }
 		                      
 		                  ];
-    	var common_cols = [
+    		var common_cols = [
 	                           { "data": "orderNo" },
 	                           { "data": function render(data, type)
 	                     	  			{
@@ -424,12 +426,13 @@ var EcommerceIndex = function () {
 		   		                { "data": null, "orderable":false }
 	                       ];
     	
-    	var new_table = $(id);
-    	new_table.dataTable({
-        	"paging":   false,
+	    	var new_table = $(id);
+	    	
+	    	new_table.dataTable({
+	        	"paging":   false,
             "ordering": false,
             "info":     false,
-        	"processing": false,
+	        	"processing": false,
             "serverSide": false,
             "dom":"",
             "data": tableData,
@@ -470,68 +473,96 @@ var EcommerceIndex = function () {
         });
     };
     
-    
-    var reload_table_overview = function(table_id, data){
-    	
+    // Order Overview DataTable Reload 처리
+	var reload_table_overview = function(table_id, data){
+
     	if(data == null || data == "" || data.length == 0) return;
     		
     	var newTable = $(table_id).dataTable();
-			
-			newTable.fnClearTable();
-			newTable.fnAddData(data);
-			newTable.fnDraw();
-    }
-    
-
+				
+		newTable.fnClearTable();
+		newTable.fnAddData(data);
+		newTable.fnDraw();
+	}
+	
     return {
-    	
     	
         //main function
         init: function () {
         	
-        	$.ajax({
-				url: '/reports/getOrderReportByCh.sc',
-				data: $('#form_regist').serialize(),
-				success:function(jsonData)
-				{
-					chartData = jsonData;
-					totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
-				}
-        	});
         	
-        	$('#statistics_amounts_tab0').on('shown.bs.tab', function (e) {
+            getOrderOverAll(moment().format('YYYYMMDD'), moment().format('YYYYMMDD'), 0);
+
+        	// Chart Tab 이동 이벤트 핸들러
+    		$('#statistics_amounts_tab0').on('shown.bs.tab', function (e) {
                 totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
             });
         	
-        	$('#statistics_amounts_tab1').on('shown.bs.tab', function (e) {
-        		orderAmountChart(chartData.data);
+    		$('#statistics_amounts_tab1').on('shown.bs.tab', function (e) {
+    			orderAmountChart(chartData.data);
             });
         	
             $('#statistics_amounts_tab2').on('shown.bs.tab', function (e) {
-            	orderCountChart(chartData.data);
+        		orderCountChart(chartData.data);
             });
             
-            
         },
+        
+        // 월별 오더리포트 차트데이타 조회
+        setOrderReportChart: function(startMonth, term) {
+        	
+        	$.ajax({
+    			url: '/reports/getOrderReportByCh.sc',
+    			data: "startMonth="+startMonth+"&term="+term,
+    			success:function(jsonData)
+    			{
+    				chartData = jsonData;
+    				
+    				// 현재 활성환 된 차트갱신
+    				var chart_index = $('#ptl_bd_orderChart ul > li.active').index();
+    				
+    				if( chart_index == 0){
+    					orderCountChart(chartData.data);
+    				}else if( chart_index == 1){
+    					orderAmountChart(chartData.data);
+    					
+    				}else if( chart_index == 2){
+    					totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+    				}
+    				
+    				
+    				
+    				// 4가지 항목 집계데이타 표시 - 총결제금액, 총주문건수, 총비용, 환불금액 
+                    $('#tot_amount_month h3').html(chartData.tot_amount.toFixed(2));
+                    $('#tot_count_month h3').html(chartData.tot_count+"건");
+                    $('#tot_charge_month h3').html(chartData.tot_shipping_charge.toFixed(2));
+                    $('#tot_cancel_month h3').html(chartData.tot_cancel_amount.toFixed(2));
+
+    			}
+        	});
+        	
+        },
+        
+        
 	    
-	    
+	    // Order Overview DataTable Set
 	    setOrderOverviewList: function(mode) {
-	    	Metronic.blockUI({
-	    		
-                target: '#pt_order_overview',
-                imageOnly:true
-             });
-	    	
-	    	
-	    	$.ajax({
+		    	Metronic.blockUI({
+		    		
+	                target: '#pt_order_overview',
+	                imageOnly:true
+	             });
+		    	
+		    	
+		    	$.ajax({
    				url: '/orders/orderOverviewList.sc',
    				success:function(data)
    				{
    					if(mode == 'reload'){
    						reload_table_overview('#table_new_list', data.newList);
-   						reload_table_overview('#table_pending_list', data.pendingList);
-   						reload_table_overview('#table_shipped_list', data.shippedList);
+   						eload_table_overview('#table_shipped_list', data.shippedList);
    						reload_table_overview('#table_cancelled_list', data.cancellList);
+   						reload_table_overview('#table_pending_list', data.pendingList);
    						reload_table_overview('#table_error_list', data.errList);
    						
    					}else{
@@ -544,35 +575,35 @@ var EcommerceIndex = function () {
    					window.setTimeout(function () {
    		                Metronic.unblockUI('#pt_order_overview');
    		            }, 100);
-   	        	}
-    		});
+   				}
+	    		}); // End Ajax
 	        
-	    },
+	    }, // End Function setOrderOverviewList
 	    
-	    
+	    // HTML에서 사용하는 Function
 	    setOrderChartData: function(data) {
-	    	chartData = data;
+		    	chartData = data;
 	    },
 	    
 	    // Tab Chart Ajax Refresh
 	    refreshChart: function(index){
 	    	
-	    	totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+	    		totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
 	    	
-//	    	switch(index) {
-//	    		case 0: totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
-//	    		case 1: orderAmountChart(chartData.data);
-//	    		case 2: orderCountChart(chartData.data);
-//	    	}
+//		    	switch(index) {
+//		    		case 0: totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+//		    		case 1: orderAmountChart(chartData.data);
+//		    		case 2: orderCountChart(chartData.data);
+//		    	}
 	    	
 	    },
 	    
 	    
-	    
+	    // DashBoard ToDate ~ FromDate Range Setup
 	    initDashboardDaterange: function () {
 
-    		$('#dashboard-report-range').daterangepicker(
-    			{
+	    		$('#dashboard-report-range').daterangepicker(
+	    			{
 	                opens: (Metronic.isRTL() ? 'right' : 'left'),
 	                //startDate: moment().subtract('days', 29),
 	                startDate: moment(),
@@ -611,7 +642,7 @@ var EcommerceIndex = function () {
 	                    monthNames: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
 	                    firstDay: 1
 	                }
-    			},
+	    			},
 	            function (start, end, lable) {
     				
 //	                $('#dashboard-report-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -620,7 +651,7 @@ var EcommerceIndex = function () {
 	                var termDate = Math.floor( (end-start)/1000/60/60/24 );
 	                getOrderOverAll(start.format('YYYYMMDD'), end.format('YYYYMMDD'), termDate);
 	            }
-    		);
+	    		);
 	
 	        //$('#dashboard-report-range span').html(moment().subtract('days', 29).format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
 	        $('#dashboard-report-range span').html(moment().format('YYYY-MM-DD') + ' - ' + moment().format('YYYY-MM-DD'));
@@ -630,9 +661,9 @@ var EcommerceIndex = function () {
 	        $('.ranges .range_inputs').hide() // Date Input Hidden
 	        
 	        
-	        getOrderOverAll(moment().format('YYYYMMDD'), moment().format('YYYYMMDD'), 0);
-	    }
+	        
+	    } // End Func initDashboardDaterange
 
-    };
+    }; // End Init
 
 }();

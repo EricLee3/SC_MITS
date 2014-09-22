@@ -13,8 +13,11 @@ var ComponentsPickers = function () {
     }
 
     var handleTimePickers = function () {
-
+    	
+    	
         if (jQuery().timepicker) {
+        	
+        	
             $('.timepicker-default').timepicker({
                 autoclose: true,
                 showSeconds: true,
@@ -36,6 +39,7 @@ var ComponentsPickers = function () {
             // handle input group button click
             $('.timepicker').parent('.input-group').on('click', '.input-group-btn', function(e){
                 e.preventDefault();
+                
                 $(this).parent('.input-group').find('.timepicker').timepicker('showWidget');
             });
         }

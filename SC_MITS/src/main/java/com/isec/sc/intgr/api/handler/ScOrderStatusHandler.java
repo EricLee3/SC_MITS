@@ -145,8 +145,8 @@ public class ScOrderStatusHandler {
 		/*
 		 * XML
 		 * <OverallTotals GrandCharges="20.00" GrandDiscount="20.00"
-        	GrandTax="20.00" GrandTotal="2408.00" HdrCharges="0.00"
-        	HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="2388.00"/>
+	        	GrandTax="20.00" GrandTotal="2408.00" HdrCharges="0.00"
+	        	HdrDiscount="0.00" HdrTax="0.00" HdrTotal="0.00" LineSubTotal="2388.00"/>
 		 */
 		XPath xp = XPathFactory.newInstance().newXPath();
 		totAmount = (Double)xp.evaluate("/Order/OverallTotals/@GrandTotal", outputXML, XPathConstants.NUMBER);
@@ -571,9 +571,9 @@ public class ScOrderStatusHandler {
 	
 	
 	/**
-	 * 주문취소 후처리 프로세스 (SC->Ma)
-	 *  - SC의 주문취소처리 후 SC에서 Ma로 주문취소정보를 전달하는 주문취소 후처리 프로세스 
-	 *  - 전체주문취소인 경우만 해당
+	 * 주문취소 후처리 프로세스 (SC->Ma) 9000
+	 *  - SC의 주문취소처리 후 SC에서 Ma로 주문취소정보를 전달
+	 *  - 전체취소, 부분취소 모두 해당
 	 * 
 	 * @param outputXML
 	 * @param sendMsgMap
@@ -682,6 +682,14 @@ public class ScOrderStatusHandler {
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
 			
+			
+			// TODO: 취소금액 항목 확인필요
+			double totCancelAmount = 0.00;
+			totCancelAmount = (Double)xp.evaluate("/Order/PriceInfo/@ChangeInTotalAmount", outputXML, XPathConstants.NUMBER);
+			logger.debug("[totCancelAmount]"+totCancelAmount);
+			
+			// Order Report Service 호출
+			orderReportService.saveCancelOrderAmount(entCode, sellerCode, totCancelAmount);
 			
 		}catch(Exception e){
 			e.printStackTrace();

@@ -158,14 +158,14 @@ public class RedisTest2 {
 			int randomInt5to10 = (int)(randomGenerator.nextDouble() * range + start);
 			
 			
-			//System.out.println(dateSum(Integer.parseInt("20140701"), i));
+			System.out.println(randomInt5to10);
 			//zSetOps.add("count:ISEC:ASPB", "10", dateSum(Integer.parseInt("20140701"), i));
 			
-			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140601", i), String.valueOf(randomInt5to10));
-			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140601", i), String.valueOf(randomInt5to10*1000));
-			
-			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10));
-			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10*1000));
+//			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140601", i), String.valueOf(randomInt5to10));
+//			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140601", i), String.valueOf(randomInt5to10*1000));
+//			
+//			valueOps.set("count:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10));
+//			valueOps.set("amount:ISEC:ASPB:orders:"+dateSum("20140701", i), String.valueOf(randomInt5to10*1000));
 		}
 		
 		
@@ -334,56 +334,54 @@ public class RedisTest2 {
 	@Test
 	public void insertPlotChartDataMonth2(){
 		
-		String key = "amount:ISEC:ASPB:orders:";
-		
-		/**
-		데이타유형: {"yyyymm":"201408", "count":"150", "amount":"1500.00"}
-		**/
-/*		
-		['01/2013', 4],
-        ['02/2013', 8],
-        ['03/2013', 10],
-        ['04/2013', 12],
-        ['05/2013', 2125],
-        ['06/2013', 324],
-        ['07/2013', 1223],
-        ['08/2013', 1365],
-        ['09/2013', 250],
-        ['10/2013', 999],
-        ['11/2013', 390]
-		*/
-		
-		valueOps.set(key+"201301", "100");
-		valueOps.set(key+"201302", "80");
-		valueOps.set(key+"201303", "30");
-		valueOps.set(key+"201304", "150");
-		valueOps.set(key+"201305", "200");
-		valueOps.set(key+"201306", "300");
-		valueOps.set(key+"201307", "180");
-		valueOps.set(key+"201308", "100");
-		valueOps.set(key+"201309", "120");
-		valueOps.set(key+"201310", "200");
-		valueOps.set(key+"201311", "75");
-		valueOps.set(key+"201312", "50");
+		// TODO: 채널정보 property로 뺼것
+		String entCode[] = {"SLV", "DA", "ISEC"};
+		String sellerCode[] = {"ASPB", "OUTRO", "JNS"};
+		String sellerCodeName[] = {"Aspen Bay", "Outro", "J&S US"};
 		
 		
-		String outro_key = "amount:DA:OUTRO:orders:";
+		
+		// End Month Random Create
+		int start = 50;
+		int end = 100;
+
+		double range = end - start + 5;
+		Random randomGenerator = new Random();
 		
 		
-		valueOps.set(outro_key+"201301", "200");
-		valueOps.set(outro_key+"201302", "160");
-		valueOps.set(outro_key+"201303", "60");
-		valueOps.set(outro_key+"201304", "300");
-		valueOps.set(outro_key+"201305", "400");
-		valueOps.set(outro_key+"201306", "600");
-		valueOps.set(outro_key+"201307", "360");
-		valueOps.set(outro_key+"201308", "200");
-		valueOps.set(outro_key+"201309", "140");
-		valueOps.set(outro_key+"201310", "555");
-		valueOps.set(outro_key+"201311", "290");
-		valueOps.set(outro_key+"201312", "200");
+		int start1 = 100000;
+		int end1 = 500000;
+
+		double range1 = end1 - start1 + 50000;
+				
 		
-		//System.out.println("amount:"+valueOps.increment(key, 150.00));
+		
+		String currYear = "2014";
+		// 채널별 통계데이타
+		for( int i=0; i<sellerCode.length; i++){
+			
+			for( int j=1; j<=8; j++){
+				
+				String mm = "0"+j;
+				
+				for( int jj=1; jj<=30; jj++){
+					
+					String dd = ""+jj;
+					if(dd.length() == 1) dd = "0"+dd;
+					
+					String cntKey = "count:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm+dd;
+					String amtKey = "amount:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm+dd;
+					
+					int r1 = (int)(randomGenerator.nextDouble() * range + start);
+					int r2 = (int)(randomGenerator.nextDouble() * range1 + start1);
+					
+					valueOps.set(cntKey, r1+"");
+					valueOps.set(amtKey, r2+"");
+					
+				}
+				
+			}
+		}
 		
 	}
 	

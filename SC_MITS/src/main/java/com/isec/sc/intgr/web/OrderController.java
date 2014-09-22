@@ -542,6 +542,8 @@ public class OrderController {
 			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
 			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
 			
+			logger.debug("[PrimeLineNo]"+PrimeLineNo);
+			logger.debug("[lineKey]"+lineKey);
 			
 			String minLineStatus = (String)xp.evaluate("@MinLineStatus", orderLineNodeList.item(i), XPathConstants.STRING);
 			String maxLineStatus = (String)xp.evaluate("@MaxLineStatus", orderLineNodeList.item(i), XPathConstants.STRING);
@@ -554,6 +556,7 @@ public class OrderController {
 			orderLineMap.put("shipNode", shipNode);
 			orderLineMap.put("status", lineStatus[0]);
 			orderLineMap.put("status_class", lineStatus[1]);
+			orderLineMap.put("max_status", maxLineStatus);
 			
 			// Line Price, Charge, Tax Info
 			Double qty = (Double)xp.evaluate("@OrderedQty", orderLineNodeList.item(i), XPathConstants.NUMBER);
@@ -857,20 +860,23 @@ public class OrderController {
 	 * @return
 	 */
 	@RequestMapping(value = "/cancelOrder.sc")
-	public ModelAndView cancelOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
+	public ModelAndView cancelOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no,
+										@RequestParam String cancel_reason, @RequestParam String cancel_note)
 	{
 		
-		logger.debug("##### Schedule Order API Called !!!");
+		logger.debug("##### Cancel Order API Called !!!");
 		
 		logger.debug("##### [doc_type]"+ doc_type);
 		logger.debug("##### [ent_code]"+ ent_code);
 		logger.debug("##### [order_no]"+ order_no);
+		logger.debug("##### [cancel_reason]"+ cancel_reason);
+		logger.debug("##### [cancel_note]"+ cancel_note);
 		
 		
 		String cancelOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_TEMPLATE));
 		
 		MessageFormat msg = new MessageFormat(cancelOrderXML);
-		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no} );
+		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, cancel_reason, cancel_note} );
 		logger.debug("##### [inputXML_CancelOrder]"+inputXML); 
 		
 		ModelAndView mav = new ModelAndView("jsonView");
@@ -888,7 +894,7 @@ public class OrderController {
 				succ = "N";
 				mav.addObject("errorMsg", outputMsg);
 			}else{
-				mav.addObject("outputMsg", "Cancel Order Transaction was processed Successfully.");
+				mav.addObject("outputMsg", "주문취소가 정상적으로 처리되었습니다.\nFront반영은 동기화 시점에 따라 다소 지연될 수 있습니다.");
 			}
 		
 		}
@@ -897,7 +903,7 @@ public class OrderController {
 			e.printStackTrace();
 			
 			succ = "N";
-			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 시스템 관리자에게 문의하시기 바랍니다.");
 			
 		}
 		mav.addObject("success", succ);
