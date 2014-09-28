@@ -10,8 +10,8 @@
 <input type="hidden" name="doc_type" value="${docType}">
 <input type="hidden" name="ent_code" value="${entCode}">
 <input type="hidden" name="order_no" value="${orderNo}">
-<input type="hidden" name="orderLineKey" value="">
-<input type="hidden" name="cancelType" value="order">
+<input type="hidden" name="cancel_type" value="order">
+<input type="hidden" name="line_keys" value="">
 
 
 	<div class="modal-header">
@@ -1049,16 +1049,22 @@
 		
 		var checked = $("#table_orderLine input[type='checkbox']:checked");
 		
+		if(checked.length == 0){
+			alert("취소할 오더라인 하나 이상 선택하세요");
+			return;
+		}
+		
 		var cancelKeys = "";
 		for(var i=0; i<checked.length; i++){
 			cancelKeys = cancelKeys+"|"+checked[i].value;
 		}
+		cancelKeys = cancelKeys.substring(1);
 		
-		$("#md_cancel_order input[name='cancelType]']").val('line');
-		$("#md_cancel_order input[name='orderLineKey]']").val(cancelKeys);
+		$('#md_cancel_order input[name="cancel_type"]').val('line');
+		$('#md_cancel_order input[name="line_keys"]').val(cancelKeys);
 		
-		
-		alert($("#md_cancel_order input[name='orderLineKey']").val());
+		var $modal = $('#md_cancel_order');
+		    $modal.modal("show");
 	}
  
      

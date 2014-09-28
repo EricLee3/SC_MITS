@@ -121,7 +121,7 @@ public class MagentoTest {
 					+"<LineTaxes>"
 						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"0.00\" />"
 					+"</LineTaxes>"
-			+"</OrderLine>"
+				 +"</OrderLine>"
 			+"</OrderLines>"
 			+"<PersonInfoShipTo FirstName=\"홍\" LastName=\"길동\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1234-5678\" MobilePhone=\"010-1234-5678\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
 			+"<PersonInfoBillTo  FirstName=\"이\" LastName=\"순신\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1111-2222\" MobilePhone=\"010-1111-2222\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
@@ -235,6 +235,47 @@ public class MagentoTest {
 	    
 	    List<String> errorList = listOps.range(errorKey, 0, -1);
 	    System.out.println( "[SLV:ASPB:order:error]" +errorList.size());
+	    
+	    for(int i=0; i<orderList1.size(); i++){
+	    		System.out.println( "[S2M Data]" +orderList1.get(i));
+	    }
+	    
+	    for(int i=0; i<orderList3.size(); i++){
+	    		System.out.println( "[S2C Data]" +orderList3.get(i));
+	    }
+	   
+	}
+	
+	@Test
+	public void getListDataOUTRO() {
+		
+	    String key = "DA:OUTRO:order";
+	    String key1 = "DA:OUTRO:order:update:S2M";
+	    String key2 = "DA:OUTRO:order:update:M2S";
+	    String key3 = "DA:OUTRO:order:update:S2C";
+	    String key4 = "DA:OUTRO:order:update:C2S";
+	    
+	    String errorKey = "DA:OUTRO:order:error";
+	    
+	    
+	    List<String> orderList = listOps.range(key, 0, -1);
+	    System.out.println( "[DA:OUTRO:order]" +orderList.size());
+	    
+	    List<String> orderList1 = listOps.range(key1, 0, -1);
+	    System.out.println( "[DA:OUTRO:order:update:S2M]" +orderList1.size());
+	    
+	    List<String> orderList2 = listOps.range(key2, 0, -1);
+	    System.out.println( "[DA:OUTRO:order:update:M2S]" +orderList2.size());
+	    
+	    List<String> orderList3 = listOps.range(key3, 0, -1);
+	    System.out.println( "[DA:OUTRO:order:update:S2C]" +orderList3.size());
+	    
+	    List<String> orderList4 = listOps.range(key4, 0, -1);
+	    System.out.println( "[DA:OUTRO:order:update:C2S]" +orderList4.size());
+	    
+	    
+	    List<String> errorList = listOps.range(errorKey, 0, -1);
+	    System.out.println( "[DA:OUTRO:order:error]" +errorList.size());
 	    
 	    for(int i=0; i<orderList1.size(); i++){
 	    		System.out.println( "[S2M Data]" +orderList1.get(i));

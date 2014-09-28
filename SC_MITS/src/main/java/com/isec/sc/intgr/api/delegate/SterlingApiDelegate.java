@@ -188,13 +188,11 @@ public class SterlingApiDelegate {
 	}
 	
 	
-	public String manageItem(String xmlData) throws Exception{
+	public HashMap<String, Object> manageItem(String xmlData) throws Exception{
 		
 		
-		logger.debug("[manageItem intputXML]"+xmlData);
-		
-		String result = "1";
 		Document doc = null;
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
 		try {
 			
@@ -209,22 +207,50 @@ public class SterlingApiDelegate {
 			
 			// Error 처리
 			logger.debug("result:::"+doc.getFirstChild().getNodeName());
-			if("Erros".equals(doc.getFirstChild().getNodeName())){
-				result = "0";
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+				
+				ObjectMapper mapper = new ObjectMapper();
+				XPath xp = XPathFactory.newInstance().newXPath();
+				
+//				String errCode = (String)xp.evaluate("Error/@ErrorCode", doc.getDocumentElement(), XPathConstants.STRING);
+				String errDesc = (String)xp.evaluate("Error/@ErrorDescription", doc.getDocumentElement(), XPathConstants.STRING);
+				String orgCode = (String)xp.evaluate("Error/Attribute[Name='OrganizationCode']/@Value", doc.getDocumentElement(), XPathConstants.STRING);
+				String uom = (String)xp.evaluate("Error/Attribute[Name='UnitOfMeasure']/@Value", doc.getDocumentElement(), XPathConstants.STRING);
+				String itemId = (String)xp.evaluate("Error/Attribute[Name='ItemID']/@Value", doc.getDocumentElement(), XPathConstants.STRING);
+				
+				resultMap.put("succ", "99");
+				resultMap.put("input_xml", xmlData);
+				resultMap.put("err_desc", errDesc);
+				resultMap.put("org_code", orgCode);
+				resultMap.put("uom", uom);
+				resultMap.put("item_id", itemId);
+				resultMap.put("err_date", CommonUtil.cuurentDateFromFormat("yyyy-MM-dd HH:mm:ss"));
+				
+				return resultMap;
+				
+			}else{
+				resultMap.put("succ", "01");
 			}
 			
 		} catch (SAXException e) {
-			result = "0";
+			resultMap.put("succ", "99");
+			resultMap.put("input_xml", xmlData);
+			resultMap.put("err_desc", "SAXException - XML 형식 에러발생");
 			e.printStackTrace();
 		} catch (IOException e) {
-			result = "0";
+			resultMap.put("succ", "99");
+			resultMap.put("input_xml", xmlData);
+			resultMap.put("err_desc", "IOException - 네트워크 에러발생");
+			
 			e.printStackTrace();
 		} catch (ParserConfigurationException e) {
-			result = "0";
+			resultMap.put("succ", "99");
+			resultMap.put("input_xml", xmlData);
+			resultMap.put("err_desc", "ParserConfigurationException");
 			e.printStackTrace();
 		}
 		
-		return result;
+		return resultMap;
 		
 	}
 	

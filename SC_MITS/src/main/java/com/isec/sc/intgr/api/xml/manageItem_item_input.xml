@@ -1,0 +1,12 @@
+<Item Action="Manage" GlobalItemID="" ItemID="{0}" OrganizationCode="{1}" UnitOfMeasure="{2}">
+     <PrimaryInformation 
+         EffectiveEndDate="{3}"
+         EffectiveStartDate="{4}"
+         ManufacturerItem="{5}" 
+         ManufacturerName="{6}" 
+		 UnitCost="{7}" 
+         ShortDescription="{8}" 
+		 ColorCode="{9}" 
+		 SizeCode="{10}" 
+		 Status="{11}" />
+</Item>

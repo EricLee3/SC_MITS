@@ -372,12 +372,15 @@ var EcommerceIndex = function () {
     			success:function(jsonData)
     			{
     				
-    				// $('#ds_tot_amaunt').html(String.fromCharCode('0x20A9')+jsonData.tot_order_amount.toFixed(2));
-    				$('#ds_tot_amount').html(jsonData.tot_order_amount.toFixed(2));
-    				$('#ds_tot_orders').html(jsonData.tot_order_count + '');
-    				$('#ds_tot_charge').html( (jsonData.tot_charge_amount+jsonData.tot_tax_amount+jsonData.tot_discount_amount).toFixed(2)); // 할인금액은 (-)로 관리됨
-    				$('#ds_tot_cancel_amt').html(jsonData.tot_cancel_amount.toFixed(2));
-    //				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2));
+    				// $('#ds_tot_amaunt').html(String.fromCharCode('0x20A9')+jsonData.tot_order_amount.toFixed(2)).digits();
+//    				$('#ds_tot_amount').html(jsonData.tot_order_amount.toFixed(2)).digits();
+    				$('#ds_tot_amount').html(jsonData.tot_order_amount).digits();
+    				$('#ds_tot_orders').html(jsonData.tot_order_count).digits();
+//    				$('#ds_tot_charge').html( (jsonData.tot_charge_amount+jsonData.tot_tax_amount+jsonData.tot_discount_amount).toFixed(2)).digits(); // 할인금액은 (-)로 관리됨
+    				$('#ds_tot_charge').html( (jsonData.tot_charge_amount+jsonData.tot_tax_amount+jsonData.tot_discount_amount)).digits(); // 할인금액은 (-)로 관리됨
+//    				$('#ds_tot_cancel_amt').html(jsonData.tot_cancel_amount.toFixed(2)).digits();
+    				$('#ds_tot_cancel_amt').html(jsonData.tot_cancel_amount).digits();
+    //				$('#ds_tot_average').html(jsonData.tot_order_avg_amount.toFixed(2)).digits();
     				
     			},
     			complete:function(xhr, status){
@@ -533,10 +536,14 @@ var EcommerceIndex = function () {
     				
     				
     				// 4가지 항목 집계데이타 표시 - 총결제금액, 총주문건수, 총비용, 환불금액 
-                    $('#tot_amount_month h3').html(chartData.tot_amount.toFixed(2));
-                    $('#tot_count_month h3').html(chartData.tot_count+"건");
-                    $('#tot_charge_month h3').html(chartData.tot_shipping_charge.toFixed(2));
-                    $('#tot_cancel_month h3').html(chartData.tot_cancel_amount.toFixed(2));
+//                    $('#tot_amount_month h3').html(chartData.tot_amount.toFixed(2)).digits();
+                    $('#tot_amount_month h3').html(chartData.tot_amount).digits();
+//                    $('#tot_count_month h3').html(chartData.tot_count+"건");
+                    $('#tot_count_month h3').html(chartData.tot_count).digits();
+//                    $('#tot_charge_month h3').html(chartData.tot_shipping_charge.toFixed(2)).digits();
+                    $('#tot_charge_month h3').html(chartData.tot_shipping_charge).digits();
+//                    $('#tot_cancel_month h3').html(chartData.tot_cancel_amount.toFixed(2)).digits();
+                    $('#tot_cancel_month h3').html(chartData.tot_cancel_amount).digits();
 
     			}
         	});
@@ -546,7 +553,7 @@ var EcommerceIndex = function () {
         
 	    
 	    // Order Overview DataTable Set
-	    setOrderOverviewList: function(mode) {
+	    setOrderOverviewList: function(mode, ch) {
 		    	Metronic.blockUI({
 		    		
 	                target: '#pt_order_overview',
@@ -555,12 +562,12 @@ var EcommerceIndex = function () {
 		    	
 		    	
 		    	$.ajax({
-   				url: '/orders/orderOverviewList.sc',
+   				url: '/orders/orderOverviewList.sc?ch='+ch,
    				success:function(data)
    				{
    					if(mode == 'reload'){
    						reload_table_overview('#table_new_list', data.newList);
-   						eload_table_overview('#table_shipped_list', data.shippedList);
+   						reload_table_overview('#table_shipped_list', data.shippedList);
    						reload_table_overview('#table_cancelled_list', data.cancellList);
    						reload_table_overview('#table_pending_list', data.pendingList);
    						reload_table_overview('#table_error_list', data.errList);

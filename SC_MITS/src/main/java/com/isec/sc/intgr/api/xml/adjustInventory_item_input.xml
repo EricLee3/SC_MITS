@@ -1,0 +1,4 @@
+<Item OrganizationCode="{0}" ItemID="{1}" Quantity="{2}" 
+	ShipNode="{3}" UnitOfMeasure="{4}" SupplyType="ONHAND" 
+	AdjustmentType="ADJUSTMENT">
+</Item>

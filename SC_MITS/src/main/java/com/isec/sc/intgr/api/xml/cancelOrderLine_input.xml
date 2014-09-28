@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Order Action="CANCEL" DocumentType="{0}"
-    EnterpriseCode="{1}" Override="Y"
-    OrderNo=" {2}">
-    
+<Order DocumentType="{0}" EnterpriseCode="{1}" Override="Y" OrderNo="{2}">
+    <OrderLines>
+        {3}
+    </OrderLines>
     <Notes>
-        <Note ReasonCode="{3}"
-           NoteText="{4}" VisibleToAll="Y"/>
+        <Note ReasonCode="{4}"
+           NoteText="{5}" VisibleToAll="Y"/>
     </Notes>
 </Order>

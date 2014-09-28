@@ -235,6 +235,7 @@
 				<div class="caption">
 					<i class="fa fa-thumb-tack"></i>최근 오더목록
 				</div>
+				
 				<div class="tools">
 					<!-- 
 					<a href="javascript:;" class="collapse">
@@ -247,6 +248,38 @@
 					</a> -->
 				</div>
 				<div class="actions">
+					<div class="btn-group">
+						<a class="btn btn-default btn-sm" href="#" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+						스토어 <i class="fa fa-angle-down"></i>
+						</a>
+						<ul class="dropdown-menu pull-right">
+							<li>
+								<a href="javascript:getOrderListByCh('*');">
+								All </a>
+							</li>
+							<li class="divider"> </li>
+							<li>
+								<a href="javascript:getOrderListByCh('ASPB');">
+								Aspen Bay </a>
+							</li>
+							<li>
+								<a href="javascript:getOrderListByCh('JNS');">
+								Joseph & Stacey </a>
+							</li>
+							<li>
+								<a href="javascript:getOrderListByCh('OUTRO');">
+								Outro </a>
+							</li>
+							<!-- <li class="divider">
+							</li> -->
+							<!-- <li>
+								<a href="#">
+								Pending <span class="badge badge-danger">
+								4 </span>
+								</a>
+							</li> -->
+						</ul>
+					</div>
 					<a class="btn btn-default btn-sm" href="javascript:;" id="btn_more_order">
 					More
 					<i class="fa fa-edit"></i>
@@ -498,7 +531,7 @@
 		 EcommerceIndex.setOrderReportChart(moment().subtract('month', 2).format('YYYYMM'), 3);
 		 
 		 // get Order Overview Data - tableData
-		 EcommerceIndex.setOrderOverviewList();
+		 EcommerceIndex.setOrderOverviewList('','*');
 		 
 		 
 		 // Chart Reload Button Click Event Handler
@@ -516,7 +549,7 @@
 			 e.preventDefault();	// prevent default event
 			 e.stopPropagation();   // stop event handling here(cancel the default reload handler)
 			 
-			 EcommerceIndex.setOrderOverviewList('reload');
+			 EcommerceIndex.setOrderOverviewList('reload', '*');
 		 });
 		 
 		 // Order Overview 'More' Button Click Event Handler
@@ -553,5 +586,12 @@
 		var sMonth = moment().subtract('month', term).format('YYYYMM');
 		EcommerceIndex.setOrderReportChart(sMonth, term+1);
 	}
+	
+	
+	function getOrderListByCh(ch){
+		
+		EcommerceIndex.setOrderOverviewList('reload', ch);
+	}
+	
 	
 </script>

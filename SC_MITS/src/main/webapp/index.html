@@ -376,7 +376,14 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- END PAGE LEVEL SCRIPTS -->
 
 <script>
-
+	
+	$.fn.digits = function(){ 
+	    return this.each(function(){ 
+	        $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") ); 
+	    })
+	}
+	
+	
 	// Order Detail Page's Active Tab Index
 	var order_detail_tab_index = 0;
 

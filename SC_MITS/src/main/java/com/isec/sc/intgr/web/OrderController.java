@@ -16,6 +16,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,9 @@ public class OrderController {
 	
 	@Value("${sc.api.cancelOrder.template}")
 	private String CANCEL_ORDER_TEMPLATE;
+	
+	@Value("${sc.api.cancelOrderLine.template}")
+	private String CANCEL_ORDER_LINE_TEMPLATE;
 	
 	@Value("${sc.api.changeOrder.addNote.template}")
 	private String CHANGE_ORDER_ADD_NOTE_TEMPLATE;
@@ -860,9 +864,17 @@ public class OrderController {
 	 * @return
 	 */
 	@RequestMapping(value = "/cancelOrder.sc")
-	public ModelAndView cancelOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no,
-										@RequestParam String cancel_reason, @RequestParam String cancel_note)
+	public ModelAndView cancelOrder(@RequestParam Map<String, String> paramMap)
 	{
+		
+		String doc_type = (String)paramMap.get("doc_type");
+		String ent_code = (String)paramMap.get("ent_code");
+		String order_no = (String)paramMap.get("order_no");
+		String cancel_reason = (String)paramMap.get("cancel_reason");
+		String cancel_note = (String)paramMap.get("cancel_note");
+		String cancel_type = (String)paramMap.get("cancel_type");
+		String line_keys = (String)paramMap.get("line_keys");
+		
 		
 		logger.debug("##### Cancel Order API Called !!!");
 		
@@ -871,12 +883,42 @@ public class OrderController {
 		logger.debug("##### [order_no]"+ order_no);
 		logger.debug("##### [cancel_reason]"+ cancel_reason);
 		logger.debug("##### [cancel_note]"+ cancel_note);
+		logger.debug("##### [cancel_type]"+ cancel_type);
+		logger.debug("##### [line_keys]"+ line_keys);
 		
 		
-		String cancelOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_TEMPLATE));
+		String templateFile = "";
+		MessageFormat msg = null;
+		String inputXML = "";
+		String apiName = "cancelOrder";
 		
-		MessageFormat msg = new MessageFormat(cancelOrderXML);
-		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, cancel_reason, cancel_note} );
+		if("order".equals(cancel_type)){
+			
+			templateFile = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_TEMPLATE));
+			msg = new MessageFormat(templateFile);
+			inputXML = msg.format(new String[] {doc_type, ent_code, order_no, cancel_reason, cancel_note} );
+		
+		}else if("line".equals(cancel_type)){
+			templateFile = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_LINE_TEMPLATE));
+			msg = new MessageFormat(templateFile);
+			
+			
+			String[] lineKey = line_keys.split("\\|");
+			logger.debug("[lineKey]"+lineKey.length);
+			
+			
+			String lineTemplate = "";
+			for( int i=0; i<lineKey.length; i++){
+				lineTemplate = lineTemplate + "<OrderLine Action=\"CANCEL\" OrderedQty=\"0\"  OrderLineKey=\""+lineKey[i]+"\">"
+				        						+ "</OrderLine>";
+			}
+			
+			inputXML = msg.format(new String[] {doc_type, ent_code, order_no, lineTemplate, cancel_reason, cancel_note} );
+		}
+		
+		
+		
+		
 		logger.debug("##### [inputXML_CancelOrder]"+inputXML); 
 		
 		ModelAndView mav = new ModelAndView("jsonView");
@@ -886,7 +928,7 @@ public class OrderController {
 		try
 		{
 			// API Call
-			outputMsg = sterlingApiDelegate.comApiCall("cancelOrder", inputXML);
+			outputMsg = sterlingApiDelegate.comApiCall(apiName, inputXML);
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
 			
 			// TODD: Error 메세지 정규화 작업필요
@@ -1018,6 +1060,9 @@ public class OrderController {
 	@RequestMapping(value = "/orderOverviewList.sc")
 	public ModelAndView getOrderOverviewList(@RequestParam Map<String, String> paramMap) throws Exception{
 		
+		String ch = (String)paramMap.get("ch");
+		logger.debug("[ch]"+ch);
+		
 		String docType = (String)paramMap.get("doc_type");
 		if( docType == null || "".equals(docType)){
 			docType = "0001";
@@ -1028,7 +1073,7 @@ public class OrderController {
 		
 		// TODO: 향후 로그인 유저의 조직정보로 세팅
 		String entCode = "*";
-		String sellerCode = "*";
+		String sellerCode = ch;
 		
 		String errListKey = entCode + ":" + sellerCode + ":order:error";
 		
@@ -1046,7 +1091,7 @@ public class OrderController {
 			List<String> errorDataList = listOps.range(errKey, 0, 6);
 			for( String jsonData:  errorDataList){
 				
-				HashMap<String,Object> result = new ObjectMapper().readValue(jsonData, HashMap.class);
+				HashMap<String,Object> result = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,Object>>(){});
 				errList.add(result);
 			}
 		}
@@ -1062,9 +1107,9 @@ public class OrderController {
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("newList",getOrderOverviewList(docType, entCode, sellerCode, "") );	// New Order List - Top10
-		mav.addObject("releaseList",getOrderOverviewList(docType, entCode, sellerCode, "3200") );	// 주문확정대기 리스트 TODO: BackOrdered건도 추가
+		mav.addObject("releaseList",getOrderOverviewList(docType, entCode, sellerCode, "1300") );	// 주문확정대기 리스트 TODO: BackOrdered건도 추가
 		mav.addObject("shippedList",getOrderOverviewList(docType, entCode, sellerCode, "3700") ); // 출고완료 리스트
-		mav.addObject("cancellList",getOrderOverviewList(docType, entCode, sellerCode, "1300") ); // 주문취소 리스트
+		mav.addObject("cancellList",getOrderOverviewList(docType, entCode, sellerCode, "9000") ); // 주문취소 리스트
 		mav.addObject("errList",errList);
 		
 		return mav;
@@ -1104,7 +1149,6 @@ public class OrderController {
 		+ " MaximumRecords  = \"{3}\"  >"
 		// Descending OrderDate
 		+ "<OrderBy><Attribute Desc=\"Y\" Name=\"OrderDate\"/></OrderBy> "
-		
 		+ "</Order> ";
 		
 		MessageFormat msg = new MessageFormat(getOrderList_input);

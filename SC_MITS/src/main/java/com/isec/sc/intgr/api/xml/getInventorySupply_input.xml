@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<InventorySupply 
+    OrganizationCode="{0}" ItemID="{1}" ShipNode="{2}" UnitOfMeasure="{3}"
+    SupplyType="ONHAND" ValidateShipNode="Y">    
+</InventorySupply>
