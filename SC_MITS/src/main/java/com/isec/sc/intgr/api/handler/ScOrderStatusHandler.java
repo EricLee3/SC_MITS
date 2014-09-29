@@ -545,17 +545,12 @@ public class ScOrderStatusHandler {
 			
 			// RedisKey for CUBE -> SC 
 			// TODO: Test 용, 큐브연동후 삭제 할 것
-			sendMsgMap.put("status", "3202"); // 3202
+			sendMsgMap.put("status", "3200"); // 3200
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap);
-			
-			
 			String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
 			logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
-			
-			
-			
 			
 			
 			logger.debug("[Order Release Hanlder Started]");

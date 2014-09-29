@@ -105,20 +105,29 @@ public class ProductSyncTask {
 				// JSON 추출
 				/*
 				 * {
-				 *   "list":[
-					    {
-					        "org_code": "사업부코드",
-					        "prodinc": "스타일코드",
-					        "bar_code": "상품코드",
-					        "pname": "상품명",
-					        "sale_price": "최초판매가",
-					        "brand_id": "브랜드ID",
-					        "brand_name": "브랜드명",
-					        "item_color": "컬러",
-					        "item_size": "사이즈"
-					    },
-					  ]
+					    "list": [
+					        {
+					            "org_code": "사업부코드",
+					            "prodinc": "스타일코드",
+					            "brand_id": "브랜드ID",
+					            "brand_name": "브랜드명",
+					            "sale_price": "최초판매가",
+					            "optioninfo": [
+					                {
+					                    "item_color": "컬러",
+					                    "item_size": "사이즈",
+					                    "bar_code": "상품바코드"
+					                },
+					                {
+					                    "item_color": "컬러",
+					                    "item_size": "사이즈",
+					                    "bar_code": "상품바코드"
+					                }
+					            ]
+					        }
+					    ]
 					}
+
 				 */
 				String jsonString = listOps.rightPop(redisKeyC2S);
 				
@@ -128,91 +137,101 @@ public class ProductSyncTask {
 				logger.debug("##### [itemList size]" + itemList.size());
 				
 				
-		    	String itemString = "";
+				ArrayList<HashMap<String,Object>> returnList = new ArrayList<HashMap<String,Object>>();
+				ArrayList<HashMap<String,Object>> succList = new ArrayList<HashMap<String,Object>>();
+				ArrayList<HashMap<String,Object>> failList = new ArrayList<HashMap<String,Object>>();
+				
 				for(int k=0; k<itemList.size(); k++){
 					
 					HashMap<String, Object> itemMap = itemList.get(k);
 					
 					// TODO: 사업부코드 -> 조직코드 매핑
-//					String ent_code = env.getProperty("ca."+(String)itemMap.get("org_code"));
-					String ent_code ="Aurora-Corp";
+					String ent_code = env.getProperty("ca."+(String)itemMap.get("org_code"));
+					logger.debug("##### [ent_code]" + ent_code);
+					ent_code ="SLV";
 					
 					String prodinc = (String)itemMap.get("prodinc");
-					String bar_code = (String)itemMap.get("bar_code");
 					String pname = (String)itemMap.get("pname");
 					String sale_price = (String)itemMap.get("sale_price");
 					String brand_id = (String)itemMap.get("brand_id");
 					String brand_name = (String)itemMap.get("brand_name");
-					String item_color = (String)itemMap.get("item_color");
-					String item_size = (String)itemMap.get("item_size");
 					
-					MessageFormat msg = new MessageFormat(manageItemItemTempate);
-					String itemXML = msg.format(new String[] {
-																bar_code, ent_code, "EACH", 
-																CommonUtil.cuurentDateFromFormat("yyyy-MM-dd"),"9999-12-31",
-																brand_id, brand_name, sale_price, pname,
-																item_color, item_size, "3000"
-															} 
-					);
-					itemString = itemString +"\n"+ itemXML;
-				}// End for
-				
-				String itemXML = "";
-				itemXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-						+ "<ItemList>"
-						+  itemString
-						+ "</ItemList>";
-				logger.debug("##### [managetItem input XNL]"+itemXML); 
-				
-				
-				// manageItem API 호출
-				HashMap<String, Object> resultMap = sterlingApiDelegate.manageItem(itemXML);
-				String succ = (String)resultMap.get("succ");
-				
-				// 성공
-				if("01".equals(succ)){
 					
-					logger.debug("#####[manageItem Success]");
+					// barcode 추출
+					String itemString = "";
+					ArrayList<HashMap<String,Object>> barCodeList = (ArrayList<HashMap<String,Object>>)itemMap.get("optioninfo");
+					for(int kk=0; kk<barCodeList.size(); kk++){
+						
+						String item_color = (String)barCodeList.get(kk).get("item_color");
+						String item_size = (String)barCodeList.get(kk).get("item_size");
+						String bar_code = (String)barCodeList.get(kk).get("bar_code");
+						
+						MessageFormat msg = new MessageFormat(manageItemItemTempate);
+						String itemXML = msg.format(new String[] {
+																	bar_code, ent_code, "EACH", 
+																	CommonUtil.cuurentDateFromFormat("yyyy-MM-dd"),"9999-12-31",
+																	brand_id, brand_name, sale_price, pname,
+																	item_color, item_size, "3000"
+																} 
+						);
+						itemString = itemString +"\n"+ itemXML;
+					} // End for barcode 추출
 					
-					// CUBE 결과전송키에 저장 (성공)
+					String itemXML = "";
+					itemXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+							+ "<ItemList>"
+							+  itemString
+							+ "</ItemList>";
+					logger.debug("##### [managetItem input XNL]"+itemXML); 
+					
+					
+					// manageItem API 호출
+					HashMap<String, Object> resultMap = sterlingApiDelegate.manageItem(itemXML);
+					String succ = (String)resultMap.get("succ");
+					
+					
+					// 결과값처리
 					HashMap<String, Object> returnMap = new HashMap<String, Object>();
-					returnMap.put("result_code", succ);
-					returnMap.put("list", new ArrayList());
-					ObjectMapper resultMapper = new ObjectMapper();
-					listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnMap));
+					returnMap.put("prodinc", prodinc);
 					
-					logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
+					// 성공
+					if("01".equals(succ)){
+						logger.debug("#####[manageItem Success]");
+						returnMap.put("statuscd", succ);
+						
+					// 실패	
+					}else if("99".equals(succ)){
+						logger.debug("#####[manageItem Api Failed]");
+						returnMap.put("statuscd", succ);
+					}
+					returnList.add(returnMap);
 					
-					
-					// MA 전송키에 저장 - 수신받은 데이타 그대로 전송
-					listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(itemList));
-					
-					logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(itemList));
-					
-				// 실패	
-				}else if("99".equals(succ)){
-					
-					logger.debug("#####[manageItem Api Failed]");
-					
-					// CUBE 결과전송키에 저장 (실패)
-					// 수신받은 데이타 그대로 전송( SC는 실패시  전체 RollBack 되기때문)
-					HashMap<String, Object> returnMap = new HashMap<String, Object>();
-					returnMap.put("result_code", succ);
-					returnMap.put("list", itemList);
-					
-					// Java Object(Map) to JSON	
-					ObjectMapper resultMapper = new ObjectMapper();
-					listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnMap));
-					
-					logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
-					
-					
-					// Error키에 결과데이타 그대로 별도저장 - SC 관리용
-					listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(resultMap));
-					
-					logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(returnMap));
-				}
-			}
+				} // End for Item List
+				
+				
+				HashMap<String, Object> returnListMap = new HashMap<String, Object>();
+				returnListMap.put("list", returnList);
+				
+				// Cube에 결과값 전송
+				ObjectMapper resultMapper = new ObjectMapper();
+				listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnListMap));
+				logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnListMap));
+				
+				
+				// MA에 결과값 전송 - 받은데이타 그대로 전송
+				// TODO: 성공건에 대해서만 전송처리
+				listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(itemList));
+				logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(itemList));
+				
+				
+				// Error키에 실패데이타 저장 - SC 관리용
+				// TODO: 실패건에 대해서만 barcode단위로 저장처리
+				listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(returnListMap));
+				logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(returnListMap));
+				
+				
+				
+			} // End for Redis Data
 
 			
 		} catch (Exception e) {
@@ -279,8 +298,9 @@ public class ProductSyncTask {
 					HashMap<String, Object> itemMap = itemInvList.get(k);
 					
 					// TODO: 사업부코드 -> 조직코드 매핑
-//					String ent_code = env.getProperty("ca."+(String)itemMap.get("org_code"));
-					String ent_code ="Aurora-Corp";
+					String ent_code = env.getProperty("ca."+(String)itemMap.get("org_code"));
+					logger.debug("##### [ent_code]" + ent_code);
+					ent_code ="SLV";
 					
 					String ship_node = (String)itemMap.get("ship_node");	// 창고코드
 					String bar_code = (String)itemMap.get("bar_code");  	// 상품코드

@@ -82,10 +82,10 @@ public class ProductSyncTest {
 	private String redis_ma_index;
 	
 	
-	@Value("${key.ca.aspb.product.C2S}")
+	@Value("${key.ca.KOLOR.product.C2S}")
 	private String key_aspb_product_c2s;
 	
-	@Value("${key.ca.aspb.inventory.C2S}")
+	@Value("${key.ca.KOLOR.inventory.C2S}")
 	private String key_aspb_inventory_c2s;
 	
 	// Cube 상품등록 테스트
@@ -95,47 +95,62 @@ public class ProductSyncTest {
 		
 		/*
 		 * {
-		 	"list":[
-				    {
-				        "org_code": "사업부코드",
-				        "prodinc": "스타일코드",
-				        "bar_code": "상품코드",
-				        "pname": "상품명",
-				        "sale_price": "최초판매가",
-				        "brand_id": "브랜드ID",
-				        "brand_name": "브랜드명",
-				        "item_color": "컬러",
-				        "item_size": "사이즈"
-				    }
-				  ]
+		    "list": [
+		        {
+		            "org_code": "사업부코드",
+		            "prodinc": "스타일코드",
+		            "brand_id": "브랜드ID",
+		            "brand_name": "브랜드명",
+		            "nation": "원산지",
+		            "sale_price": "최초판매가",
+		            "optioninfo": [
+		                {
+		                    "item_color": "컬러",
+		                    "item_size": "사이즈",
+		                    "bar_code": "상품바코드"
+		                },
+		                {
+		                    "item_color": "컬러",
+		                    "item_size": "사이즈",
+		                    "bar_code": "상품바코드"
+		                }
+		            ]
+		        }
+		    	]
 			}
 		 */
 		
 		
-		HashMap<String, ArrayList<HashMap<String,String>>> itemMap = new HashMap<String, ArrayList<HashMap<String,String>>>();
-		ArrayList<HashMap <String,String>> itemList = new ArrayList<HashMap <String,String>>();
+		HashMap<String, ArrayList<HashMap<String,Object>>> itemMap = new HashMap<String, ArrayList<HashMap<String,Object>>>();
+		ArrayList<HashMap <String,Object>> itemList = new ArrayList<HashMap <String,Object>>();
 		
-		for(int i=0; i<10; i++){
+		for(int i=1; i<=10; i++){
 			
-			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("org_code", "90");
-			map.put("prodinc", "STYLECODE");
-			
-			String idx = "";
-			if(i<10) idx = "00"+i;
-			else idx = "0"+i;
-			
-			map.put("bar_code", "STYLECODE"+idx);
-			map.put("pname", "상품명"+idx);
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("org_code", "80");
+			map.put("prodinc", "STYLECODE_"+i);
+			map.put("pname", "ProductName_"+i);
 			map.put("sale_price", "5000");
 			map.put("brand_id", "000072");
 			map.put("brand_name", "aspen_bay");
-			map.put("item_color", "B");
-			map.put("item_size", "ML");
 			
+			ArrayList<HashMap <String,String>> barCodeList = new ArrayList<HashMap <String,String>>();
+			for(int j=1; j<=5; j++){
+				
+				String idx = "";
+				if(j<10) idx = "0"+j;
+				else idx = ""+i;
+				
+				HashMap<String, String> barCodeMap = new HashMap<String, String>();
+				barCodeMap.put("bar_code", "barcode_"+i+"_"+idx);
+				barCodeMap.put("item_color", "B");
+				barCodeMap.put("item_size", "ML");
+				
+				barCodeList.add(barCodeMap);
+			}
+			map.put("optioninfo", barCodeList);
 			itemList.add(map);
 		}
-		
 		
 		itemMap.put("list", itemList);
 		
@@ -175,18 +190,16 @@ public class ProductSyncTest {
 		HashMap<String, ArrayList<HashMap<String,String>>> itemMap = new HashMap<String, ArrayList<HashMap<String,String>>>();
 		ArrayList<HashMap <String,String>> itemList = new ArrayList<HashMap <String,String>>();
 		
-		for(int i=0; i<1; i++){
+		for(int i=0; i<10; i++){
 			
 			HashMap<String, String> map = new HashMap<String, String>();
-			map.put("org_code", "90");
-			map.put("ship_node", "Aurora_WH1");
+			map.put("org_code", "80");
+			map.put("ship_node", "ISEC_WH1");
 			
 			String idx = "";
-			if(i<10) idx = "00"+i;
-			else idx = "0"+i;
+			if(i<10) idx = "0"+i;
 			
-			map.put("bar_code", "STYLECODE"+idx);
-			map.put("pname", "상품명"+idx);
+			map.put("bar_code", "barcode_1_"+idx);
 			map.put("qty", "55");
 			map.put("uom", "EACH");
 			
@@ -214,9 +227,18 @@ public class ProductSyncTest {
 	@Test
 	public void getKeyProductSync() {
 		
+		String C2S = "80:ON9999:product:C2S";
+		
 	    String key = "SLV:ASPB:product:S2M";
 	    String key1 = "80:ON9999:product:S2C";
 	    String key2 = "80:ON9999:product:error";
+	    
+	    List<String> productC2S = listOps.range(C2S, 0, -1);
+	    System.out.println( "["+productC2S+"]" +productC2S.size());
+	    
+	    for(int i=0; i<productC2S.size(); i++){
+    		System.out.println( "[S2M Data]" +productC2S.get(i));
+	    }
 	    
 	    List<String> product = listOps.range(key, 0, -1);
 	    System.out.println( "["+key+"]" +product.size());
@@ -227,9 +249,13 @@ public class ProductSyncTest {
 	    List<String> error = listOps.range(key2, 0, -1);
 	    System.out.println( "["+key2+"]" +error.size());
 	    
-	    maStringRedisTemplate.delete(key);
-	    maStringRedisTemplate.delete(key1);
-	    maStringRedisTemplate.delete(key2);
+	    
+	    
+	    maStringRedisTemplate.delete(C2S);
+	    
+//	    maStringRedisTemplate.delete(key);
+//	    maStringRedisTemplate.delete(key1);
+//	    maStringRedisTemplate.delete(key2);
 	}
 	
 	

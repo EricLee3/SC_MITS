@@ -63,7 +63,8 @@ public class ScOrderShipmentHandler {
 	/**
 	 * Create Shipment 후처리 프로세스
 	 * 
-	 * CreateShipment 후처리: MA로 출고생성정보 전달.
+	 * 
+	 * MA로 출고생성정보 전달. -> 출고준비중
 	 * 
 	 * @param returnXML
 	 * @param res

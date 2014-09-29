@@ -21,9 +21,9 @@
 	    <property name="targetMethod"><value>createOrder</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ma.aspb.order}</value>
-	    		<value>${key.ma.aspb.orderUpdate.S2M}</value>
-	    		<value>${key.ma.aspb.order.error}</value>
+	    		<value>${key.ma.KOLOR.ASPB.order}</value>
+	    		<value>${key.ma.KOLOR.ASPB.orderUpdate.S2M}</value>
+	    		<value>${key.ma.KOLOR.ASPB.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -33,9 +33,9 @@
 	    <property name="targetMethod"><value>processOrderRelease</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.aspb.order.release}</value>
-	    		<value>${key.ma.aspb.orderUpdate.S2M}</value>
-	    		<value>${key.ma.aspb.order.error}</value>
+	    		<value>${key.ca.KOLOR.ASPB.order.release}</value>
+	    		<value>${key.ma.KOLOR.ASPB.orderUpdate.S2M}</value>
+	    		<value>${key.ma.KOLOR.ASPB.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -45,9 +45,9 @@
 	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.aspb.orderUpdate.C2S}</value>
-	    		<value>${key.ma.aspb.orderUpdate.S2M}</value>
-	    		<value>${key.ma.aspb.order.error}</value>
+	    		<value>${key.ca.KOLOR.ASPB.orderUpdate.C2S}</value>
+	    		<value>${key.ma.KOLOR.ASPB.orderUpdate.S2M}</value>
+	    		<value>${key.ma.KOLOR.ASPB.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -57,10 +57,10 @@
 	    <property name="targetMethod"><value>syncProductFromCube</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.aspb.product.C2S}</value>
-	    		<value>${key.ca.aspb.product.S2C}</value>
-	    		<value>${key.ma.aspb.product.S2M}</value>
-	    		<value>${key.ca.aspb.product.error}</value>
+	    		<value>${key.ca.KOLOR.product.C2S}</value>
+	    		<value>${key.ca.KOLOR.product.S2C}</value>
+	    		<value>${key.ma.KOLOR.ASPB.product.S2M}</value>
+	    		<value>${key.ca.KOLOR.product.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -70,10 +70,10 @@
 	    <property name="targetMethod"><value>syncInventoryFromCube</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.aspb.inventory.C2S}</value>
-	    		<value>${key.ca.aspb.inventory.S2C}</value>
-	    		<value>${key.ma.aspb.inventory.S2M}</value>
-	    		<value>${key.ca.aspb.inventory.error}</value>
+	    		<value>${key.ca.KOLOR.inventory.C2S}</value>
+	    		<value>${key.ca.KOLOR.inventory.S2C}</value>
+	    		<value>${key.ma.KOLOR.ASPB.inventory.S2M}</value>
+	    		<value>${key.ca.KOLOR.inventory.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -84,9 +84,9 @@
 	    <property name="targetMethod"><value>createOrder</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ma.outro.order}</value>
-	    		<value>${key.ma.outro.orderUpdate.S2M}</value>
-	    		<value>${key.ma.outro.order.error}</value>
+	    		<value>${key.ma.DA.OUTRO.order}</value>
+	    		<value>${key.ma.DA.OUTRO.orderUpdate.S2M}</value>
+	    		<value>${key.ma.DA.OUTRO.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -95,9 +95,9 @@
 	    <property name="targetMethod"><value>processOrderRelease</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.outro.order.release}</value>
-	    		<value>${key.ma.outro.orderUpdate.S2M}</value>
-	    		<value>${key.ma.outro.order.error}</value>
+	    		<value>${key.ca.DA.OUTRO.order.release}</value>
+	    		<value>${key.ma.DA.OUTRO.orderUpdate.S2M}</value>
+	    		<value>${key.ma.DA.OUTRO.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -106,9 +106,9 @@
 	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.outro.orderUpdate.C2S}</value>
-	    		<value>${key.ma.outro.orderUpdate.S2M}</value>
-	    		<value>${key.ma.outro.order.error}</value>
+	    		<value>${key.ca.DA.OUTRO.orderUpdate.C2S}</value>
+	    		<value>${key.ma.DA.OUTRO.orderUpdate.S2M}</value>
+	    		<value>${key.ma.DA.OUTRO.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -119,8 +119,8 @@
 	    <property name="targetMethod"><value>syncProduct</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ma.outro.product}</value>
-	    		<value>${key.ma.outro.product.error}</value>
+	    		<value>${key.ma.DA.OUTRO.product}</value>
+	    		<value>${key.ma.DA.OUTRO.product.error}</value>
 	    	</list>
 	    </property>
 	</bean> -->
@@ -131,9 +131,9 @@
 	    <property name="targetMethod"><value>createOrder</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ma.jns.order}</value>
-	    		<value>${key.ma.jns.orderUpdate.S2M}</value>
-	    		<value>${key.ma.jns.order.error}</value>
+	    		<value>${key.ma.ISEC.JNS.order}</value>
+	    		<value>${key.ma.ISEC.JNS.orderUpdate.S2M}</value>
+	    		<value>${key.ma.ISEC.JNS.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -143,9 +143,9 @@
 	    <property name="targetMethod"><value>processOrderRelease</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.jns.order.release}</value>
-	    		<value>${key.ma.jns.orderUpdate.S2M}</value>
-	    		<value>${key.ma.jns.order.error}</value>
+	    		<value>${key.ca.ISEC.JNS.order.release}</value>
+	    		<value>${key.ma.ISEC.JNS.orderUpdate.S2M}</value>
+	    		<value>${key.ma.ISEC.JNS.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -155,9 +155,9 @@
 	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
 	    <property name="arguments">
 	    	<list>
-	    		<value>${key.ca.jns.orderUpdate.C2S}</value>
-	    		<value>${key.ma.jns.orderUpdate.S2M}</value>
-	    		<value>${key.ma.jns.order.error}</value>
+	    		<value>${key.ca.ISEC.JNS.orderUpdate.C2S}</value>
+	    		<value>${key.ma.ISEC.JNS.orderUpdate.S2M}</value>
+	    		<value>${key.ma.ISEC.JNS.order.error}</value>
 	    	</list>
 	    </property>
 	</bean>
