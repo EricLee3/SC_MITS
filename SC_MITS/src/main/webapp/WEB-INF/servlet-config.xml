@@ -15,7 +15,8 @@
 	
 	<context:property-placeholder 
   		location="classpath:mits.properties,
-  				  classpath:redis.properties"/>
+  				  classpath:redis.properties"
+  		ignore-unresolvable="true" />
 	
 	<bean id="sterlingHTTPConnector" class="com.isec.sc.intgr.api.delegate.SterlingHTTPConnector">
 	    <constructor-arg name="url" value="${sc.api.http.url}" />

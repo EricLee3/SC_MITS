@@ -95,12 +95,13 @@ public class SterlingApiDelegate {
 	 */
 	public String comApiCall(String apiName, String inputXML) throws Exception{
 		
+		logger.debug("#####["+apiName+"][input]"+inputXML);
 		
 		sterlingHTTPConnector.setApi(apiName);
 		sterlingHTTPConnector.setData(inputXML);
 		
 		String outputXML = sterlingHTTPConnector.run();
-//		logger.debug("[comApiCall outputXML]"+outputXML);
+		logger.debug("#####["+apiName+"][output]"+outputXML);
 		
 		return outputXML;
 	}

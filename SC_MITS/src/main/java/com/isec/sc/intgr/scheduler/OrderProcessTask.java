@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -49,6 +50,7 @@ public class OrderProcessTask {
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
+	@Autowired	private Environment env;
 
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
@@ -130,9 +132,9 @@ public class OrderProcessTask {
      */
     public void processOrderRelease(String redisKey, String redisPushKey, String redisErrKey){
     	
-    		logger.debug("##### [processOrderRelease] Job Task Start!!!");
+		logger.debug("##### [processOrderRelease] Job Task Start!!!");
     	
-    		long dataCnt =  listOps.size(redisKey);
+		long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
     		
 		
@@ -152,7 +154,7 @@ public class OrderProcessTask {
 				String orderId = (String)dataMap.get("orderId");
 				logger.debug("[docType]" + docType);
 				logger.debug("[entCode]" + entCode);
-				logger.debug("[entCode]" + entCode);
+				logger.debug("[orderId]" + orderId);
 				
 		    		
 				// Set Input XML
@@ -224,48 +226,12 @@ public class OrderProcessTask {
     				String status = (String)dataMap.get("status");
     				logger.debug("[status]"+status);
     				
-    				
     				// Create Shipment
     				if("3202".equals(status)){
-    				
-    					
-    					/*
-        				 * Cube로 부터 주문확정정보 전송에 대한 정상응답인 경우 - 정상 출고예정정보 등록
-        				 * Create Shipment 실행
-        				 */
     					processReleaseReturn(dataMap, redisKey, redisPushKey, redisErrKey);
-    					
     					
     				// Confirm Shipment
     				}else if("3700".equals(status)){
-    					
-    					/*
-    					 * Cube로 부터 출고확정정보 
-    					 * 
-    					 * {
-    					 *  "orderId":"","status":"3700","orderHeaderKey":"","docType":"0001",”entCode":"SLV",
-    						”sellerCode”:”ASPB”, 
-    						"totalCharge":"총비용","expDeliveryDate":"배송예정일","currency":"통화",
-    						“shipment”:[ 
-    						 {
-    							"shipmentNo":"출고번호", "shipNode":"ISEC_WH1",
-    							"carrierCode":"배송업체코드", "carrierTitle":" 배송업체명", "trackingNo":"송장번호", 
-    							"items":[
-    									 {"itemId":" 상품코드",  "qty":" 수량 "} ,
-    									 {"itemId":" 상품코드 ",  "qty":" 수량 "}
-    									]
-    						 },
-    						 {
-    							"shipmentNo":"출고번호", "shipNode":"ISEC_WH1",
-    							"carrierCode":" 배송업체코드 ", "carrierTitle":" 배송업체명 ", 
-    							"trackingNo":"송장번호", 
-    							"items":[
-    									{"itemId":" 상품코드",  "qty":" 수량 "} ,
-    									 {"itemId":" 상품코드 ",  "qty":" 수량 "}
-    									]
-    						 }
-    						} 
-    					 */
     					processConfirmShipment(dataMap, redisKey, redisPushKey, redisErrKey);
     				}
     			} // End for
@@ -278,7 +244,7 @@ public class OrderProcessTask {
 	
 	/**
 	 * 
-	 * 주문확정정보 응답 수신프로세스 From Redis (From Cube) 3201
+	 * 주문확정정보 응답 수신프로세스 From Redis (From Cube) 3202
 	 * 
 	 * Cube의 처리결과를 받아 Create Shipment API(출고생성)를 호출하는 프로세스
 	 * 부분취소가 일어난 경우 Release된 오더라인만 출고생성됨.
@@ -292,15 +258,23 @@ public class OrderProcessTask {
 	 * 
 	 * Redis Data Format
 	 *  {
-	 *   "orderHeaderKey":"20140905192100126754",
-	 *   "docType":"0001",
-	 *   "status":"3201",
-	 *   "sellerCode":"ASPB",
-	 *   "trDate":"20140905193934",
-	 *   "orderId":"Y100000350",
-	 *   "entCode":"SLV",
-	 *   "confirmed":[{"orderReleaseKey":"20140905192954126894","primeLineNo":"1","qty":"2.00","itemId":"ASPB_ITEM_0001"}]
-	 *  }
+		    "org_code": "사업부코드",
+		    "sell_code": "판매채널코드",
+		    "orderId": "오더번호",
+		    "orderHeaderKey": "오더번호키",
+		    "status": "3202",
+		    "tranDt": "전송일자",
+		    "list": [
+		        {
+		            "ship_node": "창고코드",
+					"orderLineNo": "오더라인순번",
+					"orderLineKey": "오더라인키",
+		            "orderReleaseKey": "오더라인확정키",
+		            “shipmentNo”:”전표번호”,
+		            “statuscd”:”결과코드”
+		}
+		    ]
+		}
 	 * 
 	 * 	- Redis Read Key: SLV:ASPB:order:update:C2S
 	 * 
@@ -324,30 +298,82 @@ public class OrderProcessTask {
 		logger.debug("##### [processReleaseReturn] Job Task Started!!!");
 				
 		// createShipment API 호출
-		String docType = (String)dataMap.get("docType");
-		String entCode = (String)dataMap.get("entCode");
+		String docType = "0001";	// Sales Order
+		String entCode = env.getProperty("ca."+(String)dataMap.get("org_code")); // TODO: Cube의 사업부코드 - SC조직코드로 매핑
+		String sellerCode = (String)dataMap.get("sell_code");
 		String orderId = (String)dataMap.get("orderId");
 		logger.debug("[docType]"+docType);
 		logger.debug("[entCode]"+entCode);
+		logger.debug("[sellerCode]"+sellerCode);
 		logger.debug("[orderId]"+orderId);
 		
+		/*
+		 * TODO: 오더라인 리스트의 첫번째 결과로 해당오더의 처리결과를 판단한다. 
+		 *       Cube에서 오더라인 1건만 출고의뢰실패하더라도 오더전체를 품절취소 또는 실패로 처리해서 전송함
+		 */
+		String resultCode = (String)((ArrayList<HashMap<String,Object>>)dataMap.get("list")).get(0).get("statuscd");
+		ObjectMapper mapper = new ObjectMapper();
+		String outputMsg = mapper.writeValueAsString(dataMap);
 		
-		// "confirmed":[{"orderReleaseKey":"20140905192954126894","primeLineNo":"1","qty":"2.00","itemId":"ASPB_ITEM_0001"}]
-//			ArrayList<HashMap<String, String>> releaseNoList = (ArrayList<HashMap<String, String>>)dataMap.get("confirmed");
-		
-		// Order Release Key 조회
-		// TODO: 하나의 주문에 릴리즈가 2건이상일 경우(현재는 발생하지 않음)의 로직설계 필요
-		ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
-		
-		for(int j=0; j<releaseKeys.size(); j++){
+		// 품절취소 
+		if("90".equals(resultCode))
+		{	
+			logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
 			
-			// TODO: Cube연동시 ShipmentNo 적용필요
-//			HashMap<String, String> resultMap = sterlingApiDelegate.createShipment("", releaseNoList.get(j).get("orderReleaseKey"));
-			int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
-			if(result == 0){
-				// TODO: createShipment API호출 예외처리
+			// 1. 상품정보 추출
+			
+			// 2. adjustInventory 호출 - 재고 0으로 변경 - TODO: 재고변경 이벤트핸들러를 통해 MA로 재고변경정보 전송 
+			
+			
+			// 3. scheduleOrder 호출 - 자동으로 SC에서 재고부족으로 상태변경. 운영자 확인후 취소처리 필요
+			HashMap<String, String> resultMap = new HashMap<String, String>();
+			resultMap.put("entCode", entCode);
+			resultMap.put("orderId", orderId);
+			resultMap.put("docType", docType);
+			
+			String retryOrderReleaseData = mapper.writeValueAsString(resultMap);
+			logger.debug("[retryOrderReleaseData]"+retryOrderReleaseData);
+			
+			// 재 Release처리를 위해 Release처리키에 데이타 전송
+			String releaseKey = entCode+":"+sellerCode+":order:release";
+			listOps.leftPush(releaseKey, retryOrderReleaseData);
+			
+			// 스케줄러를 기다리지 않고 바로 수동으로 Order Release Task 실행
+			processOrderRelease(releaseKey, "", redisErrKey);
+			
+		}
+		// 실패
+		else if("99".equals(resultCode))
+		{
+			logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
+			
+			// 에러키에 저장
+			// TODO: 출고의뢰 결과수신 예외처리 필요
+			listOps.leftPush(redisErrKey, outputMsg);
+			
+		}
+		// 성공일 경우
+		else if("01".equals(resultCode)){
+			
+			// Order Release Key 조회
+			// TODO: 하나의 주문에 릴리즈가 2건이상일 경우 고려필요함. 현재는 한건의 주문은 한건의 릴리즈로 생성됨을 전제로 연동
+			ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
+			
+			// 릴리즈키와 Cube에서 전송된 출고의뢰 전표번호로 출고생성 API호출 - createShipment 
+			for(int j=0; j<releaseKeys.size(); j++){
+				
+				// TODO: Cube연동시 ShipmentNo에 전표번호 적용필요
+				int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
+				if(result == 0){
+					
+					// TODO: createShipment API호출 예외처리
+					// JSON 변환
+					listOps.leftPush(redisErrKey, outputMsg);
+					
+				}
 			}
 		}
+		
 		
 		logger.debug("##### [processReleaseReturn] Job Task End!!!");
 	}

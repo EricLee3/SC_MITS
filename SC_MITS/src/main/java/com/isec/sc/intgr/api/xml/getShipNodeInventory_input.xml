@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<getShipNodeInventory ConsiderAllNodes="Y" ConsiderAllSegments="Y"
+    DistributionRuleId="" OrganizationCode="{0}" ItemID="{1}" Node="{2}"  UnitOfMeasure="{3}"/>

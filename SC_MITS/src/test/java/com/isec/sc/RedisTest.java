@@ -192,7 +192,7 @@ public class RedisTest {
 		
 	}
 		
-		@Test
+	@Ignore
 		public void TestOrderCreatePubToWCS(){
 			
 			

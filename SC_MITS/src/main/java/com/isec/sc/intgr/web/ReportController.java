@@ -85,7 +85,7 @@ public class ReportController {
 		// TODO: 채널정보 property로 뺼것
 		String entCode[] = {"SLV", "DA", "ISEC"};
 		String sellerCode[] = {"ASPB", "OUTRO", "JNS"};
-		String sellerCodeName[] = {"Aspen Bay", "Outro", "J&S US"};
+		String sellerCodeName[] = {"Aspen Bay", "Outro", "J&S"};
 		
 //		String entCode[] = {"ISEC"};
 //		String sellerCode[] = {"ASPB"};

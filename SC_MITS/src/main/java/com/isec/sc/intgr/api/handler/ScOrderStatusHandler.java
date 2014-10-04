@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Reader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -36,7 +38,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.CommonUtil;
+import com.isec.sc.intgr.api.util.FileContentReader;
 import com.isec.sc.intgr.report.OrderReportService;
 
 @Controller
@@ -51,14 +55,25 @@ public class ScOrderStatusHandler {
 	
 	// Report Data 생성을 위한 Service Bean
 	@Autowired	private OrderReportService orderReportService;
+	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
+	@Autowired	private Environment env;
+	
+	
 	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;	
 	
+	@Value("${sc.api.getOrderReleaseDetails.template}")
+	private String GET_ORDER_RELEASE_DETAILS_TEMPLATE;
+	
+	@Value("${sc.api.order.getOrderReleaseDetails}")
+	private String GET_ORDER_RELEASE_DETAILS_API;
 	
 	/**
-	 * 오더 최소생성 후 처리
-	 *  1. 오더건수, 금액 집계
+	 * 오더 생성 후처리 메서드
+	 *  1. 오더생성 결과 MA 전송 
+	 *  2. 오더자동릴리즈(주문확정)을 위해 order:release 키에 오더정보 전송
+	 *  1. Report Data 생성 - 오더건수, 금액 집계 처리
 	 * 
 	 * 
 	 * @param returnXML
@@ -244,7 +259,7 @@ public class ScOrderStatusHandler {
 		// Released or Partially Released
 		else if("3200".equals(maxOrderStatus))
 		{
-			// Released일 경우만 후처리
+			// 전체 Released일 경우만 후처리
 			if(minOrderStatus.equals(maxOrderStatus)){
 				
 				logger.debug("[Order Release Hanlder Started]");
@@ -374,65 +389,20 @@ public class ScOrderStatusHandler {
 		try{
 			
 			// 공통정보 추출
-			String orderKey = outputXML.getAttribute("OrderHeaderKey");
-			String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
-			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
-			String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
-			String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
-			String minOrderStatus = outputXML.getAttribute("MinOrderStatus");	// 최대 오더상태 코드값
-			
-			
-			HashMap<String,Object> sendMsgMap = new HashMap<String,Object>();
-			
 			/*
-			 * 1. 큐브전송
-			 * 
-			 * SC 필수항목
-			 * - 오더번호, 오더유형, 관리조직, 셀러, 상태(3200)
-			 * 
-			 * 큐브전송항목
-			 * - 출고의뢰일자, 주문번호, 상품코드, 상품명, 수량, 판매가, 고객명(수취인), 우편번호, 수취인주소, 고객/수취인HP, 고객/수취인TEL
-			 * 
-			 * 
-			 *     [오더전체가격정보]
-			 		<PriceInfo Currency="" EnterpriseCurrency="" ReportingConversionDate="" ReportingConversionRate="" TotalAmount=""/>
-	    			   <OverallTotals GrandCharges="" GrandDiscount="" GrandTax=""
-	        				GrandTotal="" HdrCharges="" HdrDiscount="" HdrTax="" HdrTotal="" LineSubTotal=""/>
-	               [오더라인 Status정보]
-	               <OrderStatuses>
-	                <OrderStatus OrderHeaderKey="20140902154728116830"
-	                    OrderLineKey="20140902154728116831"
-	                    OrderLineScheduleKey="2014090416042811123200"
-	                    OrderReleaseKey="20140904162811123199"
-	                    OrderReleaseStatusKey="2014090416352811123201"
-	                    PipelineKey="SALES-9.3" Status="3200"
-	                    StatusDate="2014-09-04T16:28:11+09:00"
-	                    StatusDescription="Released" StatusQty="2.00" TotalQuantity="2.00"/>
-	            		</OrderStatuses>
-	            		
-			   {
-				    "orderId":"오더번호","orderHeaderKey":"오더헤더키","docType":"0001",”entCode":"SLV",”sellerCode”:”ASPB”,"status":"3200",
-				    "tranDt":"전송일자",
-					"list":[ 
-					    {
-					       "orderId":"오더번호","orderHeaderKey":"오더헤더키",
-					       "orderLineKey":"오더라인키","primeLineNo":"오더라인순번","OrderReleaseKey":"오더라인확정키","orderDt":"전송일자",
-					       "receiptNm":"수취인명","receiptTel":"수취인전화","receiptHp":"수취인휴대폰",
-					       "receiptAddr1:"수취인주소1",receiptAddr2:"수취인주소2","receiptZipcode":"수취인우편번호",
-					       "custNm":"주문자명","custTel":"주문자전화","custHp":"주문자휴대폰",
-					       "custAddr1:"주문자주소1",custAddr2:"주문자주소2","custZipcode":"주문자우편번호",
-					       "deliveryMsg":"배송메세지",
-					       "itemId":"상품코드(SKU)",itemNm:"상품명","qty":"주문수량","salePrice":"판매가격","lineTotal";"라인판매가격"
-					    },
-					]
-				}
-			 * 
-			 */
-			
-			
-			// 수취인 주소, 주문자 주소
-			/*
-			 * <PersonInfoShipTo AddressLine1="abcd" AddressLine2=""
+			   // 오더라인 Status정보
+               <OrderStatuses>
+                <OrderStatus OrderHeaderKey="20140902154728116830"
+                    OrderLineKey="20140902154728116831"
+                    OrderLineScheduleKey="2014090416042811123200"
+                    OrderReleaseKey="20140904162811123199"
+                    OrderReleaseStatusKey="2014090416352811123201"
+                    PipelineKey="SALES-9.3" Status="3200"
+                    StatusDate="2014-09-04T16:28:11+09:00"
+                    StatusDescription="Released" StatusQty="2.00" TotalQuantity="2.00"/>
+               </OrderStatuses>
+               // 수취인 주소, 주문자 주소
+			   <PersonInfoShipTo AddressLine1="abcd" AddressLine2=""
 			        AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6=""
 			        AlternateEmailID="" Beeper="" City="California" Company=""
 			        Country="US" DayFaxNo="" DayPhone="1234567" Department=""
@@ -440,12 +410,79 @@ public class ScOrderStatusHandler {
 			        EveningPhone="" FirstName="sc" JobTitle="" LastName="team"
 			        MiddleName="" MobilePhone="1234567" OtherPhone="" PersonID=""
 			        PersonInfoKey="2014061020442933964" State="" Suffix="" Title="" ZipCode="12345"/>
+	           
+			 */
+			
+			HashMap<String,Object> sendMsgMap = new HashMap<String,Object>();
+			
+			/*
+			 * 1. 큐브전송
+			 * 
+			 * SC 필수항목
+			 * - 오더번호, 오더라인키, 오더유형, 관리조직, 셀러, 상태(3200)
+			 * 
+			 * 큐브전송항목
+			 * - 창고코드
+			 * - 출고의뢰일자, 주문번호, 주문순번, 상품코드, 상품명, 수량, 판매가(개별단가), 고객명(수취인), 우편번호, 수취인주소, 고객/수취인HP, 고객/수취인TEL
+			 * - 배송메세지
+			 * 
+			 * 
+				// 전송데이타 포맷 (JSON)
+				{
+				    "org_code": "사업부코드",
+				    "sell_code": "판매채널코드",
+				    "orderId": "오더번호",
+				    "orderHeaderKey": "오더번호키",
+				    "status": "3200",
+				    "tranDt": "전송일자",
+				    "list": [
+				        {
+				            "org_code": "사업부코드",
+				            "sell_code": "판매채널코드",
+				            "ship_node": "창고코드",
+				            "orderId": "오더번호",
+				            "orderLineNo": "오더라인순번",
+				            "orderLineKey": "오더라인키",
+				            "orderReleaseKey": "오더라인확정키",
+				            
+				            "receiptNm": "수취인명",
+				            "receiptTel": "수취인전화",
+				            "receiptHp": "수취인휴대폰",
+				            "receiptAddr1": "수취인주소1",
+				            "receiptAddr2": "수취인주소2",
+				            "receiptZipcode": "수취인우편번호",
+				            
+				            "custNm": "주문자명",
+				            "custTel": "주문자전화",
+				            "custHp": "주문자휴대폰",
+				            
+				            "itemId": "상품바코드",
+				            "itemNm": "상품명",
+				            "qty": "주문수량",
+                            "salePrice": "판매가격",
+                            
+                            "deliveryMsg": "배송메세지",
+				        }
+			       ]
+			   } 
+			 * 
 			 */
 			
 			// Output XML Parsing
 			XPath xp = XPathFactory.newInstance().newXPath();
+						
+			// 주문기본정보
 			
-			// 수취인 주소
+			String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
+			String orderKey = outputXML.getAttribute("OrderHeaderKey");
+			String orderDate = outputXML.getAttribute("OrderDate");
+			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
+//			String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
+//			String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
+//			String minOrderStatus = outputXML.getAttribute("MinOrderStatus");	// 최대 오더상태 코드값
+			
+			
+			// 수취인 주소정보 PersonInforShipTo - 수취인명, 수취인전화번호, 수취인휴대전화번호, 수취인기본주소, 수취인상세주소, 수취인우편번
 			String receiptNm = (String)xp.evaluate("PersonInfoShipTo/@FirstName", outputXML, XPathConstants.STRING)
 		    						+" "+(String)xp.evaluate("PersonInfoShipTo/@LastName", outputXML, XPathConstants.STRING);
 			String receiptTel = (String)xp.evaluate("PersonInfoShipTo/@DayPhone", outputXML, XPathConstants.STRING);
@@ -454,49 +491,66 @@ public class ScOrderStatusHandler {
 			String receiptAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", outputXML, XPathConstants.STRING);
 			String receiptZipcode = (String)xp.evaluate("PersonInfoShipTo/@ZipCode", outputXML, XPathConstants.STRING);
 			
-			// 주문자 주소
+			// 주문자 주소 PersonInfoBillTo - 주문자명, 주문자전화번호, 주문자휴대전화번
 			String custNm = (String)xp.evaluate("PersonInfoBillTo/@FirstName", outputXML, XPathConstants.STRING)
 		    						+" "+(String)xp.evaluate("PersonInfoBillTo/@LastName", outputXML, XPathConstants.STRING);
 			String custTel = (String)xp.evaluate("PersonInfoBillTo/@DayPhone", outputXML, XPathConstants.STRING);
 			String custHp = (String)xp.evaluate("PersonInfoBillTo/@MobilePhone", outputXML, XPathConstants.STRING);
-			String custAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", outputXML, XPathConstants.STRING);
-			String custAddr2 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine2", outputXML, XPathConstants.STRING);
-			String custZipcode = (String)xp.evaluate("PersonInfoBillTo/@ZipCode", outputXML, XPathConstants.STRING);
-		
-		
+//			String custAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", outputXML, XPathConstants.STRING);
+//			String custAddr2 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine2", outputXML, XPathConstants.STRING);
+//			String custZipcode = (String)xp.evaluate("PersonInfoBillTo/@ZipCode", outputXML, XPathConstants.STRING);
 		
 		
 			// 정상 Released가 된 OrderLine정보만 추출
 			NodeList releaseOrderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@MinLineStatus='3200' and @MaxLineStatus='3200']", outputXML, XPathConstants.NODESET);
 			logger.debug("[release Count]"+releaseOrderLineList.getLength());
 			
-			List<HashMap<String,String>> confirmList = new ArrayList<HashMap<String,String>>();
+			List<HashMap<String,Object>> confirmList = new ArrayList<HashMap<String,Object>>();
 			
 			for(int i=0; i<releaseOrderLineList.getLength(); i++){
 				Node lineNode = releaseOrderLineList.item(i);
-				HashMap<String, String> orderLineMap = new HashMap<String, String>();
+				HashMap<String, Object> orderLineMap = new HashMap<String, Object>();
 				
 				String orderLineKey = (String)xp.evaluate("@OrderLineKey", lineNode, XPathConstants.STRING);
 				String primeLineNo = (String)xp.evaluate("@PrimeLineNo", lineNode, XPathConstants.STRING);
 				String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus/@OrderReleaseKey", lineNode, XPathConstants.STRING);
 				
-				String itemID = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
-				String orderedQty = (String)xp.evaluate("@OrderedQty", lineNode, XPathConstants.STRING);
-				String itemNm = (String)xp.evaluate("@ItemShortDesc", lineNode, XPathConstants.STRING);
-				String salePrice = (String)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.STRING);
-				String lineTotal = (String)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.STRING);
+				// ShipNode 조회 - getOrderReleaseDetails
+				String orderReleaseDetailXML = FileContentReader.readContent(getClass().getResourceAsStream(GET_ORDER_RELEASE_DETAILS_TEMPLATE));
 				
-				// 오더라인번호/순번/릴리즈키/전송일시
+			    MessageFormat msg = new MessageFormat(orderReleaseDetailXML);
+				String inputXML = msg.format(new String[] {orderReleaseKey} );
+				logger.debug("[releaseDetails inputXML]"+inputXML); 
+				
+				String releaseDetails = sterlingApiDelegate.comApiCall(GET_ORDER_RELEASE_DETAILS_API, inputXML);
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(releaseDetails.getBytes("UTF-8")));
+				logger.debug("[releaseDetails outputXML]"+releaseDetails);
+				
+				String shipNode = doc.getDocumentElement().getAttribute("ShipNode");
+				// ShipNode 조회 End
+				
+				
+				// 상품정보, 가격정보
+				String itemID = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
+				String itemNm = (String)xp.evaluate("@ItemShortDesc", lineNode, XPathConstants.STRING);
+				Double pricingQty = (Double)xp.evaluate("LineOverallTotals/@PricingQty", lineNode, XPathConstants.NUMBER);	// 주문수량
+				Double lineTotal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.NUMBER);	// 오더라인 최종판매금액(배송비,과세,할인 적용금액)
+				Double salePrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.NUMBER);	// 개별판매단가(배송비,과세,할인 미적용금액)
+				int cubePrice = (int)(lineTotal/pricingQty);	// 큐브전송 개별판매단가(배송비,과세,할인 적용금액을 수량으로 나눔)
+				
+				
+				//---------------------  오더라인 단위정보 저장 for JSON ---------------------//
+				// 오더라인 공통정보 (동일한 값)
+				orderLineMap.put("org_code", env.getProperty("ca."+entCode)); // TODO: 관리조직코드 -> 사업부코드로 변환
+				orderLineMap.put("sell_code", sellerCode);	// TODO: 셀러코드는 SC의 코드사용
+				orderLineMap.put("ship_node", shipNode);
+				orderLineMap.put("orderId", orderNo);
+				
+				// 오더라인순/오더라인키/오더릴리즈키
+				orderLineMap.put("orderLineNo", primeLineNo);
 				orderLineMap.put("orderLineKey", orderLineKey);
-				orderLineMap.put("primeLineNo", primeLineNo);
 				orderLineMap.put("orderReleaseKey", orderReleaseKey);
-				orderLineMap.put("orderDt", CommonUtil.cuurentDateFromFormat("yyyyMMddHHmmss"));
-				// 상품/가격 정보
-				orderLineMap.put("itemId", itemID);
-				orderLineMap.put("qty", orderedQty);
-				orderLineMap.put("itemNm", itemNm);
-				orderLineMap.put("salePrice", salePrice);
-				orderLineMap.put("lineTotal", lineTotal);
+				
 				// 수취인/주문자 정보 
 				orderLineMap.put("receiptNm", receiptNm);
 				orderLineMap.put("receiptTel", receiptTel);
@@ -507,9 +561,17 @@ public class ScOrderStatusHandler {
 				orderLineMap.put("custNm", custNm);
 				orderLineMap.put("custTel", custTel);
 				orderLineMap.put("custHp", custHp);
-				orderLineMap.put("custAddr1", custAddr1);
-				orderLineMap.put("custAddr2", custAddr2);
-				orderLineMap.put("custZipcode", custZipcode);
+//				orderLineMap.put("custAddr1", custAddr1);
+//				orderLineMap.put("custAddr2", custAddr2);
+//				orderLineMap.put("custZipcode", custZipcode);
+				
+				
+				// 상품/가격 정보
+				orderLineMap.put("itemId", itemID);
+				orderLineMap.put("itemNm", itemNm);
+				orderLineMap.put("qty", pricingQty);
+				orderLineMap.put("salePrice", cubePrice);
+				
 				// TODO: 배송메세지 전송가능여부 확인(MA)
 				orderLineMap.put("deliveryMsg", "");	
 				
@@ -517,16 +579,16 @@ public class ScOrderStatusHandler {
 			} // End for
 			
 			
-			// Redis Message Setting
-			sendMsgMap.put("orderHeaderKey", orderKey);
-			sendMsgMap.put("docType", docType);
+			// Order 레벨 정보 저장
+			sendMsgMap.put("org_code", env.getProperty("ca."+entCode));
+			sendMsgMap.put("sell_code", sellerCode);
 			sendMsgMap.put("orderId", orderNo);
-			sendMsgMap.put("entCode", entCode);
-			sendMsgMap.put("sellerCode", sellerCode);
-			sendMsgMap.put("status", "3200"); // 3200
+			sendMsgMap.put("orderHeaderKey", orderKey);
+			sendMsgMap.put("status", "3200");
 			String trDate = CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm");
 			sendMsgMap.put("trDate", trDate);
-			sendMsgMap.put("confirmed", confirmList);
+			// OrderLine 확정정보 저장
+			sendMsgMap.put("list", confirmList);
 			
 			// JSON 변환
 			ObjectMapper mapper = new ObjectMapper();
@@ -535,25 +597,32 @@ public class ScOrderStatusHandler {
 			// RedisKey for SC -> CUBE
 			String pushKey = entCode+":"+sellerCode+":order:update:S2C";
 			
-			logger.debug("[pushMessage ]"+outputMsg);
-			logger.debug("[pushKey]"+pushKey);
+			logger.debug("[3200 S2C - trans Data]"+outputMsg);
+			logger.debug("[3200 S2C - trans Key]"+pushKey);
 			
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
 			
 			
-			
 			// RedisKey for CUBE -> SC 
 			// TODO: Test 용, 큐브연동후 삭제 할 것
-			sendMsgMap.put("status", "3200"); // 3200
+			sendMsgMap.put("status", "3202"); // 3200
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap);
-			String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
-			logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
+			
+			// TODO: Cube 사업부코드/매장코드 매핑필요
+			String mapEntCode = env.getProperty("ca."+entCode);
+			String mapSellerCode = sellerCode;
+			
+			String pushKey_CubetoSC = mapEntCode+":"+mapSellerCode+":order:update:C2S";
+			
+			
+			logger.debug("[3202 C2S - trans data]"+outputMsgTest);
+			logger.debug("[3202 C2S - trans Key]"+pushKey_CubetoSC);
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
 			
 			
-			logger.debug("[Order Release Hanlder Started]");
+			logger.debug("####[Order Release Event Hanlder End]");
 		
 		}catch(Exception e){
 			

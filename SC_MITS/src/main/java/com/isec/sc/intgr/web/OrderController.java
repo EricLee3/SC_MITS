@@ -41,7 +41,6 @@ import com.isec.sc.intgr.api.util.FileContentReader;
 
 
 @Controller
-@PropertySource("classpath:mits.properties")
 @RequestMapping("/orders")
 public class OrderController {
 
@@ -433,6 +432,8 @@ public class OrderController {
 		baseInfoMap.put("currency", currency);
 		baseInfoMap.put("totalAmount", totalAmount);
 		baseInfoMap.put("paymentType", paymentType);
+		baseInfoMap.put("minStatus", minStatus);
+		baseInfoMap.put("maxStatus", maxStatus);
 		baseInfoMap.put("orderStatus", status[0]);
 		baseInfoMap.put("orderStatus_class", status[1] );
 		baseInfoMap.put("sellerCode", sellerCode );

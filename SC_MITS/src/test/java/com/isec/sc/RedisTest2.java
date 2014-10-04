@@ -50,6 +50,7 @@ import scala.annotation.meta.setter;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.FileContentReader;
+import com.isec.sc.intgr.scheduler.OrderProcessTask;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -61,6 +62,10 @@ public class RedisTest2 {
 	
 	
 	@Autowired	private StringRedisTemplate reportStringRedisTemplate;
+	
+	
+	@Autowired	private OrderProcessTask orderTask;
+	
 	
 	
 	@Resource(name="reportStringRedisTemplate")
@@ -141,8 +146,15 @@ public class RedisTest2 {
         return timeform.format(d);  
     } 
 	
+	@Ignore
+	public void testQuartzJobRun(){
+		
+		// 스케쥴러 수동 실행
+		orderTask.processOrderRelease("SLV:ASPB:order:release", "SLV:ASPB:order:update:S2M", "SLV:ASPB:order:error");
+		
+	}
 	
-	@Test
+	@Ignore
 	public void SortedSetTest() throws Exception{
 		
 		// End Month Random Create
@@ -274,7 +286,7 @@ public class RedisTest2 {
 		
 	}
 	
-	@Test
+	@Ignore
 	public void insertPlotChartDataMonth(){
 		
 		String key = "count:ISEC:ASPB:orders:";
@@ -331,7 +343,7 @@ public class RedisTest2 {
 	}
 	
 	
-	@Test
+	@Ignore
 	public void insertPlotChartDataMonth2(){
 		
 		// TODO: 채널정보 property로 뺼것

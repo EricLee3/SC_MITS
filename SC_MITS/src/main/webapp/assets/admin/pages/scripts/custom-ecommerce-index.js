@@ -402,7 +402,7 @@ var EcommerceIndex = function () {
 		                   		   
 		                   		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
 		                   	   },
-		                   	   "targets": 6	// View Button
+		                   	   "targets": 7	// View Button
 		                      },
 		                      { "visible": false,  "targets": [2] }
 		                      
@@ -416,9 +416,11 @@ var EcommerceIndex = function () {
 	                           },
 	                           { "data": "enterPrise" },
 	                           { "data": "sellerOrg" },
+	                           { "data": "currency" },
 	                           { "data": function render(data, type)
 	                 	  				{
-	                   					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
+	                   					//return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
+	                   					return data["totalAmount"];
 	                 	  				} 
 	                           },
 	                           { "data": function render(data, type)

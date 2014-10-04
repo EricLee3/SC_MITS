@@ -165,14 +165,13 @@
 						</li> -->
 						<li>
 							<a href="#tab_4" data-toggle="tab">
-							출고확정정보 <span class="badge badge-danger">
-							2 </span>
+							출고확정정보</span>
 							</a>
 						</li>
-						<li>
+						<!-- <li>
 							<a href="#tab_5" data-toggle="tab">
 							History </a>
-						</li>
+						</li> -->
 					</ul>
 					<div class="tab-content">
 						<div class="tab-pane" id="tab_1">
@@ -185,7 +184,7 @@
 											</div>
 											<div class="actions">
 												<a class="btn default btn-sm" href="javascript:;" id="tool_release">
-												주문확정 전송
+												출고의뢰 전송
 												<i class="fa fa-edit"></i>
 												</a>
 												<a class="btn red btn-sm" data-toggle="modal" href="#md_cancel_order">
@@ -218,7 +217,14 @@
 												</div>
 												<div class="col-md-7 value">
 													<span class="label label-${baseInfo.orderStatus_class }">
-													${baseInfo.orderStatus} </span>
+													${baseInfo.orderStatus} 
+													</span>&nbsp;
+													<c:if test = "${baseInfo.maxStatus == '3200' && baseInfo.minStatus == '3200'}"> 
+													[ Cube 출고의뢰중 ]
+													</c:if>
+													<c:if test = "${baseInfo.maxStatus == '3350' && baseInfo.minStatus == '3350'}"> 
+													[ Cube 출고의뢰완료 ]
+													</c:if>
 												</div>
 											</div>
 											<div class="row static-info">
@@ -468,13 +474,12 @@
 														<input type="hidden" name="status[]" value="${line.max_status}">
 													</td>
 													<td>
-														<a href="#" target="_blank">
-														${line.PrimeLineNo}</a>
+														${line.PrimeLineNo}
 													</td>
 													<td>
-														${line.itemId}
-														<a href="${line.itemDesc}" class="pull-right" target="_blank">
-														<span class="label label-sm label-info">Details</span> </a>
+														<a href="${line.itemDesc}" target="_blank">
+														${line.itemId}</a>
+														<!-- <span class="label label-sm label-info">Details</span> -->
 													</td>
 													<td>
 														 ${line.itemdShortDesc}

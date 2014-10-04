@@ -62,8 +62,6 @@ public class ScOrderShipmentHandler {
 	
 	/**
 	 * Create Shipment 후처리 프로세스
-	 * 
-	 * 
 	 * MA로 출고생성정보 전달. -> 출고준비중
 	 * 
 	 * @param returnXML
@@ -216,8 +214,15 @@ public class ScOrderShipmentHandler {
 			
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap_C2S);
 			
+			// TODO: Cube 사업부코드/매장코드 매핑필요
+			String mapEntCode = entCode;
+			String mapSellerCode = sellerCode;
+			if("ASPB".equals(sellerCode)){
+				mapEntCode = "80";
+				mapSellerCode ="ON9999";
+			}
+			String pushKey_CubetoSC = mapEntCode+":"+mapSellerCode+":order:update:C2S";
 			
-			String pushKey_CubetoSC = entCode+":"+sellerCode+":order:update:C2S";
 			logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
@@ -293,7 +298,11 @@ public class ScOrderShipmentHandler {
 		String docType = el.getAttribute("DocumentType");
 		
 		String pushKeyToMa = entCode+":"+sellerCode+":order:update:S2M";
-		String pushKeyToCa = entCode+":"+sellerCode+":order:update:S2C";
+		
+		// TODO: Cube 사업부코드/매장코드 매핑필요
+		String entCode_cube = "80";
+		String sellerCode_cube = "ON9999";
+		String pushKeyToCa = entCode_cube+":"+sellerCode_cube+":order:update:S2C";
 		
 		logger.debug("[docType]" + docType);
 		logger.debug("[shipmentKey]"+shipmentKey);

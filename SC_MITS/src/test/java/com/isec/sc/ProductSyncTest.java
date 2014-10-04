@@ -89,7 +89,7 @@ public class ProductSyncTest {
 	private String key_aspb_inventory_c2s;
 	
 	// Cube 상품등록 테스트
-	@Test
+	@Ignore
 	public void sendProductFromCube(){
 		
 		
@@ -124,7 +124,7 @@ public class ProductSyncTest {
 		HashMap<String, ArrayList<HashMap<String,Object>>> itemMap = new HashMap<String, ArrayList<HashMap<String,Object>>>();
 		ArrayList<HashMap <String,Object>> itemList = new ArrayList<HashMap <String,Object>>();
 		
-		for(int i=1; i<=10; i++){
+		for(int i=1; i<=2; i++){
 			
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("org_code", "80");
@@ -135,7 +135,7 @@ public class ProductSyncTest {
 			map.put("brand_name", "aspen_bay");
 			
 			ArrayList<HashMap <String,String>> barCodeList = new ArrayList<HashMap <String,String>>();
-			for(int j=1; j<=5; j++){
+			for(int j=1; j<=2; j++){
 				
 				String idx = "";
 				if(j<10) idx = "0"+j;
@@ -190,7 +190,7 @@ public class ProductSyncTest {
 		HashMap<String, ArrayList<HashMap<String,String>>> itemMap = new HashMap<String, ArrayList<HashMap<String,String>>>();
 		ArrayList<HashMap <String,String>> itemList = new ArrayList<HashMap <String,String>>();
 		
-		for(int i=0; i<10; i++){
+		for(int i=0; i<2; i++){
 			
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put("org_code", "80");
@@ -200,7 +200,7 @@ public class ProductSyncTest {
 			if(i<10) idx = "0"+i;
 			
 			map.put("bar_code", "barcode_1_"+idx);
-			map.put("qty", "55");
+			map.put("qty", "30");
 			map.put("uom", "EACH");
 			
 			itemList.add(map);
@@ -224,7 +224,7 @@ public class ProductSyncTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void getKeyProductSync() {
 		
 		String C2S = "80:ON9999:product:C2S";
@@ -260,11 +260,23 @@ public class ProductSyncTest {
 	
 	
 	
-	@Test
+	@Ignore
 	public void deleteKeyDataVM() {
 	    
 	    String errorKey = "*:*:order:error";
 	    
 	    maStringRedisTemplate.delete(errorKey);
+	}
+	
+	@Ignore
+	public void pushPopTest(){
+		
+		listOps.leftPush("a", "1");
+		listOps.leftPush("a", "2");
+		listOps.leftPush("a", "3");
+		
+		System.out.println(listOps.rightPop("a"));
+		System.out.println(listOps.rightPop("a"));
+		System.out.println(listOps.rightPop("a"));
 	}
 }
