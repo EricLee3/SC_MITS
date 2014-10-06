@@ -505,6 +505,13 @@ public class ScOrderStatusHandler {
 			NodeList releaseOrderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@MinLineStatus='3200' and @MaxLineStatus='3200']", outputXML, XPathConstants.NODESET);
 			logger.debug("[release Count]"+releaseOrderLineList.getLength());
 			
+			// Release 대상건이 없는 경우 후처리 중단. 
+			if(releaseOrderLineList.getLength() == 0){
+				return;
+			}
+			
+			
+			
 			List<HashMap<String,Object>> confirmList = new ArrayList<HashMap<String,Object>>();
 			
 			for(int i=0; i<releaseOrderLineList.getLength(); i++){
@@ -516,17 +523,31 @@ public class ScOrderStatusHandler {
 				String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus/@OrderReleaseKey", lineNode, XPathConstants.STRING);
 				
 				// ShipNode 조회 - getOrderReleaseDetails
-				String orderReleaseDetailXML = FileContentReader.readContent(getClass().getResourceAsStream(GET_ORDER_RELEASE_DETAILS_TEMPLATE));
+//				String shipNode = "WH001";	//호법창고
+				String shipNode = "";	//호법창고
+//				String orderReleaseDetailXML = FileContentReader.readContent(getClass().getResourceAsStream(GET_ORDER_RELEASE_DETAILS_TEMPLATE));
 				
-			    MessageFormat msg = new MessageFormat(orderReleaseDetailXML);
-				String inputXML = msg.format(new String[] {orderReleaseKey} );
-				logger.debug("[releaseDetails inputXML]"+inputXML); 
-				
-				String releaseDetails = sterlingApiDelegate.comApiCall(GET_ORDER_RELEASE_DETAILS_API, inputXML);
-				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(releaseDetails.getBytes("UTF-8")));
-				logger.debug("[releaseDetails outputXML]"+releaseDetails);
-				
-				String shipNode = doc.getDocumentElement().getAttribute("ShipNode");
+//				Document doc = null;
+				try{
+//				    MessageFormat msg = new MessageFormat(orderReleaseDetailXML);
+//					String inputXML = msg.format(new String[] {orderReleaseKey} );
+//					logger.debug("[releaseDetails inputXML]"+inputXML); 
+//					String releaseDetails = sterlingApiDelegate.comApiCall(GET_ORDER_RELEASE_DETAILS_API, inputXML);
+//					doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(releaseDetails.getBytes("UTF-8")));
+//					logger.debug("[releaseDetails outputXML]"+releaseDetails);
+//					shipNode = doc.getDocumentElement().getAttribute("ShipNode");
+					
+					
+					shipNode  = sterlingApiDelegate.getShipNodeByReleaseKey(orderNo, orderReleaseKey);
+					
+					logger.debug("[shipNode]"+shipNode); 
+					logger.debug("[shipNode]"+shipNode); 
+					logger.debug("[shipNode]"+shipNode); 
+				}catch(Exception e){
+					
+					// TODO: 예외처리
+					e.printStackTrace();
+				}
 				// ShipNode 조회 End
 				
 				
@@ -580,7 +601,8 @@ public class ScOrderStatusHandler {
 			
 			
 			// Order 레벨 정보 저장
-			sendMsgMap.put("org_code", env.getProperty("ca."+entCode));
+			String orgCode = env.getProperty("ca."+entCode); // 사업부코드 - 조직코드 변환
+			sendMsgMap.put("org_code", orgCode);
 			sendMsgMap.put("sell_code", sellerCode);
 			sendMsgMap.put("orderId", orderNo);
 			sendMsgMap.put("orderHeaderKey", orderKey);
@@ -595,7 +617,7 @@ public class ScOrderStatusHandler {
 			String outputMsg = mapper.writeValueAsString(sendMsgMap);
 
 			// RedisKey for SC -> CUBE
-			String pushKey = entCode+":"+sellerCode+":order:update:S2C";
+			String pushKey = orgCode+":"+sellerCode+":order:update:S2C";
 			
 			logger.debug("[3200 S2C - trans Data]"+outputMsg);
 			logger.debug("[3200 S2C - trans Key]"+pushKey);
@@ -606,7 +628,16 @@ public class ScOrderStatusHandler {
 			
 			// RedisKey for CUBE -> SC 
 			// TODO: Test 용, 큐브연동후 삭제 할 것
-			sendMsgMap.put("status", "3202"); // 3200
+			sendMsgMap.put("status", "3202"); // 3202
+			List<HashMap<String,Object>> returnList = confirmList;
+			for(int i=0; i<returnList.size(); i++){
+				returnList.get(i).put("shipmentNo", "0000"+(i+1));
+				returnList.get(i).put("statuscd", "90");
+				returnList.get(i).put("uom", "EACH");
+			}
+			sendMsgMap.remove("list");
+			sendMsgMap.put("list", returnList);
+			
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap);
 			
 			// TODO: Cube 사업부코드/매장코드 매핑필요

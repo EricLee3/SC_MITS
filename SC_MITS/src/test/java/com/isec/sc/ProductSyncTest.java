@@ -67,7 +67,7 @@ public class ProductSyncTest {
 	
 	
 	@Autowired	private StringRedisTemplate reportStringRedisTemplate;
-	
+	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	
 	
@@ -87,6 +87,20 @@ public class ProductSyncTest {
 	
 	@Value("${key.ca.KOLOR.inventory.C2S}")
 	private String key_aspb_inventory_c2s;
+	
+	// 현재고, 가용재고 조회테스트
+	@Test
+	public void testCalcInv(){
+		
+		try{
+			Double qty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv("Auro_Store_1", "ASPB_ITEM_0001", "", "EACH", "S");
+			
+			System.out.print(qty);
+		}catch(Exception e){
+			
+		}
+	}
+	
 	
 	// Cube 상품등록 테스트
 	@Ignore

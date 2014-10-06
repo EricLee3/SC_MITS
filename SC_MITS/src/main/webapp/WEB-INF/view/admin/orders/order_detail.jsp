@@ -432,34 +432,37 @@
 														 No.
 													</th>
 													<th>
-														 Item Id
+														 상품코드
 													</th>
 													<th>
-														 Item Name
+														 재고수량
 													</th>
 													<th>
-														 Line Status
+														 상품명
 													</th>
 													<th>
-														 Quantity
+														 주문상태
 													</th>
 													<th>
-														 UnitPrice
+														 주문수량
 													</th>
 													<th>
+														 개별판매가격
+													</th>
+													<!-- <th>
 														 ShipNode
+													</th> -->
+													<th>
+														 비용(배송비)
 													</th>
 													<th>
-														 Charge
+														 과세
 													</th>
 													<th>
-														 Tax
+														 할인금액
 													</th>
 													<th>
-														 Discount
-													</th>
-													<th>
-														 Total
+														 합계금액
 													</th>
 												</tr>
 												</thead>
@@ -481,6 +484,9 @@
 														${line.itemId}</a>
 														<!-- <span class="label label-sm label-info">Details</span> -->
 													</td>
+													<td class="text-right">
+														${line.supplyQty}</a>
+													</td>
 													<td>
 														 ${line.itemdShortDesc}
 													</td>
@@ -494,9 +500,9 @@
 													<td class="text-right">
 														 ${line.UnitPrice}
 													</td>
-													<td>
+													<%-- <td>
 														 ${line.shipNode}
-													</td>
+													</td> --%>
 													<td  class="text-right">
 														 ${line.lineShipCharge}
 													</td>

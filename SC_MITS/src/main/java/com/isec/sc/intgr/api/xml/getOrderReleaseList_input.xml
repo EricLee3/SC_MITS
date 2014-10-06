@@ -1,4 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<OrderRelease>
-	<Order DocumentType="{0}" EnterpriseCode="{1}" OrderNo="{2}" />
+<OrderRelease SalesOrderNo="{0}" OrderReleaseKey="{1}">
 </OrderRelease>

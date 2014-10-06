@@ -279,10 +279,6 @@ public class ProductSyncTask {
 			
 		  	ObjectMapper mapper = new ObjectMapper();
 		  	
-		  	
-		  	// 현 보유수량 조회 API Input
-		  	// String getInvSupplyTempate = FileContentReader.readContent(getClass().getResourceAsStream(GET_INVENTORY_SUPPLY_TEMPLATE));
-		  	String getShipNodeTempate = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPNODE_TEMPLATE));
 		  	// 재고조정 API Input
 		  	String adjustIvnItemTempate = FileContentReader.readContent(getClass().getResourceAsStream(ADJUST_INVENTORY_ITEM_TEMPLATE));
 		  	
@@ -312,73 +308,18 @@ public class ProductSyncTask {
 					String ship_node = (String)itemMap.get("ship_node");	// 창고코드
 					String bar_code = (String)itemMap.get("bar_code");  	// 상품코드
 					String qty = (String)itemMap.get("qty");				// 재고수량
-					String uom = (String)itemMap.get("uom");			// 측정단위 
+					String uom = (String)itemMap.get("uom");			    // 측정단위 
+					if(uom == null || "".equals(uom)) uom = "EACH";
 					
-					
-//					msg = new MessageFormat(getInvSupplyTempate);
-//					String getInvXML = msg.format(new String[] {
-//																ent_code, bar_code, ship_node, "EACH", 
-//															} 
-//					);
-//					String getInv_output = sterlingApiDelegate.comApiCall("getInventorySupply", getInvXML);
-//					
-//					doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(getInv_output.getBytes("UTF-8")));
-//					XPath xp = XPathFactory.newInstance().newXPath();
-//					String currQty =  (String)xp.evaluate("/Item/Supplies/InventorySupply/@Quantity", doc.getDocumentElement(), XPathConstants.STRING);
-//					
-//					logger.debug("#####[Currunt Quantity]"+currQty);
-//					if(currQty == null || "".equals(currQty)){
-//						currQty = "0.00";
-//					}
-					
-					
-					// 해당창고의 현 재고수량 조회- 가용재고아님
-					msg = new MessageFormat(getShipNodeTempate);
-					String getInvXML = msg.format(new String[] {
-																ent_code, bar_code, ship_node, "EACH", 
-															} 
-					);
-					
-					String getInv_output = sterlingApiDelegate.comApiCall("getShipNodeInventory", getInvXML);
-					
-					
-					doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(getInv_output.getBytes("UTF-8")));
-					XPath xp = XPathFactory.newInstance().newXPath();
-					
-					Double currQty = 0.00;
-					NodeList shipNodeInvList = (NodeList)xp.evaluate("/ShipNodeInventory/Item/ShipNodes/ShipNode", doc.getDocumentElement(), XPathConstants.NODESET);
-					for(int ii=0; ii<shipNodeInvList.getLength(); ii++){
-						
-						Double totSupply = (Double)xp.evaluate("@TotalSupply", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 공급수량 (ONHAND)
-						Double totDemand = (Double)xp.evaluate("@TotalDemand", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 수요수량 
-						logger.debug("["+bar_code+"][totSupply]"+totSupply);
-						
-						
-						// 수요유형
-						NodeList demandsList = (NodeList)xp.evaluate("Demands/InventoryDemandType", shipNodeInvList.item(i), XPathConstants.NODESET);
-						for(int jj=0; jj<demandsList.getLength(); jj++){
-							
-							String demandType = (String)xp.evaluate("@DemandType", shipNodeInvList.item(jj), XPathConstants.STRING);	// 수요유형(Allocated.. 등)
-							String demandQty = (String)xp.evaluate("@Quantity", shipNodeInvList.item(jj), XPathConstants.STRING);	// 수요유형(Allocated.. 등)
-							logger.debug("["+bar_code+"][demandType]"+demandType);
-							logger.debug("["+bar_code+"][demandQty]"+demandQty);
-						}
-						
-						// TODO: 현재 가용재고가 아닌 현재고(공급수량-출고확정시만 차감되는 수량)로 계산.
-						//currQty = currQty + (totSupply-totDemand);
-						currQty = currQty + totSupply;
-						
-					}
-					
-					logger.debug("#####[Currunt Quantity]"+currQty);
-					
-					
+					// 현 재고수량 조회
+					Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, ship_node, uom, "S");
 					// Cube의 재고수량 - 현 재고수량 차감 
-					Double adjustQty = Double.parseDouble(qty) - currQty;
+					Double adjustQty = Double.parseDouble(qty) - currScQty;
+					logger.debug("#####[Cube Qty]"+qty);
+					logger.debug("#####[Sc Qty]"+currScQty);
 					logger.debug("#####[Adjust Quantity]"+adjustQty);
 					
-					
-					
+					// SC 재고차감
 					// adjustInventory Input XML Generation
 					/*
 					 *  <Item OrganizationCode="{1}" ItemID="{0}" Quantity="{2}" 
@@ -388,7 +329,7 @@ public class ProductSyncTask {
 					 */
 					msg = new MessageFormat(adjustIvnItemTempate);
 					String adjustInvXML = msg.format(new String[] {
-																ent_code, bar_code, String.valueOf(adjustQty), ship_node, "EACH", 
+																ent_code, bar_code, String.valueOf(adjustQty), ship_node, uom, 
 															} 
 					);
 					
@@ -458,7 +399,6 @@ public class ProductSyncTask {
 					listOps.leftPush(redisErrKey, mapper.writeValueAsString(resultMap));
 					logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(resultMap));
 					
-				
 				// 성공 
 				}else{
 					
@@ -471,81 +411,39 @@ public class ProductSyncTask {
 						returnItemMap.put("result_code", "01");
 						returnItemMap.put("org_code", itemInvList.get(ii).get("org_code"));
 						returnItemMap.put("bar_code", itemInvList.get(ii).get("bar_code"));
-						
 						returnItemInvList.add(returnItemMap);
 					}
-					
 					returnMap.put("list", returnItemInvList);
 					
-					
 					listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnMap));
-					logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
+					logger.debug("#####Inventory Sync Success ["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
 					
 					
-					//========== 2. MA에 해당상품의 전체 현재고 정보 전달(모든창고) - getInventorySupply
-					// 해당창고의 현 재고수량 조회- 가용재고아님
-					
+					//========== 2. MA에 해당상품의 모든창고의 가용재고 수량 전달
 					returnItemInvList = new ArrayList<HashMap<String,Object>>();	// 전송리스트 초기화
-					
-					
 					for(int k=0; k<itemInvList.size(); k++){
 						
 						HashMap<String, Object> itemMap = itemInvList.get(k);
 						
-						String org_code = (String)itemMap.get("org_code");
-						String ent_code = env.getProperty("ca."+org_code);
+						String org_code = (String)itemMap.get("org_code"); // 사업부코드
+						String ent_code = env.getProperty("ca."+org_code); // 사업부코드 -> 조직코드 변환
 						logger.debug("##### [org_code]" + (String)itemMap.get("org_code"));
-						logger.debug("##### [ent_code]" + ent_code);
+						logger.debug("##### [ent_code]" + ent_code); 
+						String bar_code = (String)itemMap.get("bar_code");  // 상품코드
+						String uom = (String)itemMap.get("uom");			// 측정단위 
 						
-						String bar_code = (String)itemMap.get("bar_code");  	// 상품코드
-						
-						msg = new MessageFormat(getShipNodeTempate);
-						String getInvXML = msg.format(new String[] {
-																	ent_code, bar_code, "", "EACH", 
-																} 
-						);
-						
-						String getInv_output = sterlingApiDelegate.comApiCall("getShipNodeInventory", getInvXML);
-						
-						doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(getInv_output.getBytes("UTF-8")));
-						XPath xp = XPathFactory.newInstance().newXPath();
-						
-						Double currQty = 0.00;
-						NodeList shipNodeInvList = (NodeList)xp.evaluate("/ShipNodeInventory/Item/ShipNodes/ShipNode", doc.getDocumentElement(), XPathConstants.NODESET);
-						for(int ii=0; ii<shipNodeInvList.getLength(); ii++){
-							
-							Double totSupply = (Double)xp.evaluate("@TotalSupply", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 공급수량 (ONHAND)
-							Double totDemand = (Double)xp.evaluate("@TotalDemand", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 수요수량 
-							logger.debug("["+bar_code+"][totSupply]"+totSupply);
-							logger.debug("["+bar_code+"][totDemand]"+totDemand);
-							
-							// 수요유형
-//							NodeList demandsList = (NodeList)xp.evaluate("Demands/InventoryDemandType", shipNodeInvList.item(i), XPathConstants.NODESET);
-//							for(int jj=0; jj<demandsList.getLength(); jj++){
-//								
-//								String demandType = (String)xp.evaluate("@DemandType", shipNodeInvList.item(jj), XPathConstants.STRING);	// 수요유형(Allocated.. 등)
-//								String demandQty = (String)xp.evaluate("@Quantity", shipNodeInvList.item(jj), XPathConstants.STRING);	// 수요유형(Allocated.. 등)
-//								logger.debug("["+bar_code+"][demandType]"+demandType);
-//								logger.debug("["+bar_code+"][demandQty]"+demandQty);
-//							}
-							
-							// TODO: 현재 가용재고가 아닌 현재고(공급수량-출고확정시만 차감되는 수량)로 계산.
-							//currQty = currQty + (totSupply-totDemand);
-							currQty = currQty + totSupply;	// 모든 창고의 현재고수량 합산
-							
-						}
-						
+						// 모든창고의 가용재고 수량 조회
+						Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, "", uom, "A");
+						logger.debug("#####[Sc Qty]"+currScQty);
 						
 						returnItemMap = new HashMap<String, Object>();
-						
 						returnItemMap.put("org_code", ent_code);	// MA는 조직코드
 						returnItemMap.put("bar_code", bar_code);
-						returnItemMap.put("qty", currQty);
+						returnItemMap.put("qty", currScQty);
 						
 						returnItemInvList.add(returnItemMap);
 						
 					}// End For ItemList
-					
 					
 					returnMap = new HashMap<String, Object>();
 					returnMap.put("list", returnItemInvList);
@@ -554,10 +452,10 @@ public class ProductSyncTask {
 					listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(returnMap));
 					logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(returnMap));
 				}
-			}
+			} // End For DataCnt
 			
 		}catch(Exception e){
-			// TODO: 예외처리
+			// TODO: 재고정보 동기화 예외처리
 			e.printStackTrace();
 		}
     	

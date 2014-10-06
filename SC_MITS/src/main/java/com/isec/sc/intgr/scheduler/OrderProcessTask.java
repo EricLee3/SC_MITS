@@ -68,6 +68,9 @@ public class OrderProcessTask {
 	@Value("${sc.api.confirmShipment.template}")
 	private String CONFIRM_SHIPMENT_TEMPLATE;
 	
+	@Value("${sc.api.adjustInventory.item.template}")
+	private String ADJUST_INVENTORY_ITEM_TEMPLATE;
+	
 	
 	/**
 	 * Create Order From MA(Magento, WCS)
@@ -270,7 +273,9 @@ public class OrderProcessTask {
 					"orderLineNo": "오더라인순번",
 					"orderLineKey": "오더라인키",
 		            "orderReleaseKey": "오더라인확정키",
-		            “shipmentNo”:”전표번호”,
+		            "shipmentNo":"전표번호",
+		            "bar_code":"상품코드",
+		            "uom":"측정단위",
 		            “statuscd”:”결과코드”
 		}
 		    ]
@@ -309,68 +314,97 @@ public class OrderProcessTask {
 		
 		/*
 		 * TODO: 오더라인 리스트의 첫번째 결과로 해당오더의 처리결과를 판단한다. 
-		 *       Cube에서 오더라인 1건만 출고의뢰실패하더라도 오더전체를 품절취소 또는 실패로 처리해서 전송함
+		 *       Cube에서 오더라인 1건만 출고의뢰 실패하더라도 오더전체를 품절취소 또는 실패로 처리해서 전송함
 		 */
-		String resultCode = (String)((ArrayList<HashMap<String,Object>>)dataMap.get("list")).get(0).get("statuscd");
 		ObjectMapper mapper = new ObjectMapper();
 		String outputMsg = mapper.writeValueAsString(dataMap);
 		
-		// 품절취소 
-		if("90".equals(resultCode))
-		{	
-			logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
+		ArrayList<HashMap<String,Object>> resultList = (ArrayList<HashMap<String,Object>>)dataMap.get("list");
+		for( int i=0; i<resultList.size(); i++){
 			
-			// 1. 상품정보 추출
+			String resultCode =  (String)resultList.get(i).get("statuscd");
 			
-			// 2. adjustInventory 호출 - 재고 0으로 변경 - TODO: 재고변경 이벤트핸들러를 통해 MA로 재고변경정보 전송 
-			
-			
-			// 3. scheduleOrder 호출 - 자동으로 SC에서 재고부족으로 상태변경. 운영자 확인후 취소처리 필요
-			HashMap<String, String> resultMap = new HashMap<String, String>();
-			resultMap.put("entCode", entCode);
-			resultMap.put("orderId", orderId);
-			resultMap.put("docType", docType);
-			
-			String retryOrderReleaseData = mapper.writeValueAsString(resultMap);
-			logger.debug("[retryOrderReleaseData]"+retryOrderReleaseData);
-			
-			// 재 Release처리를 위해 Release처리키에 데이타 전송
-			String releaseKey = entCode+":"+sellerCode+":order:release";
-			listOps.leftPush(releaseKey, retryOrderReleaseData);
-			
-			// 스케줄러를 기다리지 않고 바로 수동으로 Order Release Task 실행
-			processOrderRelease(releaseKey, "", redisErrKey);
-			
-		}
-		// 실패
-		else if("99".equals(resultCode))
-		{
-			logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
-			
-			// 에러키에 저장
-			// TODO: 출고의뢰 결과수신 예외처리 필요
-			listOps.leftPush(redisErrKey, outputMsg);
-			
-		}
-		// 성공일 경우
-		else if("01".equals(resultCode)){
-			
-			// Order Release Key 조회
-			// TODO: 하나의 주문에 릴리즈가 2건이상일 경우 고려필요함. 현재는 한건의 주문은 한건의 릴리즈로 생성됨을 전제로 연동
-			ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
-			
-			// 릴리즈키와 Cube에서 전송된 출고의뢰 전표번호로 출고생성 API호출 - createShipment 
-			for(int j=0; j<releaseKeys.size(); j++){
+			// 품절취소 - 오더라인별로 처리
+			if("90".equals(resultCode))
+			{
+				String ship_node =  (String)resultList.get(i).get("ship_node");
+				String bar_code =  (String)resultList.get(i).get("itemId");
+				String uom =  (String)resultList.get(i).get("uom");
 				
-				// TODO: Cube연동시 ShipmentNo에 전표번호 적용필요
-				int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
-				if(result == 0){
+				logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
+				
+				
+				// 1. adjustInventory 호출 - 재고 0으로 변경 - TODO: 재고변경 이벤트핸들러를 통해 MA로 재고변경정보 전송 
+				
+				// 현 재고수량 조회
+				Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, bar_code, ship_node, uom, "S");
+				// 재고를 0으로 처리하기 위해서 현 재고를 (-)처리 
+				Double adjustQty =  -currScQty;
+				logger.debug("#####[Sc Qty]"+currScQty);
+				
+				// SC 재고차감
+				// adjustInventory Input XML Generation
+				/*
+				 *  <Item OrganizationCode="{1}" ItemID="{0}" Quantity="{2}" 
+						ShipNode="{3}" UnitOfMeasure="{4}" SupplyType="ONHAND" 
+						AdjustmentType="ADJUSTMENT">
+					</Item>
+				 */
+				// 재고조정 API Input
+			  	String adjustIvnItemTempate = FileContentReader.readContent(getClass().getResourceAsStream(ADJUST_INVENTORY_ITEM_TEMPLATE));
+				MessageFormat msg = new MessageFormat(adjustIvnItemTempate);
+				String adjustInvXML = msg.format(new String[] {
+															entCode, bar_code, String.valueOf(adjustQty), ship_node, uom, 
+														} 
+				);
+			
+				String invXML = "";
+				invXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+						+ "<Items>"
+						+  adjustInvXML
+						+ "</Items>";
+				logger.debug("##### [adjustInventory input XNL]"+invXML); 
+			
+				// adjustInventory API 호출
+				String adjInv_output = sterlingApiDelegate.comApiCall("adjustInventory", invXML);
+				//Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(adjInv_output.getBytes("UTF-8")));
+				// TODO: adjustInventory 후처리
+				
+				
+			}
+			// 실패 - 전체실패 처리
+			else if("99".equals(resultCode))
+			{
+				logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
+				
+				// 에러키에 저장
+				// TODO: 출고의뢰 결과수신 예외처리 필요
+				listOps.leftPush(redisErrKey, outputMsg);
+				break;
+				
+			}
+			// 성공일 경우 - 전체성공 처리
+			else if("01".equals(resultCode)){
+				
+				// Order Release Key 조회
+				// TODO: 하나의 주문에 릴리즈가 2건이상일 경우 고려필요함. 현재는 한건의 주문은 한건의 릴리즈로 생성됨을 전제로 연동
+				ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(orderId, "");
+				
+				// 릴리즈키와 Cube에서 전송된 출고의뢰 전표번호로 출고생성 API호출 - createShipment 
+				for(int j=0; j<releaseKeys.size(); j++){
 					
-					// TODO: createShipment API호출 예외처리
-					// JSON 변환
-					listOps.leftPush(redisErrKey, outputMsg);
-					
+					// TODO: Cube연동시 ShipmentNo에 전표번호 적용필요
+					int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
+					if(result == 0){
+						
+						// TODO: createShipment API호출 예외처리
+						// JSON 변환
+						listOps.leftPush(redisErrKey, outputMsg);
+						
+					}
 				}
+				
+				break;
 			}
 		}
 		
@@ -568,7 +602,7 @@ public class OrderProcessTask {
 					logger.debug("[orderId]"+orderId);
 					
 					// Order Release Key 조회
-					ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(docType, entCode, orderId);
+					ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(orderId,"");
 					
 					for(int j=0; j<releaseKeys.size(); j++){
 						

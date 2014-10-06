@@ -600,6 +600,11 @@ public class OrderController {
 			orderLineMap.put("uom", uom);
 			orderLineMap.put("pclass", pclass);
 			
+			// 상품의 현재고 조회(모든창고)
+			Double supplyQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, itemId, "", uom, "S");
+			orderLineMap.put("supplyQty", supplyQty);
+			
+			
 			orderLineList.add(orderLineMap);
 		}
 		
