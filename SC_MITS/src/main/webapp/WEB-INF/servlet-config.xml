@@ -30,6 +30,7 @@
       <!-- Example: a logical view name of 'showMessage' is mapped to '/WEB-INF/jsp/showMessage.jsp' -->
       <property name="prefix" value="/WEB-INF/view/"/>
       <property name="suffix" value=".jsp"/>
+      <property name="contentType" value="text/html; charset=UTF-8"/>
 	</bean>
 	
 	

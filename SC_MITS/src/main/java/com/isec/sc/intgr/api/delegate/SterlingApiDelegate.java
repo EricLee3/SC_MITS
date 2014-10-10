@@ -100,13 +100,13 @@ public class SterlingApiDelegate {
 	 */
 	public String comApiCall(String apiName, String inputXML) throws Exception{
 		
-		logger.debug("#####["+apiName+"][input]"+inputXML);
+		//logger.debug("#####["+apiName+"][input]"+inputXML);
 		
 		sterlingHTTPConnector.setApi(apiName);
 		sterlingHTTPConnector.setData(inputXML);
 		
 		String outputXML = sterlingHTTPConnector.run();
-		logger.debug("#####["+apiName+"][output]"+outputXML);
+		//logger.debug("#####["+apiName+"][output]"+outputXML);
 		
 		return outputXML;
 	}
@@ -439,8 +439,7 @@ public class SterlingApiDelegate {
 		logger.debug("[getOrderReleaseList intputXML]"+xmlData);
 		
 		
-		Document doc = null;
-			
+		String shipNode = "";
 		// SC API Call
 		sterlingHTTPConnector.setApi(sc_get_orderReleaseList);
 		sterlingHTTPConnector.setData(xmlData);
@@ -448,7 +447,7 @@ public class SterlingApiDelegate {
 		logger.debug("[getOrderReleaseList outputXML]"+outputXML);
 		
 		// OutPut XML Parsing
-		doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 		logger.debug("result:::"+doc.getFirstChild().getNodeName());
 		
 		
@@ -465,11 +464,10 @@ public class SterlingApiDelegate {
 			XPath xp = XPathFactory.newInstance().newXPath();
 			Node releaseNode = (Node)xp.evaluate("/OrderReleaseList/OrderRelease", ele, XPathConstants.NODE);
 			
-			String shipNode = (String)xp.evaluate("@ShipNode", releaseNode, XPathConstants.STRING);
-			return shipNode;
+			shipNode = (String)xp.evaluate("@ShipNode", releaseNode, XPathConstants.STRING);
 		}
 			
-		
+		return shipNode;
 		
 		
 	}

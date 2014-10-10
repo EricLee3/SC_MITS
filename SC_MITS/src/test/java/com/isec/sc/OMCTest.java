@@ -62,13 +62,14 @@ import com.isec.sc.intgr.api.util.FileContentReader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath:spring/application-config.xml","classpath:quartz-config.xml"})
-public class MagentoTest {
+public class OMCTest {
 
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	
 	
 	@Autowired	private StringRedisTemplate reportStringRedisTemplate;
+	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
 	
 	@Autowired	private Environment env;
 	
@@ -76,6 +77,9 @@ public class MagentoTest {
 	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
+	
+	@Resource(name="maStringRedisTemplate")
+	private ValueOperations<String, String> valOps;
 	
 	@Resource(name="maStringRedisTemplate")
 	private HashOperations<String, String, Object> hashOps;
@@ -88,6 +92,46 @@ public class MagentoTest {
 	
 	@Value("${redis.port}")
 	private String redis_port;
+	
+	
+	@Test
+	public void testRedisChar(){
+		
+		try{
+			
+			
+			ObjectMapper mapper = new ObjectMapper();
+//			String outputMsgs = mapper.writeValueAsString(allKeyDataMap);
+			
+			String a = "한글";
+			
+			
+			
+			valOps.set("test", a);
+			System.out.println(valOps.get("test"));
+			
+		}catch(Exception e){
+			
+			
+		}
+		
+	}
+	
+	@Test
+	public void testGetRelease(){
+	
+		try{
+		
+			String output = sterlingApiDelegate.getShipNodeByReleaseKey("100000395", "20141008133900227117");
+			
+			System.out.println(output);
+			
+		
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	
 	@Test
 	public void testEnv(){
@@ -200,46 +244,35 @@ public class MagentoTest {
 	}
 	
 	
-	@Ignore
+	@Test
 	public void orderCreateTest(){
 		
 		
 		String createOrderXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		+"<Order DocumentType=\"0001\" EnterpriseCode=\"SLV\" SellerOrganizationCode=\"ASPB\" PaymentStatus=\"AUTHORIZED\">"
+		+"<Order DocumentType=\"0001\" EnterpriseCode=\"KOLOR\" SellerOrganizationCode=\"ASPB\" PaymentStatus=\"AUTHORIZED\">"
 			+"<OrderLines>"
 				+"<OrderLine OrderedQty=\"2\">"
-					+"<Item ItemID=\"ASPB_ITEM_0001\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar BOHO-LUXE\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
+					+"<Item ItemID=\"AYB5CL50103L\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar BOHO-LUXE\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
 					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"49000.00\"/>"
 					+"<LineCharges>"
 						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
 						+"<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5.00\" />"
 					+"</LineCharges>"
 					+"<LineTaxes>"
-						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"0.00\" />"
+						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"5.00\" />"
 					+"</LineTaxes>"
 				+"</OrderLine>"
-				+"<OrderLine OrderedQty=\"3\">"
-					+"<Item ItemID=\"ASPB_ITEM_0002\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Diffuser BLUE JEAN\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-diffuser-blue-jean.html\"/>"
-					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"59000.00\"/>"
-					+"<LineCharges>"
-						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
-						+"<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5.00\" />"
-					+"</LineCharges>"
-					+"<LineTaxes>"
-						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"0.00\" />"
-					+"</LineTaxes>"
-				+"</OrderLine>"
-					+"<OrderLine OrderedQty=\"5\">"
-					+"<Item ItemID=\"ASPB_ITEM_0003\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Diffuser BLUE JEAN\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-diffuser-blue-jean.html\"/>"
-					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"59000.00\"/>"
-					+"<LineCharges>"
-						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
-						+"<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5.00\" />"
-					+"</LineCharges>"
-					+"<LineTaxes>"
-						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"0.00\" />"
-					+"</LineTaxes>"
-				 +"</OrderLine>"
+//				+"<OrderLine OrderedQty=\"3\">"
+//					+"<Item ItemID=\"AYE5CL60303F\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
+//					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"39000.00\"/>"
+//					+"<LineCharges>"
+//						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
+//						+"<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5.00\" />"
+//					+"</LineCharges>"
+//					+"<LineTaxes>"
+//						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"5.00\" />"
+//					+"</LineTaxes>"
+//				+"</OrderLine>"
 			+"</OrderLines>"
 			+"<PersonInfoShipTo FirstName=\"홍\" LastName=\"길동\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1234-5678\" MobilePhone=\"010-1234-5678\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
 			+"<PersonInfoBillTo  FirstName=\"이\" LastName=\"순신\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1111-2222\" MobilePhone=\"010-1111-2222\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
@@ -256,7 +289,7 @@ public class MagentoTest {
 							+ "}";
 		
 		
-		String keyName = "SLV:ASPB:order";
+		String keyName = "KOLOR:ASPB:order";
 		
 		try{
 			

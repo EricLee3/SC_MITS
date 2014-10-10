@@ -396,6 +396,7 @@ public class OrderController {
 		
 		// API Call
 		String outputXML = sterlingApiDelegate.comApiCall("getOrderDetails", inputXML);
+		
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 		
 		

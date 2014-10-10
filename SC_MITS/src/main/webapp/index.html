@@ -415,11 +415,11 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 	   		
 	   		// URL History Manage
-	   		/* $.address.change(function(event) {  
+	   		$.address.change(function(event) {  
 	   		    // do something depending on the event.value property, e.g.  
 	   		    // $('#content').load(event.value + '.xml');  
 	   		    
-	   		    //alert(event.value);
+	   		    console.debug(event.value);
 	   		    
 	   		    $('.page-sidebar .ajaxify[href="'+event.value+'"]').parent().parent('a').click();
 	   		 	$('.page-sidebar .ajaxify[href="'+event.value+'"]').click();
@@ -428,10 +428,11 @@ License: You must have a valid license purchased only from themeforest(the above
 	   		
 	   		$('a').click(function() {  
 	   			
+	   			console.debug("a.click. "+$(this).attr('href'));
 	   			if($(this).attr('href').indexOf("#") > -1 || $(this).attr('href') == "javascript:;" ) return;
 	   			
 	   		    $.address.value($(this).attr('href'));  
-	   		}); */
+	   		});
 	});
 </script>
 <!-- END JAVASCRIPTS -->

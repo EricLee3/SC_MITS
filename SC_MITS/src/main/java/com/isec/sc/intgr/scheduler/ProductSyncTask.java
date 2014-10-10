@@ -114,6 +114,8 @@ public class ProductSyncTask {
 					            "brand_id": "브랜드ID",
 					            "brand_name": "브랜드명",
 					            "sale_price": "최초판매가",
+					            "tran_date": "전송일자",
+                                "tran_seq": "전송순번",
 					            "optioninfo": [
 					                {
 					                    "item_color": "컬러",
@@ -160,7 +162,9 @@ public class ProductSyncTask {
 					String sale_price = (String)itemMap.get("sale_price");
 					String brand_id = (String)itemMap.get("brand_id");
 					String brand_name = (String)itemMap.get("brand_name");
-					
+					String tran_date = (String)itemMap.get("tran_date");
+					String tran_seq = (String)itemMap.get("tran_seq");
+					String status = "3000";	// 판매가능상태
 					
 					// barcode 추출
 					String itemString = "";
@@ -176,7 +180,7 @@ public class ProductSyncTask {
 																	bar_code, ent_code, "EACH", 
 																	CommonUtil.cuurentDateFromFormat("yyyy-MM-dd"),"9999-12-31",
 																	brand_id, brand_name, sale_price, pname,
-																	item_color, item_size, "3000"
+																	item_color, item_size, status
 																} 
 						);
 						itemString = itemString +"\n"+ itemXML;
@@ -199,6 +203,8 @@ public class ProductSyncTask {
 					HashMap<String, Object> returnMap = new HashMap<String, Object>();
 					returnMap.put("org_code", org_code);
 					returnMap.put("prodinc", prodinc);
+					returnMap.put("tran_date", tran_date);
+					returnMap.put("tran_seq", tran_seq);
 					
 					// 성공
 					if("01".equals(succ)){
@@ -349,7 +355,7 @@ public class ProductSyncTask {
 				doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(adjInv_output.getBytes("UTF-8")));
 				
 				
-				// 결과처리
+				//---------------------------------- 결과처리
 				HashMap<String, Object> returnMap = new HashMap<String, Object>();
 				ArrayList<HashMap<String,Object>> returnItemInvList = new ArrayList<HashMap<String,Object>>();
 				
@@ -366,9 +372,14 @@ public class ProductSyncTask {
 					for(int ii=0; ii<itemInvList.size(); ii++){
 						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
 						
-						returnItemMap.put("result_code", "99");
+						returnItemMap.put("statuscd", "99");
 						returnItemMap.put("org_code", itemInvList.get(ii).get("org_code"));
 						returnItemMap.put("bar_code", itemInvList.get(ii).get("bar_code"));
+						returnItemMap.put("ship_node", itemInvList.get(ii).get("ship_node"));
+						returnItemMap.put("tran_date", itemInvList.get(ii).get("tran_date"));
+						returnItemMap.put("tran_seq", itemInvList.get(ii).get("tran_seq"));
+						
+						
 						returnItemInvList.add(returnItemMap);
 					}
 					returnMap.put("list", returnItemInvList);
@@ -405,12 +416,15 @@ public class ProductSyncTask {
 					logger.debug("#####[adjustInventory Api Success]");
 					
 					//========== 1. CUBE 결과전송키에 저장 (성공)
-					HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
-					
 					for(int ii=0; ii<itemInvList.size(); ii++){
-						returnItemMap.put("result_code", "01");
+						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
+						
+						returnItemMap.put("statuscd", "01");
 						returnItemMap.put("org_code", itemInvList.get(ii).get("org_code"));
 						returnItemMap.put("bar_code", itemInvList.get(ii).get("bar_code"));
+						returnItemMap.put("ship_node", itemInvList.get(ii).get("ship_node"));
+						returnItemMap.put("tran_date", itemInvList.get(ii).get("tran_date"));
+						returnItemMap.put("tran_seq", itemInvList.get(ii).get("tran_seq"));
 						returnItemInvList.add(returnItemMap);
 					}
 					returnMap.put("list", returnItemInvList);
@@ -436,6 +450,8 @@ public class ProductSyncTask {
 						Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, "", uom, "A");
 						logger.debug("#####[Sc Qty]"+currScQty);
 						
+						// MA 전송결과값 생성
+						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
 						returnItemMap = new HashMap<String, Object>();
 						returnItemMap.put("org_code", ent_code);	// MA는 조직코드
 						returnItemMap.put("bar_code", bar_code);

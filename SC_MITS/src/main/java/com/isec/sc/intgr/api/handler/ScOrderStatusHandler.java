@@ -231,87 +231,131 @@ public class ScOrderStatusHandler {
 		}
 		
 		
-		logger.debug("[returnXML]"+returnXML);
-		
-		// 1. Receive Message(retrunXML) Parsing
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
-		Element outputXML = doc.getDocumentElement();
-		
-		// 공통정보 추출
-		String entCode = outputXML.getAttribute("EnterpriseCode"); // 조직코드
-		String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
-		String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
-		String minOrderStatus = outputXML.getAttribute("MinOrderStatus");	// 최대 오더상태 코드값
-		
-		logger.info("[minOrderStatus]"+minOrderStatus);
-		logger.info("[maxOrderStatus]"+maxOrderStatus);
-		
-		// 조직코드, 판매조직으로 Redis 저장키 생성
+//		logger.debug("[return XML]"+new String(returnXML.getBytes("8859_1"), "UTF-8"));
+		logger.debug("[return XML]"+returnXML);
 		
 		
-		// Scheduled 
-		if("1500".equals(maxOrderStatus))
-		{
-			// TODO: Scheduled Event Handler 처리. 현재 사용안함
-		}
+		try{
 		
-		
-		// Released or Partially Released
-		else if("3200".equals(maxOrderStatus))
-		{
-			// 전체 Released일 경우만 후처리
-			if(minOrderStatus.equals(maxOrderStatus)){
-				
-				logger.debug("[Order Release Hanlder Started]");
-				
-				processReleaseAfter(outputXML, entCode, sellerCode);
-			}else{
-				
-				logger.debug("[Partially Released  Started]");
-				// TODO: Partially Released일 경우 운영자 Alert처리 
-				
-				
+			// 1. Receive Message(retrunXML) Parsing
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(returnXML.getBytes("UTF-8")));
+			Element outputXML = doc.getDocumentElement();
+			
+			// 공통정보 추출
+			String entCode = outputXML.getAttribute("EnterpriseCode"); // 조직코드
+			String sellerCode = outputXML.getAttribute("SellerOrganizationCode");	// 판매조직코드
+			String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
+			String minOrderStatus = outputXML.getAttribute("MinOrderStatus");	// 최대 오더상태 코드값
+			
+			logger.info("[minOrderStatus]"+minOrderStatus);
+			logger.info("[maxOrderStatus]"+maxOrderStatus);
+			
+			// 조직코드, 판매조직으로 Redis 저장키 생성
+			
+			
+			// Scheduled 
+			if("1500".equals(maxOrderStatus))
+			{
+				// TODO: Scheduled Event Handler 처리. 현재 사용안함
 			}
-		}
-		
-		
-		// Back Ordered
-		else if("1300".equals(maxOrderStatus))
-		{
-			logger.debug("[Order BackOrder Hanlder Started]");
 			
-			/*
-			 * TODO: Backordered 된 건 처리 - 사용안함
-			 * - WCS(MI:JNS)의 경우는 부분취소가 현재 불가능함
-			 * - 따라서 Released단계에서  BackOrdered 또는 Canceled 된 건이 하나라도 존재할 경우
-			 *   Released결과를 보내주지 않고 Skip처리함. Sterling에서 전체취소처리후 취소정보를 전달해야 함.  
-			 */
-			// Output XML Parsing
-			XPath xp = XPathFactory.newInstance().newXPath();
 			
-			NodeList canceledList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@Status='BackOrdered' or @Status='Cancelled']", outputXML, XPathConstants.NODESET);
-			if("JNS".equals(sellerCode)){
-				if(canceledList.getLength() > 0){
-					logger.debug("This Order cannot be fulFilled!!");
-					return;
+			// Released or Partially Released
+			else if("3200".equals(maxOrderStatus))
+			{
+				// 전체 Released일 경우만 후처리
+				if(minOrderStatus.equals(maxOrderStatus)){
+					
+					
+					/*
+					 *  TODO: 현재 최초 릴리즈시 오더릴리즈상세정보 또는 오더릴리즈목록정보 조회 API가 데이타를 못가져옴.
+					 *        릴리즈를 한번 더 수행시 HasStateChanged = 'N'으로 바뀌고 정상조회됨.
+					 *        HasStateChanged 값을 체크해서 'Y'일 경우 scheduleOrder API를 다시한번 호출처리함
+					 */
+					String hasStateChanged = outputXML.getAttribute("HasStateChanged"); // 오더유형
+					if(hasStateChanged != null && "Y".equals(hasStateChanged)){
+						
+						logger.debug("[Order Release Again!!!]");
+						
+						String orderId = outputXML.getAttribute("OrderNo");
+						String docType =  outputXML.getAttribute("DocumentType");
+						logger.info("[orderId]"+orderId);
+						logger.info("[docType]"+docType);
+	
+						//-------------------- Store Redis Data For Ma & Release
+						HashMap<String, String> resultMap = new HashMap<String, String>();
+						resultMap.put("entCode", entCode);
+						resultMap.put("orderId", orderId);
+						resultMap.put("docType", docType);
+						
+						ObjectMapper mapper = new ObjectMapper();
+						String orderSuccJSON = mapper.writeValueAsString(resultMap);
+						logger.debug("[Update OrderStatus - Redis Data]"+orderSuccJSON);
+						
+						
+						// Put OrderStaus to Redis For SC - OMC에 자동릴리즈를 하기 위해 별도의 릴리즈대상 키에 생성된 오더정보 저장
+						String redisPushKeyForRelease = entCode+":"+sellerCode+":order:release";
+						listOps.leftPush(redisPushKeyForRelease, orderSuccJSON);
+						
+						return;
+					}
+					logger.debug("[Order Release Hanlder Started]");
+					processReleaseAfter(outputXML, entCode, sellerCode);
+					
+				}else{
+					
+					logger.debug("[Partially Released  Started]");
+					// TODO: Partially Released일 경우 운영자 Alert처리 
 				}
 			}
+			
+			
+			// Back Ordered
+			else if("1300".equals(maxOrderStatus))
+			{
+				logger.debug("[Order BackOrder Hanlder Started]");
+				
+				/*
+				 * TODO: Backordered 된 건 처리 - 사용안함
+				 * - WCS(MI:JNS)의 경우는 부분취소가 현재 불가능함
+				 * - 따라서 Released단계에서  BackOrdered 또는 Canceled 된 건이 하나라도 존재할 경우
+				 *   Released결과를 보내주지 않고 Skip처리함. Sterling에서 전체취소처리후 취소정보를 전달해야 함.  
+				 */
+				// Output XML Parsing
+				XPath xp = XPathFactory.newInstance().newXPath();
+				
+				NodeList canceledList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@Status='BackOrdered' or @Status='Cancelled']", outputXML, XPathConstants.NODESET);
+				if("JNS".equals(sellerCode)){
+					if(canceledList.getLength() > 0){
+						logger.debug("This Order cannot be fulFilled!!");
+						return;
+					}
+				}
+			}
+			
+			
+			// Cancelled (전체취소)
+			else if("9000".equals(maxOrderStatus))
+			{
+				
+				logger.debug("[Order Cancel Hanlder Started]");
+				processCancelAfter(outputXML, entCode, sellerCode);
+			}
+		
+		}catch(Exception e){
+			
+			// TODO: 예외처리
+			e.printStackTrace();
 		}
-		
-		
-		// Cancelled (전체취소)
-		else if("9000".equals(maxOrderStatus))
+		finally
 		{
-			
-			logger.debug("[Order Cancel Hanlder Started]");
-			
-			
-			processCancelAfter(outputXML, entCode, sellerCode);
+			try{
+				// 호출한 Sterling Transaction에 Response 전달
+				res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
+			}catch(Exception e){
+				
+			}
 		}
-		
-		
-		// 호출한 Sterling Transaction에 Response 전달
-		res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
 		
 	}
 	
@@ -386,7 +430,6 @@ public class ScOrderStatusHandler {
 	 */
 	private void processReleaseAfter(Element outputXML, String entCode, String sellerCode) throws Exception{
 		
-		try{
 			
 			// 공통정보 추출
 			/*
@@ -423,77 +466,44 @@ public class ScOrderStatusHandler {
 			 * 
 			 * 큐브전송항목
 			 * - 창고코드
-			 * - 출고의뢰일자, 주문번호, 주문순번, 상품코드, 상품명, 수량, 판매가(개별단가), 고객명(수취인), 우편번호, 수취인주소, 고객/수취인HP, 고객/수취인TEL
+			 * - 출고의뢰일자, 주문번호, 주문순번, 주문생성일, 상품코드, 상품명, 수량, 판매가(개별단가), 고객명(수취인), 우편번호, 수취인주소, 고객/수취인HP, 고객/수취인TEL
 			 * - 배송메세지
-			 * 
-			 * 
-				// 전송데이타 포맷 (JSON)
-				{
-				    "org_code": "사업부코드",
-				    "sell_code": "판매채널코드",
-				    "orderId": "오더번호",
-				    "orderHeaderKey": "오더번호키",
-				    "status": "3200",
-				    "tranDt": "전송일자",
-				    "list": [
-				        {
-				            "org_code": "사업부코드",
-				            "sell_code": "판매채널코드",
-				            "ship_node": "창고코드",
-				            "orderId": "오더번호",
-				            "orderLineNo": "오더라인순번",
-				            "orderLineKey": "오더라인키",
-				            "orderReleaseKey": "오더라인확정키",
-				            
-				            "receiptNm": "수취인명",
-				            "receiptTel": "수취인전화",
-				            "receiptHp": "수취인휴대폰",
-				            "receiptAddr1": "수취인주소1",
-				            "receiptAddr2": "수취인주소2",
-				            "receiptZipcode": "수취인우편번호",
-				            
-				            "custNm": "주문자명",
-				            "custTel": "주문자전화",
-				            "custHp": "주문자휴대폰",
-				            
-				            "itemId": "상품바코드",
-				            "itemNm": "상품명",
-				            "qty": "주문수량",
-                            "salePrice": "판매가격",
-                            
-                            "deliveryMsg": "배송메세지",
-				        }
-			       ]
-			   } 
-			 * 
 			 */
 			
 			// Output XML Parsing
 			XPath xp = XPathFactory.newInstance().newXPath();
 						
 			// 주문기본정보
-			
+			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
 			String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
 			String orderKey = outputXML.getAttribute("OrderHeaderKey");
 			String orderDate = outputXML.getAttribute("OrderDate");
-			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
+			orderDate = orderDate.substring(0,4)+orderDate.substring(5,7)+orderDate.substring(8,10);
+			
+			
 //			String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
 //			String maxOrderStatus = outputXML.getAttribute("MaxOrderStatus"); // 최소 오더상태 코드값
 //			String minOrderStatus = outputXML.getAttribute("MinOrderStatus");	// 최대 오더상태 코드값
 			
-			
 			// 수취인 주소정보 PersonInforShipTo - 수취인명, 수취인전화번호, 수취인휴대전화번호, 수취인기본주소, 수취인상세주소, 수취인우편번
 			String receiptNm = (String)xp.evaluate("PersonInfoShipTo/@FirstName", outputXML, XPathConstants.STRING)
-		    						+" "+(String)xp.evaluate("PersonInfoShipTo/@LastName", outputXML, XPathConstants.STRING);
+		    						+(String)xp.evaluate("PersonInfoShipTo/@LastName", outputXML, XPathConstants.STRING);
+			receiptNm = receiptNm.trim();
 			String receiptTel = (String)xp.evaluate("PersonInfoShipTo/@DayPhone", outputXML, XPathConstants.STRING);
 			String receiptHp = (String)xp.evaluate("PersonInfoShipTo/@MobilePhone", outputXML, XPathConstants.STRING);
 			String receiptAddr1 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine1", outputXML, XPathConstants.STRING);
 			String receiptAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", outputXML, XPathConstants.STRING);
 			String receiptZipcode = (String)xp.evaluate("PersonInfoShipTo/@ZipCode", outputXML, XPathConstants.STRING);
 			
+			
+			logger.debug("[receiptNm]"+receiptNm);
+			logger.debug("[receiptAddr1]"+receiptAddr1);
+			logger.debug("[receiptAddr2]"+receiptAddr2);
+			
 			// 주문자 주소 PersonInfoBillTo - 주문자명, 주문자전화번호, 주문자휴대전화번
 			String custNm = (String)xp.evaluate("PersonInfoBillTo/@FirstName", outputXML, XPathConstants.STRING)
-		    						+" "+(String)xp.evaluate("PersonInfoBillTo/@LastName", outputXML, XPathConstants.STRING);
+							+(String)xp.evaluate("PersonInfoBillTo/@LastName", outputXML, XPathConstants.STRING);
+			custNm = custNm.trim();
 			String custTel = (String)xp.evaluate("PersonInfoBillTo/@DayPhone", outputXML, XPathConstants.STRING);
 			String custHp = (String)xp.evaluate("PersonInfoBillTo/@MobilePhone", outputXML, XPathConstants.STRING);
 //			String custAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", outputXML, XPathConstants.STRING);
@@ -526,9 +536,7 @@ public class ScOrderStatusHandler {
 //				String shipNode = "WH001";	//호법창고
 				String shipNode = "";	//호법창고
 //				String orderReleaseDetailXML = FileContentReader.readContent(getClass().getResourceAsStream(GET_ORDER_RELEASE_DETAILS_TEMPLATE));
-				
 //				Document doc = null;
-				try{
 //				    MessageFormat msg = new MessageFormat(orderReleaseDetailXML);
 //					String inputXML = msg.format(new String[] {orderReleaseKey} );
 //					logger.debug("[releaseDetails inputXML]"+inputXML); 
@@ -537,23 +545,20 @@ public class ScOrderStatusHandler {
 //					logger.debug("[releaseDetails outputXML]"+releaseDetails);
 //					shipNode = doc.getDocumentElement().getAttribute("ShipNode");
 					
+					logger.debug("[orderNo]"+orderNo); 
+					logger.debug("[orderReleaseKey]"+orderReleaseKey); 
 					
 					shipNode  = sterlingApiDelegate.getShipNodeByReleaseKey(orderNo, orderReleaseKey);
 					
 					logger.debug("[shipNode]"+shipNode); 
 					logger.debug("[shipNode]"+shipNode); 
 					logger.debug("[shipNode]"+shipNode); 
-				}catch(Exception e){
-					
-					// TODO: 예외처리
-					e.printStackTrace();
-				}
 				// ShipNode 조회 End
 				
 				
 				// 상품정보, 가격정보
 				String itemID = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
-				String itemNm = (String)xp.evaluate("@ItemShortDesc", lineNode, XPathConstants.STRING);
+				String itemNm = (String)xp.evaluate("Item/@ItemShortDesc", lineNode, XPathConstants.STRING);
 				Double pricingQty = (Double)xp.evaluate("LineOverallTotals/@PricingQty", lineNode, XPathConstants.NUMBER);	// 주문수량
 				Double lineTotal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.NUMBER);	// 오더라인 최종판매금액(배송비,과세,할인 적용금액)
 				Double salePrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.NUMBER);	// 개별판매단가(배송비,과세,할인 미적용금액)
@@ -566,6 +571,7 @@ public class ScOrderStatusHandler {
 				orderLineMap.put("sell_code", sellerCode);	// TODO: 셀러코드는 SC의 코드사용
 				orderLineMap.put("ship_node", shipNode);
 				orderLineMap.put("orderId", orderNo);
+				orderLineMap.put("orderDt", orderDate);
 				
 				// 오더라인순/오더라인키/오더릴리즈키
 				orderLineMap.put("orderLineNo", primeLineNo);
@@ -590,14 +596,14 @@ public class ScOrderStatusHandler {
 				// 상품/가격 정보
 				orderLineMap.put("itemId", itemID);
 				orderLineMap.put("itemNm", itemNm);
-				orderLineMap.put("qty", pricingQty);
-				orderLineMap.put("salePrice", cubePrice);
+				orderLineMap.put("qty", pricingQty.intValue()+"");
+				orderLineMap.put("salePrice", cubePrice+"");
 				
 				// TODO: 배송메세지 전송가능여부 확인(MA)
 				orderLineMap.put("deliveryMsg", "");	
 				
 				confirmList.add(orderLineMap);
-			} // End for
+			} // End for ReleaseList
 			
 			
 			// Order 레벨 정보 저장
@@ -605,10 +611,11 @@ public class ScOrderStatusHandler {
 			sendMsgMap.put("org_code", orgCode);
 			sendMsgMap.put("sell_code", sellerCode);
 			sendMsgMap.put("orderId", orderNo);
+			sendMsgMap.put("orderDt", orderDate);
 			sendMsgMap.put("orderHeaderKey", orderKey);
 			sendMsgMap.put("status", "3200");
-			String trDate = CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm");
-			sendMsgMap.put("trDate", trDate);
+			String tranDt = CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm");
+			sendMsgMap.put("tranDt", tranDt);
 			// OrderLine 확정정보 저장
 			sendMsgMap.put("list", confirmList);
 			
@@ -622,17 +629,19 @@ public class ScOrderStatusHandler {
 			logger.debug("[3200 S2C - trans Data]"+outputMsg);
 			logger.debug("[3200 S2C - trans Key]"+pushKey);
 			
+			
+			
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
 			
 			
 			// RedisKey for CUBE -> SC 
 			// TODO: Test 용, 큐브연동후 삭제 할 것
-			sendMsgMap.put("status", "3202"); // 3202
+			/*sendMsgMap.put("status", "3202"); // 3202
 			List<HashMap<String,Object>> returnList = confirmList;
 			for(int i=0; i<returnList.size(); i++){
 				returnList.get(i).put("shipmentNo", "0000"+(i+1));
-				returnList.get(i).put("statuscd", "90");
+				returnList.get(i).put("statuscd", "01");
 				returnList.get(i).put("uom", "EACH");
 			}
 			sendMsgMap.remove("list");
@@ -640,7 +649,6 @@ public class ScOrderStatusHandler {
 			
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap);
 			
-			// TODO: Cube 사업부코드/매장코드 매핑필요
 			String mapEntCode = env.getProperty("ca."+entCode);
 			String mapSellerCode = sellerCode;
 			
@@ -650,17 +658,11 @@ public class ScOrderStatusHandler {
 			logger.debug("[3202 C2S - trans data]"+outputMsgTest);
 			logger.debug("[3202 C2S - trans Key]"+pushKey_CubetoSC);
 			// RedisDB에 메세지 저장
-			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);
+			listOps.leftPush(pushKey_CubetoSC, outputMsgTest);*/
 			
 			
 			logger.debug("####[Order Release Event Hanlder End]");
 		
-		}catch(Exception e){
-			
-			// TODO:릴리즈정보 큐브전송시 예외처리필요
-			e.printStackTrace();
-			throw new Exception();
-		}
 				
 	}
 	

@@ -103,7 +103,7 @@ public class ProductSyncTest {
 	
 	
 	// Cube 상품등록 테스트
-	@Ignore
+	@Test
 	public void sendProductFromCube(){
 		
 		
@@ -138,27 +138,28 @@ public class ProductSyncTest {
 		HashMap<String, ArrayList<HashMap<String,Object>>> itemMap = new HashMap<String, ArrayList<HashMap<String,Object>>>();
 		ArrayList<HashMap <String,Object>> itemList = new ArrayList<HashMap <String,Object>>();
 		
-		for(int i=1; i<=2; i++){
+		for(int i=1; i<=1; i++){
+			
+			String stylecd = "AYB5CL501";
 			
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("org_code", "80");
-			map.put("prodinc", "STYLECODE_"+i);
-			map.put("pname", "ProductName_"+i);
+			map.put("prodinc", stylecd);
+			map.put("pname", "Capri Blue Travel Tin VOLCANO");
 			map.put("sale_price", "5000");
 			map.put("brand_id", "000072");
 			map.put("brand_name", "aspen_bay");
+			map.put("tran_date", CommonUtil.cuurentDateFromFormat("yyyyMMdd"));
+			map.put("tran_seq", ""+i);
 			
 			ArrayList<HashMap <String,String>> barCodeList = new ArrayList<HashMap <String,String>>();
-			for(int j=1; j<=2; j++){
+			for(int j=38; j<=38; j++){
 				
-				String idx = "";
-				if(j<10) idx = "0"+j;
-				else idx = ""+i;
 				
 				HashMap<String, String> barCodeMap = new HashMap<String, String>();
-				barCodeMap.put("bar_code", "barcode_"+i+"_"+idx);
-				barCodeMap.put("item_color", "B");
-				barCodeMap.put("item_size", "ML");
+				barCodeMap.put("bar_code", stylecd+"03L");
+				barCodeMap.put("item_color", "03");
+				barCodeMap.put("item_size", "L");
 				
 				barCodeList.add(barCodeMap);
 			}
@@ -194,7 +195,7 @@ public class ProductSyncTest {
 				        {
 				            "org_code":"사업부코드"
 				            "ship_node": "창고코드",
-				            "bar_code": "상품코드", ,
+				            "bar_code": "상품코드",
 				            "qty": "수량",
 							"uom": "측정단위"
 				        }
@@ -204,18 +205,20 @@ public class ProductSyncTest {
 		HashMap<String, ArrayList<HashMap<String,String>>> itemMap = new HashMap<String, ArrayList<HashMap<String,String>>>();
 		ArrayList<HashMap <String,String>> itemList = new ArrayList<HashMap <String,String>>();
 		
-		for(int i=0; i<2; i++){
+		for(int i=38; i<=38; i++){
 			
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put("org_code", "80");
-			map.put("ship_node", "ISEC_WH1");
+			map.put("ship_node", "WH001");
 			
-			String idx = "";
-			if(i<10) idx = "0"+i;
 			
-			map.put("bar_code", "barcode_1_"+idx);
-			map.put("qty", "30");
+			String stylecd = "AYB5CL501";
+			
+			map.put("bar_code", stylecd+"03L");
+			map.put("qty", "50");
 			map.put("uom", "EACH");
+			map.put("tran_date", CommonUtil.cuurentDateFromFormat("yyyyMMdd"));
+			map.put("tran_seq", ""+i);
 			
 			itemList.add(map);
 		}

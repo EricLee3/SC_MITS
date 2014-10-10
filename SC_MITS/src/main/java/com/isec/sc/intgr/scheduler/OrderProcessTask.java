@@ -386,9 +386,18 @@ public class OrderProcessTask {
 			// 성공일 경우 - 전체성공 처리
 			else if("01".equals(resultCode)){
 				
+				
+				String shipmentNo =  (String)resultList.get(i).get("shipmentNo");
+				String orderReleaseKey =  (String)resultList.get(i).get("orderReleaseKey");
+				
+				logger.debug("##### [shipmentNo]" + shipmentNo);
+				logger.debug("##### [orderReleaseKey]" + orderReleaseKey);
+				
+				
 				// Order Release Key 조회
 				// TODO: 하나의 주문에 릴리즈가 2건이상일 경우 고려필요함. 현재는 한건의 주문은 한건의 릴리즈로 생성됨을 전제로 연동
 				ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(orderId, "");
+				
 				
 				// 릴리즈키와 Cube에서 전송된 출고의뢰 전표번호로 출고생성 API호출 - createShipment 
 				for(int j=0; j<releaseKeys.size(); j++){
@@ -396,11 +405,9 @@ public class OrderProcessTask {
 					// TODO: Cube연동시 ShipmentNo에 전표번호 적용필요
 					int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
 					if(result == 0){
-						
 						// TODO: createShipment API호출 예외처리
 						// JSON 변환
 						listOps.leftPush(redisErrKey, outputMsg);
-						
 					}
 				}
 				

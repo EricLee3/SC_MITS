@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -47,7 +48,7 @@ public class ScOrderShipmentHandler {
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
-	
+	@Autowired	private Environment env;
 	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
@@ -198,15 +199,20 @@ public class ScOrderShipmentHandler {
 			List<HashMap<String,Object>> shipmentList = new ArrayList<HashMap<String,Object>>();
 			HashMap<String, Object> lineMap = new HashMap<String, Object>();
 			lineMap.put("shipmentNo", shipmentNo);
-			lineMap.put("shipNode", "ISEC_WH1");
+			lineMap.put("shipNode", "WH001");	// TODO: 창고코드지정
 			lineMap.put("carrierCode", "19991214183438453");
 			lineMap.put("trackingNo", "1111111111");;
 			lineMap.put("items", sendMsgMap.get("confirmed"));
 			
 			shipmentList.add(lineMap);
 			
-			
+			// TODO:총비용, 배송예정일, 통화 코드 추가필요 for WCS
 			sendMsgMap_C2S = sendMsgMap;
+			sendMsgMap_C2S.put("entCode", entCode);
+			sendMsgMap_C2S.put("sellerCode", sellerCode);
+			sendMsgMap_C2S.put("orderId", orderNo); 
+			sendMsgMap_C2S.put("orderHeaderKey", orderHeaderKey); 
+			sendMsgMap_C2S.put("docType", "0001"); 
 			sendMsgMap_C2S.put("status", "3700"); // 3700
 			sendMsgMap_C2S.put("shipment",shipmentList);
 			sendMsgMap_C2S.remove("confirmed"); 
@@ -214,13 +220,11 @@ public class ScOrderShipmentHandler {
 			
 			String outputMsgTest = mapper.writeValueAsString(sendMsgMap_C2S);
 			
-			// TODO: Cube 사업부코드/매장코드 매핑필요
-			String mapEntCode = entCode;
+			String mapEntCode = env.getProperty("ca."+entCode);
 			String mapSellerCode = sellerCode;
-			if("ASPB".equals(sellerCode)){
-				mapEntCode = "80";
-				mapSellerCode ="ON9999";
-			}
+			
+			
+			
 			String pushKey_CubetoSC = mapEntCode+":"+mapSellerCode+":order:update:C2S";
 			
 			logger.debug("[pushKey_CubetoSC]"+pushKey_CubetoSC);
@@ -300,9 +304,9 @@ public class ScOrderShipmentHandler {
 		String pushKeyToMa = entCode+":"+sellerCode+":order:update:S2M";
 		
 		// TODO: Cube 사업부코드/매장코드 매핑필요
-		String entCode_cube = "80";
-		String sellerCode_cube = "ON9999";
-		String pushKeyToCa = entCode_cube+":"+sellerCode_cube+":order:update:S2C";
+		String mapEntCode = env.getProperty("ca."+entCode);
+		String mapSellerCode = sellerCode;
+		String pushKeyToCa = mapEntCode+":"+mapSellerCode+":order:update:S2C";
 		
 		logger.debug("[docType]" + docType);
 		logger.debug("[shipmentKey]"+shipmentKey);

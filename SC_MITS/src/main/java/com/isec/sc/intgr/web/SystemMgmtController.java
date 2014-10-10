@@ -86,7 +86,7 @@ public class SystemMgmtController {
 		HashMap<String, List<HashMap<String,String>>> dataMap_DA = new HashMap<String, List<HashMap<String,String>>>();
 		HashMap<String, List<HashMap<String,String>>> dataMap_ISEC = new HashMap<String, List<HashMap<String,String>>>();
 		
-		Set<String> ma_all_keys_SLV= maStringRedisTemplate.keys("SLV:*:*");
+		Set<String> ma_all_keys_SLV= maStringRedisTemplate.keys("KOLOR:*:*");
 		Set<String> ca_all_keys_SLV= maStringRedisTemplate.keys("80:*:*");
 		
 		

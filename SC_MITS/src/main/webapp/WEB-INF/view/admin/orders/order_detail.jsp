@@ -180,23 +180,17 @@
 									<div class="portlet yellow-crusta box">
 										<div class="portlet-title">
 											<div class="caption">
-												<i class="fa fa-cogs"></i>Order Details
+												<i class="fa fa-cogs"></i>Basic Information
 											</div>
-											<div class="actions">
-												<a class="btn default btn-sm" href="javascript:;" id="tool_release">
-												출고의뢰 전송
-												<i class="fa fa-edit"></i>
-												</a>
-												<a class="btn red btn-sm" data-toggle="modal" href="#md_cancel_order">
-												주문취소
-												<i class="fa fa-edit"></i>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
 												</a>
 											</div>
 										</div>
 										<div class="portlet-body">
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Order #:
+													 오더번호 #:
 												</div>
 												<div class="col-md-7 value">
 													 ${baseInfo.orderNo}  <!-- <span class="label label-info label-sm">
@@ -205,7 +199,7 @@
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Order Date & Time:
+													 오더생성일자:
 												</div>
 												<div class="col-md-7 value" id="order_date">
 													 
@@ -213,7 +207,46 @@
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Order Status:
+													 관리조직 / 판매채널 :
+												</div>
+												<div class="col-md-7 value">
+													${baseInfo.entCode} / ${baseInfo.sellerCode}
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+													 주문상태:
+												</div>
+												<div class="col-md-7 value">
+												<!-- 
+												ui.status.cssname.1000=default
+												ui.status.cssname.1100=success
+												ui.status.cssname.1300=warning
+												ui.status.cssname.1500=info
+												ui.status.cssname.3200=primary
+												ui.status.cssname.3350=info
+												ui.status.cssname.3700=primary
+												ui.status.cssname.9000=danger
+												 -->
+												 	<span class="label label-default">
+													주문접수 
+													</span>&nbsp;
+													<span class="label label-default">
+													주문확정 
+													</span>&nbsp;
+													<span class="label label-default">
+													출고준비 
+													</span>&nbsp;
+													<span class="label label-success">
+													출고완료 
+													</span>&nbsp;
+													<span class="label label-default">
+													주문취소
+													</span>&nbsp;
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
 												</div>
 												<div class="col-md-7 value">
 													<span class="label label-${baseInfo.orderStatus_class }">
@@ -227,12 +260,17 @@
 													</c:if>
 												</div>
 											</div>
-											<div class="row static-info">
-												<div class="col-md-5 name">
-													 Enterprise/Seller :
-												</div>
-												<div class="col-md-7 value">
-													${baseInfo.entCode} / ${baseInfo.sellerCode}
+											<div class="row">
+												<div class="col-md-12">&nbsp;</div>
+												<div class="col-md-12 text-right">
+													<a class="btn btn-primary btn-sm blue-stripe" href="javascript:;" id="tool_release">
+													<i class="fa fa-edit"></i>
+													주문확정
+													</a>
+													<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order">
+													<i class="fa fa-edit"></i>
+													주문취소
+													</a>
 												</div>
 											</div>
 											<%-- <div class="row static-info">
@@ -251,6 +289,10 @@
 										<div class="portlet-title">
 											<div class="caption">
 												<i class="fa fa-cogs"></i>Customer Information
+											</div>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
+												</a>
 											</div>
 											<div class="actions">
 											</div>
@@ -287,6 +329,13 @@
 												<div class="col-md-7 value">
 													 ${baseInfo.paymentType }
 												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-12">&nbsp;</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-12">&nbsp;</div>
+												<div class="col-md-12">&nbsp;</div>
 											</div>
 										</div>
 									</div>
