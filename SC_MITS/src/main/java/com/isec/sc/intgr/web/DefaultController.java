@@ -19,7 +19,8 @@ public class DefaultController {
 		
 		logger.debug("Redirect Index Page!!!");
 		
-		return "redirect:index.html";
+//		return "redirect:index.html";
+		return "index";
 		
 	}
 	

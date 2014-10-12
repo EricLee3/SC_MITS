@@ -351,6 +351,7 @@ public class ScOrderStatusHandler {
 		{
 			try{
 				// 호출한 Sterling Transaction에 Response 전달
+				logger.debug("[Order Update Event Hanlder End !!!]");
 				res.getWriter().print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><TransferSuccess/>");
 			}catch(Exception e){
 				

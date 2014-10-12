@@ -80,6 +80,24 @@ public class OrderController {
 	private String CHANGE_ORDER_ADD_NOTE_TEMPLATE;
 	
 	
+	
+	
+	@RequestMapping(value = "/order_list.do")
+	public ModelAndView orderList(@RequestParam(defaultValue="false" ) String action, @RequestParam(defaultValue="A" ) String status) throws Exception{ 
+		
+		logger.debug("[action]"+action);
+		logger.debug("[status]"+status);
+		
+		
+		ModelAndView mav = new ModelAndView("");
+		mav.addObject("action", action); 
+		mav.addObject("status", status);
+		
+		mav.setViewName("/admin/orders/order_list");
+		return mav;
+		
+	}
+	
 	/**
 	 * 오더목록조회 (판매오더, 반품오더)
 	 *  - 오더의 상태가 Create(1100) ~ Shipped(3700)까지만 조회

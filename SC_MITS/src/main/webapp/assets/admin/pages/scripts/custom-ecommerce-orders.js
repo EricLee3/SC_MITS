@@ -57,7 +57,7 @@ var EcommerceOrders = function () {
                                {
                             	   "render": function(data, type, row){
                             		   
-                            		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
+                            		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe"><i class="fa fa-search"></i> View</a>';
                             	   },
                             	   "targets": 10	// View Button
                                },

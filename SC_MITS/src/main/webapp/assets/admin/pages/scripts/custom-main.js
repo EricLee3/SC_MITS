@@ -96,21 +96,30 @@ var Custom = function () {
 
         //main function
         init: function () {
-	         $.ajaxSetup({
+	         
+        	
+        	$.ajaxSetup({
 		         cache: true,
 		         dataType: 'json',
 		         error: function(xhr, status, error){
 			         alert('An error occurred: ' + error);
 		         },
-		         timeout: 50000,
+		         timeout: 10000,
 		         type: 'POST',
 		         url:''
 	           });
-	        },
+	        
+        
+        	$.fn.digits = function(){ 
+	    	    return this.each(function(){ 
+	    	        $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") ); 
+	    	    });
+	    	}
+        },
 
-	        setFormValidation: function (formName) {
-	        	handleValidation1(formName);
-	        },
+        setFormValidation: function (formName) {
+        	handleValidation1(formName);
+        }
 	        
     };
 

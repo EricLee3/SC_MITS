@@ -2,9 +2,8 @@
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-
 <!DOCTYPE html>
-<!--  
+<!-- 
 Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.2.0
 Version: 3.1.1
 Author: KeenThemes
@@ -23,25 +22,44 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN HEAD -->
 <head>
 <meta charset="utf-8"/>
-<title>M.I.T.S | SterlingOMS - Dashboard</title>
+<title>OMC - Order Management Center</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="" name="description"/>
 <meta content="" name="author"/>
 <!-- BEGIN GLOBAL MANDATORY STYLES -->
 <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css"/>
 <!-- END GLOBAL MANDATORY STYLES -->
+
+
+<!-- BEGIN PAGE LEVEL STYLES -->
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/select2/select2.css"/>
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/Scroller/css/dataTables.scroller.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/ColReorder/css/dataTables.colReorder.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/> -->
+
+<!-- <link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/> -->
+
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>-->
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/> 
+<!-- END PAGE LEVEL STYLES -->
+
+
 <!-- BEGIN THEME STYLES -->
-<link href="${pageContext.request.contextPath}/assets/global/css/components.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
-<link id="style_color" href="${pageContext.request.contextPath}/assets/admin/layout/css/themes/default.css" rel="stylesheet" type="text/css"/>
-<link href="${pageContext.request.contextPath}/assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/css/components.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
+<link id="style_color" href="../../assets/admin/layout/css/themes/default.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
 <!-- END THEME STYLES -->
 <link rel="shortcut icon" href="favicon.ico"/>
 </head>
@@ -58,110 +76,45 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
 <body class="page-header-fixed page-quick-sidebar-over-content ">
 <!-- BEGIN HEADER -->
-<%@ include file="/inc/inc_header.html" %>
+<jsp:include page="../inc/inc_header.jsp" />
 <!-- END HEADER -->
 <div class="clearfix">
 </div>
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
+	<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+	<!-- <div class="modal fade" id="portlet-config" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+					<h4 class="modal-title">Modal title</h4>
+				</div>
+				<div class="modal-body">
+					 Widget settings form goes here
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn blue">Save changes</button>
+					<button type="button" class="btn default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+			/.modal-content
+		</div>
+		/.modal-dialog
+	</div> -->
+	<!-- /.modal -->
+	<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
 	<!-- BEGIN SIDEBAR -->
-	<%@ include file="/inc/inc_sidemenu.html" %>
+	<jsp:include page="../inc/inc_sidemenu.jsp" />
 	<!-- END SIDEBAR -->
 	<!-- BEGIN CONTENT -->
 	<div class="page-content-wrapper">
 		<div class="page-content">
-			<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
-			<div class="modal fade" id="portlet-config" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-							<h4 class="modal-title">Modal title</h4>
-						</div>
-						<div class="modal-body">
-							 Widget settings form goes here
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn blue">Save changes</button>
-							<button type="button" class="btn default" data-dismiss="modal">Close</button>
-						</div>
-					</div>
-					<!-- /.modal-content -->
-				</div>
-				<!-- /.modal-dialog -->
-			</div>
-			<!-- /.modal -->
-			<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
 			<!-- BEGIN STYLE CUSTOMIZER -->
-			<div class="theme-panel hidden-xs hidden-sm">
-				<div class="toggler">
-				</div>
-				<div class="toggler-close">
-				</div>
-				<div class="theme-options">
-					<div class="theme-option theme-colors clearfix">
-						<span>
-						THEME COLOR </span>
-						<ul>
-							<li class="color-default current tooltips" data-style="default" data-original-title="Default">
-							</li>
-							<li class="color-darkblue tooltips" data-style="darkblue" data-original-title="Dark Blue">
-							</li>
-							<li class="color-blue tooltips" data-style="blue" data-original-title="Blue">
-							</li>
-							<li class="color-grey tooltips" data-style="grey" data-original-title="Grey">
-							</li>
-							<li class="color-light tooltips" data-style="light" data-original-title="Light">
-							</li>
-							<li class="color-light2 tooltips" data-style="light2" data-html="true" data-original-title="Light 2">
-							</li>
-						</ul>
-					</div>
-					<div class="theme-option">
-						<span>
-						Layout </span>
-						<select class="layout-option form-control input-small">
-							<option value="fluid" selected="selected">Fluid</option>
-							<option value="boxed">Boxed</option>
-						</select>
-					</div>
-					<div class="theme-option">
-						<span>
-						Header </span>
-						<select class="page-header-option form-control input-small">
-							<option value="fixed" selected="selected">Fixed</option>
-							<option value="default">Default</option>
-						</select>
-					</div>
-					<div class="theme-option">
-						<span>
-						Sidebar </span>
-						<select class="sidebar-option form-control input-small">
-							<option value="fixed">Fixed</option>
-							<option value="default" selected="selected">Default</option>
-						</select>
-					</div>
-					<div class="theme-option">
-						<span>
-						Sidebar Position </span>
-						<select class="sidebar-pos-option form-control input-small">
-							<option value="left" selected="selected">Left</option>
-							<option value="right">Right</option>
-						</select>
-					</div>
-					<div class="theme-option">
-						<span>
-						Footer </span>
-						<select class="page-footer-option form-control input-small">
-							<option value="fixed">Fixed</option>
-							<option value="default" selected="selected">Default</option>
-						</select>
-					</div>
-				</div>
-			</div>
 			<!-- END STYLE CUSTOMIZER -->
-			<!-- BEGIN PAGE HEADER-->		
 
+			<!-- --------------------------------------------------------------------------------- -->
+			<!-- BEGIN PAGE HEADER-->		
 			<div class="row">
 				<div class="col-md-12">
 					<!-- BEGIN PAGE TITLE & BREADCRUMB-->
@@ -170,7 +123,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					</h3>
 					<ul class="page-breadcrumb breadcrumb">
 						<li class="btn-group">
-							<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
+							<!-- <button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
 							<span>Actions</span><i class="fa fa-angle-down"></i>
 							</button>
 							<ul class="dropdown-menu pull-right" role="menu">
@@ -188,7 +141,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								<li>
 									<a href="#">Separated link</a>
 								</li>
-							</ul>
+							</ul> -->
 						</li>
 						<li>
 							<i class="fa fa-home"></i>
@@ -196,11 +149,11 @@ License: You must have a valid license purchased only from themeforest(the above
 							<i class="fa fa-angle-right"></i>
 						</li>
 						<li>
-							<a href="#">eCommerce</a>
+							<a href="#">오더관리</a>
 							<i class="fa fa-angle-right"></i>
 						</li>
 						<li>
-							<a href="#">Orders</a>
+							<a href="/admin/orders/order_list.html" class="ajaxify">오더조회</a>
 						</li>
 					</ul>
 					<!-- END PAGE TITLE & BREADCRUMB-->
@@ -222,13 +175,13 @@ License: You must have a valid license purchased only from themeforest(the above
 								<i class="fa fa-shopping-cart"></i>Order Listing
 							</div>
 							<div class="actions">
-								<a href="#" class="btn default yellow-stripe">
+								<!-- <a href="#" class="btn default yellow-stripe">
 								<i class="fa fa-plus"></i>
 								<span class="hidden-480">
 								New Order </span>
-								</a>
+								</a> --> 
 								<div class="btn-group">
-									<a class="btn default yellow-stripe" href="#" data-toggle="dropdown">
+									<!-- <a class="btn default yellow-stripe" href="#" data-toggle="dropdown">
 									<i class="fa fa-share"></i>
 									<span class="hidden-480">
 									Tools </span>
@@ -253,29 +206,50 @@ License: You must have a valid license purchased only from themeforest(the above
 											<a href="#">
 											Print Invoices </a>
 										</li>
-									</ul>
-								</div>
+									</ul> -->
+								</div> 
 							</div>
 						</div>
 						<div class="portlet-body">
 							<div class="table-container">
+								
+								
 								<div class="table-actions-wrapper">
 									<span>
 									</span>
-									<select class="table-group-action-input form-control input-inline input-small input-sm">
+									
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('days', '7');">
+										<i class="fa fa-calendar"></i>
+										1 week
+									</a>
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', '1');">
+										<i class="fa fa-calendar"></i>
+										1 month
+									</a>
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', '3');">
+										<i class="fa fa-calendar"></i>
+										3 month
+									</a>
+									
+									
+									<!-- <select class="table-group-action-input form-control input-inline input-small input-sm">
 										<option value="">Select...</option>
 										<option value="1500">Scheduled</option>
 										<option value="3200">Released</option>
 										<option value="3700">Confirm Shipment</option>
 										<option value="9000">Close</option>
 									</select>
-									<button class="btn btn-sm yellow table-group-action-submit"><i class="fa fa-check"></i> Submit</button>
+									<button class="btn btn-sm yellow table-group-action-submit"><i class="fa fa-check"></i> Submit</button> -->
 								</div>
 								<table class="table table-striped table-bordered table-hover" id="datatable_orders">
 								<thead>
 								<tr role="row" class="heading">
-									<th width="2%">
+									<!-- <th width="2%">
 										<input type="checkbox" class="group-checkable">
+										<input type="hidden" class="form-filter" name="doc_type" value="0001">
+									</th> -->
+									<th width="2%">
+										 &nbsp;#
 									</th>
 									<th width="5%">
 										 Order&nbsp;#
@@ -283,19 +257,28 @@ License: You must have a valid license purchased only from themeforest(the above
 									<th width="15%">
 										 Order&nbsp;Date
 									</th>
+									<th width="10%">
+										 EnterPrise
+									</th>
+									<th width="10%">
+										 Seller
+									</th>
+									<th width="10%">
+										 Customer
+									</th>
+									<th width="10%">
+										 Mobile
+									</th>
 									<th width="15%">
-										 EnterPrise&nbsp;Code
+										 Email
 									</th>
+									<!-- <th width="10%">
+										 Payment&nbsp;Type
+									</th> -->
 									<th width="10%">
-										 Seller&nbsp;Organization
+										 Amount
 									</th>
-									<th width="10%">
-										 BillToID
-									</th>
-									<th width="10%">
-										 Total&nbsp;Amount
-									</th>
-									<th width="10%">
+									<th width="15%">
 										 Status
 									</th>
 									<th width="10%">
@@ -303,19 +286,21 @@ License: You must have a valid license purchased only from themeforest(the above
 									</th>
 								</tr>
 								<tr role="row" class="filter">
+									<!-- <td>
+									</td> -->
 									<td>
 									</td>
 									<td>
 										<input type="text" class="form-control form-filter input-sm" name="order_id">
 									</td>
 									<td>
-										<div class="input-group date date-picker margin-bottom-5" data-date-format="dd/mm/yyyy">
+										<div class="input-group date date-picker margin-bottom-5" data-date-format="yyyy-mm-dd">
 											<input type="text" class="form-control form-filter input-sm" readonly name="order_date_from" placeholder="From">
 											<span class="input-group-btn">
 											<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
 											</span>
 										</div>
-										<div class="input-group date date-picker" data-date-format="dd/mm/yyyy">
+										<div class="input-group date date-picker" data-date-format="yyyy-mm-dd">
 											<input type="text" class="form-control form-filter input-sm" readonly name="order_date_to" placeholder="To">
 											<span class="input-group-btn">
 											<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
@@ -333,28 +318,48 @@ License: You must have a valid license purchased only from themeforest(the above
 											<input type="text" class="form-control form-filter input-sm" name="order_base_price_from" placeholder="From"/>
 										</div>
 										<input type="text" class="form-control form-filter input-sm" name="order_base_price_to" placeholder="To"/> -->
-										<input type="text" class="form-control form-filter input-sm" name="bill_to_id"/>
+										<div class="input-group margin-bottom-5">
+											<input type="text" class="form-control form-filter input-sm" name="cust_fname" placeholder="First Name"/>
+										</div>
+										<div class="input-group">
+											<input type="text" class="form-control form-filter input-sm" name="cust_lname" placeholder="Last Name"/>
+										</div>
 									</td>
+									<td>
+										<input type="text" class="form-control form-filter input-sm" name="cust_phone">
+									</td>
+									<td>
+										<input type="text" class="form-control form-filter input-sm" name="cust_email">
+									</td>
+									<!-- <td>
+										<select name="payment_type" class="form-control form-filter input-sm">
+											<option value="">Select...</option>
+											<option value="A">All</option>
+											<option value="CREDIT_CARD">CREDIT_CARD</option>
+										</select>
+									</td> -->
 									<td>
 										<!-- <div class="margin-bottom-5">
 											<input type="text" class="form-control form-filter input-sm margin-bottom-5 clearfix" name="order_purchase_price_from" placeholder="From"/>
 										</div>
 										<input type="text" class="form-control form-filter input-sm" name="order_purchase_price_to" placeholder="To"/> -->
-										<input type="text" class="form-control form-filter input-sm" name="total_amount"/>
+										<!-- <input type="text" class="form-control form-filter input-sm" name="total_amount"/> -->
 									</td>
 									<td>
 										<select name="order_status" class="form-control form-filter input-sm">
 											<option value="">Select...</option>
-											<option value="">All</option>
-											<option value="1100">Created</option>
-											<option value="1500">Scheduled</option>
-											<option value="3200">Released</option>
-											<option value="3700">Shipped</option>
+											<option value="A">All</option>
+											<option value="1100">주문접수</option>
+											<option value="3200">주문확정</option>
+											<option value="3350">출고준비</option>
+											<option value="3700">출고완료</option>
+											<option value="1300">재고부족</option>
+											<option value="9000">주문취소</option>
 										</select>
 									</td>
 									<td>
 										<div class="margin-bottom-5">
-											<button class="btn btn-sm yellow filter-submit margin-bottom"><i class="fa fa-search"></i> Search</button>
+											<button class="btn btn-sm yellow filter-submit margin-bottom" id="btn_orderList"><i class="fa fa-search"></i> Search</button>
 										</div>
 										<button class="btn btn-sm red filter-cancel"><i class="fa fa-times"></i> Reset</button>
 									</td>
@@ -370,41 +375,120 @@ License: You must have a valid license purchased only from themeforest(the above
 				</div>
 			</div>
 			<!-- END PAGE CONTENT-->
+			<!-- --------------------------------------------------------------------------------- -->
+
 		</div>
+		<!-- BEGIN CONTENT -->
 	</div>
 	<!-- END CONTENT -->
+	
 	<!-- BEGIN QUICK SIDEBAR -->
-	<%@ include file="/inc/inc_quick_sidebar.html" %>
+	<jsp:include page="../inc/inc_quick_sidebar.jsp" />
 	<!-- END QUICK SIDEBAR -->
 </div>
 <!-- END CONTAINER -->
+
 <!-- BEGIN FOOTER -->
-<%@ include file="/inc/inc_footer.html" %>
+<jsp:include page="../inc/inc_footer.jsp" />
 <!-- END FOOTER -->
 
+<!-- BEGIN Common Js -->
+<jsp:include page="../inc/inc_commonJs.jsp" />
+<!-- END Common Js -->
+
+
 <!-- BEGIN PAGE LEVEL PLUGINS -->
-<script type="text/javascript" src="${pageContext.request.contextPath}/assets/global/plugins/select2/select2.min.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath}/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath}/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath}/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
+<script type="text/javascript" src="../../assets/global/plugins/select2/select2.min.js"></script>
+<!-- date/datetime picker -->
+<script type="text/javascript" src="../../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/bootstrap-daterangepicker/moment.min.js"></script>
+<!-- data table -->
+<script type="text/javascript" src="../../assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/ColReorder/js/dataTables.colReorder.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/Scroller/js/dataTables.scroller.min.js"></script>
 <!-- END PAGE LEVEL PLUGINS -->
-<!-- BEGIN PAGE LEVEL SCRIPTS -->
-<script src="${pageContext.request.contextPath}/assets/global/scripts/metronic.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/assets/global/scripts/datatable.js"></script>
-<script src="${pageContext.request.contextPath}/assets/admin/pages/scripts/ecommerce-orders.js"></script>
-<!-- END PAGE LEVEL SCRIPTS -->
+
+
+<script src="../../assets/global/scripts/custom-datatable.js"></script>
+<script src="../../assets/admin/pages/scripts/custom-ecommerce-orders.js"></script>
+
+
 <script>
-        jQuery(document).ready(function() {    
-            Metronic.init(); // init metronic core components
-			Layout.init(); // init current layout
-    		QuickSidebar.init() // init quick sidebar
-            //EcommerceOrders.init();
-    		
-        });
-    </script>
-<!-- END JAVASCRIPTS -->
-</body>
-<!-- END BODY -->
-</html>
+
+
+	jQuery(document).ready(function() {    
+		
+		EcommerceOrders.init('#datatable_orders');
+		
+	    var table = $('#datatable_orders').dataTable();
+	    var tableTools = new $.fn.dataTable.TableTools( table, {
+	        
+	    	"sSwfPath": "../../assets/global/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+	    	"aButtons": [
+	                        {
+	                        	"sExtends": "copy",
+		                        "sButtonText": "Copy to clipboard",
+		                        "sMessage": "Copied!"
+	                        },
+	                        /* {
+	                        	"sExtends": "print",
+		                        "sButtonText": "Print",
+		                        "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
+		                        "sMessage": "Generated by DataTables"
+	                        }, */
+	                        {
+	                            "sExtends":    "collection",
+	                            "sButtonText": "Save",
+	                            "aButtons":    [ "csv", "xls", "pdf" ]
+	                        }
+	                    ]
+	    } );
+	    $( tableTools.fnContainer() ).insertAfter('div.btn-group');
+	    
+	    <%
+	    	String action = (String)request.getAttribute("action");
+	    	String status = (String)request.getAttribute("status");
+	    	
+	    	if(action != null && "true".equals(action)){
+	    %>
+		    $('select.form-filter[name="order_status"]').val('<%=status%>');
+			$('#btn_orderList').click();
+		
+		<% } %>
+	});
+	
+	function orderListByDatePeroid(dateType, term){
+		
+		var sDate = moment().subtract(dateType, term).format('YYYY-MM-DD');
+		var eDate = moment().format('YYYY-MM-DD');
+		
+		$('input.form-filter[name="order_date_from"]').val(sDate);
+		$('input.form-filter[name="order_date_to"]').val(eDate);
+		
+		$('#btn_orderList').click();
+	}
+	
+	
+	function getQueryVariable(variable) {
+	  //var query = window.location.search.substring(1);
+	  var query = window.location.search.toString();
+	  
+	  alert(query);
+	  
+	  if(query.indexOf('?') == -1 ) return '';
+	  query = query.substring(query.indexOf('?')+1);
+	  
+	  var vars = query.split("&");
+	  for (var i=0;i<vars.length;i++) {
+	    var pair = vars[i].split("=");
+	    if (pair[0] == variable) {
+	      return pair[1];
+	    }
+	  } 
+	  //alert('Query Variable ' + variable + ' not found');
+	}
+	
+</script>
