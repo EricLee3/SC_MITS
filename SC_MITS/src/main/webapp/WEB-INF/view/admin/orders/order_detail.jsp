@@ -1,3 +1,4 @@
+<%@page import="java.util.HashMap"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -42,17 +43,17 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/select2/select2.css"/>
-<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/Scroller/css/dataTables.scroller.min.css"/>
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/select2/select2.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/Scroller/css/dataTables.scroller.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/ColReorder/css/dataTables.colReorder.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/> -->
 
-<!-- <link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
-<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/> -->
+<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/>
 
-<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>-->
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/> 
 <!-- END PAGE LEVEL STYLES -->
@@ -86,13 +87,27 @@ License: You must have a valid license purchased only from themeforest(the above
 </div>
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
+	
+	<!-- BEGIN SIDEBAR -->
+	<jsp:include page="../inc/inc_sidemenu.jsp" />
+	<!-- END SIDEBAR -->
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<div class="page-content">
+			<!-- BEGIN STYLE CUSTOMIZER -->
+			<!-- END STYLE CUSTOMIZER -->
+
+			<!-- --------------------------------------------------------------------------------- -->
 	<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
 	<!-- Order Cancel Modal Layter -->
 	<div id="md_cancel_order" class="modal fade" tabindex="-1" data-width="450">
 	<form class="horizontal-form" id="form_cancel">
 	<input type="hidden" name="doc_type" value="${docType}">
 	<input type="hidden" name="ent_code" value="${entCode}">
+	<input type="hidden" name="sell_code" value="${baseInfo.sellerCode}">
 	<input type="hidden" name="order_no" value="${orderNo}">
+	<input type="hidden" name="min_status" value="${baseInfo.minStatus}">
+	<input type="hidden" name="max_status" value="${baseInfo.maxStatus}">
 	<input type="hidden" name="cancel_type" value="order">
 	<input type="hidden" name="line_keys" value="">
 	
@@ -131,19 +146,8 @@ License: You must have a valid license purchased only from themeforest(the above
 	</div>
 	<!-- /.modal -->
 	<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
-	
-	
-	
-	<!-- BEGIN SIDEBAR -->
-	<jsp:include page="../inc/inc_sidemenu.jsp" />
-	<!-- END SIDEBAR -->
-	<!-- BEGIN CONTENT -->
-	<div class="page-content-wrapper">
-		<div class="page-content">
-			<!-- BEGIN STYLE CUSTOMIZER -->
-			<!-- END STYLE CUSTOMIZER -->
 
-			<!-- --------------------------------------------------------------------------------- -->
+
 
 <!-- BEGIN PAGE HEADER-->
 <div class="row">
@@ -283,101 +287,66 @@ License: You must have a valid license purchased only from themeforest(the above
 												<a href="javascript:;" class="collapse">
 												</a>
 											</div>
+											<div class="actions" id="order_chage_btn">
+											
+												<a class="btn btn-primary btn-sm blue-stripe" href="javascript:;" id="tool_release">
+												주문확정 재처리
+												</a>
+											
+												<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order" id="tool_cancel">
+												주문취소
+												</a>
+											</div>
 										</div>
 										<div class="portlet-body">
 											<div class="row static-info">
-												<div class="col-md-5 name">
+												<div class="col-md-3 name">
 													 오더번호 #:
 												</div>
-												<div class="col-md-7 value">
+												<div class="col-md-9 value">
 													 ${baseInfo.orderNo}  <!-- <span class="label label-info label-sm">
 													Email confirmation was sent </span> -->
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-5 name">
+												<div class="col-md-3 name">
 													 오더생성일자:
 												</div>
-												<div class="col-md-7 value" id="order_date">
+												<div class="col-md-9 value" id="order_date">
 													 
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-5 name">
-													 관리조직 / 판매채널 :
+												<div class="col-md-3 name">
+													 관리조직/판매채널 :
 												</div>
-												<div class="col-md-7 value">
+												<div class="col-md-9 value">
 													${baseInfo.entCode} / ${baseInfo.sellerCode}
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-5 name">
+												<div class="col-md-3 name">
 													 주문상태:
 												</div>
-												<div class="col-md-7 value">
-												<!-- 
-												ui.status.cssname.1000=default
-												ui.status.cssname.1100=success
-												ui.status.cssname.1300=warning
-												ui.status.cssname.1500=info
-												ui.status.cssname.3200=primary
-												ui.status.cssname.3350=info
-												ui.status.cssname.3700=primary
-												ui.status.cssname.9000=danger
-												 -->
+												<div class="col-md-9 value" id="order_status">
 												 	<span class="label label-default">
 													주문접수 
-													</span>&nbsp;
+													</span>&nbsp;<i class="fa fa-arrow-right"></i>
 													<span class="label label-default">
 													주문확정 
-													</span>&nbsp;
+													</span>&nbsp;<i class="fa fa-arrow-right"></i>
 													<span class="label label-default">
 													출고준비 
-													</span>&nbsp;
-													<span class="label label-success">
-													출고완료 
-													</span>&nbsp;
+													</span>&nbsp;<i class="fa fa-arrow-right"></i>
 													<span class="label label-default">
-													주문취소
-													</span>&nbsp;
+													출고완료 
+													</span>
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-5 name">
-												</div>
-												<div class="col-md-7 value">
-													<span class="label label-${baseInfo.orderStatus_class }">
-													${baseInfo.orderStatus} 
-													</span>&nbsp;
-													<c:if test = "${baseInfo.maxStatus == '3200' && baseInfo.minStatus == '3200'}"> 
-													[ Cube 출고의뢰중 ]
-													</c:if>
-													<c:if test = "${baseInfo.maxStatus == '3350' && baseInfo.minStatus == '3350'}"> 
-													[ Cube 출고의뢰완료 ]
-													</c:if>
-												</div>
+												<div class="col-md-3 ">&nbsp;</div>
+												<div class="col-md-9 " id="order_status_detail">&nbsp;</div>
 											</div>
-											<div class="row">
-												<div class="col-md-12">&nbsp;</div>
-												<div class="col-md-12 text-right">
-													<a class="btn btn-primary btn-sm blue-stripe" href="javascript:;" id="tool_release">
-													<i class="fa fa-edit"></i>
-													주문확정
-													</a>
-													<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order">
-													<i class="fa fa-edit"></i>
-													주문취소
-													</a>
-												</div>
-											</div>
-											<%-- <div class="row static-info">
-												<div class="col-md-5 name">
-													 Total Amount:
-												</div>
-												<div class="col-md-7 value">
-													${baseInfo.currency}&nbsp;&nbsp;${baseInfo.totalAmount}
-												</div>
-											</div> --%>
 										</div>
 									</div>
 								</div>
@@ -428,10 +397,17 @@ License: You must have a valid license purchased only from themeforest(the above
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-12">&nbsp;</div>
+												<div class="col-md-5 name">
+													 Total Amount:
+												</div>
+												<div class="col-md-7 value">
+													${baseInfo.currency}&nbsp;&nbsp;${baseInfo.totalAmount}
+												</div>
 											</div>
 											<div class="row static-info">
 												<div class="col-md-12">&nbsp;</div>
+											</div>
+											<div class="row static-info">
 												<div class="col-md-12">&nbsp;</div>
 											</div>
 										</div>
@@ -560,9 +536,8 @@ License: You must have a valid license purchased only from themeforest(the above
 												<i class="fa fa-pencil"></i> Edit </a>
 											</div> -->
 											<div class="actions">
-												<a class="btn red btn-sm" data-toggle="modal" href="javascript:cancelOrderLine();">
-												주문취소
-												<i class="fa fa-edit"></i>
+												<a class="btn red btn-sm" data-toggle="modal" href="javascript:cancelOrderLine();" id="tool_line_cancel">
+												부분주문취소
 												</a>
 											</div>
 										</div>
@@ -1158,7 +1133,10 @@ License: You must have a valid license purchased only from themeforest(the above
 <form name="form_action" id="form_action" method="POST">
 	<input type="hidden" name="doc_type" value="${docType}">
 	<input type="hidden" name="ent_code" value="${entCode}">
+	<input type="hidden" name="sell_code" value="${baseInfo.sellerCode}">
 	<input type="hidden" name="order_no" value="${orderNo}">
+	<input type="hidden" name="min_status" value="${baseInfo.minStatus}">
+	<input type="hidden" name="max_status" value="${baseInfo.maxStatus}">
 </form>
 <!-- END PAGE CONTENT-->
 
@@ -1188,9 +1166,18 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 
 <script type="text/javascript" src="../../assets/global/plugins/select2/select2.min.js"></script>
+<script src="../../assets/global/plugins/bootstrap-modal/js/bootstrap-modalmanager.js" type="text/javascript"></script>
+<script src="../../assets/global/plugins/bootstrap-modal/js/bootstrap-modal.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL PLUGINS -->
+
 <!-- date/datetime picker -->
 <script type="text/javascript" src="../../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/clockface/js/clockface.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/bootstrap-daterangepicker/moment.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+
 <!-- data table -->
 <script type="text/javascript" src="../../assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
@@ -1198,12 +1185,6 @@ License: You must have a valid license purchased only from themeforest(the above
 <script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/ColReorder/js/dataTables.colReorder.min.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/Scroller/js/dataTables.scroller.min.js"></script>
 <!-- END PAGE LEVEL PLUGINS -->
-
-
-
-
-
-
 
 
 <!-- BEGIN PAGE LEVEL PLUGINS -->
@@ -1228,6 +1209,94 @@ License: You must have a valid license purchased only from themeforest(the above
         $('.nav.nav-tabs li').eq(order_detail_tab_index).addClass('active');
         $('.tab-content .tab-pane').eq(order_detail_tab_index).addClass("active");
         
+        /**
+		ui.status.cssname.1000=default
+		ui.status.cssname.1100=success
+		ui.status.cssname.1300=warning
+		ui.status.cssname.1500=info
+		ui.status.cssname.3200=primary
+		ui.status.cssname.3350=info
+		ui.status.cssname.3700=primary
+		ui.status.cssname.9000=danger
+        **/
+        var statusClassName = "${baseInfo.orderStatus_class}";
+        var minStatus = "${baseInfo.minStatus}";
+        var maxStatus = "${baseInfo.maxStatus}";
+        
+        var statusDetailText = "";
+        
+        // 주문접수
+        if(minStatus == '1100' && maxStatus == '1100'){
+	    		$('#order_status span:eq(0)').removeClass("label-default").addClass("label-success");
+	    		statusDetailText = '<strong>[주문접수]</strong> - Front에서 결재완료된 주문이 정상 접수된 상태.';
+	    		statusDetailText += '<p class="text-danger"> - 주문취소 가능<br>';
+	    		
+			// 주문확정 숨김
+			$("#tool_release").hide();
+	    }
+        // 주문확정
+        if(minStatus == '3200' && maxStatus == '3200'){
+        	
+        		$('#order_status span:eq(1)').removeClass("label-default").addClass("label-"+statusClassName);
+			statusDetailText = '<strong>[주문확정]</strong> - 재고확인 및 출하창고가 결정된 상태';
+			statusDetailText += '<p class="text-danger"> - Cube 출고의뢰전일 경우 - 주문취소 가능<br>';
+			statusDetailText += '<p class="text-danger"> - Cube 출고의뢰후일 경우 - Cube 주문취소요청 가능';
+			
+			// 주문취소시 Cube출고의뢰여부 확인필요
+        }
+        // 출고준비
+        if(minStatus == '3350' && maxStatus == '3350'){
+        	
+	    		$('#order_status span:eq(2)').removeClass("label-default").addClass("label-"+statusClassName);
+	    		statusDetailText = '<strong>[출고준비]</strong> - Cube로 출고의뢰가 정상적으로 처리된 상태';
+	    		statusDetailText += '<p class="text-danger"> - Cube 주문취소요청 가능';
+	    		
+	    		// 주문확정 버튼 숨김, 주문취소요청으로 버튼명 변경
+	    		$("#tool_release").hide();
+	    		$("#tool_cancel").text("주문취소 요청");
+	    }
+        
+        // 출고확정
+        if(minStatus == '3700' && maxStatus == '3700'){
+        	
+	    		$('#order_status span:eq(3)').removeClass("label-default").addClass("label-"+statusClassName);
+	    		statusDetailText = '<strong>[출고완료]</strong> - 출고가 확정되고 주문상품이 출하된 상태';
+	    		statusDetailText += '<p class="text-danger"> - 주문취소 불가';
+	    		
+	    		// 주문확정, 주문취소 버튼 숨김
+	    		$("#tool_release").hide();
+	    		$("#tool_cancel").hide();
+	    		$("#tool_line_cancel").hide();
+	    		
+	    		// TODO: 송장번호, 택배사정보 표시 필요
+	    }
+        
+        // 부분확정 or 재고부족
+        if(minStatus == '1300' || ( maxStatus == '3200' && minStatus != maxStatus)){
+        		$('#order_status span:eq(0)').removeClass("label-default").addClass("label-success");
+        		var detail_label1 = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    		
+	    		statusDetailText = detail_label1 + ' - 특정상품의 재고가 부족해서 정상 주문확정이 안된 상태 ';
+	    		statusDetailText += '<p class="text-danger"> - Cube의 재고상태 확인 후 주문확정 재처리 또는 고객 아웃바운드 필요<br>';
+	    		statusDetailText += ' - 부분취소 처리 후 반드시 [주문확정 재처리] 버튼 클릭해야 출고의뢰 처리됨.</p>';
+        		
+        		// 주문확정 재처리
+        		$("#tool_release").text("주문확정 재처리");
+        }
+        
+        // 주문취소
+        if(minStatus == '9000' && minStatus == '9000'){
+        		var detail_label1 = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+        		statusDetailText = detail_label1 + ' - 고객요청 또는 재고부족으로 인한 주문취소 상태';
+	    		
+	    		// 주문확정, 주문취소 버튼 숨김
+	    		$("#tool_release").hide();
+	    		$("#tool_cancel").hide();
+	    		$("#tool_line_cancel").hide();
+        }
+        
+        statusDetailText = '<div class="note note-danger">'+statusDetailText+'</div>';
+        $("#order_status_detail").html(statusDetailText);
         
      });
      

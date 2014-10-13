@@ -768,31 +768,91 @@ public class OrderController {
 	 * @return
 	 */
 	@RequestMapping(value = "/scheduleOrder.sc")
-	public ModelAndView scheduleOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String order_no)
+	public ModelAndView scheduleOrder(@RequestParam String doc_type, @RequestParam String ent_code, @RequestParam String sell_code,
+			@RequestParam String order_no,
+			@RequestParam String min_status, @RequestParam String max_status)
 	{
 		
 		logger.debug("##### Schedule Order API Called !!!");
 		
 		logger.debug("##### [doc_type]"+ doc_type);
 		logger.debug("##### [ent_code]"+ ent_code);
+		logger.debug("##### [sell_code]"+ sell_code);
 		logger.debug("##### [order_no]"+ order_no);
-		
-		
-		String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
-		
-		String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
-		
-		MessageFormat msg = new MessageFormat(scheduleOrderXML);
-		String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, scheduleNrelease} );
-		logger.debug("##### [inputXML]"+inputXML); 
-		
+		logger.debug("##### [min_status]"+ min_status);
+		logger.debug("##### [max_status]"+ max_status);
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		String outputMsg =  "";
 		String succ = "Y";
 		
+		
 		try
 		{
+			// 중복출고의뢰 방지를 위한 Cube 출고의뢰여부 확인
+			String orgCode = env.getProperty("ca."+ent_code); // 사업부코드 - 조직코드 변환
+			String sendKey = orgCode+":"+sell_code+":order:update:S2C";
+			
+			List<String> sendReleaseList= listOps.range(sendKey, 0, -1);
+			for(int i=0; i<sendReleaseList.size(); i++){
+				String sendData = sendReleaseList.get(i);
+				
+				// JSON --> HashMap 변환
+				ObjectMapper mapper = new ObjectMapper();
+				HashMap<String, Object> dataMap = mapper.readValue(sendData, new TypeReference<HashMap<String,Object>>(){});
+				
+				String orderId = (String)dataMap.get("orderId");
+				String status = (String)dataMap.get("status");
+				
+				// 출고의뢰 데이타 존재
+				if("3200".equals(status) && orderId.equals(order_no)){
+					succ = "N";
+					mav.addObject("errorMsg", "이미 Cube로 출고의뢰가 된 주문입니다.\n페이지를 새로고침 하셔서 주문상태를 다시 확인하시기 바랍니다.");
+					break;
+				}
+			} // End for Check S2C
+			
+			if("N".equals(succ)) return mav;
+			
+			
+			// 중복출고의뢰 방지를 위한 Cube 출고의뢰결과 데이타유무 확인
+			String readKey = orgCode+":"+sell_code+":order:update:C2S";
+			
+			List<String> releaseConfirmList= listOps.range(readKey, 0, -1);
+			for(int i=0; i<releaseConfirmList.size(); i++){
+				String readData = releaseConfirmList.get(i);
+				
+				// JSON --> HashMap 변환
+				ObjectMapper mapper = new ObjectMapper();
+				HashMap<String, Object> dataMap = mapper.readValue(readData, new TypeReference<HashMap<String,Object>>(){});
+				
+				String orderId = (String)dataMap.get("orderId");
+				String status = (String)dataMap.get("status");
+				
+				// 출고의뢰결과 데이타 존재
+				if("3202".equals(status) && orderId.equals(order_no)){
+					succ = "N";
+					mav.addObject("errorMsg", "이미 Cube로 출고의뢰가 완료된 주문입니다.\n페이지를 새로고침 하셔서 주문상태를 다시 확인하시기 바랍니다.");
+					break;
+				}
+				
+			} // End for Check C2S
+			if("N".equals(succ)) return mav;
+			
+			
+			
+			
+			
+			// 주문확정 처리
+			String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
+			
+			String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
+			
+			MessageFormat msg = new MessageFormat(scheduleOrderXML);
+			String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, scheduleNrelease} );
+			logger.debug("##### [inputXML]"+inputXML); 
+			
+		
 		
 			// API Call
 			outputMsg = sterlingApiDelegate.comApiCall("scheduleOrder", inputXML);
@@ -916,6 +976,23 @@ public class OrderController {
 		MessageFormat msg = null;
 		String inputXML = "";
 		String apiName = "cancelOrder";
+		
+		
+		
+		// 주문취소 가능여부 재 확인 - 현 주문상태 조회, 3700이면 취소불가
+		
+		/*
+		 * 출고의뢰여부 상태조회
+		 *  - 주문상태가 부분주문확정 상태인 경우 -> 의뢰전 -> 주문취소처리 -> MA전송
+		 *  - 주문상태 3200, 3350 인경우 -> 의뢰후 -> Cube주문취소요청 -> 응답확인 -> 정상일 경우 주문취소 -> MA 전송   
+		 *                                                                 실패일 경우 - 출고확정상태인 경우 주문취소 불가 통보
+		 *                                                                          - 취소시 에러발생한 경우 에러처리필요 ? 
+		 */
+		
+		// 출고의뢰 여부 확인 후 Cube취소요청 or 자체주문취소 처리 결정
+		
+		
+		
 		
 		if("order".equals(cancel_type)){
 			

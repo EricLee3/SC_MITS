@@ -4,39 +4,81 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
-<!-- Order Cancel Modal Layter -->
-<div id="md_cancel_order" class="modal fade" tabindex="-1" data-width="450">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-		<h4 class="modal-title">주문 취소</h4>
-	</div>
-	<div class="modal-body">
-		<div class="form-body">
-			<div class="form-group">
-				<label class="control-label">취소사유
-				</label>
-				<select class="form-control input-sm" name="cancel_reason">
-					<option value="">Select</option>
-					<option value="BACKORDER_INFO">Backorder Information</option>
-					<option value="CALLED_CUSTOMER">Called Customer</option>
-				</select>
-			</div>
-			<div class="form-group">
-				<label class="control-label">Comment
-				</label>
-				<textarea class="form-control input-sm" rows="3" name="cancel_note"></textarea>
-			</div>
-			<div class="alert alert-warning">
-				<strong>Warning!</strong>
-				취소처리를 한 후에는 주문상태를 원복할 수 없습니다.
-			</div>
-		</div>
-	</div>
-	<div class="modal-footer">
-		<button type="button" data-dismiss="modal" class="btn btn-sm btn-default">Close</button>
-		<button type="button" class="btn btn-sm red" id="btn_cancel">Cancel Order</button>
-	</div>
+<!DOCTYPE html>
+<!-- 
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.2.0
+Version: 3.1.1
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Follow: www.twitter.com/keenthemes
+Like: www.facebook.com/keenthemes
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" >
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+<meta charset="utf-8"/>
+<title>OMC - Order Management Center</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<!-- BEGIN GLOBAL MANDATORY STYLES -->
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css"/>
+<!-- END GLOBAL MANDATORY STYLES -->
+
+
+<!-- BEGIN PAGE LEVEL STYLES -->
+<!-- END PAGE LEVEL STYLES -->
+
+<!-- BEGIN THEME STYLES -->
+<link href="../../assets/global/css/components.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
+<link id="style_color" href="../../assets/admin/layout/css/themes/default.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
+<!-- END THEME STYLES -->
+<link rel="shortcut icon" href="favicon.ico"/>
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+<!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+<!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+<!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+<!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+<!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+<!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+<body class="page-header-fixed page-quick-sidebar-over-content ">
+<!-- BEGIN HEADER -->
+<jsp:include page="../inc/inc_header.jsp" />
+<!-- END HEADER -->
+<div class="clearfix">
 </div>
+<!-- BEGIN CONTAINER -->
+<div class="page-container">
+	
+	<!-- BEGIN SIDEBAR -->
+	<jsp:include page="../inc/inc_sidemenu.jsp" />
+	<!-- END SIDEBAR -->
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<div class="page-content">
+			<!-- BEGIN STYLE CUSTOMIZER -->
+			<!-- END STYLE CUSTOMIZER -->
 
 
 <!-- BEGIN PAGE HEADER-->
@@ -394,17 +436,38 @@
 </form>
 <!-- END PAGE CONTENT-->
 
+<!-- --------------------------------------------------------------------------------- -->
+
+		</div>
+		<!-- BEGIN CONTENT -->
+	</div>
+	<!-- END CONTENT -->
+	
+	<!-- BEGIN QUICK SIDEBAR -->
+	<jsp:include page="../inc/inc_quick_sidebar.jsp" />
+	<!-- END QUICK SIDEBAR -->
+</div>
+<!-- END CONTAINER -->
+
+<!-- BEGIN FOOTER -->
+<jsp:include page="../inc/inc_footer.jsp" />
+<!-- END FOOTER -->
+
+<!-- BEGIN Common Js -->
+<jsp:include page="../inc/inc_commonJs.jsp" />
+<!-- END Common Js -->
+
+
+
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 <!-- END PAGE LEVEL PLUGINS -->
 
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
-<!-- <script src="../../assets/admin/pages/scripts/custom-orders-view.js"></script>
- --><!-- END PAGE LEVEL SCRIPTS -->
+<!-- END PAGE LEVEL SCRIPTS -->
 
 <script>
+
 	jQuery(document).ready(function() {
-        
-		
         
      });
      
