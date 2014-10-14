@@ -754,6 +754,7 @@ public class ScOrderStatusHandler {
 			
 			// JSON 변환
 			/*
+			 * 
 			 * {"orderHeaderKey":"20140917162100147011",
 			 * "docType":"0001","status":"9000",
 			 * "cancelled":[

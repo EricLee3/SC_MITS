@@ -549,7 +549,7 @@ public class SterlingApiDelegate {
 	 * 
 	 * CA와의 재고연동시 현 재고수량(공급수량) 필요
 	 * MA와의 재고연동시 가용재고 필요
-	 * --> qty_type인자로 구분
+	 * --> qty_type인자로 구분 A:가용재고, S:현재고(공급수량)
 	 * 
 	 *  getShipNodeInventory API outputXML
 	 *  
@@ -616,10 +616,10 @@ public class SterlingApiDelegate {
 			Double totDemand = (Double)xp.evaluate("@TotalDemand", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 수요수량 
 			logger.debug("["+bar_code+"][totSupply]"+totSupply);
 			
-			// 가용재고
+			// 가용재고 = 공급수량 - Allocated수량 (MA 전송시)
 			if("A".equals(qty_type))
 			{
-				// 수요목
+				// 수요목록
 				NodeList demandsList = (NodeList)xp.evaluate("Demands/InventoryDemandType", shipNodeInvList.item(ii), XPathConstants.NODESET);
 				Double demandQtySum = 0.00;
 				for(int jj=0; jj<demandsList.getLength(); jj++){
@@ -644,8 +644,12 @@ public class SterlingApiDelegate {
 			
 		}
 		
-		logger.debug("#####[Currunt Quantity]"+currQty);
+		logger.debug("["+bar_code+"][Currunt Quantity]"+currQty);
 		
 		return currQty;
 	}
+	
+	
+	
+	
 }

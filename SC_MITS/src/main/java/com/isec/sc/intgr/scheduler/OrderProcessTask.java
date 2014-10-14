@@ -439,7 +439,31 @@ public class OrderProcessTask {
 	private void processConfirmShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
 		logger.debug("##### [processConfirmShipment] Job Task Started!!!");
-				
+		
+		
+		/**
+		 * {
+			    "org_code": "사업부코드",
+			    "sell_code": "판매채널코드",
+			    "orderId": "오더번호",
+			    "orderHeaderKey": "오더번호키",
+			    "status": "3700",
+			    "tranDt": "전송일자",
+			    "list": [
+			        {
+			            "ship_node": "창고코드",
+						"orderLineNo": "오더라인순번",
+						"orderLineKey": "오더라인키",
+			            "orderReleaseKey": "오더라인확정키",
+			            "shipmentNo":"전표번호",
+						"itemId ": "상품코드",
+			            “statuscd”:”결과코드”,
+			            “statusMsg:”결과메세지”
+			}
+			    ]
+			}
+
+		 */
 				
 		// confirmShipment API 호출
 		

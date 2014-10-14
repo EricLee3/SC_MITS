@@ -983,13 +983,11 @@ public class OrderController {
 		
 		/*
 		 * 출고의뢰여부 상태조회
-		 *  - 주문상태가 부분주문확정 상태인 경우 -> 의뢰전 -> 주문취소처리 -> MA전송
-		 *  - 주문상태 3200, 3350 인경우 -> 의뢰후 -> Cube주문취소요청 -> 응답확인 -> 정상일 경우 주문취소 -> MA 전송   
+		 *  - 주문상태가 부분주문확정 3200이전 상태인 경우 -> 의뢰전 -> 주문취소처리 -> MA전송
+		 *  - 주문상태 3700이 아닌경우 -> Cube주문취소요청 -> 응답확인 -> 정상일 경우 주문취소 -> MA 전송   
 		 *                                                                 실패일 경우 - 출고확정상태인 경우 주문취소 불가 통보
-		 *                                                                          - 취소시 에러발생한 경우 에러처리필요 ? 
 		 */
 		
-		// 출고의뢰 여부 확인 후 Cube취소요청 or 자체주문취소 처리 결정
 		
 		
 		
@@ -999,6 +997,20 @@ public class OrderController {
 			templateFile = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_TEMPLATE));
 			msg = new MessageFormat(templateFile);
 			inputXML = msg.format(new String[] {doc_type, ent_code, order_no, cancel_reason, cancel_note} );
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		}else if("line".equals(cancel_type)){
 			templateFile = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_LINE_TEMPLATE));
@@ -1315,7 +1327,14 @@ public class OrderController {
 		return orderList;   
 	}
 	
-	
+	/**
+	 * 주문상태코드에 따른 주문상태명 반환
+	 * 
+	 * @param minStatus
+	 * @param maxStatus
+	 * @param defaultText
+	 * @return
+	 */
 	private String[] genOrderStatusText(String minStatus, String maxStatus, String defaultText){
 		
 		String statusText[] = {"",""};
@@ -1343,4 +1362,6 @@ public class OrderController {
 		
 		return statusText;
 	}
+	
+	
 }

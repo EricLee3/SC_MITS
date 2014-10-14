@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +93,41 @@ public class OMCTest {
 	
 	@Value("${redis.port}")
 	private String redis_port;
+	
+	
+	
+	@Test
+	public void testListToSet(){
+		
+		
+		List<HashMap<String,Object>> alphaList = new ArrayList<HashMap<String,Object>>();
+		
+		for(int i=0; i<10; i++){
+			
+			HashMap<String,Object> map = new HashMap<String,Object>();
+			map.put("A", "1");
+			map.put("B", "2");
+			
+			alphaList.add(map);
+		}
+		
+		
+        System.out.println("List values .....");
+        for (HashMap<String,Object> alpha : alphaList)
+        {
+            System.out.println(alpha.get("A"));
+            System.out.println(alpha.get("B"));
+        }
+        
+        Set<HashMap<String,Object>> alphaSet = new HashSet<HashMap<String,Object>>(alphaList);
+        System.out.println("\nSet values .....");
+        for (HashMap<String,Object> alpha : alphaSet)
+        {
+        	 	System.out.println(alpha.get("A"));
+             System.out.println(alpha.get("B"));
+        }
+		
+	}
 	
 	
 	@Test

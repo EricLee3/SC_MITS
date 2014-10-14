@@ -444,27 +444,27 @@ var EcommerceIndex = function () {
     	initTable_common('#table_shipped_list', data.shippedList);
     	initTable_common('#table_cancelled_list', data.cancellList);
     	
-    	// Error List
-    	var err_table = $('#table_error_list');
-    	err_table.dataTable({
-        	"paging":   false,
-            "ordering": false,
-            "info":     false,
-        	"processing": false,
-            "serverSide": false,
-            "dom":"",
-            "data": data.errList,
-            "columns": [
-                        { "data": "orderNo" },
-                        { "data": "err_code" },
-                        { "data": "err_desc" },
-                        { "data": "err_date" },
-                        { "data": function(data, type){
-                 		   			return '<a href="#" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
-                 	   			  }
-                 	   },
-                    ]
-        });
+    	// Error List - TODO: 향후 수정
+//    	var err_table = $('#table_error_list');
+//    	err_table.dataTable({
+//        	"paging":   false,
+//            "ordering": false,
+//            "info":     false,
+//        	"processing": false,
+//            "serverSide": false,
+//            "dom":"",
+//            "data": data.errList,
+//            "columns": [
+//                        { "data": "orderId" },
+//                        { "data": "" },
+//                        { "data": "" },
+//                        { "data": "" },
+//                        { "data": function(data, type){
+//                 		   			return '<a href="#" class="btn default btn-xs blue-stripe ajaxify"><i class="fa fa-search"></i> View</a>';
+//                 	   			  }
+//                 	   },
+//                    ]
+//        });
     };
     
     // Order Overview DataTable Reload 처리

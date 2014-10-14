@@ -13,6 +13,9 @@ import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -104,44 +107,16 @@ public class ProductSyncTask {
     	  	
 			// TODO: 건수제한 처리 고려
 			for(int i=0; i<dataCnt; i++){
-				// JSON 추출
-				/*
-				 * {
-					    "list": [
-					        {
-					            "org_code": "사업부코드",
-					            "prodinc": "스타일코드",
-					            "brand_id": "브랜드ID",
-					            "brand_name": "브랜드명",
-					            "sale_price": "최초판매가",
-					            "tran_date": "전송일자",
-                                "tran_seq": "전송순번",
-					            "optioninfo": [
-					                {
-					                    "item_color": "컬러",
-					                    "item_size": "사이즈",
-					                    "bar_code": "상품바코드"
-					                },
-					                {
-					                    "item_color": "컬러",
-					                    "item_size": "사이즈",
-					                    "bar_code": "상품바코드"
-					                }
-					            ]
-					        }
-					    ]
-					}
-
-				 */
+				
 				String jsonString = listOps.rightPop(redisKeyC2S);
-				logger.debug("##### [jsonString]" + jsonString);
+				logger.debug("##### [Redis Read Data - Product From Cube]" + jsonString);
 				
 				
 				
 				HashMap<String, Object> itemListMap = mapper.readValue(jsonString, new TypeReference<HashMap<String,Object>>(){});
 				ArrayList<HashMap<String,Object>> itemList = (ArrayList<HashMap<String,Object>>)itemListMap.get("list");
 				
-				logger.debug("##### [itemList size]" + itemList.size());
+				logger.debug("##### [styleCode size]" + itemList.size());
 				
 				
 				ArrayList<HashMap<String,Object>> returnList = new ArrayList<HashMap<String,Object>>();
@@ -169,6 +144,8 @@ public class ProductSyncTask {
 					// barcode 추출
 					String itemString = "";
 					ArrayList<HashMap<String,Object>> barCodeList = (ArrayList<HashMap<String,Object>>)itemMap.get("optioninfo");
+					logger.debug("##### [barCodeList size]" + barCodeList.size());
+					
 					for(int kk=0; kk<barCodeList.size(); kk++){
 						
 						String item_color = (String)barCodeList.get(kk).get("item_color");
@@ -292,9 +269,13 @@ public class ProductSyncTask {
 			for(int i=0; i<dataCnt; i++){
 	    	
 				String jsonString = listOps.rightPop(redisKeyC2S);
+				logger.debug("##### [Redis Read Data - Product From Cube]" + jsonString);
 				
 				HashMap<String, Object> invListMap = mapper.readValue(jsonString, new TypeReference<HashMap<String,Object>>(){});
 				ArrayList<HashMap<String,Object>> itemInvList = (ArrayList<HashMap<String,Object>>)invListMap.get("list");
+				
+				// Ma전송을 위한 리스트객체
+				List<HashMap<String,Object>> maSendList = new ArrayList<HashMap<String,Object>>();
 				
 				logger.debug("##### [invList size]" + invListMap.size());
 				
@@ -302,14 +283,12 @@ public class ProductSyncTask {
 				Document doc = null;
 				
 				String invItemString = "";
-				for(int k=0; k<itemInvList.size(); k++){
-					
-					HashMap<String, Object> itemMap = itemInvList.get(k);
+				for (HashMap<String,Object> itemMap : itemInvList){
 					
 					String org_code = (String)itemMap.get("org_code");
 					String ent_code = env.getProperty("ca."+org_code);
-					logger.debug("##### [org_code]" + (String)itemMap.get("org_code"));
-					logger.debug("##### [ent_code]" + ent_code);
+//					logger.debug("##### [org_code]" + (String)itemMap.get("org_code"));
+//					logger.debug("##### [ent_code]" + ent_code);
 					
 					String ship_node = (String)itemMap.get("ship_node");	// 창고코드
 					String bar_code = (String)itemMap.get("bar_code");  	// 상품코드
@@ -317,13 +296,21 @@ public class ProductSyncTask {
 					String uom = (String)itemMap.get("uom");			    // 측정단위 
 					if(uom == null || "".equals(uom)) uom = "EACH";
 					
-					// 현 재고수량 조회
-					Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, ship_node, uom, "S");
+					// Ma전송을 위한 재고정보 저장 - org_code,bar_code,uom
+					HashMap<String, Object> maSendMap = new HashMap<String, Object>();
+					maSendMap.put("ent_code", ent_code);
+					maSendMap.put("bar_code", bar_code);
+					maSendMap.put("uom", uom);
+					maSendList.add(maSendMap);
+					
+					
+					// 현 재고수량 조회 - 가용재고
+					Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, ship_node, uom, "A");
 					// Cube의 재고수량 - 현 재고수량 차감 
 					Double adjustQty = Double.parseDouble(qty) - currScQty;
-					logger.debug("#####[Cube Qty]"+qty);
-					logger.debug("#####[Sc Qty]"+currScQty);
-					logger.debug("#####[Adjust Quantity]"+adjustQty);
+					logger.debug("#####[Current Sc Qty]"+currScQty);
+					logger.debug("#####[Current Cube Qty]"+qty);
+					logger.debug("#####[Adjust Qty: Cube - SC]"+adjustQty);
 					
 					// SC 재고차감
 					// adjustInventory Input XML Generation
@@ -338,8 +325,8 @@ public class ProductSyncTask {
 																ent_code, bar_code, String.valueOf(adjustQty), ship_node, uom, 
 															} 
 					);
-					
 					invItemString = invItemString +"\n"+ adjustInvXML;
+					
 				}// End for InvItem
 				
 				String invXML = "";
@@ -348,7 +335,6 @@ public class ProductSyncTask {
 						+  invItemString
 						+ "</Items>";
 				logger.debug("##### [adjustInventory input XNL]"+invXML); 
-				
 				
 				// adjustInventory API 호출
 				String adjInv_output = sterlingApiDelegate.comApiCall("adjustInventory", invXML);
@@ -369,15 +355,15 @@ public class ProductSyncTask {
 					
 					// CUBE 결과전송키에 저장 (실패)
 					// TODO: 수신받은 데이타 전부전송( SC는 실패시  전체 RollBack 되기때문)
-					for(int ii=0; ii<itemInvList.size(); ii++){
+					for (HashMap<String,Object> itemMap : itemInvList){
 						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
 						
 						returnItemMap.put("statuscd", "99");
-						returnItemMap.put("org_code", itemInvList.get(ii).get("org_code"));
-						returnItemMap.put("bar_code", itemInvList.get(ii).get("bar_code"));
-						returnItemMap.put("ship_node", itemInvList.get(ii).get("ship_node"));
-						returnItemMap.put("tran_date", itemInvList.get(ii).get("tran_date"));
-						returnItemMap.put("tran_seq", itemInvList.get(ii).get("tran_seq"));
+						returnItemMap.put("org_code", itemMap.get("org_code"));
+						returnItemMap.put("bar_code", itemMap.get("bar_code"));
+						returnItemMap.put("ship_node", itemMap.get("ship_node"));
+						returnItemMap.put("tran_date", itemMap.get("tran_date"));
+						returnItemMap.put("tran_seq", itemMap.get("tran_seq"));
 						
 						
 						returnItemInvList.add(returnItemMap);
@@ -416,15 +402,16 @@ public class ProductSyncTask {
 					logger.debug("#####[adjustInventory Api Success]");
 					
 					//========== 1. CUBE 결과전송키에 저장 (성공)
-					for(int ii=0; ii<itemInvList.size(); ii++){
+					for (HashMap<String,Object> itemMap : itemInvList){
+						
 						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
 						
-						returnItemMap.put("statuscd", "01");
-						returnItemMap.put("org_code", itemInvList.get(ii).get("org_code"));
-						returnItemMap.put("bar_code", itemInvList.get(ii).get("bar_code"));
-						returnItemMap.put("ship_node", itemInvList.get(ii).get("ship_node"));
-						returnItemMap.put("tran_date", itemInvList.get(ii).get("tran_date"));
-						returnItemMap.put("tran_seq", itemInvList.get(ii).get("tran_seq"));
+						returnItemMap.put("statuscd",  "01");
+						returnItemMap.put("org_code",  itemMap.get("org_code"));
+						returnItemMap.put("bar_code",  itemMap.get("bar_code"));
+						returnItemMap.put("ship_node", itemMap.get("ship_node"));
+						returnItemMap.put("tran_date", itemMap.get("tran_date"));
+						returnItemMap.put("tran_seq",  itemMap.get("tran_seq"));
 						returnItemInvList.add(returnItemMap);
 					}
 					returnMap.put("list", returnItemInvList);
@@ -435,20 +422,18 @@ public class ProductSyncTask {
 					
 					//========== 2. MA에 해당상품의 모든창고의 가용재고 수량 전달
 					returnItemInvList = new ArrayList<HashMap<String,Object>>();	// 전송리스트 초기화
-					for(int k=0; k<itemInvList.size(); k++){
+					
+					// 중복 bar_code 제거
+					Set<HashMap<String,Object>> maDataSet = new HashSet<HashMap<String,Object>>(maSendList);
+			        
+					for (HashMap<String,Object> itemMap : maDataSet){
 						
-						HashMap<String, Object> itemMap = itemInvList.get(k);
-						
-						String org_code = (String)itemMap.get("org_code"); // 사업부코드
-						String ent_code = env.getProperty("ca."+org_code); // 사업부코드 -> 조직코드 변환
-						logger.debug("##### [org_code]" + (String)itemMap.get("org_code"));
-						logger.debug("##### [ent_code]" + ent_code); 
+						String ent_code = (String)itemMap.get("ent_code"); // 조직코드
 						String bar_code = (String)itemMap.get("bar_code");  // 상품코드
 						String uom = (String)itemMap.get("uom");			// 측정단위 
 						
 						// 모든창고의 가용재고 수량 조회
 						Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, "", uom, "A");
-						logger.debug("#####[Sc Qty]"+currScQty);
 						
 						// MA 전송결과값 생성
 						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();
