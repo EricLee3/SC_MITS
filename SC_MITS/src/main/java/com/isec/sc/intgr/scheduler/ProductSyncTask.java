@@ -308,9 +308,9 @@ public class ProductSyncTask {
 					Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, ship_node, uom, "A");
 					// Cube의 재고수량 - 현 재고수량 차감 
 					Double adjustQty = Double.parseDouble(qty) - currScQty;
-					logger.debug("#####[Current Sc Qty]"+currScQty);
-					logger.debug("#####[Current Cube Qty]"+qty);
-					logger.debug("#####[Adjust Qty: Cube - SC]"+adjustQty);
+					logger.debug("#####[SC 현재고]"+currScQty);
+					logger.debug("#####[Cube 현재고]"+qty);
+					logger.debug("#####[증감분]"+adjustQty);
 					
 					// SC 재고차감
 					// adjustInventory Input XML Generation

@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -33,7 +34,10 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import scala.Array;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.FileContentReader;
@@ -47,6 +51,8 @@ public class OrderProcessTask {
 	
 	private static final String API_GET_SHIPMENT_LIST_FOR_ORDER = "getShipmentListForOrder";
 	private static final String API_CONFIRM_SHIPMENT = "confirmShipment";
+	private static final String API_CHANGE_SHIPMENT = "changeShipment";
+	private static final String API_CANCEL_ORDER = "cancelOrder";
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
@@ -57,6 +63,7 @@ public class OrderProcessTask {
 	
 	@Resource(name="maStringRedisTemplate")
 	private ValueOperations<String, String> valueOps;
+	
 	
 	
 	@Value("${sc.api.scheduleOrder.template}")
@@ -70,6 +77,15 @@ public class OrderProcessTask {
 	
 	@Value("${sc.api.adjustInventory.item.template}")
 	private String ADJUST_INVENTORY_ITEM_TEMPLATE;
+	
+	@Value("${sc.api.cancelOrder.template}")
+	private String CANCEL_ORDER_TEMPLATE;
+	
+	@Value("${sc.api.changeShipment.template}")
+	private String CHANGE_SHIPMENT_TEMPLATE;
+	
+	
+	
 	
 	
 	/**
@@ -208,7 +224,7 @@ public class OrderProcessTask {
      * @param redisErrKey 에러키
      */
     		
-    public void processShipmentFromCube(String redisKey, String redisPushKey, String redisErrKey){
+    public void processOrderUpdate(String redisKey, String redisPushKey, String redisErrKey){
     	
     		long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
@@ -229,14 +245,23 @@ public class OrderProcessTask {
     				String status = (String)dataMap.get("status");
     				logger.debug("[status]"+status);
     				
+    				
     				// Create Shipment
     				if("3202".equals(status)){
     					processReleaseReturn(dataMap, redisKey, redisPushKey, redisErrKey);
     					
+    				
     				// Confirm Shipment
     				}else if("3700".equals(status)){
     					processConfirmShipment(dataMap, redisKey, redisPushKey, redisErrKey);
+    				
+    				
+    				// Cancel Shipment
+    				}else if("9002".equals(status)){
+    					processCancelReturn(dataMap, redisKey, redisPushKey, redisErrKey);
     				}
+    				
+    				
     			} // End for
     	
     		}catch(Exception e){
@@ -244,7 +269,8 @@ public class OrderProcessTask {
     		}
     	
     }
-	
+    
+    
 	/**
 	 * 
 	 * 주문확정정보 응답 수신프로세스 From Redis (From Cube) 3202
@@ -319,6 +345,8 @@ public class OrderProcessTask {
 		ObjectMapper mapper = new ObjectMapper();
 		String outputMsg = mapper.writeValueAsString(dataMap);
 		
+		int failCount = 0;
+		
 		ArrayList<HashMap<String,Object>> resultList = (ArrayList<HashMap<String,Object>>)dataMap.get("list");
 		for( int i=0; i<resultList.size(); i++){
 			
@@ -331,7 +359,7 @@ public class OrderProcessTask {
 				String bar_code =  (String)resultList.get(i).get("itemId");
 				String uom =  (String)resultList.get(i).get("uom");
 				
-				logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
+				logger.debug("##### [processReleaseReturn] 품절취소발생 Cube shortage occured!!!");
 				
 				
 				// 1. adjustInventory 호출 - 재고 0으로 변경 - TODO: 재고변경 이벤트핸들러를 통해 MA로 재고변경정보 전송 
@@ -371,19 +399,17 @@ public class OrderProcessTask {
 				// TODO: adjustInventory 후처리
 				
 				
+				// TODO: MA와 해당상품의 재고 연동
+				
+				
 			}
-			// 실패 - 전체실패 처리
-			else if("99".equals(resultCode))
+			// 실패 - 오더라인별로 처리, 09와 90이 같이 들어올수 있음
+			else if("09".equals(resultCode))
 			{
-				logger.debug("##### [processReleaseReturn] Cube shortage occured!!!");
-				
-				// 에러키에 저장
-				// TODO: 출고의뢰 결과수신 예외처리 필요
-				listOps.leftPush(redisErrKey, outputMsg);
-				break;
+				failCount++;
 				
 			}
-			// 성공일 경우 - 전체성공 처리
+			// 성공일 경우 - 전체성공 처리, 루프 한번만 수행
 			else if("01".equals(resultCode)){
 				
 				
@@ -399,11 +425,10 @@ public class OrderProcessTask {
 				ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(orderId, "");
 				
 				
-				// 릴리즈키와 Cube에서 전송된 출고의뢰 전표번호로 출고생성 API호출 - createShipment 
 				for(int j=0; j<releaseKeys.size(); j++){
 					
 					// TODO: Cube연동시 ShipmentNo에 전표번호 적용필요
-					int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
+					int result = sterlingApiDelegate.createShipment(shipmentNo, releaseKeys.get(j));
 					if(result == 0){
 						// TODO: createShipment API호출 예외처리
 						// JSON 변환
@@ -412,6 +437,16 @@ public class OrderProcessTask {
 				}
 				
 				break;
+			}// End for orderLine
+			
+			
+			// 전체실패일 경우 에러키에 저장
+			if(failCount == resultList.size()){
+				logger.debug("##### [processReleaseReturn] 출고의뢰 실패 Cube shortage occured!!!");
+				
+				// 에러키에 저장
+				// TODO: 출고의뢰 결과수신 예외처리 필요
+				listOps.leftPush(redisErrKey+":3202", outputMsg);
 			}
 		}
 		
@@ -443,23 +478,35 @@ public class OrderProcessTask {
 		
 		/**
 		 * {
-			    "org_code": "사업부코드",
-			    "sell_code": "판매채널코드",
-			    "orderId": "오더번호",
-			    "orderHeaderKey": "오더번호키",
+			    "org_code": "80",
+			    "sell_code": "ASPB",
+			    "orderId": "Y100001100",
+			    "orderHeaderKey": "20141010191200239236",
+			    "tranDt": "20141016",
 			    "status": "3700",
-			    "tranDt": "전송일자",
 			    "list": [
 			        {
-			            "ship_node": "창고코드",
-						"orderLineNo": "오더라인순번",
-						"orderLineKey": "오더라인키",
-			            "orderReleaseKey": "오더라인확정키",
-			            "shipmentNo":"전표번호",
-						"itemId ": "상품코드",
-			            “statuscd”:”결과코드”,
-			            “statusMsg:”결과메세지”
-			}
+			            "ship_node": "WH001",
+			            "orderLineNo": "1",
+			            "orderLineKey": "20141010191200239237",
+			            "orderReleaseKey": "20141010191300239277",
+			            "shipmentNo": "341015007",
+			            "expnm": "11111",  -- 송장번호
+			            "expNo": "00",     -- 택배사코드
+			            "outDt": "20141016",
+			            "outTime": "165021"
+			        },
+			        {
+			            "ship_node": "WH001",
+			            "orderLineNo": "2",
+			            "orderLineKey": "20141010191200239238",
+			            "orderReleaseKey": "20141010191300239277",
+			            "shipmentNo": "341015007",
+			            "expnm": "11111",
+			            "expNo": "00",
+			            "outDt": "20141016",
+			            "outTime": "165021"
+			        }
 			    ]
 			}
 
@@ -467,75 +514,62 @@ public class OrderProcessTask {
 				
 		// confirmShipment API 호출
 		
-		String docType = (String)dataMap.get("docType");
-		String entCode = (String)dataMap.get("entCode");
+		String docType = "0001";
+		String entCode = env.getProperty("ca."+(String)dataMap.get("org_code"));
+		String sellerCode = (String)dataMap.get("sell_code");
 		String orderId = (String)dataMap.get("orderId");
-		String sellerCode = (String)dataMap.get("sellerCode");
+		
 		logger.debug("[docType]"+docType);
 		logger.debug("[entCode]"+entCode);
 		logger.debug("[orderId]"+orderId);
 		logger.debug("[sellerCode]"+sellerCode);
 		
 		
-		ArrayList<HashMap<String,String>> shipmentInfoList = (ArrayList<HashMap<String,String>>)dataMap.get("shipment");
+		// TODO: Cube에서 넘어온 출고확정정보는 오더라인갯수와 상관없이 1건. 따라서 list의 첫번째 값으로 confirmShipment수행 
+		ArrayList<HashMap<String,String>> shipmentInfoList = (ArrayList<HashMap<String,String>>)dataMap.get("list");
+		HashMap<String,String> shipmentInfo = shipmentInfoList.get(0);
+		
+		// TODO: 택배사코드는 조직에 코드추가 및 매핑필요.
+		String shipmentNo = shipmentInfo.get("shipmentNo");
+		String shipNode = shipmentInfo.get("ship_node");
+		String trackingNo = shipmentInfo.get("expnm");		    // 송장번호
+		String scacCode = shipmentInfo.get("expNo");				// 택배사코드
+		
+		logger.debug("[trackingNo]"+trackingNo);
+		logger.debug("[scacCode]"+scacCode);
+		
+		// TODO: 택배사코드 테스트코드로 작성
+		String scacOrgCode = entCode;
+		//String scacOrgCode = "CJL";
+		//scacCode = "CJL_STD";
+		scacCode = "19991214183438453"; // USPS Default Code
+		
+		String confirmShipment_template = FileContentReader.readContent(getClass().getResourceAsStream(CONFIRM_SHIPMENT_TEMPLATE));
+		
+		MessageFormat msg = new MessageFormat(confirmShipment_template);
+		String inputXML = msg.format(new String[] {docType, entCode, sellerCode, 
+								shipmentNo, 
+								shipNode, 
+								trackingNo,
+								scacOrgCode,
+								scacCode
+						  } );
+		logger.debug("##### [confirmShipment inputXML]"+inputXML); 
 		
 		
-		// TODO: Cube로 부터 받아야 하는 정보: 택배사코드, 송장번호, 택배사코드는 조직에 코드추가 및 매핑필요.
-		String scac = "19991214183438453"; // USPS Default Code
-		String trackingNo = "1111111111";	// Test Code
+		// Call Confirm Shipment
+		String outputXML = sterlingApiDelegate.comApiCall(API_CONFIRM_SHIPMENT, inputXML);
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 		
-		
-//					String xml_template = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE));
-//					
-//					MessageFormat msg = new MessageFormat(xml_template);
-//					String inputXML = msg.format(new String[] {docType, entCode, orderId} );
-//					logger.debug("##### [inputXML]"+inputXML); 
-//					
-//					
-//					// Call getShipmentListForOrder - ShipNode 
-//					String outputMsg = sterlingApiDelegate.comApiCall(API_GET_SHIPMENT_LIST_FOR_ORDER, inputXML);
-//					Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
-//					
-//					XPath xp = XPathFactory.newInstance().newXPath();
-//					NodeList shipmentInfoList = (NodeList)xp.evaluate("/ShipmentList/Shipment", doc.getDocumentElement(), XPathConstants.NODESET);
-		
-		
-		// Shipment 별 Confirm Shipment 수행
-//					for(int j=0; j<shipmentInfoList.getLength(); j++){
-		for(int j=0; j<shipmentInfoList.size(); j++){
+		if("Errors".equals(doc.getFirstChild().getNodeName())){
 			
-//						String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", shipmentInfoList.item(i), XPathConstants.STRING);
-//						String shipmentNo = (String)xp.evaluate("@ShipmentNo", shipmentInfoList.get(i), XPathConstants.STRING);
-//						String shipNode = (String)xp.evaluate("@ShipNode", shipmentInfoList.get(i), XPathConstants.STRING);
-			
-			/**
-				<Shipment 
-				    DocumentType="{0}" EnterpriseCode="{1}"
-				    SellerOrganizationCode="{2}" 
-				    ShipmentNo="{3}" ShipNode="{4}" TrackingNo="{5}">
-				    <ScacAndService OrganizationCode="{6}" ScacAndServiceKey="{7}"/>
-				</Shipment>
-			 */
-			String confirmShipment_template = FileContentReader.readContent(getClass().getResourceAsStream(CONFIRM_SHIPMENT_TEMPLATE));
-			
-			MessageFormat msg = new MessageFormat(confirmShipment_template);
-			String inputXML = msg.format(new String[] {docType, entCode, sellerCode, 
-							shipmentInfoList.get(j).get("shipmentNo"), 
-							shipmentInfoList.get(j).get("shipNode"), 
-							shipmentInfoList.get(j).get("trackingNo"),
-							shipmentInfoList.get(j).get("entCode"),
-							shipmentInfoList.get(j).get("carrierCode")
-						} );
-			logger.debug("##### [confirmShipment inputXML]"+inputXML); 
+			ObjectMapper mapper = new ObjectMapper();
+			String errJson = mapper.writeValueAsString(dataMap);
+			listOps.leftPush(redisErrKey+":3700", errJson);
 			
 			
-			// Call Confirm Shipment
-			String outputXML = sterlingApiDelegate.comApiCall(API_CONFIRM_SHIPMENT, inputXML);
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+			throw new Exception("ConfirmShipment Failed!!!!!");
 			
-			if("Errors".equals(doc.getFirstChild().getNodeName())){
-				// TODO: confirmShipment API호출 예외처리
-			}
 		}
 				
 		
@@ -548,15 +582,197 @@ public class OrderProcessTask {
 	
 	/**
 	 * 주문취소 처리결과 수신 (From Cube)
-	 *  - 
+	 * 
+	 * 
+	 *  1. Cube의 주문취소결과 상태확인
+	 *  
+	 *    - 실패 또는 처리대상건 없음, 출고확정건 일 경우 
+	 *      -> 주문취소요청 결과 키에 저장
+	 *         조직코드:판매채널코드:order:cancel:result
+	 *         
+	 *         후처리 중단
+	 *         
+	 *    - 기처리건일 경우
+	 *      -> 주문상태 확인 후 취소상태가 아니면 주문취소 재수행
+	 *      
+	 *    - 성공일 경우 
+	 *       - SC의 주문상태 확인
+	 *          - 3350(출고준비)일 경우 
+	 *            -> changeShipment 수행 -> 주문취소 수행
+	 *          - 3200(출고의뢰)일 경우 
+	 *            -> 주문취소 수행
 	 *  
 	 * @param redisKey
 	 * @param redisPushKey
 	 * @param redisErrKey
 	 */
-	public void processCancelReturn(String redisKey, String redisPushKey, String redisErrKey){
+	public void processCancelReturn(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
+		
+		logger.debug("##### [processCancelReturn] Job Task Started!!!");
+		/*
+		 * {
+			    "org_code": "80",
+			    "sell_code": "ASPB", 
+			    "orderId": "100000417",
+			    "orderHeaderKey": "20141014180100248322", 
+			    "orderDt": "20141014",
+			    "status": "9000",   -- 취소요청상태
+			    "tranDt": "20141015145140",
+			    "list": [
+			        {
+			            "org_code": "80",
+			            "sell_code": "ASPB", 
+			            "orderId": "100000417",
+			            "orderDt": "20141014",
+			            "orderLineNo": "1",
+			            "orderLineKey": "20141014180100248323",
+			            "orderReleaseKey": "20141014180200248344",
+			            "itemId": "AYB5CL50103L",
+			            "itemNm": "Capri Blue Blue Signature Jar BOHO-LUXE",
+			            "qty": "1",
+			             "salePrice": "1000",
+			          “statuscd”:”결과코드”,      --- 주문취소결과 전송시 필요항목
+			           “statusMsg:”결과메세지”  -- 주문취소결과 전송시 필요항목
+			        }
+			    ]
+			 }
+
+		 */
+		String docType = "0001";
+		String entCode = env.getProperty("ca."+(String)dataMap.get("org_code")); // TODO: Cube의 사업부코드 - SC조직코드로 매핑
+		String sellCode = (String)dataMap.get("sell_code");
+		String orderId = (String)dataMap.get("orderId");
+		logger.debug("[docType]"+docType);
+		logger.debug("[entCode]"+entCode);
+		logger.debug("[orderId]"+orderId);
+		logger.debug("[sellerCode]"+sellCode);
+		
+		
+		
+		
+		/*
+		 *   01 - 성공
+			 02 - 기처리
+			 09 - 실패 또는 처리대상건 없음
+			 90 - 출고확정건
+		 */
+		// Cube의 주문취소결과 상태확인
+		List<HashMap<String,Object>> cancelList = (ArrayList<HashMap<String,Object>>)dataMap.get("list");
+		String cubeStatus = (String)cancelList.get(0).get("statuscd");
+		String cubeStatusMsg = (String)cancelList.get(0).get("statusMsg");
+		
+		logger.debug("[cubeStatus]"+cubeStatus);
+		
+		// 실패 또는 처리대상건 없음, 출고확정건, 기처리건
+		// TODO: 09인 경우 자체주문취소 처리필요
+		if("09".equals(cubeStatus) || "90".equals(cubeStatus) || "02".equals(cubeStatus)){
+			
+			// 주문취소 Result키에 기록
+			logger.debug("주문취소요청 실패[CanceOrder Request Result is failed]");
+			
+			HashMap<String, String> cancelReqMap = new HashMap<String, String>();
+			cancelReqMap.put("orderNo", orderId);
+			cancelReqMap.put("enterPrise", entCode);
+			cancelReqMap.put("sellerOrg", sellCode);
+			
+			cancelReqMap.put("status_code", cubeStatus);
+			cancelReqMap.put("status_text", cubeStatusMsg);
+			cancelReqMap.put("status_class", "danger");
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String resJson = mapper.writeValueAsString(cancelReqMap);
+			
+			
+			String cancelResKey = entCode+":"+sellCode+":order:cancel:result";
+			logger.debug("[9000 CanceReq Result key]"+cancelResKey);
+			logger.debug("[9000 CanceReq Result Data]"+resJson);
+			
+			listOps.leftPush(cancelResKey, resJson);
+			
+			return;
+		}
+		
+		
+		// 성공일 경우
+		else if("01".equals(cubeStatus) ){
+		
+			// 1. 주문상태 확인 --> 주문취소 수행
+			
+			Document doc = sterlingApiDelegate.getOrderDetails(docType, entCode, orderId);
+			String scStatus = doc.getDocumentElement().getAttribute("MaxOrderStatus");
+			
+			logger.debug("[maxStatus]"+scStatus);
+			
+				
+			// 3350일 경우 changeShipment 수행 --> cancelOrder 수행
+			if("3350".equals(scStatus)){
+				
+				// changeShipment 수행 - 출고생성 취소
+				
+				
+				// ShipNode, ShipmentNo 조회
+				String xml_template = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE));
+				MessageFormat msg = new MessageFormat(xml_template);
+				String inputXML = msg.format(new String[] {docType, entCode, orderId} );
+				
+				String outputMsg = sterlingApiDelegate.comApiCall(API_GET_SHIPMENT_LIST_FOR_ORDER, inputXML);
+				doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+				
+				XPath xp = XPathFactory.newInstance().newXPath();
+				Node shipmentInfoNode = (Node)xp.evaluate("/ShipmentList/Shipment[1]", doc.getDocumentElement(), XPathConstants.NODE);
+				
+				
+				String shipNode = (String)xp.evaluate("@ShipNode", shipmentInfoNode, XPathConstants.STRING);
+				String shipmentNo = (String)xp.evaluate("@ShipmentNo", shipmentInfoNode, XPathConstants.STRING);
+				logger.debug("[shipNode]"+shipNode);
+				logger.debug("[shipmentNo]"+shipmentNo);
+				
+				
+				// changeShipment API Call
+				xml_template = FileContentReader.readContent(getClass().getResourceAsStream(CHANGE_SHIPMENT_TEMPLATE));
+				msg = new MessageFormat(xml_template);
+				inputXML = msg.format(new String[] {entCode, sellCode, shipNode, shipmentNo} );
+				
+				outputMsg = sterlingApiDelegate.comApiCall(API_CHANGE_SHIPMENT, inputXML);
+				doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+				
+				// TODO: changeShipment API 에러처리
+				if("Errors".equals(doc.getFirstChild().getNodeName())){
+					
+					throw new Exception("Cacel Shipment Failed");
+				}
+				
+			}
+			
+			// cancelOrder API Call
+			String cancelReason = "CANCEL_INFO";
+			String cacnelNote = "Cube 주문취소 처리완료";
+			String templateFile = FileContentReader.readContent(getClass().getResourceAsStream(CANCEL_ORDER_TEMPLATE));
+			MessageFormat msg = new MessageFormat(templateFile);
+			String inputXML = msg.format(new String[] {docType, entCode, orderId, cancelReason, cacnelNote} );
+			
+			
+			logger.debug("[Cancel Order inputXML]"+inputXML);
+			String outputMsg = sterlingApiDelegate.comApiCall(API_CANCEL_ORDER, inputXML);
+			logger.debug("[Cancel Order outputXML]"+inputXML);
+			
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
+			
+			// TODO: cancelOrder API 에러처리
+			if("Errors".equals(doc.getFirstChild().getNodeName())){
+				// TODO: 에러처리
+				throw new Exception("Cacel Order Failed");
+			}
+		
+		} // End if 결과상태 확인
+		
+		logger.debug("##### [processCancelReturn] Job Task Started!!!");
 	}
+	
+	
+	
+	
 	
 	/**
 	 * 품절취소 수신 (From Cube)

@@ -42,7 +42,7 @@
 	<!-- ASPB - Order Update Job-->
 	<bean id="orderStatusUpdateJob_ASPB" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
-	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
+	    <property name="targetMethod"><value>processOrderUpdate</value></property>
 	    <property name="arguments">
 	    	<list>
 	    		<value>${key.ca.KOLOR.ASPB.orderUpdate.C2S}</value>
@@ -103,7 +103,7 @@
 	</bean>
 	<bean id="orderUpdateJob_OUTRO" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
-	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
+	    <property name="targetMethod"><value>processOrderUpdate</value></property>
 	    <property name="arguments">
 	    	<list>
 	    		<value>${key.ca.DA.OUTRO.orderUpdate.C2S}</value>
@@ -152,7 +152,7 @@
 	
 	<bean id="orderUpdateJob_JNS" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 	    <property name="targetObject"><ref bean="orderProcessBean"/></property>
-	    <property name="targetMethod"><value>processShipmentFromCube</value></property>
+	    <property name="targetMethod"><value>processOrderUpdate</value></property>
 	    <property name="arguments">
 	    	<list>
 	    		<value>${key.ca.ISEC.JNS.orderUpdate.C2S}</value>

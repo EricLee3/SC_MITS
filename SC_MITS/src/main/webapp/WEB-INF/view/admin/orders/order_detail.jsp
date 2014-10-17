@@ -333,7 +333,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													주문접수 
 													</span>&nbsp;<i class="fa fa-arrow-right"></i>
 													<span class="label label-default">
-													주문확정 
+													출고의뢰 
 													</span>&nbsp;<i class="fa fa-arrow-right"></i>
 													<span class="label label-default">
 													출고준비 
@@ -341,6 +341,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													<span class="label label-default">
 													출고완료 
 													</span>
+													&nbsp;&nbsp;
 												</div>
 											</div>
 											<div class="row static-info">
@@ -1234,15 +1235,14 @@ License: You must have a valid license purchased only from themeforest(the above
 			// 주문확정 숨김
 			$("#tool_release").hide();
 	    }
-        // 주문확정
+        // 출고의뢰
         if(minStatus == '3200' && maxStatus == '3200'){
         	
         		$('#order_status span:eq(1)').removeClass("label-default").addClass("label-"+statusClassName);
-			statusDetailText = '<strong>[주문확정]</strong> - 재고확인 및 출하창고가 결정된 상태';
-			statusDetailText += '<p class="text-danger"> - Cube 출고의뢰전일 경우 - 주문취소 가능<br>';
-			statusDetailText += '<p class="text-danger"> - Cube 출고의뢰후일 경우 - Cube 주문취소요청 가능';
+			statusDetailText = '<strong>[출고의뢰]</strong> - 재고확인 및 출하창고가 결정되고 Cube로 출고의뢰가 된 상태';
+			statusDetailText += '<p class="text-danger"> - Cube 주문취소요청 가능</p>';
 			
-			// 주문취소시 Cube출고의뢰여부 확인필요
+			$("#tool_cancel").text("주문취소 요청");
         }
         // 출고준비
         if(minStatus == '3350' && maxStatus == '3350'){
@@ -1253,10 +1253,11 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		
 	    		// 주문확정 버튼 숨김, 주문취소요청으로 버튼명 변경
 	    		$("#tool_release").hide();
+	    		$("#tool_line_cancel").hide();
 	    		$("#tool_cancel").text("주문취소 요청");
 	    }
         
-        // 출고확정
+        // 출고완료
         if(minStatus == '3700' && maxStatus == '3700'){
         	
 	    		$('#order_status span:eq(3)').removeClass("label-default").addClass("label-"+statusClassName);
@@ -1294,9 +1295,69 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		$("#tool_cancel").hide();
 	    		$("#tool_line_cancel").hide();
         }
+        else
+        	{
+        	
+        	
+        		var cancelReqCode = "${cancelReqInfo.status_code}";
+            var cancelReqText = "${cancelReqInfo.status_text}";
+            console.debug(cancelReqCode);
+            console.debug(cancelReqText);
+            
+            // 주문취소 요청상태
+            if(cancelReqText != ""){
+            	
+    	        	statusDetailText = '<p class="text-danger"><strong>Cube로 부터 주문취소를 요청한 상태</strong><br><br>';
+    	    		statusDetailText += ' - 아직 Cube로 부터 \'주문취소결과\'가 전송되지 않은 상태<br>';
+    	    		statusDetailText += ' - 최대 1시간이내에 취소처리상태 확인 가능<br>';
+    	    		statusDetailText += ' - 취소요청이 정상처리되면 주문의 상태는 [주문취소]로 변경되고, Front로 환불요청됨(환불처리결과는 Front Admin에서 확인가능)</p>';
+            	
+            		
+    	        	// 주문확정, 주문취소 버튼 숨김
+    	    		$("#tool_release").hide();
+    	    		$("#tool_cancel").hide();
+    	    		$("#tool_line_cancel").hide();
+        		
+            		$('<span class="label label-danger cancel-req">'+cancelReqText+'</span>').appendTo("#order_status");
+            }
+            
+            var cancelResCode = "${cancelResultInfo.status_code}"; // 02,09,90
+            var cancelResText = "${cancelResultInfo.status_text}";
+            console.debug(cancelResCode);
+            console.debug(cancelResText);
+            
+            
+         	// 주문취소 요청 결과
+            if(cancelResText != ""){
+            		
+            		if(cancelResCode == '02'){
+            		 	statusDetailText = '<p class="text-danger"><strong>중복요청건</strong> - Cube에서 이미 주문취소가 처리된 건.<br><br>';
+        	    			statusDetailText += ' - 주문상태를 다시 확인하거나, 주문상태가 [주문취소]가 아닐 경우 시스템담당자에게 문의할것.</p>';
+            		}
+            		
+            		if(cancelResCode == '90'){
+            		 	statusDetailText = '<p class="text-danger"><strong>주문취소불가</strong> - Cube에서 이미 출고확정 처리된 건.<br><br>';
+        	    			statusDetailText += ' - 해당주문의 상태를 다시 확인한 후 주문상태가 [출고확정]이면 고객 아웃바운드 필요.<br>';
+        	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태를 확인 후 일정시간 대기후 주문상태 재확인 필요.</p>';
+            		}
+            	
+            	
+    	        	// 주문확정, 주문취소 버튼 숨김
+    	    		$("#tool_release").hide();
+    	    		$("#tool_cancel").hide();
+    	    		$("#tool_line_cancel").hide();
+        			
+    	    		$('#order_status span .cancel-req').remove();
+    	    		
+            		$('<span class="label label-danger">'+cancelResText+'</span>').appendTo("#order_status");
+            		
+            }
+        	
+        	}
         
         statusDetailText = '<div class="note note-danger">'+statusDetailText+'</div>';
         $("#order_status_detail").html(statusDetailText);
+        
         
      });
      

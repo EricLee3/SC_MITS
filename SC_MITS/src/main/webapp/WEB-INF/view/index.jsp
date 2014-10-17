@@ -407,22 +407,24 @@ License: You must have a valid license purchased only from themeforest(the above
 								</li>
 								<li>
 									<a href="#overview_2" data-toggle="tab">
-									출고완료 목록 </a>
+									미 출고의뢰건(담당자 확인필요) </a>
 								</li>
 								<li>
 									<a href="#overview_3" data-toggle="tab">
-									주문취소 목록 </a>
+									출고준비 목록 </a>
 								</li>
 								<li>
 									<a href="#overview_4" data-toggle="tab">
-									주문확정 대기목록 </a>
+									출고완료 목록 </a>
+								</li>
+								<li>
+									<a href="#overview_5" data-toggle="tab">
+									주문취소 요청목록 </a>
 								</li>
 								<!-- <li>
 									<a href="#overview_5" data-toggle="tab">
 									주문처리 에러목록 </a>
 								</li> -->
-								
-								
 								<!-- <li class="dropdown">
 									<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									오더처리 대기건 <i class="fa fa-angle-down"></i>
@@ -486,7 +488,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								</div>
 								<div class="tab-pane" id="overview_2">
 									<div class="table-scrollable">
-										<table class="table table-striped table-hover table-bordered" id="table_shipped_list">
+										<table class="table table-striped table-hover table-bordered" id="table_pending_list">
 										<thead>
 										<tr>
 											<th>
@@ -523,7 +525,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								
 								<div class="tab-pane" id="overview_3">
 									<div class="table-scrollable">
-										<table class="table table-striped table-hover table-bordered" id="table_cancelled_list">
+										<table class="table table-striped table-hover table-bordered" id="table_createShipment_list">
 										<thead>
 										<tr>
 											<th>
@@ -557,9 +559,10 @@ License: You must have a valid license purchased only from themeforest(the above
 										</table>
 									</div>
 								</div>
+								
 								<div class="tab-pane" id="overview_4">
 									<div class="table-scrollable">
-										<table class="table table-striped table-hover table-bordered" id="table_pending_list">
+										<table class="table table-striped table-hover table-bordered" id="table_shipped_list">
 										<thead>
 										<tr>
 											<th>
@@ -595,23 +598,32 @@ License: You must have a valid license purchased only from themeforest(the above
 								</div>
 								<div class="tab-pane" id="overview_5">
 									<div class="table-scrollable">
-										<table class="table table-striped table-hover table-bordered" id="table_error_list">
+										<table class="table table-striped table-hover table-bordered" id="table_cancelled_list">
 										<thead>
 										<tr>
 											<th>
 												 오더번호
 											</th>
 											<th>
-												 에러코드
+												 오더일시
 											</th>
 											<th>
-												 에러메세지
+												 관리조직
 											</th>
 											<th>
-												 에러발생일시
+												 판매처
 											</th>
 											<th>
-												 상세
+												 통화
+											</th>
+											<th>
+												 금액
+											</th>
+											<th>
+												 Status
+											</th>
+											<th>
+											     상세
 											</th>
 										</tr>
 										</thead>
@@ -620,6 +632,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										</table>
 									</div>
 								</div>
+								
 							</div>
 							</div>
 						</div>

@@ -441,8 +441,9 @@ var EcommerceIndex = function () {
     	
     	initTable_common('#table_new_list', data.newList);
     	initTable_common('#table_pending_list', data.releaseList);
+    	initTable_common('#table_createShipment_list', data.createShipmentList);
     	initTable_common('#table_shipped_list', data.shippedList);
-    	initTable_common('#table_cancelled_list', data.cancellList);
+    	initTable_common('#table_cancelled_list', data.cancelReqList);
     	
     	// Error List - TODO: 향후 수정
 //    	var err_table = $('#table_error_list');
@@ -473,11 +474,11 @@ var EcommerceIndex = function () {
 		
 		var newTable = $(table_id).dataTable();
 		
-    	if(data == null || data == "" || data.length == 0){
-    		
-    		newTable.fnClearTable();
-    		return;
-    	}
+	    	if(data == null || data == "" || data.length == 0){
+	    		
+	    		newTable.fnClearTable();
+	    		return;
+	    	}
 				
 		newTable.fnClearTable();
 		newTable.fnAddData(data);
@@ -534,10 +535,10 @@ var EcommerceIndex = function () {
 			{
 				if(mode == 'reload'){
 					reload_table_overview('#table_new_list', data.newList);
-					reload_table_overview('#table_shipped_list', data.shippedList);
-					reload_table_overview('#table_cancelled_list', data.cancellList);
 					reload_table_overview('#table_pending_list', data.pendingList);
-					reload_table_overview('#table_error_list', data.errList);
+					reload_table_overview('#table_createShipment_list', data.createShipmentList);
+					reload_table_overview('#table_shipped_list', data.shippedList);
+					reload_table_overview('#table_cancelled_list', data.cancelReqList);
 					
 				}else{
 					initTable_overviews(data);
@@ -615,13 +616,10 @@ var EcommerceIndex = function () {
 				 switch(tab_index) {
 				 
 					  case 0: status = "A"; break;
-					  case 1: status = "3700"; break;
-					  case 2: status = "9000"; break;
-					  case 3: status = "1300"; break;
-					  case 4: {
-				  		// TODO: Error Page이동
-				         break;
-			  		  }
+					  case 1: status = "1300"; break;
+					  case 2: status = "3350"; break;
+					  case 3: status = "3700"; break;
+					  case 4: status = "9000"; break;
 				  }
 				 
 				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true');

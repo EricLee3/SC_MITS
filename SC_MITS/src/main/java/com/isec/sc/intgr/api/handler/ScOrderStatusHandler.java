@@ -20,6 +20,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -745,16 +746,13 @@ public class ScOrderStatusHandler {
 			sendMsgMap.put("orderId", orderNo);
 			sendMsgMap.put("entCode", entCode);
 			sendMsgMap.put("sellerCode", sellerCode);
-			
 			sendMsgMap.put("status", "9000");
 			String trDate = CommonUtil.cuurentDateFromFormat("yyyyMMddHHmmss");
 			sendMsgMap.put("trDate", trDate);
 			sendMsgMap.put("cancelled", cancelList);
 			
-			
 			// JSON 변환
 			/*
-			 * 
 			 * {"orderHeaderKey":"20140917162100147011",
 			 * "docType":"0001","status":"9000",
 			 * "cancelled":[
@@ -765,8 +763,6 @@ public class ScOrderStatusHandler {
 			 * 		{"orderLineKey":"20140917162100147014","lineTotal":"0.00","orderReleaseKey":"","primeLineNo":"3","itemNm":"","salePrice":"59000.00",
 			 * 			"qty":"0.00","itemId":"ASPB_ITEM_0003"}
 			 * ],"sellerCode":"ASPB","trDate":"20140917163656","orderId":"Y100000406","entCode":"SLV"}
-			 * 
-			 * 
 			 * 
 			 */
 			ObjectMapper mapper = new ObjectMapper();
@@ -782,6 +778,51 @@ public class ScOrderStatusHandler {
 			listOps.leftPush(pushKey, outputMsg);
 			
 			
+			
+			// 취소요청 RedisKey에 있는 데이타 삭제
+			// 조직코드:채널코드:order:cancel 
+			String cancelReqKey = entCode+":"+sellerCode+":order:cancel";
+			
+			List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
+			for( int i=0; i<cancelReqRedisList.size(); i++){
+				
+				String jsonData = cancelReqRedisList.get(i);
+				
+				logger.debug("[jsonData]"+ jsonData);
+				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				String cancelOrderNo = cancelReqMap.get("orderNo");
+				
+				if(orderNo.equals(cancelOrderNo)){
+					logger.debug("[cancelOrderNo]"+cancelOrderNo);
+					listOps.remove(cancelReqKey, i, jsonData);
+					break;
+				}
+			}
+			
+			// 취소요청결과 RedisKey에 있는 데이타 삭제
+			// 조직코드:채널코드:order:cancel:result
+			String cancelResKey = entCode+":"+sellerCode+":order:cancel:result";
+			
+			List<String> cancelResRedisList = listOps.range(cancelResKey, 0, -1);
+			for( int i=0; i<cancelResRedisList.size(); i++){
+				
+				String jsonData = cancelResRedisList.get(i);
+				
+				logger.debug("[jsonData]"+ jsonData);
+				HashMap<String,String> cancelResMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				String cancelOrderNo = cancelResMap.get("orderNo");
+				
+				if(orderNo.equals(cancelOrderNo)){
+					logger.debug("[cancelOrderNo]"+cancelOrderNo);
+					listOps.remove(cancelResKey, i, jsonData);
+					break;
+				}
+			}
+			
+			
+			// 집계데이타 저장
 			// TODO: 취소금액 항목 확인필요
 			double totCancelAmount = 0.00;
 			totCancelAmount = (Double)xp.evaluate("/Order/PriceInfo/@ChangeInTotalAmount", outputXML, XPathConstants.NUMBER);

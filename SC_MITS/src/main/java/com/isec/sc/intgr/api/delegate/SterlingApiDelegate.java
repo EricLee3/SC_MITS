@@ -60,6 +60,9 @@ public class SterlingApiDelegate {
 	@Value("${sc.api.shipment.createShipment}")
 	private String sc_shipment_create;
 	
+	@Value("${sc.api.order.details}")
+	private String sc_order_details;
+	
 	@Value("${sc.api.order.releaseList}")
 	private String sc_get_orderReleaseList;
 	
@@ -193,7 +196,13 @@ public class SterlingApiDelegate {
 		
 	}
 	
-	
+	/**
+	 * 상품등록 
+	 * 
+	 * @param xmlData
+	 * @return
+	 * @throws Exception
+	 */
 	public HashMap<String, Object> manageItem(String xmlData) throws Exception{
 		
 		
@@ -260,7 +269,13 @@ public class SterlingApiDelegate {
 		
 	}
 	
-	
+	/**
+	 * 주문확정처리
+	 * 
+	 * @param xmlData
+	 * @return
+	 * @throws Exception
+	 */
 	public String releaseOrder(String xmlData) throws Exception{
 		
 		logger.debug("[releaseOrder intputXML]"+xmlData);
@@ -301,7 +316,13 @@ public class SterlingApiDelegate {
 	
 	
 	
-	
+	/**
+	 * 출고생성
+	 * @param shipmentNo
+	 * @param releaseKey
+	 * @return
+	 * @throws Exception
+	 */
 	public int createShipment(String shipmentNo, String releaseKey) throws Exception{
 		
 		
@@ -550,7 +571,7 @@ public class SterlingApiDelegate {
 	 * CA와의 재고연동시 현 재고수량(공급수량) 필요
 	 * MA와의 재고연동시 가용재고 필요
 	 * --> qty_type인자로 구분 A:가용재고, S:현재고(공급수량)
-	 * 
+	 * --> 현재 가용재고는 allocated 상태의 건만 지시수량으로 계산
 	 *  getShipNodeInventory API outputXML
 	 *  
 	 *   <ShipNodeInventory>
@@ -614,7 +635,7 @@ public class SterlingApiDelegate {
 			
 			Double totSupply = (Double)xp.evaluate("@TotalSupply", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 공급수량 (ONHAND)
 			Double totDemand = (Double)xp.evaluate("@TotalDemand", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 수요수량 
-			logger.debug("["+bar_code+"][totSupply]"+totSupply);
+			logger.debug("["+bar_code+"]["+ship_node+"][totSupply]"+totSupply);
 			
 			// 가용재고 = 공급수량 - Allocated수량 (MA 전송시)
 			if("A".equals(qty_type))
@@ -626,11 +647,12 @@ public class SterlingApiDelegate {
 					
 					String demandType = (String)xp.evaluate("@DemandType", demandsList.item(jj), XPathConstants.STRING);	// 수요유형(Allocated.. 등)
 					Double demandQty = (Double)xp.evaluate("@Quantity", demandsList.item(jj), XPathConstants.NUMBER);	// 수요수량
-					logger.debug("["+bar_code+"][demandType]"+demandType);
-					logger.debug("["+bar_code+"][demandQty]"+demandQty);
+					logger.debug("["+bar_code+"]["+ship_node+"][demandType]"+demandType);
+					
 					
 					// TODO: 수요유형이 Allocated인 경우만 수요수량 합산
 					if("ALLOCATED".equals(demandType)){
+						logger.debug("["+bar_code+"]["+ship_node+"][demandQty]"+demandQty);
 						demandQtySum = demandQtySum + demandQty;
 					}
 				}
@@ -644,12 +666,44 @@ public class SterlingApiDelegate {
 			
 		}
 		
-		logger.debug("["+bar_code+"][Currunt Quantity]"+currQty);
+		logger.debug("["+bar_code+"][가용재고]"+currQty);
 		
 		return currQty;
 	}
 	
-	
-	
+	/**
+	 * 오더상세 조회
+	 * 
+	 * @param docType
+	 * @param entCode
+	 * @param orderNo
+	 * @return
+	 * @throws Exception
+	 */
+	public Document getOrderDetails(String docType, String entCode, String orderNo) throws Exception{
+		
+		// Input XML
+		String getOrderDetail_input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
+		+ "<Order DocumentType=\"{0}\" "
+		+ " EnterpriseCode=\"{1}\" OrderNo=\"{2}\" >"
+		+ "</Order> ";
+		
+	    MessageFormat msg = new MessageFormat(getOrderDetail_input);
+		String inputXML = msg.format(new String[] {docType, entCode, orderNo} );
+		logger.debug("[inputXML]"+inputXML); 
+		
+		
+		// API Call
+		sterlingHTTPConnector.setApi(sc_order_details);
+		sterlingHTTPConnector.setData(inputXML);
+		
+		String outputXML = sterlingHTTPConnector.run();
+		logger.debug("[getOrderDetails outputXML]"+outputXML);
+		
+		
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		
+		return doc;
+	}
 	
 }

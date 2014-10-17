@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Shipment Action="Cancel" BackOrderRemovedQuantity="N"
+    EnterpriseCode="{0}" IgnoreOrdering="Y" 
+    OverrideModificationRules="Y"
+    SCAC="" 
+    SellerOrganizationCode="{1}" 
+    ShipNode="{2}" 
+    ShipmentNo="{3}"/>

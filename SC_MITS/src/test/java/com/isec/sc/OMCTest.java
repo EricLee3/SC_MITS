@@ -95,6 +95,31 @@ public class OMCTest {
 	private String redis_port;
 	
 	
+	@Test
+	public void testDelListData() throws Exception{
+		
+		
+		String cancelReqKey = "KOLOR:ASPB:order:cancel";
+		
+		List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
+		for( int i=0; i<cancelReqRedisList.size(); i++){
+			
+			String jsonData = cancelReqRedisList.get(i);
+			
+			System.out.println("[jsonData]"+ jsonData);
+			HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+			
+			String cancelOrderNo = cancelReqMap.get("orderNo");
+			
+			if("Y100000380".equals(cancelOrderNo)){
+				System.out.println("[cancelOrderNo]"+cancelOrderNo);
+				listOps.remove(cancelReqKey, i, jsonData);
+				break;
+			}
+		}
+		
+	}
+	
 	
 	@Test
 	public void testListToSet(){
