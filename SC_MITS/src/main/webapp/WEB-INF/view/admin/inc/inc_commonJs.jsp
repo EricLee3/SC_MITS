@@ -32,6 +32,23 @@
 		
 		Custom.init();
 		
+		$.extend({
+		  getUrlVars: function(){
+		    var vars = [], hash;
+		    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		    for(var i = 0; i < hashes.length; i++)
+		    {
+		      hash = hashes[i].split('=');
+		      vars.push(hash[0]);
+		      vars[hash[0]] = hash[1];
+		    }
+		    return vars;
+		  },
+		  getUrlVar: function(name){
+		    return $.getUrlVars()[name];
+		  }
+		});
+		
 		
 		/* 
 		$('.page-sidebar .ajaxify.start').click() // load the content for the dashboard page.
@@ -55,5 +72,34 @@
    			
    		    $.address.value($(this).attr('href'));  
    		}); */
+   		
+   		
+   		// left menu 처리
+   		var currLoc = window.location.pathname;
+   		
+   		if(currLoc == "/" || currLoc == "/index.do"){
+   			$('#menu_home').addClass("active open");
+   		}else{
+   			
+   			var submenu_idx = $.getUrlVar("mn");
+			if( submenu_idx == undefined){
+				submenu_idx = 0;
+			}
+   			
+   			// 오더메뉴
+   			if(currLoc.indexOf("/orders/") > -1){
+   				
+   				$('#menu_order').addClass("active open");
+   		   		$('#menu_order .sub-menu li').eq(submenu_idx).addClass("active");
+   			
+   		   		// 
+   			}if(currLoc.indexOf("/system/") > -1){
+   				$('#menu_system').addClass("active open");
+   		   		$('#menu_system .sub-menu li').eq(submenu_idx).addClass("active");
+   			}
+   		}
+   		
+   		
+   		
 	});
 </script>

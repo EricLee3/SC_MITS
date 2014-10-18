@@ -10,11 +10,22 @@
 		<div class="page-sidebar navbar-collapse collapse">
 			<!-- BEGIN SIDEBAR MENU1 -->
 			<ul class="page-sidebar-menu" data-slide-speed="200" data-auto-scroll="true" data-auto-scroll="true" data-slide-speed="200">
+				<li class="sidebar-toggler-wrapper">
+				    <!--
+				     BEGIN SIDEBAR TOGGLER BUTTON 
+				    -->
+				    <div class="sidebar-toggler">
+				    </div>
+				    <!--
+				     END SIDEBAR TOGGLER BUTTON 
+				    -->
+				</li>
+				<li>&nbsp;</li>
 				<!-- DOC: To remove the search box from the sidebar you just need to completely remove the below "sidebar-search-wrapper" LI element -->
-				<li class="sidebar-search-wrapper">
-					<!-- BEGIN RESPONSIVE QUICK SEARCH FORM -->
-					<!-- DOC: Apply "sidebar-search-bordered" class the below search form to have bordered search box -->
-					<!-- DOC: Apply "sidebar-search-bordered sidebar-search-solid" class the below search form to have bordered & solid search box -->
+				<!-- <li class="sidebar-search-wrapper">
+					BEGIN RESPONSIVE QUICK SEARCH FORM
+					DOC: Apply "sidebar-search-bordered" class the below search form to have bordered search box
+					DOC: Apply "sidebar-search-bordered sidebar-search-solid" class the below search form to have bordered & solid search box
 					<form class="sidebar-search sidebar-search-bordered" action="extra_search.html" method="POST">
 						<a href="javascript:;" class="remove">
 						<i class="icon-close"></i>
@@ -26,11 +37,11 @@
 							</span>
 						</div>
 					</form>
-					<!-- END RESPONSIVE QUICK SEARCH FORM -->
-				</li>
+					END RESPONSIVE QUICK SEARCH FORM
+				</li> -->
 				
 				<!-- Menu DashBoard -->
-				<li class="start active opne">
+				<li class="start" id="menu_home">
 					<a href="/index.do">
 					<i class="icon-home"></i>
 					<span class="title">
@@ -41,7 +52,7 @@
 				</li>
 				
 				<!-- Menu Order Management -->
-				<li>
+				<li id="menu_order">
 					<a href="javascript:;">
 					<i class="icon-basket"></i>
 					<span class="title">
@@ -51,28 +62,33 @@
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a href="/orders/order_list.do">
-							<i class="icon-basket"></i>
-							오더 조회</a>
+							<a href="/orders/order_list.do?action=true&status=A&mn=0">
+							<i class="fa fa-list"></i>
+							전체오더 조회</a>
 						</li>
 						<li>
-							<a href="/admin/orders/order_list.html?param1=aaa">
-							<i class="icon-plane"></i>
+							<a href="/orders/order_list.do?action=true&status=3700&mn=1">
+							<i class="fa fa-truck"></i>
 							출고완료 목록</a>
 						</li>
 						<li>
-							<a href="/admin/orders/order_list.html?param1=aaa">
-							<i class="icon-action-undo"></i>
-							재고부족 목록</a>
+							<a href="/orders/order_list.do?action=true&status=1300&mn=2">
+							<i class="fa fa-ban"></i>
+							출고의뢰대기 목록</a>
 						</li>
 						<li>
-							<a href="/admin/orders/order_list.html?param1=aaa">
-							<i class="icon-action-undo"></i>
+							<a href="/orders/order_list.do?action=true&status=9002&mn=3">
+							<i class="fa fa-undo"></i>
+							주문취소요청 목록</a>
+						</li>
+						<li>
+							<a href="/orders/order_list.do?action=true&status=9000&mn=4">
+							<i class="fa fa-times-circle"></i>
 							주문취소 목록</a>
 						</li>
 					</ul>
 				</li>
-				<li class="last">
+				<!-- <li class="last">
 					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
@@ -92,8 +108,8 @@
 							반품오더 조회 </a>
 						</li>
 					</ul>
-				</li>
-				<li class="last">
+				</li> -->
+				<li class="last" id="menu_system">
 					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
@@ -105,7 +121,8 @@
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a href="/system/getRedisDataList.do">
+							<a href="/system/getRedisDataList.do?mn=0">
+							<i class="fa fa-desktop"></i>
 							연동데이타 모니터링 </a>
 						</li>
 					</ul>

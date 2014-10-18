@@ -287,87 +287,36 @@ License: You must have a valid license purchased only from themeforest(the above
 												<a href="javascript:;" class="collapse">
 												</a>
 											</div>
-											<div class="actions" id="order_chage_btn">
-											
-												<a class="btn btn-primary btn-sm blue-stripe" href="javascript:;" id="tool_release">
-												주문확정 재처리
-												</a>
-											
-												<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order" id="tool_cancel">
-												주문취소
-												</a>
-											</div>
 										</div>
 										<div class="portlet-body">
 											<div class="row static-info">
-												<div class="col-md-3 name">
+												<div class="col-md-5 name">
 													 오더번호 #:
 												</div>
-												<div class="col-md-9 value">
+												<div class="col-md-7 value">
 													 ${baseInfo.orderNo}  <!-- <span class="label label-info label-sm">
 													Email confirmation was sent </span> -->
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-3 name">
+												<div class="col-md-5 name">
 													 오더생성일자:
 												</div>
-												<div class="col-md-9 value" id="order_date">
+												<div class="col-md-7 value" id="order_date">
 													 
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-3 name">
+												<div class="col-md-5 name">
 													 관리조직/판매채널 :
 												</div>
-												<div class="col-md-9 value">
+												<div class="col-md-7 value">
 													${baseInfo.entCode} / ${baseInfo.sellerCode}
 												</div>
 											</div>
 											<div class="row static-info">
-												<div class="col-md-3 name">
-													 주문상태:
-												</div>
-												<div class="col-md-9 value" id="order_status">
-												 	<span class="label label-default">
-													주문접수 
-													</span>&nbsp;<i class="fa fa-arrow-right"></i>
-													<span class="label label-default">
-													출고의뢰 
-													</span>&nbsp;<i class="fa fa-arrow-right"></i>
-													<span class="label label-default">
-													출고준비 
-													</span>&nbsp;<i class="fa fa-arrow-right"></i>
-													<span class="label label-default">
-													출고완료 
-													</span>
-													&nbsp;&nbsp;
-												</div>
-											</div>
-											<div class="row static-info">
-												<div class="col-md-3 ">&nbsp;</div>
-												<div class="col-md-9 " id="order_status_detail">&nbsp;</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6 col-sm-12">
-									<div class="portlet blue-hoki box">
-										<div class="portlet-title">
-											<div class="caption">
-												<i class="fa fa-cogs"></i>Customer Information
-											</div>
-											<div class="tools">
-												<a href="javascript:;" class="collapse">
-												</a>
-											</div>
-											<div class="actions">
-											</div>
-										</div>
-										<div class="portlet-body">
-											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Customer Name:
+													 주문자명:
 												</div>
 												<div class="col-md-7 value">
 													 ${custInfo.custName}
@@ -375,7 +324,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Phone Number:
+													 연락처:
 												</div>
 												<div class="col-md-7 value">
 													 ${custInfo.custPhone}
@@ -391,25 +340,62 @@ License: You must have a valid license purchased only from themeforest(the above
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Payment Information:
+													 결제수단:
 												</div>
 												<div class="col-md-7 value">
 													 ${baseInfo.paymentType }
 												</div>
 											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6 col-sm-12">
+									<div class="portlet blue-hoki box">
+										<div class="portlet-title">
+											<div class="caption">
+												<i class="fa fa-cogs"></i>Order Status Information
+											</div>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
+												</a>
+											</div>
+											<div class="actions" id="order_chage_btn">
+											
+												<a class="btn btn-primary btn-sm blue-stripe" href="javascript:;" id="tool_release">
+												주문확정 재처리
+												</a>
+											
+												<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order" id="tool_cancel">
+												주문취소
+												</a>
+											</div>
+										</div>
+										<div class="portlet-body">
+											
 											<div class="row static-info">
-												<div class="col-md-5 name">
-													 Total Amount:
-												</div>
-												<div class="col-md-7 value">
-													${baseInfo.currency}&nbsp;&nbsp;${baseInfo.totalAmount}
+												<div class="col-md-12 value text-center" id="order_status">
+												 	<h4>
+												 	<span class="label label-default">
+													주문접수 
+													</span>&nbsp;<i class="fa fa-arrow-right"></i>
+													<span class="label label-default">
+													출고의뢰 
+													</span>&nbsp;<i class="fa fa-arrow-right"></i>
+													<span class="label label-default">
+													출고준비 
+													</span>&nbsp;<i class="fa fa-arrow-right"></i>
+													<span class="label label-default">
+													출고완료 
+													</span>
+													&nbsp;&nbsp;&nbsp;&nbsp;
+													</h4>
 												</div>
 											</div>
-											<div class="row static-info">
+											<!-- <div class="row static-info">
 												<div class="col-md-12">&nbsp;</div>
-											</div>
+											</div> -->
 											<div class="row static-info">
-												<div class="col-md-12">&nbsp;</div>
+												<div class="col-md-12 " id="order_status_detail"></div>
 											</div>
 										</div>
 									</div>
@@ -1226,30 +1212,55 @@ License: You must have a valid license purchased only from themeforest(the above
         
         var statusDetailText = "";
         
+        
+        //------------- 정상상태
         // 주문접수
         if(minStatus == '1100' && maxStatus == '1100'){
-	    		$('#order_status span:eq(0)').removeClass("label-default").addClass("label-success");
-	    		statusDetailText = '<strong>[주문접수]</strong> - Front에서 결재완료된 주문이 정상 접수된 상태.';
-	    		statusDetailText += '<p class="text-danger"> - 주문취소 가능<br>';
+	    		$('#order_status span:eq(0)').removeClass("label-default").addClass("label-"+statusClassName);
 	    		
-			// 주문확정 숨김
+	    		
+	    		statusDetailText = '<strong>[주문접수]</strong> - Front에서 결재완료된 주문이 정상 접수된 상태.';
+	    		statusDetailText += '<p class="text-danger"> - 즉시 취소가능<br>';
+	    		
+	    		var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    		statusDetailText = '<h5>'+status_label+' - Front에서 결재완료된 주문이 정상 접수된 상태.</h4>';
+	    		statusDetailText += '<p class="text-danger">';
+	    		statusDetailText += ' - 지정된 시간에 자동으로 재고확인 및 창고결정 후 Cube로 출고의뢰됨<br>';
+	    		statusDetailText += ' - 즉시 주문취소가능';
+	    		statusDetailText += '</p>';
+	    		
+	    		
+			// 주문확정, 주문취소, 부분주문취소 숨김
 			$("#tool_release").hide();
+			$("#tool_cancel").hide();
+			$("#tool_line_cancel").hide();
 	    }
         // 출고의뢰
         if(minStatus == '3200' && maxStatus == '3200'){
         	
         		$('#order_status span:eq(1)').removeClass("label-default").addClass("label-"+statusClassName);
-			statusDetailText = '<strong>[출고의뢰]</strong> - 재고확인 및 출하창고가 결정되고 Cube로 출고의뢰가 된 상태';
-			statusDetailText += '<p class="text-danger"> - Cube 주문취소요청 가능</p>';
 			
+			var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    		statusDetailText = '<h5>'+status_label+' - 재고확인 및 출하창고가 결정되고 Cube로 출고의뢰가 된 상태</h4>';
+	    		statusDetailText += '<p class="text-danger">';
+	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능';
+	    		statusDetailText += '</p>';
+			
+	    		// TODO: 품절취소로 인한 3200상태일 경우 화면표시 및 주문확정 재처리 필요
+			
+			// 주문취소요청으로 버튼명 변경
 			$("#tool_cancel").text("주문취소 요청");
         }
         // 출고준비
         if(minStatus == '3350' && maxStatus == '3350'){
         	
 	    		$('#order_status span:eq(2)').removeClass("label-default").addClass("label-"+statusClassName);
-	    		statusDetailText = '<strong>[출고준비]</strong> - Cube로 출고의뢰가 정상적으로 처리된 상태';
-	    		statusDetailText += '<p class="text-danger"> - Cube 주문취소요청 가능';
+	    		
+			var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    		statusDetailText = '<h5>'+status_label+' - Cube로 출고의뢰가 정상적으로 처리된 상태</h4>';
+	    		statusDetailText += '<p class="text-danger">';
+	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능';
+	    		statusDetailText += '</p>';
 	    		
 	    		// 주문확정 버튼 숨김, 주문취소요청으로 버튼명 변경
 	    		$("#tool_release").hide();
@@ -1261,35 +1272,55 @@ License: You must have a valid license purchased only from themeforest(the above
         if(minStatus == '3700' && maxStatus == '3700'){
         	
 	    		$('#order_status span:eq(3)').removeClass("label-default").addClass("label-"+statusClassName);
-	    		statusDetailText = '<strong>[출고완료]</strong> - 출고가 확정되고 주문상품이 출하된 상태';
-	    		statusDetailText += '<p class="text-danger"> - 주문취소 불가';
+	    		
+	    		var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    		statusDetailText = '<h5>'+status_label+' - 주문상품이 출고된 상태</h4>';
+	    		statusDetailText += '<p class="text-danger">';
+	    		statusDetailText += ' - 주문취소 불가';
+	    		statusDetailText += '</p>';
+	    		
+	    		
 	    		
 	    		// 주문확정, 주문취소 버튼 숨김
 	    		$("#tool_release").hide();
 	    		$("#tool_cancel").hide();
 	    		$("#tool_line_cancel").hide();
 	    		
-	    		// TODO: 송장번호, 택배사정보 표시 필요
 	    }
         
+        //------------------ 예외상태
         // 부분확정 or 재고부족
         if(minStatus == '1300' || ( maxStatus == '3200' && minStatus != maxStatus)){
-        		$('#order_status span:eq(0)').removeClass("label-default").addClass("label-success");
-        		var detail_label1 = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
-	    		
-	    		statusDetailText = detail_label1 + ' - 특정상품의 재고가 부족해서 정상 주문확정이 안된 상태 ';
-	    		statusDetailText += '<p class="text-danger"> - Cube의 재고상태 확인 후 주문확정 재처리 또는 고객 아웃바운드 필요<br>';
-	    		statusDetailText += ' - 부분취소 처리 후 반드시 [주문확정 재처리] 버튼 클릭해야 출고의뢰 처리됨.</p>';
         		
-        		// 주문확정 재처리
+        		// 주문접수 상태 표시
+    			$('#order_status span:eq(0)').removeClass("label-default").addClass("label-warning");
+        		
+        		// 부분재고부족 또는 재고부적 표시
+    			$('#order_status span:eq(0)').next().after($('<span class="label label-'+statusClassName+'">${baseInfo.orderStatus}</span>&nbsp;<i class="fa fa-arrow-right"></i>'));
+        		
+        		var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+        		
+	    		statusDetailText += '<h5>'+status_label+' - 주문확정 처리중 특정 또는 모든상품의 재고가 부족해서 Cube로 [출고의뢰]가 안된 상태</h5>';
+	    		statusDetailText += '<p class="text-danger">';
+	    		statusDetailText += ' - Cube에서 해당상품의 재고가 확보된 경우 <a class="btn btn-primary btn-xs blue-stripe">주문확정 재처리</a> 클릭시 출고의뢰 처리뙴.<br>';
+	    		statusDetailText += ' - 재고확보에 시간이 많이 소요되는 경우 고객아웃바운드 후 해당상품만 <a class="btn red btn-xs">부분주문취소</a> 처리후 출고의뢰 가능.<br>';
+	    		statusDetailText += ' - 부분취소 처리 후 반드시 [주문확정 재처리] 버튼 클릭해야 출고의뢰 처리됨.<br>';
+	    		statusDetailText += ' - 고객이 주문취소를 원할 경우 <a class="btn red btn-xs">주문취소</a> 클릭시 바로 주문취소 되고 Front로 환불요청됨';
+	    		statusDetailText += '</p>';
+	    		
+        		// 주문확정 재처리 버튼표시
         		$("#tool_release").text("주문확정 재처리");
         }
         
         // 주문취소
         if(minStatus == '9000' && minStatus == '9000'){
-        		var detail_label1 = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
-        		statusDetailText = detail_label1 + ' - 고객요청 또는 재고부족으로 인한 주문취소 상태';
 	    		
+        		var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    		statusDetailText = '<h5>'+status_label+' -고객요청 또는 재고부족으로 인한 주문취소 완료상태</h4>';
+	    		statusDetailText += '<p class="text-danger">';
+	    		statusDetailText += ' - 주문취소시 자동으로 Front로 환불요청되며 처리결과는 Front의 어드민에 확인 가능';
+	    		statusDetailText += '</p>';
+        		
 	    		// 주문확정, 주문취소 버튼 숨김
 	    		$("#tool_release").hide();
 	    		$("#tool_cancel").hide();
@@ -1298,7 +1329,6 @@ License: You must have a valid license purchased only from themeforest(the above
         else
         	{
         	
-        	
         		var cancelReqCode = "${cancelReqInfo.status_code}";
             var cancelReqText = "${cancelReqInfo.status_text}";
             console.debug(cancelReqCode);
@@ -1306,19 +1336,23 @@ License: You must have a valid license purchased only from themeforest(the above
             
             // 주문취소 요청상태
             if(cancelReqText != ""){
-            	
-    	        	statusDetailText = '<p class="text-danger"><strong>Cube로 부터 주문취소를 요청한 상태</strong><br><br>';
-    	    		statusDetailText += ' - 아직 Cube로 부터 \'주문취소결과\'가 전송되지 않은 상태<br>';
-    	    		statusDetailText += ' - 최대 1시간이내에 취소처리상태 확인 가능<br>';
-    	    		statusDetailText += ' - 취소요청이 정상처리되면 주문의 상태는 [주문취소]로 변경되고, Front로 환불요청됨(환불처리결과는 Front Admin에서 확인가능)</p>';
-            	
             		
-    	        	// 주문확정, 주문취소 버튼 숨김
-    	    		$("#tool_release").hide();
-    	    		$("#tool_cancel").hide();
-    	    		$("#tool_line_cancel").hide();
-        		
+            		// 현재 주문상태에서 주문취소요청 상태표시
             		$('<span class="label label-danger cancel-req">'+cancelReqText+'</span>').appendTo("#order_status");
+            		
+    	    			statusDetailText = '<h5>[주문취소요청중] - Cube로 부터 주문취소를 요청한 상태</h4>';
+    	    			statusDetailText += '<p class="text-danger">';
+	    	    		statusDetailText += ' - 최대 1시간이내에 취소처리결과 확인 가능<br>';
+	    	    		statusDetailText += ' - Cube 주문취소요청이 정상처리되면 자동으로 \'주문취소\'및 Front로 환불요청됨<br>';
+	    	    		statusDetailText += ' - 환불처리결과는 Front Admin에서 확인가능';
+	    	    		statusDetailText += '</p>';
+	            		
+	    	        	// 주문확정, 주문취소 버튼 숨김
+	    	    		$("#tool_release").hide();
+	    	    		$("#tool_cancel").hide();
+	    	    		$("#tool_line_cancel").hide();
+        		
+            		
             }
             
             var cancelResCode = "${cancelResultInfo.status_code}"; // 02,09,90
@@ -1327,35 +1361,66 @@ License: You must have a valid license purchased only from themeforest(the above
             console.debug(cancelResText);
             
             
-         	// 주문취소 요청 결과
+         	// 주문취소 요청 결과 - 01(취소성공)인 경우 표시되지 않음
             if(cancelResText != ""){
             		
+            	
+            		// 현재 주문상태에서 주문취소요청 상태표시
+            		/*
+				 *   01 - 성공
+					 02 - 기처리
+					 09 - 실패 또는 처리대상건 없음
+					 90 - 출고확정건
+				 */
+            		$('<span class="label label-danger">'+cancelResText+'</span>').appendTo("#order_status");
+            	
+            		
             		if(cancelResCode == '02'){
-            		 	statusDetailText = '<p class="text-danger"><strong>중복요청건</strong> - Cube에서 이미 주문취소가 처리된 건.<br><br>';
-        	    			statusDetailText += ' - 주문상태를 다시 확인하거나, 주문상태가 [주문취소]가 아닐 경우 시스템담당자에게 문의할것.</p>';
+            		 	
+            			statusDetailText = '<h5>[중복요청건] - - Cube에서 이미 주문취소가 처리된 건</h4>';
+    	    				statusDetailText += '<p class="text-danger">';
+        	    			statusDetailText += ' - 새로고침으로 주문상태를 다시 확인, 주문상태가 [주문취소]가 아닐 경우 시스템 담당자에게 문의할것.';
+        	    			statusDetailText += '</p>';
+        	    			
+        	    			// 주문취소요청 버튼 숨김
+        	    			$("#tool_cancel").hide();
             		}
             		
-            		if(cancelResCode == '90'){
+            		else if(cancelResCode == '09'){
+            			
+            			statusDetailText = '<h5>[취소처리실패] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</h4>';
+	    				statusDetailText += '<p class="text-danger">';
+	    				statusDetailText += ' - 취소대상건이 없는 상태인 경우, 주문상태가 [출고준비]상태인지 확인 후 재시도<br>';
+	    				statusDetailText += ' - 실패인 경우 시스템 담당자에게 문의할것.';
+    	    				statusDetailText += '</p>';
+    	    				
+    	    				// 주문취소 요청으로 버튼명 변경
+    	    				$("#tool_cancel").text("주문취소 요청");
+            		}
+            		
+            		else if(cancelResCode == '90'){
+            			
+            			statusDetailText = '<h5>[출고확정건] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</h4>';
+	    				statusDetailText += '<p class="text-danger">';
+	    				
             		 	statusDetailText = '<p class="text-danger"><strong>주문취소불가</strong> - Cube에서 이미 출고확정 처리된 건.<br><br>';
         	    			statusDetailText += ' - 해당주문의 상태를 다시 확인한 후 주문상태가 [출고확정]이면 고객 아웃바운드 필요.<br>';
         	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태를 확인 후 일정시간 대기후 주문상태 재확인 필요.</p>';
+        	    			
+        	    			// 주문취소요청 버튼 숨김
+        	    			$("#tool_cancel").hide();
             		}
             	
             	
-    	        	// 주문확정, 주문취소 버튼 숨김
-    	    		$("#tool_release").hide();
-    	    		$("#tool_cancel").hide();
-    	    		$("#tool_line_cancel").hide();
-        			
-    	    		$('#order_status span .cancel-req').remove();
-    	    		
-            		$('<span class="label label-danger">'+cancelResText+'</span>').appendTo("#order_status");
-            		
+	    	        	// 주문확정 재처리, 부분주문취소 버튼 숨김
+	    	    		$("#tool_release").hide();
+	    	    		$("#tool_line_cancel").hide();
+	        			
             }
         	
         	}
         
-        statusDetailText = '<div class="note note-danger">'+statusDetailText+'</div>';
+        statusDetailText = '<div class="note note-warning">'+statusDetailText+'</div>';
         $("#order_status_detail").html(statusDetailText);
         
         

@@ -1558,7 +1558,12 @@ public class OrderController {
 			
 		// 부분처리인 경우 SC상태명 그대로 사용
 		}else{
-			statusText[0]  = "부분 "+mappingText;
+			
+			if("1300".equals(minStatus) && "3200".equals(maxStatus)){
+				statusText[0]  = "부분 재고부족";
+			}else{
+				statusText[0]  = "부분 "+mappingText;
+			}
 			statusText[1] = "warning";
 		}
 		
