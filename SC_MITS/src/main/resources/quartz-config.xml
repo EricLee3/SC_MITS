@@ -35,7 +35,7 @@
 	    	<list>
 	    		<value>${key.ca.KOLOR.ASPB.order.release}</value>
 	    		<value>${key.ma.KOLOR.ASPB.orderUpdate.S2M}</value>
-	    		<value>${key.ma.KOLOR.ASPB.order.error}</value>
+	    		<value>${key.ma.KOLOR.ASPB.order.update.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -47,7 +47,7 @@
 	    	<list>
 	    		<value>${key.ca.KOLOR.ASPB.orderUpdate.C2S}</value>
 	    		<value>${key.ma.KOLOR.ASPB.orderUpdate.S2M}</value>
-	    		<value>${key.ma.KOLOR.ASPB.order.error}</value>
+	    		<value>${key.ma.KOLOR.ASPB.order.update.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -97,7 +97,7 @@
 	    	<list>
 	    		<value>${key.ca.DA.OUTRO.order.release}</value>
 	    		<value>${key.ma.DA.OUTRO.orderUpdate.S2M}</value>
-	    		<value>${key.ma.DA.OUTRO.order.error}</value>
+	    		<value>${key.ma.DA.OUTRO.order.update.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -108,7 +108,7 @@
 	    	<list>
 	    		<value>${key.ca.DA.OUTRO.orderUpdate.C2S}</value>
 	    		<value>${key.ma.DA.OUTRO.orderUpdate.S2M}</value>
-	    		<value>${key.ma.DA.OUTRO.order.error}</value>
+	    		<value>${key.ma.DA.OUTRO.order.update.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -145,7 +145,7 @@
 	    	<list>
 	    		<value>${key.ca.ISEC.JNS.order.release}</value>
 	    		<value>${key.ma.ISEC.JNS.orderUpdate.S2M}</value>
-	    		<value>${key.ma.ISEC.JNS.order.error}</value>
+	    		<value>${key.ma.ISEC.JNS.order.update.error}</value>
 	    	</list>
 	    </property>
 	</bean>
@@ -157,7 +157,7 @@
 	    	<list>
 	    		<value>${key.ca.ISEC.JNS.orderUpdate.C2S}</value>
 	    		<value>${key.ma.ISEC.JNS.orderUpdate.S2M}</value>
-	    		<value>${key.ma.ISEC.JNS.order.error}</value>
+	    		<value>${key.ma.ISEC.JNS.order.update.error}</value>
 	    	</list>
 	    </property>
 	</bean>

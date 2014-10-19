@@ -41,6 +41,7 @@ import scala.Array;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.FileContentReader;
+import com.isec.sc.intgr.api.util.RedisCommonService;
 
 
 
@@ -56,6 +57,7 @@ public class OrderProcessTask {
 	
 	@Autowired	private StringRedisTemplate maStringRedisTemplate;
 	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
+	@Autowired  private RedisCommonService redisService;
 	@Autowired	private Environment env;
 
 	@Resource(name="maStringRedisTemplate")
@@ -110,11 +112,17 @@ public class OrderProcessTask {
 	    	long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
 		
+		String orderInputXml = "";
+		
 		try{
 			for(int i=0; i<dataCnt; i++){
 				
 				// Get Input XML from Redis
-				String orderInputXml = listOps.rightPop(redisKey);
+				orderInputXml = listOps.rightPop(redisKey);
+				if(orderInputXml == null || "".equals(orderInputXml)){
+					continue;
+				}
+				
 				logger.debug("[Create Order input XML]"+ orderInputXml);
 				
 				// SC API 호출
@@ -122,7 +130,10 @@ public class OrderProcessTask {
 				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 				
 				if("Errors".equals(doc.getFirstChild().getNodeName())){
-					// TODO: createOrder API호출 자동화 예외처리
+					
+					logger.debug("[Error Message]"+outputXML);
+					// TODO: 오더생성 실패시 시스템관리자 메일발송
+					listOps.leftPush(redisErrKey, orderInputXml);
 				}
 				
 			}
@@ -131,6 +142,8 @@ public class OrderProcessTask {
 			logger.debug("##### Create Order Task Exeption Occured");
 			e.printStackTrace();
 			
+			// TODO: 오더생성 실패시 시스템관리자 메일발송
+			listOps.leftPush(redisErrKey, orderInputXml);
 		}
 		
 		logger.debug("##### [createOrder] Job Task End!!!");
@@ -156,11 +169,21 @@ public class OrderProcessTask {
 		long dataCnt =  listOps.size(redisKey);
 		logger.debug("["+redisKey+"] data length: "+dataCnt);
     		
+		// Set Input XML
+		String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
+		String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
+		MessageFormat msg = new MessageFormat(scheduleOrderXML);
+		
+		String apiName = "scheduleOrder";
 		
 		for(int i=0; i<dataCnt; i++){
 			
 			String keyData = listOps.rightPop(redisKey);
 			logger.debug("[keyData]"+ keyData);
+			
+			String docType = "";
+			String entCode = "";
+			String orderId = "";
 			
 			try
 			{
@@ -168,36 +191,32 @@ public class OrderProcessTask {
 				ObjectMapper mapper = new ObjectMapper();
 				HashMap<String, Object> dataMap = mapper.readValue(keyData, new TypeReference<HashMap<String,Object>>(){});
 				
-				String docType = (String)dataMap.get("docType");
-				String entCode = (String)dataMap.get("entCode");
-				String orderId = (String)dataMap.get("orderId");
+				docType = (String)dataMap.get("docType");
+				entCode = (String)dataMap.get("entCode");
+				orderId = (String)dataMap.get("orderId");
+				
 				logger.debug("[docType]" + docType);
 				logger.debug("[entCode]" + entCode);
 				logger.debug("[orderId]" + orderId);
 				
-		    		
-				// Set Input XML
-				String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
-				String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
-				
-				MessageFormat msg = new MessageFormat(scheduleOrderXML);
 				String inputXML = msg.format(new String[] {docType, entCode, orderId, scheduleNrelease} );
-				logger.debug("##### [inputXML]"+inputXML); 
-		
+				logger.debug("##### [scheduleOrder inputXML]"+inputXML); 
 			
 				// API Call
-				String outputMsg = sterlingApiDelegate.comApiCall("scheduleOrder", inputXML);
+				String outputMsg = sterlingApiDelegate.comApiCall(apiName, inputXML);
 				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
 				
 				if("Errors".equals(doc.getFirstChild().getNodeName())){
-					// TODO: Release API호출 자동화 예외처리
+					
+					logger.debug("[Error Message]"+outputMsg);
+					redisService.saveErrDataByOrderId(redisErrKey+":3200", orderId, keyData);
 				}
 			
 			}
 			catch(Exception e)
 			{
-				// TODO: Release API호출 자동화 예외처리
 				e.printStackTrace();
+				redisService.saveErrDataByOrderId(redisErrKey+":3200", orderId, keyData);
 				
 			}
 		
@@ -245,6 +264,9 @@ public class OrderProcessTask {
     				String status = (String)dataMap.get("status");
     				logger.debug("[status]"+status);
     				
+    				
+    				// 상태별 에러키 재지정
+    				redisErrKey = redisErrKey+":"+status;
     				
     				// Create Shipment
     				if("3202".equals(status)){
@@ -395,11 +417,15 @@ public class OrderProcessTask {
 			
 				// adjustInventory API 호출
 				String adjInv_output = sterlingApiDelegate.comApiCall("adjustInventory", invXML);
-				//Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(adjInv_output.getBytes("UTF-8")));
-				// TODO: adjustInventory 후처리
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(adjInv_output.getBytes("UTF-8")));
 				
-				
-				// TODO: MA와 해당상품의 재고 연동
+				if("Errors".equals(doc.getFirstChild().getNodeName())){
+					// 에러데이타 저장
+					redisService.saveErrDataByOrderId(redisErrKey, orderId, outputMsg);
+					// TODO: 에러발생 처리 - 시스템담당자 메일발송
+				}else{
+					// TODO: MA와 해당상품의 재고 연동
+				}
 				
 				
 			}
@@ -430,9 +456,9 @@ public class OrderProcessTask {
 					// TODO: Cube연동시 ShipmentNo에 전표번호 적용필요
 					int result = sterlingApiDelegate.createShipment(shipmentNo, releaseKeys.get(j));
 					if(result == 0){
-						// TODO: createShipment API호출 예외처리
-						// JSON 변환
-						listOps.leftPush(redisErrKey, outputMsg);
+						// 에러데이타 저장
+						redisService.saveErrDataByOrderId(redisErrKey, orderId, outputMsg);
+						// TODO: 에러발생 처리 - 시스템담당자 메일발송
 					}
 				}
 				
@@ -445,8 +471,7 @@ public class OrderProcessTask {
 				logger.debug("##### [processReleaseReturn] 출고의뢰 실패 Cube shortage occured!!!");
 				
 				// 에러키에 저장
-				// TODO: 출고의뢰 결과수신 예외처리 필요
-				listOps.leftPush(redisErrKey+":3202", outputMsg);
+				redisService.saveErrDataByOrderId(redisErrKey, orderId, outputMsg);
 			}
 		}
 		

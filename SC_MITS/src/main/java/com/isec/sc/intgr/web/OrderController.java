@@ -39,6 +39,7 @@ import org.w3c.dom.NodeList;
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
+import com.isec.sc.intgr.api.util.RedisCommonService;
 
 
 
@@ -49,7 +50,13 @@ public class OrderController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 	
 	
-	@Autowired	private StringRedisTemplate maStringRedisTemplate;
+	@Autowired private StringRedisTemplate maStringRedisTemplate;
+	
+	@Autowired private SterlingApiDelegate sterlingApiDelegate;
+	@Autowired private RedisCommonService redisService;
+	
+	@Autowired private Environment env;
+	
 	
 	@Resource(name="maStringRedisTemplate")
 	private ListOperations<String, String> listOps;
@@ -58,8 +65,7 @@ public class OrderController {
 	private ValueOperations<String, String> valOps;
 	
 	
-	@Autowired	private SterlingApiDelegate sterlingApiDelegate;
-	@Autowired	private Environment env;
+	
 	
 	
 	
@@ -605,9 +611,11 @@ public class OrderController {
 			orderLineMap.put("uom", uom);
 			orderLineMap.put("pclass", pclass);
 			
-			// 상품의 현재고 조회(모든창고)
+			// 상품의 현재고/가용재고 조회(모든창고)
 			Double supplyQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, itemId, "", uom, "S");
+			Double availQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, itemId, "", uom, "A");
 			orderLineMap.put("supplyQty", supplyQty);
+			orderLineMap.put("availQty", availQty);
 			
 			
 			orderLineList.add(orderLineMap);
@@ -653,6 +661,9 @@ public class OrderController {
 		mav.addObject("lineInfoList", orderLineList);
 		
 		mav.addObject("noteList", noteList);
+		
+		// TODD: 품절취소 및 출고의뢰 실패여부 조회
+		
 		
 		// 취소요청정보 조회
 		String reqKey = entCode + ":" + sellerCode + ":order:cancel";
@@ -753,10 +764,21 @@ public class OrderController {
 		return mav;
 	}
 	
+	
+	
 	/**
-	 * Schedule Order - Release까지 같이 처리함.
+	 * 출고의뢰를 위한 출고확정처리 Schedule Order - Release까지 같이 처리함.
 	 * 
-	 * 
+	 *  1. 중복출고의뢰 방지를 위한 출고의뢰 여부 및 출고의뢰결과 여부 체크
+	 *    - rediskey 데이타 유무 확인: 조직코드:판매채널코드:order:update:S2C, C2S의 3200/3202 확인
+	 *    - 데이타 존재할 경우 리턴
+	 *    
+	 *  2. schedule & release 처리
+	 *    - scheduleOrder API 호출
+	 *    - api호출 성공시 ScOrderStatusHandler의 processReleaseAfter()가 후처리 수행
+	 *    - api호출 실패시 에러키에 저장: 조직코드:판매채널코드:order:update:error:3200
+	 *  
+	 *  
 	 * @param doc_type 오더유형
 	 * @param ent_code 관리조직코드
 	 * @param order_no 오더번호
@@ -781,6 +803,8 @@ public class OrderController {
 		String outputMsg =  "";
 		String succ = "Y";
 		
+		// Redis 에러키 - 주문확정
+		String errKey = ent_code+":"+sell_code+":order:update:error:3200";
 		
 		try
 		{
@@ -846,25 +870,26 @@ public class OrderController {
 			
 			// 주문확정 처리
 			String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
-			
 			String scheduleOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(SCHEDULE_ORDER_TEMPLATE));
 			
 			MessageFormat msg = new MessageFormat(scheduleOrderXML);
 			String inputXML = msg.format(new String[] {doc_type, ent_code, order_no, scheduleNrelease} );
 			logger.debug("##### [inputXML]"+inputXML); 
-			
-		
 		
 			// API Call
 			outputMsg = sterlingApiDelegate.comApiCall("scheduleOrder", inputXML);
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
 			
-			// TODD: Error 메세지 정규화 작업필요
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 				succ = "N";
-				mav.addObject("errorMsg", outputMsg);
+				mav.addObject("errorMsg", "주문확정이 실패하였습니다.잠시 후 다시 시도하시거나 계속 실패가 발생할 경우\n시스템 담당자에 문의하시기 바랍니다.");
+				
+				// 에러메세지 저장
+				redisService.saveErrDataByOrderId(errKey, order_no, outputMsg);
+				
+				
 			}else{
-				mav.addObject("outputMsg", "Schedule Transaction was processed Successfully.");
+				mav.addObject("outputMsg", "주문확정이 정상 처리되었습니다.\n주문상세화면을 새로고침하여 주문상태가 [출고의뢰]인지 확인하시기 바랍니다.");
 			}
 		
 		}
@@ -874,6 +899,10 @@ public class OrderController {
 			
 			succ = "N";
 			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			
+			
+			// 에러메세지 저장
+			redisService.saveErrDataByOrderId(errKey, order_no, e.getMessage());
 			
 		}
 		mav.addObject("success", succ);
@@ -980,6 +1009,10 @@ public class OrderController {
 		ModelAndView mav = new ModelAndView("jsonView");
 		String outputMsg =  "";
 		String succ = "Y";
+		
+		
+		// Redis 에러키 - 주문취소
+		String errKey = ent_code+":"+sell_code+":order:update:error:9000";
 		
 		// 주문취소 가능여부 재 확인 - 현 주문상태 조회, 3700이면 취소불가
 		
@@ -1108,7 +1141,7 @@ public class OrderController {
 				// Redis Send Data Set - 주문취소요청상태
 				String custFname = (String)xp.evaluate("@CustomerFirstName", orderEle, XPathConstants.STRING);
 				String custLname = (String)xp.evaluate("@CustomerLastName", orderEle, XPathConstants.STRING);
-				String custName = custFname + " " + custLname;
+				String custName = custFname+custLname;
 				String currency = (String)xp.evaluate("PriceInfo/@Currency", orderEle, XPathConstants.STRING);
 //				String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderEle, XPathConstants.STRING);
 				String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderEle, XPathConstants.STRING);	// Discount 포함
@@ -1217,13 +1250,15 @@ public class OrderController {
 		{
 			// API Call
 			outputMsg = sterlingApiDelegate.comApiCall(apiName, inputXML);
-			doc = null;
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
 			
-			// TODD: Error 메세지 정규화 작업필요
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 				succ = "N";
 				mav.addObject("errorMsg", outputMsg);
+				
+				// 에러데이타 저장
+				redisService.saveErrDataByOrderId(errKey, order_no, outputMsg);
+				
 			}else{
 				mav.addObject("outputMsg", "주문취소가 정상적으로 처리되었습니다.\nFront 실제 환불처리는 동기화 시점에 따라 다소 지연될 수 있습니다.");
 			}
@@ -1235,6 +1270,9 @@ public class OrderController {
 			
 			succ = "N";
 			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 시스템 관리자에게 문의하시기 바랍니다.");
+			
+			// 에러데이타 저장
+			redisService.saveErrDataByOrderId(errKey, order_no, outputMsg);
 			
 		}
 		mav.addObject("success", succ);
@@ -1254,6 +1292,7 @@ public class OrderController {
 		
 		logger.debug("[doc_type]" + paramMap.get("doc_type"));
 		logger.debug("[ent_code]" + paramMap.get("ent_code"));
+		logger.debug("[seller_code]" + paramMap.get("seller_code"));
 		logger.debug("[order_no]" + paramMap.get("order_no"));
 		
 		/*
@@ -1285,6 +1324,9 @@ public class OrderController {
 		logger.debug("[contact_ref]" + paramMap.get("contact_ref"));
 		logger.debug("[contact_note]" + paramMap.get("contact_note"));
 		
+		// Redis 에러키 - 주문변경
+		String errKey = paramMap.get("ent_code")+":"+paramMap.get("seller_code")+":order:udate:error:0000";
+		
 		
 		String addNoteXML = FileContentReader.readContent(getClass().getResourceAsStream(CHANGE_ORDER_ADD_NOTE_TEMPLATE));
 		
@@ -1310,10 +1352,13 @@ public class OrderController {
 			outputMsg = sterlingApiDelegate.comApiCall("changeOrder", inputXML);
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputMsg.getBytes("UTF-8")));
 			
-			// TODD: Error 메세지 정규화 작업필요
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 				succ = "N";
 				mav.addObject("errorMsg", outputMsg);
+				
+				// 에러데이타 저장
+				redisService.saveErrDataByOrderId(errKey, paramMap.get("order_no"), outputMsg);
+				
 			}else{
 				mav.addObject("outputMsg", "Cancel Order Transaction was processed Successfully.");
 			}
@@ -1325,6 +1370,9 @@ public class OrderController {
 			
 			succ = "N";
 			mav.addObject("errorMsg", "처리 중 예기치 못한 에러가 발생했습니다.\n 다시 시도하시거나 관리자에게 문의하시기 바랍니다.");
+			
+			// 에러데이타 저장
+			redisService.saveErrDataByOrderId(errKey, paramMap.get("order_no"), e.getMessage());
 			
 		}
 		mav.addObject("success", succ);
@@ -1367,7 +1415,7 @@ public class OrderController {
 		
 		
 		//에러리스트 조회
-		String errListKey = entCode + ":" + sellerCode + ":order:error";
+		String errListKey = entCode + ":" + sellerCode + ":order:update:error";
 		
 		Set<String> cnt_key_names= maStringRedisTemplate.keys(errListKey);
 		Iterator<String> itr = cnt_key_names.iterator();
@@ -1573,7 +1621,9 @@ public class OrderController {
 	
 	/**
 	 * 주문취소요청 및 결과정보 조회
-	 * @param key
+	 * 
+	 * 
+	 * @param key 조직코드:판매채널코드:order:cancel, 조직코드:판매채널코드:order:cancel:result
 	 * @param entCode
 	 * @param sellerCode
 	 * @param orderNo

@@ -1402,10 +1402,9 @@ License: You must have a valid license purchased only from themeforest(the above
             			
             			statusDetailText = '<h5>[출고확정건] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</h4>';
 	    				statusDetailText += '<p class="text-danger">';
-	    				
-            		 	statusDetailText = '<p class="text-danger"><strong>주문취소불가</strong> - Cube에서 이미 출고확정 처리된 건.<br><br>';
         	    			statusDetailText += ' - 해당주문의 상태를 다시 확인한 후 주문상태가 [출고확정]이면 고객 아웃바운드 필요.<br>';
-        	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태를 확인 후 일정시간 대기후 주문상태 재확인 필요.</p>';
+        	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태를 확인 후 일정시간 대기후 주문상태 재확인 필요.';
+        	    			statusDetailText += '</p>';
         	    			
         	    			// 주문취소요청 버튼 숨김
         	    			$("#tool_cancel").hide();
