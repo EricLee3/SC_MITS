@@ -543,13 +543,16 @@ License: You must have a valid license purchased only from themeforest(the above
 														 상품코드
 													</th>
 													<th>
-														 재고수량
-													</th>
-													<th>
 														 상품명
 													</th>
 													<th>
 														 주문상태
+													</th>
+													<th>
+														 현재고/가용재고
+													</th>
+													<th>
+														 출하창고
 													</th>
 													<th>
 														 주문수량
@@ -557,15 +560,12 @@ License: You must have a valid license purchased only from themeforest(the above
 													<th>
 														 개별판매가격
 													</th>
-													<!-- <th>
-														 ShipNode
-													</th> -->
 													<th>
 														 비용(배송비)
 													</th>
-													<th>
+													<!-- <th>
 														 과세
-													</th>
+													</th> -->
 													<th>
 														 할인금액
 													</th>
@@ -592,15 +592,22 @@ License: You must have a valid license purchased only from themeforest(the above
 														${line.itemId}</a>
 														<!-- <span class="label label-sm label-info">Details</span> -->
 													</td>
-													<td class="text-right">
-														${line.supplyQty}</a>
-													</td>
 													<td>
 														 ${line.itemdShortDesc}
 													</td>
 													<td>
 														<span class="label label-sm label-${line.status_class}">
 														${line.status}</span>
+														<c:if test="${ (shortedYN == 'Y') && (shortedItemId == line.itemId)}">
+														&nbsp;<span class="label label-sm label-danger">
+														품절취소</span>
+														</c:if>
+													</td>
+													<td class="text-right">
+														${line.supplyQty} / ${line.availQty}</a>
+													</td>
+													<td>
+														 ${line.shipNode}
 													</td>
 													<td class="text-right">
 														 ${line.qty}
@@ -608,15 +615,12 @@ License: You must have a valid license purchased only from themeforest(the above
 													<td class="text-right">
 														 ${line.UnitPrice}
 													</td>
-													<%-- <td>
-														 ${line.shipNode}
-													</td> --%>
 													<td  class="text-right">
 														 ${line.lineShipCharge}
 													</td>
-													<td  class="text-right">
+													<%-- <td  class="text-right">
 														 ${line.lineTax}
-													</td>
+													</td> --%>
 													<td class="text-right">
 														 ${line.lineDisount}
 													</td>
@@ -1231,25 +1235,64 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		
 	    		
 			// 주문확정, 주문취소, 부분주문취소 숨김
-			$("#tool_release").hide();
-			$("#tool_cancel").hide();
-			$("#tool_line_cancel").hide();
+			// $("#tool_release").hide();
+			// $("#tool_cancel").hide();
+			// $("#tool_line_cancel").hide();
 	    }
         // 출고의뢰
         if(minStatus == '3200' && maxStatus == '3200'){
         	
         		$('#order_status span:eq(1)').removeClass("label-default").addClass("label-"+statusClassName);
 			
-			var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
-	    		statusDetailText = '<h5>'+status_label+' - 재고확인 및 출하창고가 결정되고 Cube로 출고의뢰가 된 상태</h4>';
-	    		statusDetailText += '<p class="text-danger">';
-	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능';
-	    		statusDetailText += '</p>';
+        		var shortedYN = "${shortedYN}";
+        		var failedYN = "${failedYN}";
+        		
+        		// Cube 품절취소
+        		if(shortedYN == 'Y'){
+        			
+        			var status_label = '<span class="label label-sm label-danger">Cube품절취소 발생</span>';
+	    	    		statusDetailText = '<h5>'+status_label+' - Cube로 출고의뢰 했으나 상품의 재고가 부족하여 출고의뢰가 거부된 상태</h4>';
+	    	    		statusDetailText += '<p class="text-danger">';
+	    	    		statusDetailText += ' - Cube의 재고확인 후 재고가 다시 확보된 경우 출고의뢰 재시도 필요 <br>';
+	    	    		statusDetailText += ' - Cube의 재고확보가 빠른시간내 확인되지 않을 경우 고객아웃바운드 후 전체주문취소 처리필요<br>';
+	    	    		statusDetailText += ' - 품절취소가 발생한 상품은 오더라인 항목에서 확인 가능';
+	    	    		statusDetailText += '<br>';
+	    	    		statusDetailText += '</p>';
+    	    			
+	    	    		$("#tool_release").text("출고의뢰 재시도");
+        			
+        		// Cube 처리실패
+        		}else if(failedYN == 'Y'){
+        			
+        			var status_label = '<span class="label label-sm label-danger">출고의뢰 실패</span>';
+	    	    		statusDetailText = '<h5>'+status_label+' - Cube로 출고의뢰 했으나 Cube에서 출고의뢰 처리도중 실패한 상태.</h4>';
+	    	    		statusDetailText += '<p class="text-danger">';
+	    	    		statusDetailText += ' - 출고의뢰 재시도 또는 계속 실패할 경우 Cube의 상태 확인 후 시스템 관리자에게 문의<br>';
+	    	    		statusDetailText += '<br>';
+	    	    		statusDetailText += '<br>';
+	    	    		statusDetailText += '<br>';
+	    	    		statusDetailText += '</p>';
+    	    		
+    	    		
+        			$("#tool_release").text("출고의뢰 재시도");
+        		
+        		// 정상출고의뢰
+        		}else{
+        			
+        			var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
+	    	    		statusDetailText = '<h5>'+status_label+' - 재고확인 및 출하창고가 결정되고 Cube로 출고의뢰가 된 상태</h4>';
+	    	    		statusDetailText += '<p class="text-danger">';
+	    	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능<br>';
+	    	    		statusDetailText += ' - 부분주문취소 처리후 [출고의뢰]상태인 경우에는 반드시 <a class="btn btn-primary btn-xs blue-stripe">주문확정 재처리</a>를 해야 Cube로 출고의뢰처리됨.<br>';
+	    	    		statusDetailText += '<br>';
+	    	    		statusDetailText += '<br>';
+	    	    		statusDetailText += '</p>';
+        			
+	    	    		// 주문취소요청으로 버튼명 변경
+	    			$("#tool_cancel").text("주문취소 요청");
+        		}
+        		
 			
-	    		// TODO: 품절취소로 인한 3200상태일 경우 화면표시 및 주문확정 재처리 필요
-			
-			// 주문취소요청으로 버튼명 변경
-			$("#tool_cancel").text("주문취소 요청");
         }
         // 출고준비
         if(minStatus == '3350' && maxStatus == '3350'){

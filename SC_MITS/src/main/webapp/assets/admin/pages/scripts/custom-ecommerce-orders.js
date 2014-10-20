@@ -33,10 +33,10 @@ var EcommerceOrders = function () {
             },
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
                 "lengthMenu": [
-                    [10, 20, 50, 100, 150, -1],
-                    [10, 20, 50, 100, 150, "All"] // change per page values here
+                    [15, 20, 50, 100, 150, -1],
+                    [15, 20, 50, 100, 150, "All"] // change per page values here
                 ],
-                "pageLength": 10, // default record count per page
+                "pageLength": 15, // default record count per page
                 "serverSide": true, 
                 "ajax": {
                     "url": "/orders/orderList.sc"  // ajax source
@@ -48,20 +48,23 @@ var EcommerceOrders = function () {
                 "columnDefs": [ 
                                {
                                    "render": function ( data, type, row ) {
-                                	   
-                                	   //console.debug(row);
-                                       return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>';
+                                	      if(row['cancelReq'] == 'Y'){
+                                	    	    var cacelLabel = '&nbsp;<span class="label label-sm label-danger">주문취소요청중</span>'
+                                	    	  	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>'+cacelLabel;
+                                	      }else{
+                                	    	  	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>';
+                                	      }
+                                       
                                    },
                                    "targets": 9  // Status Icon
                                },
                                {
-                            	   "render": function(data, type, row){
-                            		   
-                            		   return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe"><i class="fa fa-search"></i> View</a>';
-                            	   },
-                            	   "targets": 10	// View Button
+                            	   	  "render": function(data, type, row){
+                            	          return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe"><i class="fa fa-search"></i> View</a>';
+                            	      },
+                            	      "targets": 10	// View Button
                                },
-                               { "visible": false,  "targets": [] }
+                               { "visible": false,  "targets": [11] }  // cancelReq Hidden
                                
                            ],
                 "columns": [
@@ -80,7 +83,7 @@ var EcommerceOrders = function () {
 	                        },
                             { "data": "orderNo" },
                             { 
-                        	  "data": function render(data, type, row)
+                            		"data": function render(data, type, row)
 	                            	  {
 	                            		return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
 	                            	  }
@@ -96,7 +99,8 @@ var EcommerceOrders = function () {
                         					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
                       	  				}, "orderable":false },
                             { "data": "status_text", "orderable":false },
-                            { "data": null, "orderable":false }
+                            { "data": null, "orderable":false },
+                            { "data": "cancelReq", "orderable":false }
                         ],
                 "order": [
                           [2, "desc"]

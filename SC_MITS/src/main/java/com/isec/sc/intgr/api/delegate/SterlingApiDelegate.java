@@ -251,17 +251,29 @@ public class SterlingApiDelegate {
 			resultMap.put("succ", "99");
 			resultMap.put("input_xml", xmlData);
 			resultMap.put("err_desc", "SAXException - XML 형식 에러발생");
+			resultMap.put("uom", "");
+			resultMap.put("item_id", "");
+			resultMap.put("err_date", CommonUtil.cuurentDateFromFormat("yyyy-MM-dd HH:mm:ss"));
+			
 			e.printStackTrace();
 		} catch (IOException e) {
 			resultMap.put("succ", "99");
 			resultMap.put("input_xml", xmlData);
 			resultMap.put("err_desc", "IOException - 네트워크 에러발생");
+			resultMap.put("uom", "");
+			resultMap.put("item_id", "");
+			resultMap.put("err_date", CommonUtil.cuurentDateFromFormat("yyyy-MM-dd HH:mm:ss"));
+			
 			
 			e.printStackTrace();
 		} catch (ParserConfigurationException e) {
 			resultMap.put("succ", "99");
 			resultMap.put("input_xml", xmlData);
 			resultMap.put("err_desc", "ParserConfigurationException");
+			resultMap.put("uom", "");
+			resultMap.put("item_id", "");
+			resultMap.put("err_date", CommonUtil.cuurentDateFromFormat("yyyy-MM-dd HH:mm:ss"));
+			
 			e.printStackTrace();
 		}
 		
@@ -484,8 +496,10 @@ public class SterlingApiDelegate {
 			
 			XPath xp = XPathFactory.newInstance().newXPath();
 			Node releaseNode = (Node)xp.evaluate("/OrderReleaseList/OrderRelease", ele, XPathConstants.NODE);
+			if(releaseNode == null) return "";
 			
 			shipNode = (String)xp.evaluate("@ShipNode", releaseNode, XPathConstants.STRING);
+			if(shipNode == null) shipNode = "";
 		}
 			
 		return shipNode;

@@ -788,7 +788,7 @@ public class ScOrderStatusHandler {
 				
 				String jsonData = cancelReqRedisList.get(i);
 				
-				logger.debug("[jsonData]"+ jsonData);
+//				logger.debug("[jsonData]"+ jsonData);
 				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
 				
 				String cancelOrderNo = cancelReqMap.get("orderNo");
@@ -809,7 +809,7 @@ public class ScOrderStatusHandler {
 				
 				String jsonData = cancelResRedisList.get(i);
 				
-				logger.debug("[jsonData]"+ jsonData);
+//				logger.debug("[jsonData]"+ jsonData);
 				HashMap<String,String> cancelResMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
 				
 				String cancelOrderNo = cancelResMap.get("orderNo");

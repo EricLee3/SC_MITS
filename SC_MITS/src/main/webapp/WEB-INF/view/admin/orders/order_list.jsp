@@ -354,6 +354,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											<option value="3200">출고의뢰</option>
 											<option value="3350">출고준비</option>
 											<option value="3700">출고완료</option>											
+											<option value="9002">주문취소요청</option>											
 											<option value="9000">주문취소</option>
 										</select>
 									</td>

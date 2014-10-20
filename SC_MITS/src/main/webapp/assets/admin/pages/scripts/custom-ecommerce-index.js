@@ -619,7 +619,7 @@ var EcommerceIndex = function () {
 					  case 1: status = "1300"; break;
 					  case 2: status = "3350"; break;
 					  case 3: status = "3700"; break;
-					  case 4: status = "9000"; break;
+					  case 4: status = "9002"; break; // 주문취소요청
 				  }
 				 
 				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true');

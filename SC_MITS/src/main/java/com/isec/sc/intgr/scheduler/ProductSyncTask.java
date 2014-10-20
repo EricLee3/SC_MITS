@@ -175,7 +175,6 @@ public class ProductSyncTask {
 					HashMap<String, Object> resultMap = sterlingApiDelegate.manageItem(itemXML);
 					String succ = (String)resultMap.get("succ");
 					
-					
 					// 결과값처리
 					HashMap<String, Object> returnMap = new HashMap<String, Object>();
 					returnMap.put("org_code", org_code);
@@ -188,10 +187,14 @@ public class ProductSyncTask {
 						logger.debug("#####[manageItem Success]");
 						returnMap.put("statuscd", succ);
 						
+						succList.add(returnMap);
+						
 					// 실패	
 					}else if("99".equals(succ)){
 						logger.debug("#####[manageItem Api Failed]");
 						returnMap.put("statuscd", succ);
+						
+						failList.add(resultMap);
 					}
 					returnList.add(returnMap);
 					
@@ -207,16 +210,14 @@ public class ProductSyncTask {
 				logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnListMap));
 				
 				
-				// MA에 결과값 전송 - 받은데이타 그대로 전송
-				// TODO: 성공건에 대해서만 전송처리
-				listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(itemListMap));
-				logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(itemListMap));
+				// MA에 결과값 전송 - 성공데이타 전송
+				listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(new HashMap<String,Object>().put("list", succList)));
+				logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(new HashMap<String,Object>().put("list", succList)));
 				
 				
 				// Error키에 실패데이타 저장 - SC 관리용
-				// TODO: 실패건에 대해서만 barcode단위로 저장처리
-				listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(returnListMap));
-				logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(returnListMap));
+				listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(failList));
+				logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(failList));
 				
 				
 				
@@ -386,7 +387,7 @@ public class ProductSyncTask {
 					
 					HashMap<String, Object> resultMap = new HashMap<String, Object>();
 					resultMap.put("succ", "99");
-					resultMap.put("input_xml", adjInv_output);
+					resultMap.put("input_xml", invXML);
 					resultMap.put("err_desc", errDesc);
 					resultMap.put("org_code", orgCode);
 					resultMap.put("uom", uom);

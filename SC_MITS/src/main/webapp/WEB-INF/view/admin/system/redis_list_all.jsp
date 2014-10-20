@@ -163,6 +163,9 @@ License: You must have a valid license purchased only from themeforest(the above
 										 Key Name
 									</th>
 									<th>
+										 Name
+									</th>
+									<th>
 										 Data Length
 									</th>
 									<th>
@@ -171,26 +174,78 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								
-								<c:forEach items="${KOLOR.order_ma}" var="list">
-								    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
-								    
+							    <!-- 주문생성 -->
 							    <tr>
 									<td>
 									</td>
 									<td>
-										 ${list.name}
+										 ${KOLOR.create.name}
 									</td>
 									<td>
-										 ${list.size}
+										 ${KOLOR.create.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.create.list)}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
-									
 								</tr>
-								</c:forEach>
+								<!-- 주문확정 대상 -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.release.name}
+									</td>
+									<td>
+										 ${KOLOR.release.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.release.list)}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								
+								<!-- 주문상태 업데이트  -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_update_s2m.name}
+									</td>
+									<td>
+										 ${KOLOR.info_update_s2m.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_update_s2m.list)}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_update_m2s.name}
+									</td>
+									<td>
+										 ${KOLOR.info_update_m2s.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_update_m2s.list)}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
 								</tbody>
 								</table>
 							</div>
@@ -208,6 +263,9 @@ License: You must have a valid license purchased only from themeforest(the above
 										 Key Name
 									</th>
 									<th>
+										 Name
+									</th>
+									<th>
 										 Data Length
 									</th>
 									<th>
@@ -216,26 +274,41 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								
-								<c:forEach items="${KOLOR.order_ca}" var="list">
-								    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
-								    
-							    <tr>
+							    <!-- 주문상태 업데이트  -->
+								<tr>
 									<td>
 									</td>
 									<td>
-										 ${list.name}
+										 ${KOLOR.info_update_s2c.name}
 									</td>
 									<td>
-										 ${list.size}
+										 ${KOLOR.info_update_s2c.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_update_s2c.list)}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
-									
 								</tr>
-								</c:forEach>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_update_c2s.name}
+									</td>
+									<td>
+										 ${KOLOR.info_update_c2s.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_update_c2s.list)}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
 								</tbody>
 								</table>
 							</div>
@@ -256,6 +329,9 @@ License: You must have a valid license purchased only from themeforest(the above
 										 Key Name
 									</th>
 									<th>
+										 Name
+									</th>
+									<th>
 										 Data Length
 									</th>
 									<th>
@@ -264,26 +340,23 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								
-								<c:forEach items="${KOLOR.product_ma}" var="list">
-								    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
-								    
-							    <tr>
+								<tr>
 									<td>
 									</td>
 									<td>
-										 ${list.name}
+										 ${KOLOR.info_product_s2m.name}
 									</td>
 									<td>
-										 ${list.size}
+										 ${KOLOR.info_product_s2m.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_product_s2m.list)}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
-									
 								</tr>
-								</c:forEach>
 								</tbody>
 								</table>
 							</div>
@@ -301,6 +374,9 @@ License: You must have a valid license purchased only from themeforest(the above
 										 Key Name
 									</th>
 									<th>
+										 Name
+									</th>
+									<th>
 										 Data Length
 									</th>
 									<th>
@@ -309,26 +385,42 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								
-								<c:forEach items="${KOLOR.product_ca}" var="list">
-								    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
-								    
-							    <tr>
+								<!-- 상품연동  -->
+								<tr>
 									<td>
 									</td>
 									<td>
-										 ${list.name}
+										 ${KOLOR.info_product_c2s.name}
 									</td>
 									<td>
-										 ${list.size}
+										 ${KOLOR.info_product_c2s.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_product_c2s.list)}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
-									
 								</tr>
-								</c:forEach>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_product_s2c.name}
+									</td>
+									<td>
+										 ${KOLOR.info_product_s2c.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_product_s2c.list)}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								
 								</tbody>
 								</table>
 							</div>
@@ -349,6 +441,9 @@ License: You must have a valid license purchased only from themeforest(the above
 										 Key Name
 									</th>
 									<th>
+										 Name
+									</th>
+									<th>
 										 Data Length
 									</th>
 									<th>
@@ -357,26 +452,24 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								
-								<c:forEach items="${KOLOR.inventory_ma}" var="list">
-								    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
-								    
-							    <tr>
+								<!-- 재고연동  -->
+								<tr>
 									<td>
 									</td>
 									<td>
-										 ${list.name}
+										 ${KOLOR.info_inventory_s2m.name}
 									</td>
 									<td>
-										 ${list.size}
+										 ${KOLOR.info_inventory_s2m.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_inventory_c2s.list)}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
-									
 								</tr>
-								</c:forEach>
 								</tbody>
 								</table>
 							</div>
@@ -394,6 +487,9 @@ License: You must have a valid license purchased only from themeforest(the above
 										 Key Name
 									</th>
 									<th>
+										 Name
+									</th>
+									<th>
 										 Data Length
 									</th>
 									<th>
@@ -402,26 +498,41 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								
-								<c:forEach items="${KOLOR.inventory_ca}" var="list">
-								    <%-- Key = ${entry.key}, value = ${entry.value}<br> --%>
-								    
-							    <tr>
+								<!-- 재고연동  -->
+								<tr>
 									<td>
 									</td>
 									<td>
-										 ${list.name}
+										 ${KOLOR.info_inventory_c2s.name}
 									</td>
 									<td>
-										 ${list.size}
+										 ${KOLOR.info_inventory_c2s.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_inventory_c2s.list)}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
-									
 								</tr>
-								</c:forEach>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_inventory_s2c.name}
+									</td>
+									<td>
+										 ${KOLOR.info_inventory_s2c.desc}
+									</td>
+									<td class="text-right">
+										 ${fn:length(KOLOR.info_inventory_s2c.list)}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
 								</tbody>
 								</table>
 							</div>

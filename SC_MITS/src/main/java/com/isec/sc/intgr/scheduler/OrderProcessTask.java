@@ -256,6 +256,10 @@ public class OrderProcessTask {
     				String keyData = listOps.rightPop(redisKey);
     				logger.debug("[keyData]"+keyData);
     				
+    				
+    				if(keyData == null) return;
+    				
+    				
     				// JSON --> HashMap 변환
     				ObjectMapper mapper = new ObjectMapper();
     				HashMap<String, Object> dataMap = mapper.readValue(keyData, new TypeReference<HashMap<String,Object>>(){});
@@ -340,11 +344,11 @@ public class OrderProcessTask {
 	 *    
 	 *  
 	 * @param redisKey
-	 *        	Aspenbay: SLV:ASPB:order:update:C2S
+	 *        	Aspenbay: KOLOR:ASPB:order:update:C2S
 	 * @param redisPushKey
-	 * 			Aspenbay: SLV:ASPB:order:update:S2M
+	 * 			Aspenbay: KOLOR:ASPB:order:update:S2M
 	 * @param redisErrKey
-	 * 			Aspenbay: SLV:ASPB:order:error
+	 * 			Aspenbay: KOLOR:ASPB:order:update:error:3202
 	 */
 	private void processReleaseReturn(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
@@ -424,7 +428,16 @@ public class OrderProcessTask {
 					redisService.saveErrDataByOrderId(redisErrKey, orderId, outputMsg);
 					// TODO: 에러발생 처리 - 시스템담당자 메일발송
 				}else{
+					
+					// 품절취소 키에 오더정보 저장. TODO: 유효기간 정의 필요
+					String cubeShortedKey = entCode+""+sellerCode+":order:3202:90";
+					String data = "{\"orderId\":\""+orderId+"\",\"itemId\":\""+bar_code+"\"}";
+					listOps.leftPush(cubeShortedKey, data);
+					
+					
 					// TODO: MA와 해당상품의 재고 연동
+					
+					
 				}
 				
 				
@@ -469,6 +482,13 @@ public class OrderProcessTask {
 			// 전체실패일 경우 에러키에 저장
 			if(failCount == resultList.size()){
 				logger.debug("##### [processReleaseReturn] 출고의뢰 실패 Cube shortage occured!!!");
+				
+				
+				// 큐브실패 키에 오더정보 저장. TODO: 유효기간 정의 필요
+				String cubeFailedKey = entCode+""+sellerCode+":order:3202:09";
+				listOps.leftPush(cubeFailedKey, orderId);
+				
+				
 				
 				// 에러키에 저장
 				redisService.saveErrDataByOrderId(redisErrKey, orderId, outputMsg);
@@ -792,7 +812,7 @@ public class OrderProcessTask {
 		
 		} // End if 결과상태 확인
 		
-		logger.debug("##### [processCancelReturn] Job Task Started!!!");
+		logger.debug("##### [processCancelReturn] Job Task End!!!");
 	}
 	
 	

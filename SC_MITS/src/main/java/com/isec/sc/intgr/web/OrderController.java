@@ -245,7 +245,7 @@ public class OrderController {
 		String inputXML = msg.format(new String[] {
 				                                entCode,
 				                                sellerCode, 
-				                                orderStatus,
+				                                "9002".equals(orderStatus)?"":orderStatus, // 주문취소요청일 경우 전체주문조회 처리후 List저장시 Filtering
 												orderId,
 												fromDate,
 												toDate,
@@ -286,6 +286,11 @@ public class OrderController {
 	
 		NodeList orderNodeList = (NodeList)xp.evaluate("OrderList/Order", orderListNode, XPathConstants.NODESET);
 		ArrayList<Object> data = new ArrayList<Object>();
+		
+		
+		
+		
+		
 		
 		for(int i=0; i<orderNodeList.getLength(); i++){
 			
@@ -330,6 +335,21 @@ public class OrderController {
 			dataMap.put("maxStatus", maxStatus);
 			dataMap.put("status_text", status[0]);
 			dataMap.put("status_class", status[1]);
+			
+			// 주문취소요청 여부 조회
+			String checkReqKey = enterPrise+":"+sellerOrg+":order:cancel";
+			String cancelReq = "N";
+			List<String> cancelReqRedisList = listOps.range(checkReqKey, 0, -1);
+			for( String jsonData: cancelReqRedisList){
+				
+				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				if(orderNo.equals( cancelReqMap.get("orderNo") )){
+					cancelReq = "Y";
+					break;
+				}
+			}
+			dataMap.put("cancelReq", cancelReq);
+			
 			
 			//-------- 3. Order Line Info
 			NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", orderNodeList.item(i), XPathConstants.NODESET);
@@ -380,7 +400,17 @@ public class OrderController {
 			
 			dataMap.put("lineList", orderLineList);
 			
-			data.add(dataMap);
+			
+			// 주문취소요청건 조회일 경우 해당건만 List에 저장
+			if("9002".equals(orderStatus)){
+				
+				if("Y".equals(cancelReq)){
+					data.add(dataMap);
+				}
+			}else{
+				data.add(dataMap);
+			}
+			
 
 		}
 	  
@@ -556,7 +586,7 @@ public class OrderController {
 			// Line Basic Info
 			String lineKey = (String)xp.evaluate("@OrderLineKey", orderLineNodeList.item(i), XPathConstants.STRING);
 			String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", orderLineNodeList.item(i), XPathConstants.STRING);
-			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
+//			String shipNode = (String)xp.evaluate("@ShipNode", orderLineNodeList.item(i), XPathConstants.STRING);
 			
 			logger.debug("[PrimeLineNo]"+PrimeLineNo);
 			logger.debug("[lineKey]"+lineKey);
@@ -569,7 +599,6 @@ public class OrderController {
 			
 			orderLineMap.put("lineKey", lineKey);
 			orderLineMap.put("PrimeLineNo", PrimeLineNo);
-			orderLineMap.put("shipNode", shipNode);
 			orderLineMap.put("status", lineStatus[0]);
 			orderLineMap.put("status_class", lineStatus[1]);
 			orderLineMap.put("max_status", maxLineStatus);
@@ -610,6 +639,18 @@ public class OrderController {
 			orderLineMap.put("itemdShortDesc", itemdShortDesc);
 			orderLineMap.put("uom", uom);
 			orderLineMap.put("pclass", pclass);
+			
+			// ShipNode 조회 - 주문상태가 주문취소가 아니고 3200이후 건만 조회
+			String shipNodeString = "";
+			if( Integer.parseInt(maxLineStatus) >= 3200){
+				String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus[1]/@OrderReleaseKey", orderLineNodeList.item(i), XPathConstants.STRING);
+				String shipNode = sterlingApiDelegate.getShipNodeByReleaseKey(orderNo, orderReleaseKey);
+				
+				if(shipNode != null && !"".equals(shipNode)){
+					shipNodeString = shipNode+ " ("+env.getProperty(shipNode)+")";
+				}
+			}
+			orderLineMap.put("shipNode", shipNodeString);
 			
 			// 상품의 현재고/가용재고 조회(모든창고)
 			Double supplyQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, itemId, "", uom, "S");
@@ -662,8 +703,54 @@ public class OrderController {
 		
 		mav.addObject("noteList", noteList);
 		
-		// TODD: 품절취소 및 출고의뢰 실패여부 조회
 		
+		
+		// 출고의뢰상태일 경우에만 품절취소 및 출고의뢰 실패여부 체크
+		String shortedYN = "N";
+		String shortedItemId = "";	// 품절취소된 상품코드
+		String failedYN = "N";
+		
+		if("3200".equals(minStatus) && "3200".equals(maxStatus)){
+			
+			String cubeShortedKey = entCode+""+sellerCode+":order:3202:90";
+			String cubeFailedKey = entCode+""+sellerCode+":order:3202:09";
+			
+			List<String> shortedList = listOps.range(cubeShortedKey, 0, -1);
+			for( int i=0; i<shortedList.size(); i++){
+				
+				String jsonData = shortedList.get(i);
+				HashMap<String,String> map = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				String shortOrderId = map.get("orderId");
+				
+				if(orderNo.equals(shortOrderId)){
+					
+					shortedYN = "Y";
+					shortedItemId = map.get("itemId");
+					break;
+				}
+			}
+			
+			List<String> failedList = listOps.range(cubeFailedKey, 0, -1);
+			if("N".equals(shortedYN)){
+				for( int i=0; i<failedList.size(); i++){
+					
+					String failedOrderId = failedList.get(i);
+					if(orderNo.equals(failedOrderId)){
+						
+						failedYN = "Y";
+						break;
+					}
+				}
+			}
+			
+		}
+		mav.addObject("shortedYN", shortedYN);
+		mav.addObject("shortedItemId", shortedItemId);
+		mav.addObject("failedYN", failedYN);
+				
+				
+				
 		
 		// 취소요청정보 조회
 		String reqKey = entCode + ":" + sellerCode + ":order:cancel";

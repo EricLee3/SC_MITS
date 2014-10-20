@@ -121,7 +121,7 @@
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a href="/system/getRedisDataList.do?mn=0">
+							<a href="/system/getRedisDataListByCh.do?entCode=KOLOR&sellCode=ASPB&mn=0">
 							<i class="fa fa-desktop"></i>
 							연동데이타 모니터링 </a>
 						</li>
