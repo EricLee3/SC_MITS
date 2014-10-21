@@ -119,7 +119,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="col-md-12">
 					<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 					<h3 class="page-title">
-					Orders <small>orders listing</small>
+					오더관리 <small>orders listing</small>
 					</h3>
 					<ul class="page-breadcrumb breadcrumb">
 						<li class="btn-group">
@@ -172,7 +172,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="portlet">
 						<div class="portlet-title">
 							<div class="caption">
-								<i class="fa fa-shopping-cart"></i>Order Listing
+								<i class="fa fa-shopping-cart"></i>오더조회
 							</div>
 							<div class="actions">
 								<!-- <a href="#" class="btn default yellow-stripe">
@@ -252,34 +252,34 @@ License: You must have a valid license purchased only from themeforest(the above
 										 &nbsp;#
 									</th>
 									<th width="5%">
-										 Order&nbsp;#
+										 오더번호&nbsp;#
 									</th>
 									<th width="15%">
-										 Order&nbsp;Date
+										 오더생성일
 									</th>
 									<th width="10%">
-										 EnterPrise
+										 관리조직
 									</th>
 									<th width="10%">
-										 Seller
+										 판매채널
 									</th>
 									<th width="10%">
-										 Customer
+										 고객명
 									</th>
 									<th width="10%">
-										 Mobile
+										 연락처
 									</th>
 									<th width="15%">
-										 Email
+										 이메일
 									</th>
 									<!-- <th width="10%">
 										 Payment&nbsp;Type
 									</th> -->
 									<th width="10%">
-										 Amount
+										 결제금액
 									</th>
 									<th width="15%">
-										 Status
+										 주문상태
 									</th>
 									<th width="10%">
 										 Actions

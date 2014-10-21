@@ -3,6 +3,8 @@
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
 
@@ -123,8 +125,9 @@ License: You must have a valid license purchased only from themeforest(the above
 					</label>
 					<select class="form-control input-sm" name="cancel_reason">
 						<option value="">Select</option>
-						<option value="BACKORDER_INFO">Backorder Information</option>
-						<option value="CALLED_CUSTOMER">Called Customer</option>
+						<option value="OUT_OF_STOCK">재고부족(품절취소)</option>
+						<option value="CUSTOMER_REQUEST">고객요청</option>
+						<option value="ETC">기타</option>
 					</select>
 				</div>
 				<div class="form-group">
@@ -408,6 +411,10 @@ License: You must have a valid license purchased only from themeforest(the above
 											<div class="caption">
 												<i class="fa fa-cogs"></i>Billing Address
 											</div>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
+												</a>
+											</div>
 											<div class="actions">
 											</div>
 										</div>
@@ -432,6 +439,10 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="portlet-title">
 											<div class="caption">
 												<i class="fa fa-cogs"></i>Shipping Address
+											</div>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
+												</a>
 											</div>
 											<div class="actions">
 											</div>
@@ -459,6 +470,10 @@ License: You must have a valid license purchased only from themeforest(the above
 											<div class="caption">
 												<i class="fa fa-cogs"></i>Charges
 											</div>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
+												</a>
+											</div>
 											<div class="actions">
 												<!-- <a href="#" class="btn btn-default btn-sm">
 												<i class="fa fa-pencil"></i> Edit </a> -->
@@ -470,7 +485,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													 Line Sub Total:
 												</div>
 												<div class="col-md-7 value text-right">
-													 ${baseInfo.totalLine}
+													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalLine}" />
 												</div>
 											</div>
 											<div class="row static-info">
@@ -478,7 +493,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													 Total Charges:
 												</div>
 												<div class="col-md-7 value text-right">
-													 ${baseInfo.totalCharge}
+													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalCharge}" />
 												</div>
 											</div>
 											<div class="row static-info">
@@ -486,7 +501,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													 Total Tax:
 												</div>
 												<div class="col-md-7 value text-right">
-													 ${baseInfo.totalTax}
+													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalTax}" />
 												</div>
 											</div>
 											<div class="row static-info">
@@ -494,7 +509,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													 Total Discount:
 												</div>
 												<div class="col-md-7 value text-right">
-													 ${baseInfo.totalDiscount}
+													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalDiscount}" />
 												</div>
 											</div>
 											<div class="row static-info">
@@ -504,7 +519,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													 Grand Total:
 												</div>
 												<div class="col-md-7 value text-right">
-													 ${baseInfo.currency}&nbsp;&nbsp;${baseInfo.totalAmount}
+													 ${baseInfo.currency}&nbsp;&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalAmount}" />
 												</div>
 											</div>
 										</div>
@@ -517,6 +532,10 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="portlet-title">
 											<div class="caption">
 												<i class="fa fa-cogs"></i>OrderLine
+											</div>
+											<div class="tools">
+												<a href="javascript:;" class="collapse">
+												</a>
 											</div>
 											<!-- <div class="actions">
 												<a href="#" class="btn btn-default btn-sm">
@@ -613,19 +632,19 @@ License: You must have a valid license purchased only from themeforest(the above
 														 ${line.qty}
 													</td>
 													<td class="text-right">
-														 ${line.UnitPrice}
+														 <fmt:formatNumber type="number" maxFractionDigits="3" value="${line.UnitPrice}" />
 													</td>
 													<td  class="text-right">
-														 ${line.lineShipCharge}
+														 <fmt:formatNumber type="number" maxFractionDigits="3" value="${line.lineShipCharge}" />
 													</td>
 													<%-- <td  class="text-right">
 														 ${line.lineTax}
 													</td> --%>
 													<td class="text-right">
-														 ${line.lineDisount}
+														 <fmt:formatNumber type="number" maxFractionDigits="3" value="${line.lineDisount}" />
 													</td>
 													<td class="text-right">
-														 ${line.lineTatal}
+														 <fmt:formatNumber type="number" maxFractionDigits="3" value="${line.lineTatal}" />
 													</td>
 												</tr>
 												    
@@ -797,8 +816,12 @@ License: You must have a valid license purchased only from themeforest(the above
 															</label>
 															<select class="form-control input-sm" name="contact_reason">
 																<option value="">Select</option>
-																<option value="BACKORDER_INFO">Backorder Information</option>
-																<option value="CALLED_CUSTOMER">Called Customer</option>
+																<!-- <option value="BACKORDER_INFO">Backorder Information</option> -->
+																<option value="CALLED_CUSTOMER">고객 아웃바운드</option>
+																<option value="CUSTOMER_CALLED">고객 인바운드</option>
+																<option value="SCHEDULE_AND_RELEASE">출고의뢰 관련</option>
+																<option value="CONFIRM_SHIPMENT">출고확정 관련</option>
+																<option value="CANCEL_INFO">주문취소 관련</option>
 															</select>
 														</div>
 													</div>
@@ -852,29 +875,29 @@ License: You must have a valid license purchased only from themeforest(the above
 								<thead>
 								<tr role="row" class="heading">
 									<th width="15%">
-										 Date
+										 접촉일시
 									</th>
 									<th width="10%">
-										 User
+										 사용자
 									</th>
 									<th width="12%">
-										 Reason
+										 접촉사유
 									</th>
 									<th width="15%">
-										 Contact Type
+										 접축수단
 									</th>
-									<th width="15%">
+									<!-- <th width="15%">
 										 Contact Reference
-									</th>
+									</th> -->
 									<th width="" class="text-center">
-										 Notes
+										 접촉내용
 									</th>
 								</tr>
 								</thead>
 								<tbody>
 									<c:forEach items="${noteList}" var="note">
 									<tr>
-								    	<td>
+								    		<td>
 											${note.noteDate}
 										</td>
 										<td>
@@ -886,11 +909,11 @@ License: You must have a valid license purchased only from themeforest(the above
 										<td>
 											${note.noteContactType}
 										</td>
-										<td>
+										<%-- <td>
 											 ${note.noteContactRef}
-										</td>
+										</td> --%>
 										<td>
-											 ${note.noteText}
+											<textarea class="form-control input-sm" rows="2" readonly="readonly">${note.noteText}</textarea>
 										</td>
 									</tr>
 									
@@ -1230,7 +1253,9 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		statusDetailText = '<h5>'+status_label+' - Front에서 결재완료된 주문이 정상 접수된 상태.</h4>';
 	    		statusDetailText += '<p class="text-danger">';
 	    		statusDetailText += ' - 지정된 시간에 자동으로 재고확인 및 창고결정 후 Cube로 출고의뢰됨<br>';
-	    		statusDetailText += ' - 즉시 주문취소가능';
+	    		statusDetailText += ' - 즉시 주문취소가능<br>';
+	    		statusDetailText += '<br>';
+	    		statusDetailText += '<br>';
 	    		statusDetailText += '</p>';
 	    		
 	    		
@@ -1255,7 +1280,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    	    		statusDetailText += '<p class="text-danger">';
 	    	    		statusDetailText += ' - Cube의 재고확인 후 재고가 다시 확보된 경우 출고의뢰 재시도 필요 <br>';
 	    	    		statusDetailText += ' - Cube의 재고확보가 빠른시간내 확인되지 않을 경우 고객아웃바운드 후 전체주문취소 처리필요<br>';
-	    	    		statusDetailText += ' - 품절취소가 발생한 상품은 오더라인 항목에서 확인 가능';
+	    	    		statusDetailText += ' - 품절취소가 발생한 상품은 오더라인 항목에서 확인 가능<br>';
 	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '</p>';
     	    			
@@ -1302,7 +1327,10 @@ License: You must have a valid license purchased only from themeforest(the above
 			var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
 	    		statusDetailText = '<h5>'+status_label+' - Cube로 출고의뢰가 정상적으로 처리된 상태</h4>';
 	    		statusDetailText += '<p class="text-danger">';
-	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능';
+	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능<br>';
+	    		statusDetailText += '<br>';
+	    		statusDetailText += '<br>';
+	    		statusDetailText += '<br>';
 	    		statusDetailText += '</p>';
 	    		
 	    		// 주문확정 버튼 숨김, 주문취소요청으로 버튼명 변경
@@ -1319,7 +1347,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
 	    		statusDetailText = '<h5>'+status_label+' - 주문상품이 출고된 상태</h4>';
 	    		statusDetailText += '<p class="text-danger">';
-	    		statusDetailText += ' - 주문취소 불가';
+	    		statusDetailText += ' - 주문취소 불가<br>';
+	    		statusDetailText += '<br>';
+	    		statusDetailText += '<br>';
+	    		statusDetailText += '<br>';
 	    		statusDetailText += '</p>';
 	    		
 	    		
@@ -1361,7 +1392,9 @@ License: You must have a valid license purchased only from themeforest(the above
         		var status_label = '<span class="label label-sm label-'+statusClassName+'">${baseInfo.orderStatus}</span>';
 	    		statusDetailText = '<h5>'+status_label+' -고객요청 또는 재고부족으로 인한 주문취소 완료상태</h4>';
 	    		statusDetailText += '<p class="text-danger">';
-	    		statusDetailText += ' - 주문취소시 자동으로 Front로 환불요청되며 처리결과는 Front의 어드민에 확인 가능';
+	    		statusDetailText += ' - 주문취소시 자동으로 Front로 환불요청되며 처리결과는 Front의 어드민에 확인 가능<br>';
+	    		statusDetailText += '<br>';
+	    		statusDetailText += '<br>';
 	    		statusDetailText += '</p>';
         		
 	    		// 주문확정, 주문취소 버튼 숨김
@@ -1374,20 +1407,21 @@ License: You must have a valid license purchased only from themeforest(the above
         	
         		var cancelReqCode = "${cancelReqInfo.status_code}";
             var cancelReqText = "${cancelReqInfo.status_text}";
-            console.debug(cancelReqCode);
-            console.debug(cancelReqText);
+            
+            var cancelResCode = "${cancelResultInfo.status_code}"; // 02,09,90
+            var cancelResText = "${cancelResultInfo.status_text}";
             
             // 주문취소 요청상태
             if(cancelReqText != ""){
             		
             		// 현재 주문상태에서 주문취소요청 상태표시
-            		$('<span class="label label-danger cancel-req">'+cancelReqText+'</span>').appendTo("#order_status");
+            		$('<span id="cancel-req" class="label label-danger">'+cancelReqText+'</span>').appendTo("#order_status");
             		
     	    			statusDetailText = '<h5>[주문취소요청중] - Cube로 부터 주문취소를 요청한 상태</h4>';
     	    			statusDetailText += '<p class="text-danger">';
-	    	    		statusDetailText += ' - 최대 1시간이내에 취소처리결과 확인 가능<br>';
+	    	    		statusDetailText += ' - 최대 1시간이내에 취소처리결과 확인 가능. 응답이 없을경우 Cube상태 확인 후 시스템 담당자 문의<br>';
 	    	    		statusDetailText += ' - Cube 주문취소요청이 정상처리되면 자동으로 \'주문취소\'및 Front로 환불요청됨<br>';
-	    	    		statusDetailText += ' - 환불처리결과는 Front Admin에서 확인가능';
+	    	    		statusDetailText += ' - 환불처리결과는 Front Admin에서 확인가능<br>';
 	    	    		statusDetailText += '</p>';
 	            		
 	    	        	// 주문확정, 주문취소 버튼 숨김
@@ -1398,14 +1432,8 @@ License: You must have a valid license purchased only from themeforest(the above
             		
             }
             
-            var cancelResCode = "${cancelResultInfo.status_code}"; // 02,09,90
-            var cancelResText = "${cancelResultInfo.status_text}";
-            console.debug(cancelResCode);
-            console.debug(cancelResText);
-            
-            
          	// 주문취소 요청 결과 - 01(취소성공)인 경우 표시되지 않음
-            if(cancelResText != ""){
+         	if(cancelResText != ""){
             		
             	
             		// 현재 주문상태에서 주문취소요청 상태표시
@@ -1415,18 +1443,23 @@ License: You must have a valid license purchased only from themeforest(the above
 					 09 - 실패 또는 처리대상건 없음
 					 90 - 출고확정건
 				 */
-            		$('<span class="label label-danger">'+cancelResText+'</span>').appendTo("#order_status");
+				$("#cancel-req").remove();
+            		$('<span class="label label-danger">취소처리실패</span>').appendTo("#order_status");
+            		//$("#order_status").add(cancelResText);
             	
             		
             		if(cancelResCode == '02'){
             		 	
-            			statusDetailText = '<h5>[중복요청건] - - Cube에서 이미 주문취소가 처리된 건</h4>';
+            			statusDetailText = '<h5>[중복요청건] - Cube에서 이미 주문취소가 처리된 건</h4>';
     	    				statusDetailText += '<p class="text-danger">';
-        	    			statusDetailText += ' - 새로고침으로 주문상태를 다시 확인, 주문상태가 [주문취소]가 아닐 경우 시스템 담당자에게 문의할것.';
+        	    			statusDetailText += ' - 새로고침으로 주문상태를 다시 확인, 주문상태가 [주문취소]가 아닐 경우 시스템 담당자에게 문의할것.<br>';
+        	    			statusDetailText += '<br>';
+        	    			statusDetailText += '<br>';
         	    			statusDetailText += '</p>';
         	    			
         	    			// 주문취소요청 버튼 숨김
         	    			$("#tool_cancel").hide();
+        	    			$("#tool_line_cancel").hide();
             		}
             		
             		else if(cancelResCode == '09'){
@@ -1434,7 +1467,8 @@ License: You must have a valid license purchased only from themeforest(the above
             			statusDetailText = '<h5>[취소처리실패] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</h4>';
 	    				statusDetailText += '<p class="text-danger">';
 	    				statusDetailText += ' - 취소대상건이 없는 상태인 경우, 주문상태가 [출고준비]상태인지 확인 후 재시도<br>';
-	    				statusDetailText += ' - 실패인 경우 시스템 담당자에게 문의할것.';
+	    				statusDetailText += ' - 실패인 경우 시스템 담당자에게 문의할것.<br>';
+	    				statusDetailText += '<br>';
     	    				statusDetailText += '</p>';
     	    				
     	    				// 주문취소 요청으로 버튼명 변경
@@ -1443,20 +1477,22 @@ License: You must have a valid license purchased only from themeforest(the above
             		
             		else if(cancelResCode == '90'){
             			
-            			statusDetailText = '<h5>[출고확정건] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</h4>';
+            			statusDetailText = '<h5>[출고확정건] - Cube에서 이미 출고처리되어 주문취소가 불가한 상태</h4>';
 	    				statusDetailText += '<p class="text-danger">';
         	    			statusDetailText += ' - 해당주문의 상태를 다시 확인한 후 주문상태가 [출고확정]이면 고객 아웃바운드 필요.<br>';
-        	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태를 확인 후 일정시간 대기후 주문상태 재확인 필요.';
+        	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태 확인 후 일정시간 대기후 주문상태 재확인 필요.<br>';
+        	    			statusDetailText += '<br>';
+        	    			statusDetailText += '<br>';
         	    			statusDetailText += '</p>';
         	    			
         	    			// 주문취소요청 버튼 숨김
         	    			$("#tool_cancel").hide();
+        	    			$("#tool_line_cancel").hide();
             		}
             	
             	
-	    	        	// 주문확정 재처리, 부분주문취소 버튼 숨김
+	    	        	// 주문확정 재처리 버튼 숨김
 	    	    		$("#tool_release").hide();
-	    	    		$("#tool_line_cancel").hide();
 	        			
             }
         	

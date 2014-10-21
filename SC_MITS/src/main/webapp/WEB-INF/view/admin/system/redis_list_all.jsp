@@ -134,7 +134,11 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="portlet-title">
 					
 					<div class="caption">
-						<i class="fa fa-cogs"></i>KOLOR
+						<i class="fa fa-cogs"></i>KOLOR - Aspen Bay
+					</div>
+					<div class="tools">
+						<a href="javascript:;" class="collapse">
+						</a>
 					</div>
 					<!-- <div class="actions">
 						<a href="#" class="btn btn-default btn-sm">
@@ -185,7 +189,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.create.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.create.list)}
+										 ${KOLOR.create.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -203,7 +207,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.release.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.release.list)}
+										 ${KOLOR.release.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -222,7 +226,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_update_s2m.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_update_s2m.list)}
+										 ${KOLOR.info_update_s2m.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -233,24 +237,19 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 									</td>
 									<td>
-										 ${KOLOR.info_update_m2s.name}
+										 &nbsp;
 									</td>
 									<td>
-										 ${KOLOR.info_update_m2s.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_update_m2s.list)}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
-										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
 								</tbody>
 								</table>
 							</div>
-						</div>
-						<div class="col-md-6 col-sm-6">
+							
 							<h4>주문정보 연동데이타 - SC-CUBE</h4>
 							<div class="table-container">
 								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
@@ -285,7 +284,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_update_s2c.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_update_s2c.list)}
+										 ${KOLOR.info_update_s2c.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -302,7 +301,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_update_c2s.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_update_c2s.list)}
+										 ${KOLOR.info_update_c2s.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -313,11 +312,105 @@ License: You must have a valid license purchased only from themeforest(the above
 								</table>
 							</div>
 						</div>
-					</div>
-					<!-- Product -->
-					<div class="row">
 						<div class="col-md-6 col-sm-6">
-							<h4>상품정보 연동데이타 - SC-MA</h4>
+							
+							<h4>Cube 요청데이터 결과</h4>
+							<div class="table-container">
+							<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<thead>
+								<tr role="row" class="heading">
+									<th width="2%">
+										<!-- <input type="checkbox" class="group-checkable"> -->
+									</th>
+									<th>
+										 Key Name
+									</th>
+									<th>
+										 Name
+									</th>
+									<th>
+										 Data Length
+									</th>
+									<th>
+										 Data
+									</th>
+								</tr>
+								</thead>
+								<tbody>
+							    <!-- 주문상태 업데이트  -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_cube_3202_90.name}
+									</td>
+									<td>
+										 ${KOLOR.info_cube_3202_90.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR.info_cube_3202_90.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_cube_3202_09.name}
+									</td>
+									<td>
+										 ${KOLOR.info_cube_3202_09.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR.info_cube_3202_09.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_cube_9000_req.name}
+									</td>
+									<td>
+										 ${KOLOR.info_cube_9000_req.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR.info_cube_9000_req.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_cube_9000_res.name}
+									</td>
+									<td>
+										 ${KOLOR.info_cube_9000_res.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR.info_cube_9000_res.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								</tbody>
+								</table>
+							</div>
+							
+							<h4>주문정보 에러데이타</h4>
 							<div class="table-container">
 								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
 								<thead>
@@ -344,23 +437,46 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 									</td>
 									<td>
-										 ${KOLOR.info_product_s2m.name}
+										 ${KOLOR_ERR.info_create_err.name}
 									</td>
 									<td>
-										 ${KOLOR.info_product_s2m.desc}
+										 ${KOLOR_ERR.info_create_err.name}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_product_s2m.list)}
+										 ${KOLOR_ERR.info_create_err.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
+								
+								<c:forEach items="${KOLOR_ERR.err_key_list}" var="errKeyList">
+							    <tr>
+									<td>
+									</td>
+									<td>
+										 ${errKeyList.name}
+									</td>
+									<td>
+										 ${errKeyList.name}
+									</td>
+									<td class="text-right">
+										 ${errKeyList.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								</c:forEach>
 								</tbody>
 								</table>
 							</div>
 						</div>
+					</div>
+					<!-- Product -->
+					<div class="row">
 						<div class="col-md-6 col-sm-6">
 							<h4>상품정보 연동데이타 - SC-CUBE</h4>
 							<div class="table-container">
@@ -396,7 +512,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_product_c2s.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_product_c2s.list)}
+										 ${KOLOR.info_product_c2s.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -413,7 +529,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_product_s2c.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_product_s2c.list)}
+										 ${KOLOR.info_product_s2c.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -424,12 +540,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tbody>
 								</table>
 							</div>
-						</div>
-					</div>
-					<!-- Inventory -->
-					<div class="row">
-						<div class="col-md-6 col-sm-6">
-							<h4>재고정보 연동데이타 - SC-MA</h4>
+							<h4>상품정보 연동데이타 - SC-MA</h4>
 							<div class="table-container">
 								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
 								<thead>
@@ -452,18 +563,17 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-								<!-- 재고연동  -->
 								<tr>
 									<td>
 									</td>
 									<td>
-										 ${KOLOR.info_inventory_s2m.name}
+										 ${KOLOR.info_product_s2m.name}
 									</td>
 									<td>
-										 ${KOLOR.info_inventory_s2m.desc}
+										 ${KOLOR.info_product_s2m.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_inventory_c2s.list)}
+										 ${KOLOR.info_product_s2m.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -474,6 +584,75 @@ License: You must have a valid license purchased only from themeforest(the above
 								</table>
 							</div>
 						</div>
+						<div class="col-md-6 col-sm-6">
+						
+							<h4>상품정보 연동 에러데이타</h4>
+							<div class="table-container">
+								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<thead>
+								<tr role="row" class="heading">
+									<th width="2%">
+										<!-- <input type="checkbox" class="group-checkable"> -->
+									</th>
+									<th>
+										 Key Name
+									</th>
+									<th>
+										 Name
+									</th>
+									<th>
+										 Data Length
+									</th>
+									<th>
+										 Data
+									</th>
+								</tr>
+								</thead>
+								<tbody>
+								<!-- 상품에러 CA -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_product_err_ca.name}
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_product_err_ca.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR_ERR.info_product_err_ca.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								<!-- 상품에러 MA -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_product_err_ma.name}
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_product_err_ma.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR_ERR.info_product_err_ma.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								</tbody>
+								</table>
+							</div>
+						
+						</div>
+					</div>
+					<!-- Inventory -->
+					<div class="row">
 						<div class="col-md-6 col-sm-6">
 							<h4>재고정보 연동데이타 - SC-CUBE</h4>
 							<div class="table-container">
@@ -509,7 +688,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_inventory_c2s.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_inventory_c2s.list)}
+										 ${KOLOR.info_inventory_c2s.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -526,7 +705,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_inventory_s2c.desc}
 									</td>
 									<td class="text-right">
-										 ${fn:length(KOLOR.info_inventory_s2c.list)}
+										 ${KOLOR.info_inventory_s2c.size}
 									</td>
 									<td>
 										<a href="#" class="pull-right" target="_blank">
@@ -535,6 +714,134 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</tbody>
 								</table>
+							</div>
+							
+							<h4>재고정보 연동데이타 - SC-MA</h4>
+							<div class="table-container">
+								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<thead>
+								<tr role="row" class="heading">
+									<th width="2%">
+										<!-- <input type="checkbox" class="group-checkable"> -->
+									</th>
+									<th>
+										 Key Name
+									</th>
+									<th>
+										 Name
+									</th>
+									<th>
+										 Data Length
+									</th>
+									<th>
+										 Data
+									</th>
+								</tr>
+								</thead>
+								<tbody>
+								<!-- 재고연동  -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR.info_inventory_s2m.name}
+									</td>
+									<td>
+										 ${KOLOR.info_inventory_s2m.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR.info_inventory_c2s.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6">
+							
+							
+							<h4>재고정보 연동 에러데이타</h4>
+							<div class="table-container">
+								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<thead>
+								<tr role="row" class="heading">
+									<th width="2%">
+										<!-- <input type="checkbox" class="group-checkable"> -->
+									</th>
+									<th>
+										 Key Name
+									</th>
+									<th>
+										 Name
+									</th>
+									<th>
+										 Data Length
+									</th>
+									<th>
+										 Data
+									</th>
+								</tr>
+								</thead>
+								<tbody>
+								<!-- 재고에러 CA -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_inventory_err_ca.name}
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_inventory_err_ca.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR_ERR.info_inventory_err_ca.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								<!-- 재고에러 CA -->
+								<tr>
+									<td>
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_inventory_err_ma.name}
+									</td>
+									<td>
+										 ${KOLOR_ERR.info_inventory_err_ma.desc}
+									</td>
+									<td class="text-right">
+										 ${KOLOR_ERR.info_inventory_err_ma.size}
+									</td>
+									<td>
+										<a href="#" class="pull-right" target="_blank">
+										<span class="label label-sm label-info">Details</span> </a>
+									</td>
+								</tr>
+								</tbody>
+								</table>
+								
+								
+								<table class="table table-striped table-hover table-bordered" id="data_list_table">
+										<thead>
+										<tr>
+											<th>
+												 순번
+											</th>
+											<th>
+												 데이타
+											</th>
+											
+										</tr>
+										</thead>
+										<tbody>
+										</tbody>
+										</table>
 							</div>
 						</div>
 					</div>
@@ -580,7 +887,26 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	jQuery(document).ready(function() {
         
-     });
+		
+		 var err_table = $('#data_list_table');
+		 err_table.dataTable({
+		 	"paging":   false,
+		    "ordering": false,
+		     "info":     false,
+		 	 "processing": true,
+		     "serverSide": true,
+		     "dom":"",
+		     "data": data.errList,
+		     "columns": [
+		                 { "data": "orderId" },
+		                 { "data": "" },
+		                 
+		          	   },
+		             ]
+		 });
+		
+		
+     });	
      
  </script>
 <!-- END JAVASCRIPTS -->

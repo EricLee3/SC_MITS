@@ -75,7 +75,6 @@ public class SystemMgmtController {
 	key.ca.KOLOR.ASPB.orderUpdate.S2C=${ca.KOLOR}:ASPB:order:update:S2C
 	# Order Release 
 	key.ca.KOLOR.ASPB.order.release=KOLOR:ASPB:order:release
-	key.ca.KOLOR.ASPB.order.error=${ca.KOLOR}:ASPB:order:error
 
 	##### Product Interface Key
 	# MA-SC
@@ -135,9 +134,28 @@ public class SystemMgmtController {
 	@Value("${key.ca.KOLOR.inventory.S2C}")
 	private String KEY_CA_KOLOR_ASPB_INVENTORY_S2C;
 	
+	@Value("${key.ma.KOLOR.ASPB.order.error}")
+	private String KEY_MA_KOLOR_ASPB_ORDER_ERROR;
+	
+	@Value("${key.ma.KOLOR.ASPB.product.error}")
+	private String KEY_MA_KOLOR_ASPB_PRODUCT_ERROR;
+	@Value("${key.ca.KOLOR.product.error}")
+	private String KEY_CA_KOLOR_PRODUCT_ERROR;
+	
+	@Value("${key.ma.KOLOR.ASPB.inventory.error}")
+	private String KEY_MA_KOLOR_ASPB_INVENTORY_ERROR;
+	@Value("${key.ca.KOLOR.inventory.error}")
+	private String KEY_CA_KOLOR_INVENTORY_ERROR;
 	
 	
+	private static String KEY_CUBE_3202_90  = ":order:3202:90";			// 출고의뢰결과 - 품절취소
+	private static String KEY_CUBE_3202_09  = ":order:3202:09";			// 출고의뢰결과 - 실패
+	private static String KEY_CUBE_9000_REQ = ":order:cancel";			// 주문취소요청
+	private static String KEY_CUBE_9000_RES = ":order:cancel:result";	// 주문취소요청결과
 	
+	private static String ENT_KOLOR = "KOLOR";
+	private static String SELLER_KOLOR_ASPB = "ASPB";
+	private static String KOLOR_ASPB_KEY = ENT_KOLOR+":"+SELLER_KOLOR_ASPB;
 	
 	@RequestMapping(value = "/getRedisDataListByCh.do")
 	public ModelAndView getRedisDataListByCh( @RequestParam String entCode, @RequestParam String sellCode) throws Exception{
@@ -147,52 +165,46 @@ public class SystemMgmtController {
 		
 		// 주문생성 데이타 1100
 		HashMap<String, Object> info_1100 = new HashMap<String, Object>();
-		List<String> list_1100 = listOps.range(KEY_KOLOR_ASPB_ORDER, 0, -1);
 		info_1100.put("name", KEY_KOLOR_ASPB_ORDER);
 		info_1100.put("desc", "주문생성");
-		info_1100.put("list", list_1100);
+		info_1100.put("size", listOps.size(KEY_KOLOR_ASPB_ORDER));
 		
 		keyInfo.put("create", info_1100);
 		
 		
 		// 주문확정 대상 데이타 
 		HashMap<String, Object> info_release = new HashMap<String, Object>();
-		List<String> list_release = listOps.range(KEY_KOLOR_ASPB_ORDER_RELEASE, 0, -1);
 		info_release.put("name", KEY_KOLOR_ASPB_ORDER_RELEASE);
 		info_release.put("desc", "주문확정대상");
-		info_release.put("list", list_release);
+		info_release.put("size", listOps.size(KEY_KOLOR_ASPB_ORDER_RELEASE));
 		
 		keyInfo.put("release", info_release);
 				
 		
 		// 주문상태 변경 데이타 MA-SC
 		HashMap<String, Object> info_update_m2s = new HashMap<String, Object>();
-		List<String> list_update_m2s = listOps.range(KEY_MA_KOLOR_ASPB_ORDER_UPDATE_M2S, 0, -1);
 		info_update_m2s.put("name", KEY_MA_KOLOR_ASPB_ORDER_UPDATE_M2S);
 		info_update_m2s.put("desc", "주문상태변경 MA to SC");
-		info_update_m2s.put("list", list_update_m2s);
+		info_update_m2s.put("size", listOps.size(KEY_MA_KOLOR_ASPB_ORDER_UPDATE_M2S));
 		
 		// 주문상태 변경 데이타 SC-MA
 		HashMap<String, Object> info_update_s2m = new HashMap<String, Object>();
-		List<String> list_update_s2m = listOps.range(KEY_MA_KOLOR_ASPB_ORDER_UPDATE_S2M, 0, -1);
 		info_update_s2m.put("name", KEY_MA_KOLOR_ASPB_ORDER_UPDATE_S2M);
 		info_update_s2m.put("desc", "주문상태변경 SC to MA");
-		info_update_s2m.put("list", list_update_s2m);
+		info_update_s2m.put("size", listOps.size(KEY_MA_KOLOR_ASPB_ORDER_UPDATE_S2M));
 		
 		
 		// 주문상태 변경 데이타 SC-CA
 		HashMap<String, Object> info_update_s2c = new HashMap<String, Object>();
-		List<String> list_update_s2c = listOps.range(KEY_CA_KOLOR_ASPB_ORDER_UPDATE_S2C, 0, -1);
 		info_update_s2c.put("name", KEY_CA_KOLOR_ASPB_ORDER_UPDATE_S2C);
 		info_update_s2c.put("desc", "주문상태변경 SC to Cube");
-		info_update_s2c.put("list", list_update_s2c);
+		info_update_s2c.put("size", listOps.size(KEY_CA_KOLOR_ASPB_ORDER_UPDATE_S2C));
 		
 		// 주문상태 변경 데이타 CA-SC
 		HashMap<String, Object> info_update_c2s = new HashMap<String, Object>();
-		List<String> list_update_c2s = listOps.range(KEY_CA_KOLOR_ASPB_ORDER_UPDATE_C2S, 0, -1);
 		info_update_c2s.put("name", KEY_CA_KOLOR_ASPB_ORDER_UPDATE_C2S);
 		info_update_c2s.put("desc", "주문상태변경 Cube to SC");
-		info_update_c2s.put("list", list_update_c2s);
+		info_update_c2s.put("size", listOps.size(KEY_CA_KOLOR_ASPB_ORDER_UPDATE_C2S));
 		
 		
 		keyInfo.put("info_update_m2s", info_update_m2s);
@@ -203,22 +215,19 @@ public class SystemMgmtController {
 				
 		// 상품연동
 		HashMap<String, Object> info_product_s2m = new HashMap<String, Object>();
-		List<String> list_product_s2m = listOps.range(KEY_MA_KOLOR_ASPB_PRODUCT_S2M, 0, -1);
 		info_product_s2m.put("name", KEY_MA_KOLOR_ASPB_PRODUCT_S2M);
 		info_product_s2m.put("desc", "상품연동 SC to MA");
-		info_product_s2m.put("list", list_product_s2m);
+		info_product_s2m.put("size", listOps.size(KEY_MA_KOLOR_ASPB_PRODUCT_S2M));
 		// 상품연동 Cube-SC
 		HashMap<String, Object> info_product_c2s = new HashMap<String, Object>();
-		List<String> list_product_c2s = listOps.range(KEY_CA_KOLOR_ASPB_PRODUCT_C2S, 0, -1);
 		info_product_c2s.put("name", KEY_CA_KOLOR_ASPB_PRODUCT_C2S);
 		info_product_c2s.put("desc", "상품연동 Cube to SC");
-		info_product_c2s.put("list", list_product_c2s);
+		info_product_c2s.put("size", listOps.size(KEY_CA_KOLOR_ASPB_PRODUCT_C2S));
 		// 상품연동 SC-Cube
 		HashMap<String, Object> info_product_s2c = new HashMap<String, Object>();
-		List<String> list_product_s2c = listOps.range(KEY_CA_KOLOR_ASPB_PRODUCT_S2C, 0, -1);
 		info_product_s2c.put("name", KEY_CA_KOLOR_ASPB_PRODUCT_S2C);
 		info_product_s2c.put("desc", "상품연동 SC to Cube");
-		info_product_s2c.put("list", list_product_s2c);
+		info_product_s2c.put("size", listOps.size(KEY_CA_KOLOR_ASPB_PRODUCT_S2C));
 		
 		keyInfo.put("info_product_s2m", info_product_s2m);
 		keyInfo.put("info_product_c2s", info_product_c2s);
@@ -227,42 +236,125 @@ public class SystemMgmtController {
 		
 		// 재고연동
 		HashMap<String, Object> info_inventory_s2m = new HashMap<String, Object>();
-		List<String> list_inventory_s2m = listOps.range(KEY_MA_KOLOR_ASPB_INVENTORY_S2M, 0, -1);
 		info_inventory_s2m.put("name", KEY_MA_KOLOR_ASPB_INVENTORY_S2M);
 		info_inventory_s2m.put("desc", "재고연동 SC to MA");
-		info_inventory_s2m.put("list", list_inventory_s2m);
+		info_inventory_s2m.put("size", listOps.size(KEY_MA_KOLOR_ASPB_INVENTORY_S2M));
 		// 재고연동 Cube-SC
 		HashMap<String, Object> info_inventory_c2s = new HashMap<String, Object>();
-		List<String> list_inventory_c2s = listOps.range(KEY_CA_KOLOR_ASPB_INVENTORY_C2S, 0, -1);
 		info_inventory_c2s.put("name", KEY_CA_KOLOR_ASPB_PRODUCT_C2S);
 		info_inventory_c2s.put("desc", "재고연동 Cube to SC");
-		info_inventory_c2s.put("list", list_inventory_c2s);
+		info_inventory_c2s.put("size", listOps.size(KEY_CA_KOLOR_ASPB_PRODUCT_C2S));
 		// 재고연동 SC-Cube
 		HashMap<String, Object> info_inventory_s2c = new HashMap<String, Object>();
-		List<String> list_inventory_s2c = listOps.range(KEY_CA_KOLOR_ASPB_INVENTORY_S2C, 0, -1);
 		info_inventory_s2c.put("name", KEY_CA_KOLOR_ASPB_PRODUCT_S2C);
 		info_inventory_s2c.put("desc", "재고연동 SC to Cube");
-		info_inventory_s2c.put("list", list_inventory_s2c);
+		info_inventory_s2c.put("size", listOps.size(KEY_CA_KOLOR_ASPB_INVENTORY_S2C));
 		
 		keyInfo.put("info_inventory_s2m", info_inventory_s2m);
 		keyInfo.put("info_inventory_c2s", info_inventory_c2s);
 		keyInfo.put("info_inventory_s2c", info_inventory_s2c);
 		
+		/*
+			품절취소:   조직코드:판매채널코드:order:3202:90
+			출고의뢰실패: 조직코드:판매채널코드:order:3202:09
+	
+			주문취소요청: 조직코드:판매채널코드:order:cancel
+			주문취소요청결과:조직코드:판매채널코드:order:cancel:result
+		*/
+		HashMap<String, Object> info_cube_3202_90 = new HashMap<String, Object>();
+		info_cube_3202_90.put("name", KOLOR_ASPB_KEY+KEY_CUBE_3202_90);
+		info_cube_3202_90.put("desc", "Cube출고의뢰결과 - 품절취소");
+		info_cube_3202_90.put("size", listOps.size(KOLOR_ASPB_KEY+KEY_CUBE_3202_90));
+		
+		keyInfo.put("info_cube_3202_90", info_cube_3202_90);
+		
+		HashMap<String, Object> info_cube_3202_09 = new HashMap<String, Object>();
+		info_cube_3202_09.put("name", KOLOR_ASPB_KEY+KEY_CUBE_3202_09);
+		info_cube_3202_09.put("desc", "Cube출고의뢰결과 - 실패");
+		info_cube_3202_09.put("size", listOps.size(KOLOR_ASPB_KEY+KEY_CUBE_3202_09));
+		
+		keyInfo.put("info_cube_3202_09", info_cube_3202_09);
+		
+		HashMap<String, Object> info_cube_9000_req = new HashMap<String, Object>();
+		info_cube_9000_req.put("name", KOLOR_ASPB_KEY+KEY_CUBE_9000_REQ);
+		info_cube_9000_req.put("desc", "Cube주문취소요청");
+		info_cube_9000_req.put("size", listOps.size(KOLOR_ASPB_KEY+KEY_CUBE_9000_REQ));
+		
+		keyInfo.put("info_cube_9000_req", info_cube_9000_req);
+		
+		HashMap<String, Object> info_cube_9000_res = new HashMap<String, Object>();
+		info_cube_9000_res.put("name", KOLOR_ASPB_KEY+KEY_CUBE_9000_RES);
+		info_cube_9000_res.put("desc", "Cube주문취소요청 결과");
+		info_cube_9000_res.put("size", listOps.size(KOLOR_ASPB_KEY+KEY_CUBE_9000_RES));
+		
+		keyInfo.put("info_cube_9000_res", info_cube_9000_res);
 		
 		
 		/**************************** Error Key ****************************/
-		
 		// 에러키
 		HashMap<String, Object> keyInfo_error = new HashMap<String, Object>();
 		
+		/*
+		 * 
+			주문생성에러: 조직코드:판매채널코드:order:error
+			주문상태별에러: 조직코드:판매채널코드:order:update:error:상태코드
+			상품연동에러: 사업부코드:product:error
+			재고연동에러: 사업부코드:inventory:error
+
+		 */
+		// 주문생성연동에러
+		HashMap<String, Object> info_create_err = new HashMap<String, Object>();
+		info_create_err.put("name", KEY_MA_KOLOR_ASPB_ORDER_ERROR);
+		info_create_err.put("desc", "주문생성에러");
+		info_create_err.put("size", listOps.size(KEY_MA_KOLOR_ASPB_ORDER_ERROR));
+		keyInfo_error.put("info_create_err", info_create_err);
 		
+		Set<String> kolor_order_error_keys = maStringRedisTemplate.keys(KOLOR_ASPB_KEY+"order:update:error:*");
+		List<HashMap<String,String>> err_key_list = new ArrayList<HashMap<String,String>>();
+		for( String keyName : kolor_order_error_keys ){
+			
+			HashMap<String, String> errKeyMap = new HashMap<String, String>();
+			errKeyMap.put("name", keyName);
+			errKeyMap.put("size", listOps.size(keyName)+"");
+			err_key_list.add(errKeyMap);
+		}
+		keyInfo_error.put("err_key_list", err_key_list);
 		
+		// 상품연동에러
+		HashMap<String, Object> info_product_err_ma = new HashMap<String, Object>();
+		info_product_err_ma.put("name", KEY_MA_KOLOR_ASPB_PRODUCT_ERROR);
+		info_product_err_ma.put("desc", "상품연동에러 - MA");
+		info_product_err_ma.put("size", listOps.size(KEY_MA_KOLOR_ASPB_PRODUCT_ERROR));
 		
+		keyInfo_error.put("info_product_err_ma", info_product_err_ma);
+		
+		HashMap<String, Object> info_product_err_ca = new HashMap<String, Object>();
+		info_product_err_ca.put("name", KEY_CA_KOLOR_PRODUCT_ERROR);
+		info_product_err_ca.put("desc", "상품연동에러 - Cube");
+		info_product_err_ca.put("size", listOps.size(KEY_CA_KOLOR_PRODUCT_ERROR));
+		
+		keyInfo_error.put("info_product_err_ca", info_product_err_ca);
+		
+		// 재고연동에러
+		HashMap<String, Object> info_inventory_err_ma = new HashMap<String, Object>();
+		info_inventory_err_ma.put("name", KEY_MA_KOLOR_ASPB_INVENTORY_ERROR);
+		info_inventory_err_ma.put("desc", "재고연동에러 - MA");
+		info_inventory_err_ma.put("size", listOps.size(KEY_MA_KOLOR_ASPB_INVENTORY_ERROR));
+		
+		keyInfo_error.put("info_inventory_err_ma", info_inventory_err_ma);
+		
+		HashMap<String, Object> info_inventory_err_ca = new HashMap<String, Object>();
+		info_inventory_err_ca.put("name", KEY_CA_KOLOR_INVENTORY_ERROR);
+		info_inventory_err_ca.put("desc", "재고연동에러 - Cube");
+		info_inventory_err_ca.put("size", listOps.size(KEY_CA_KOLOR_INVENTORY_ERROR));
+		
+		keyInfo_error.put("info_inventory_err_ca", info_inventory_err_ca);
 		
 		
 		
 		ModelAndView mav = new ModelAndView("");
 		mav.addObject("KOLOR", keyInfo);
+		mav.addObject("KOLOR_ERR", keyInfo_error);
 		
 		mav.setViewName("admin/system/redis_list_all");
 		return mav;   
@@ -279,94 +371,19 @@ public class SystemMgmtController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/getRedisDataList.do")
-	public ModelAndView getRedisDataList( @RequestParam Map<String, String> paramMap) throws Exception{ 
+	@RequestMapping(value = "/getRedisKeyData.sc")
+	public ModelAndView getRedisDataListByKey( @RequestParam String key) throws Exception{ 
 		
-		// KOLOR, DA, ISEC etc
-//		HashMap<String, HashMap<String, List<HashMap<String,String>>>> allKeyDataMap = new HashMap<String, HashMap<String,List<HashMap<String,String>>>>();
-		
-		// Order MA, Order CA, Product MA, Product CA, Inventory MA, Invetory CA
-		HashMap<String, List<HashMap<String,String>>> dataMap_KOLOR = new HashMap<String, List<HashMap<String,String>>>();
-		
-		Set<String> ma_all_keys_SLV= maStringRedisTemplate.keys("KOLOR:*:*");
-		Set<String> ca_all_keys_SLV= maStringRedisTemplate.keys("80:*:*");
-		
-		
-		
-		// KOLOR - MA
-		// TODO: 상품-재고 키 추출로직 보완
-		List<HashMap<String,String>> slv_order_list = new ArrayList<HashMap<String,String>>();
-		List<HashMap<String,String>> slv_product_list = new ArrayList<HashMap<String,String>>();
-		List<HashMap<String,String>> slv_inventory_list = new ArrayList<HashMap<String,String>>();
-		for( String keyName : ma_all_keys_SLV ){
-			
-			String keyCh = keyName.split("\\:")[1];
-			String keyType = keyName.split("\\:")[2];
+		logger.debug("[key]"+key);
 			
 			
-			List<String> keyDataList= listOps.range(keyName, 0, -1);
-			System.out.println("["+keyName+" - size]"+keyDataList.size());
+		List<String> keyDataList= listOps.range(key, 0, -1);
+		System.out.println("["+key+" - size]"+keyDataList.size());
 			
-			HashMap<String, String> keyInfo = new HashMap<String, String>();
-			keyInfo.put("name", keyName);
-			keyInfo.put("size", ""+keyDataList.size());
-			
-			if("order".equals(keyType)){
-				slv_order_list.add(keyInfo);
-			}
-			
-			
-			if("product".equals(keyCh)){
-				slv_product_list.add(keyInfo);
-			}
-			
-			if("inventory".equals(keyCh)){
-				slv_inventory_list.add(keyInfo);
-			}
-		}
-		dataMap_KOLOR.put("order_ma", slv_order_list);
-		dataMap_KOLOR.put("product_ma", slv_product_list);
-		dataMap_KOLOR.put("inventory_ma", slv_inventory_list);
-		
-		
-		List<HashMap<String,String>> slv_ca_order_list = new ArrayList<HashMap<String,String>>();
-		List<HashMap<String,String>> slv_ca_product_list = new ArrayList<HashMap<String,String>>();
-		List<HashMap<String,String>> slv_ca_inventory_list = new ArrayList<HashMap<String,String>>();
-		for( String keyName : ca_all_keys_SLV ){
-			
-			String keyCh = keyName.split("\\:")[1];
-			String keyType = keyName.split("\\:")[2];
-			
-			List<String> keyDataList= listOps.range(keyName, 0, -1);
-			System.out.println("["+keyName+" - size]"+keyDataList.size());
-			
-			HashMap<String, String> keyInfo = new HashMap<String, String>();
-			keyInfo.put("name", keyName);
-			keyInfo.put("size", ""+keyDataList.size());
-			
-			if("order".equals(keyType)){
-				slv_ca_order_list.add(keyInfo);
-			}
-			
-			
-			if("product".equals(keyCh)){
-				slv_ca_product_list.add(keyInfo);
-			}
-			
-			
-			if("inventory".equals(keyCh)){
-				slv_ca_inventory_list.add(keyInfo);
-			}
-		}
-		dataMap_KOLOR.put("order_ca", slv_ca_order_list);
-		dataMap_KOLOR.put("product_ca", slv_ca_product_list);
-		dataMap_KOLOR.put("inventory_ca", slv_ca_inventory_list);
-		
 		
 		ModelAndView mav = new ModelAndView("jsonView");
-		mav.addObject("KOLOR", dataMap_KOLOR);
-		mav.setViewName("admin/system/redis_list_all");
-		return mav;   
+		mav.addObject("dataList", keyDataList);
+		return mav;
 		
 	}
 }

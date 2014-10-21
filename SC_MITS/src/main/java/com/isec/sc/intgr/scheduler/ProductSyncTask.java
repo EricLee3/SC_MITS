@@ -175,6 +175,17 @@ public class ProductSyncTask {
 					HashMap<String, Object> resultMap = sterlingApiDelegate.manageItem(itemXML);
 					String succ = (String)resultMap.get("succ");
 					
+					
+					// Login 실패일 경우 Key에 다시 기록 - 재처리 시도
+					if("90".equals(succ)){
+						
+						logger.debug("Login Failed!!!");
+						listOps.leftPush(redisKeyC2S, jsonString);
+						continue;
+					}
+					
+					
+					
 					// 결과값처리
 					HashMap<String, Object> returnMap = new HashMap<String, Object>();
 					returnMap.put("org_code", org_code);
@@ -187,7 +198,7 @@ public class ProductSyncTask {
 						logger.debug("#####[manageItem Success]");
 						returnMap.put("statuscd", succ);
 						
-						succList.add(returnMap);
+						succList.add(itemMap);
 						
 					// 실패	
 					}else if("99".equals(succ)){
@@ -201,23 +212,28 @@ public class ProductSyncTask {
 				} // End for Item List
 				
 				
+				// Cube에 결과값 전송
 				HashMap<String, Object> returnListMap = new HashMap<String, Object>();
 				returnListMap.put("list", returnList);
-				
-				// Cube에 결과값 전송
 				ObjectMapper resultMapper = new ObjectMapper();
-				listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnListMap));
+				 listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnListMap));
 				logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnListMap));
 				
 				
+				
 				// MA에 결과값 전송 - 성공데이타 전송
-				listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(new HashMap<String,Object>().put("list", succList)));
-				logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(new HashMap<String,Object>().put("list", succList)));
+				HashMap<String, Object> succMap = new HashMap<String, Object>();
+				succMap.put("list", succList);
+				
+				listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(succMap));
+				logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(succMap));
 				
 				
 				// Error키에 실패데이타 저장 - SC 관리용
-				listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(failList));
-				logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(failList));
+				if(failList.size() > 0){
+					listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(failList));
+					logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(failList));
+				}
 				
 				
 				

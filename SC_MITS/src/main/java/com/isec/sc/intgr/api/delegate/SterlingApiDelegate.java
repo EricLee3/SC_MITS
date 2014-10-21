@@ -208,6 +208,8 @@ public class SterlingApiDelegate {
 		
 		Document doc = null;
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		
+		XPath xp = XPathFactory.newInstance().newXPath();
 
 		try {
 			
@@ -220,12 +222,23 @@ public class SterlingApiDelegate {
 			// output string Parsing
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
 			
-			// Error 처리
 			logger.debug("result:::"+doc.getFirstChild().getNodeName());
+			
+			// Login Failed가 발생하면 재처리 시도
+			if("errors".equals(doc.getFirstChild().getNodeName())){
+				String errType = (String)xp.evaluate("error/@type", doc.getDocumentElement(), XPathConstants.STRING);
+				if("Login".equals(errType)){
+					logger.debug("Login Failed!!!");
+					resultMap.put("succ", "90");
+					return resultMap;
+				}
+			}
+			
+			
+			// Error 처리
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 				
-				ObjectMapper mapper = new ObjectMapper();
-				XPath xp = XPathFactory.newInstance().newXPath();
+				
 				
 //				String errCode = (String)xp.evaluate("Error/@ErrorCode", doc.getDocumentElement(), XPathConstants.STRING);
 				String errDesc = (String)xp.evaluate("Error/@ErrorDescription", doc.getDocumentElement(), XPathConstants.STRING);
@@ -330,7 +343,7 @@ public class SterlingApiDelegate {
 	
 	/**
 	 * 출고생성
-	 * @param shipmentNo
+	 * @param shipmentNo 없는경우 자동생성
 	 * @param releaseKey
 	 * @return
 	 * @throws Exception

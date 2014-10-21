@@ -32,7 +32,8 @@ var EcommerceOrders = function () {
                 // execute some code on network or other general error  
             },
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
-                "lengthMenu": [
+                
+            		"lengthMenu": [
                     [15, 20, 50, 100, 150, -1],
                     [15, 20, 50, 100, 150, "All"] // change per page values here
                 ],
@@ -49,9 +50,13 @@ var EcommerceOrders = function () {
                                {
                                    "render": function ( data, type, row ) {
                                 	      if(row['cancelReq'] == 'Y'){
-                                	    	    var cacelLabel = '&nbsp;<span class="label label-sm label-danger">주문취소요청중</span>'
+                                	    	    var cacelLabel = '&nbsp;<span class="label label-sm label-danger">취소요청중</span>'
                                 	    	  	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>'+cacelLabel;
-                                	      }else{
+                                	      }else if(row['cancelRes'] == 'Y'){
+                            	    	  		var cacelLabel = '&nbsp;<span class="label label-sm label-danger">취소실패-'+row['cancelRes_code']+'</span>';
+                                  	    	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>'+cacelLabel;
+                                	      }
+                                	      else{
                                 	    	  	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>';
                                 	      }
                                        
@@ -64,7 +69,8 @@ var EcommerceOrders = function () {
                             	      },
                             	      "targets": 10	// View Button
                                },
-                               { "visible": false,  "targets": [11] }  // cancelReq Hidden
+                               { "visible": false,  "targets": [11] },  // cancelReq Hidden
+                               { "type": "decimal", "class": "right", "targets": [ 8 ] }
                                
                            ],
                 "columns": [
@@ -77,9 +83,9 @@ var EcommerceOrders = function () {
 //                            },
                             { 
                             	"class":          'details-control',
-                                "orderable":      false,
-                                "data":           null,
-                                "defaultContent": '<span class="row-details row-details-close"></span>'
+                            "orderable":      false,
+                            "data":           null,
+                            "defaultContent": '<span class="row-details row-details-close"></span>'
 	                        },
                             { "data": "orderNo" },
                             { 

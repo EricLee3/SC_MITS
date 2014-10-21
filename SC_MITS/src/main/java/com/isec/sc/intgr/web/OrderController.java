@@ -350,6 +350,23 @@ public class OrderController {
 			}
 			dataMap.put("cancelReq", cancelReq);
 			
+			// 주문취소요청 결과 조회
+			String checkResKey = enterPrise+":"+sellerOrg+":order:cancel:result";
+			String cancelRes = "N";
+			List<String> cancelResRedisList = listOps.range(checkResKey, 0, -1);
+			for( String jsonData: cancelResRedisList){
+				
+				HashMap<String,String> cancelResMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				if(orderNo.equals( cancelResMap.get("orderNo") )){
+					cancelRes = "Y";
+					dataMap.put("cancelRes_code", cancelResMap.get("status_code"));
+					dataMap.put("cancelRes", cancelRes);
+					
+					break;
+				}
+			}
+			
+			
 			
 			//-------- 3. Order Line Info
 			NodeList orderLineNodeList = (NodeList)xp.evaluate("OrderLines/OrderLine", orderNodeList.item(i), XPathConstants.NODESET);
@@ -1728,11 +1745,15 @@ public class OrderController {
 			
 			String jsonData = cancelReqRedisList.get(i);
 			
-			logger.debug("[jsonData]"+ jsonData);
+//			logger.debug("[jsonData]"+ jsonData);
 			HashMap<String,String> map = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
 			
 			String cancelOrderNo = map.get("orderNo");
 			if(orderNo.equals(cancelOrderNo)){
+				
+				
+				logger.debug("[code]"+map.get("status_code"));
+				logger.debug("[text]"+map.get("status_text"));
 				
 				cacenReqInfo.put("status_code", map.get("status_code"));
 				cacenReqInfo.put("status_text", map.get("status_text"));

@@ -478,9 +478,14 @@ public class ScOrderStatusHandler {
 			// 주문기본정보
 			String docType = outputXML.getAttribute("DocumentType"); // 오더유형
 			String orderNo = outputXML.getAttribute("OrderNo");	// 오더번호
-			String orderKey = outputXML.getAttribute("OrderHeaderKey");
-			String orderDate = outputXML.getAttribute("OrderDate");
+			String orderKey = outputXML.getAttribute("OrderHeaderKey"); // 오더헤더키
+			String orderDate = outputXML.getAttribute("OrderDate"); // 오더생성일
 			orderDate = orderDate.substring(0,4)+orderDate.substring(5,7)+orderDate.substring(8,10);
+			
+			String vendorId = outputXML.getAttribute("VendorID"); 
+			logger.debug("[vendorId]"+vendorId);
+			logger.debug("[vendorId]"+vendorId);
+			logger.debug("[vendorId]"+vendorId);
 			
 			
 //			String orderStatus = outputXML.getAttribute("Status"); // 오더상태 Text
@@ -498,9 +503,9 @@ public class ScOrderStatusHandler {
 			String receiptZipcode = (String)xp.evaluate("PersonInfoShipTo/@ZipCode", outputXML, XPathConstants.STRING);
 			
 			
-			logger.debug("[receiptNm]"+receiptNm);
-			logger.debug("[receiptAddr1]"+receiptAddr1);
-			logger.debug("[receiptAddr2]"+receiptAddr2);
+//			logger.debug("[receiptNm]"+receiptNm);
+//			logger.debug("[receiptAddr1]"+receiptAddr1);
+//			logger.debug("[receiptAddr2]"+receiptAddr2);
 			
 			// 주문자 주소 PersonInfoBillTo - 주문자명, 주문자전화번호, 주문자휴대전화번
 			String custNm = (String)xp.evaluate("PersonInfoBillTo/@FirstName", outputXML, XPathConstants.STRING)
@@ -511,7 +516,20 @@ public class ScOrderStatusHandler {
 //			String custAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", outputXML, XPathConstants.STRING);
 //			String custAddr2 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine2", outputXML, XPathConstants.STRING);
 //			String custZipcode = (String)xp.evaluate("PersonInfoBillTo/@ZipCode", outputXML, XPathConstants.STRING);
-		
+			
+			
+			/*
+			 *  배송메세지
+			 *   <Instructions NumberOfInstructions="1">
+			        <Instruction InstructionText="aaa" InstructionType="DLV_MSG" InstructionURL=""/>
+			    </Instructions>
+			 * 
+			 */
+			String deliveryMsg = (String)xp.evaluate("Instructions/Instruction[@InstructionType='DLV_MSG']/@InstructionText", outputXML, XPathConstants.STRING);
+			logger.debug("[deliveryMsg]"+deliveryMsg);
+			logger.debug("[deliveryMsg]"+deliveryMsg);
+			logger.debug("[deliveryMsg]"+deliveryMsg);
+			
 		
 			// 정상 Released가 된 OrderLine정보만 추출
 			NodeList releaseOrderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@MinLineStatus='3200' and @MaxLineStatus='3200']", outputXML, XPathConstants.NODESET);
@@ -602,7 +620,7 @@ public class ScOrderStatusHandler {
 				orderLineMap.put("salePrice", cubePrice+"");
 				
 				// TODO: 배송메세지 전송가능여부 확인(MA)
-				orderLineMap.put("deliveryMsg", "");	
+				orderLineMap.put("deliveryMsg", deliveryMsg);	
 				
 				confirmList.add(orderLineMap);
 			} // End for ReleaseList
@@ -612,6 +630,7 @@ public class ScOrderStatusHandler {
 			String orgCode = env.getProperty("ca."+entCode); // 사업부코드 - 조직코드 변환
 			sendMsgMap.put("org_code", orgCode);
 			sendMsgMap.put("sell_code", sellerCode);
+			sendMsgMap.put("vendor_id", vendorId);	// 2차DOS채널
 			sendMsgMap.put("orderId", orderNo);
 			sendMsgMap.put("orderDt", orderDate);
 			sendMsgMap.put("orderHeaderKey", orderKey);
