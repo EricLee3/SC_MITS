@@ -650,8 +650,6 @@ public class ScOrderStatusHandler {
 			logger.debug("[3200 S2C - trans Data]"+outputMsg);
 			logger.debug("[3200 S2C - trans Key]"+pushKey);
 			
-			
-			
 			// RedisDB에 메세지 저장
 			listOps.leftPush(pushKey, outputMsg);
 			
@@ -663,7 +661,7 @@ public class ScOrderStatusHandler {
 			for(int i=0; i<returnList.size(); i++){
 				returnList.get(i).put("shipmentNo", "0000"+(i+1));
 				returnList.get(i).put("statuscd", "01");
-				returnList.get(i).put("uom", "EACH");
+				returnList.get(i).put("statusMsg", "");
 			}
 			sendMsgMap.remove("list");
 			sendMsgMap.put("list", returnList);

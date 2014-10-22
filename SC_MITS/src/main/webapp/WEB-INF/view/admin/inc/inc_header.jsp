@@ -3,9 +3,10 @@
 	<!-- BEGIN HEADER INNER -->
 	<div class="page-header-inner">
 		<!-- BEGIN LOGO -->
-		<div class="page-logo">
+		<div class="page-logo" style="padding-top:5px;">
 			<a href="/">
-			<img src="../../assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/>
+			<!-- <img src="../../assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/> -->
+			<button class="btn bg-blue-hoki"  type="button">Order Management Center</button>
 			</a>
 			<div class="menu-toggler sidebar-toggler hide">
 				<!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
@@ -126,7 +127,7 @@
 				</li>
 				<!-- END NOTIFICATION DROPDOWN -->
 				<!-- BEGIN INBOX DROPDOWN -->
-				<li class="dropdown dropdown-extended dropdown-inbox" id="header_inbox_bar">
+				<!-- <li class="dropdown dropdown-extended dropdown-inbox" id="header_inbox_bar">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
 					<i class="icon-envelope-open"></i>
 					<span class="badge badge-default">
@@ -223,10 +224,10 @@
 							</a>
 						</li>
 					</ul>
-				</li>
+				</li> -->
 				<!-- END INBOX DROPDOWN -->
 				<!-- BEGIN TODO DROPDOWN -->
-				<li class="dropdown dropdown-extended dropdown-tasks" id="header_task_bar">
+				<!-- <li class="dropdown dropdown-extended dropdown-tasks" id="header_task_bar">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
 					<i class="icon-calendar"></i>
 					<span class="badge badge-default">
@@ -360,14 +361,14 @@
 							</a>
 						</li>
 					</ul>
-				</li>
+				</li> -->
 				<!-- END TODO DROPDOWN -->
 				<!-- BEGIN USER LOGIN DROPDOWN -->
-				<!-- <li class="dropdown dropdown-user">
+				<li class="dropdown dropdown-user">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
 					<img alt="" class="img-circle" src="../../assets/admin/layout/img/avatar3_small.jpg"/>
 					<span class="username">
-					Bob </span>
+					Login User1 </span>
 					<i class="fa fa-angle-down"></i>
 					</a>
 					<ul class="dropdown-menu">
@@ -375,7 +376,7 @@
 							<a href="extra_profile.html">
 							<i class="icon-user"></i> My Profile </a>
 						</li>
-						<li>
+						<!-- <li>
 							<a href="page_calendar.html">
 							<i class="icon-calendar"></i> My Calendar </a>
 						</li>
@@ -392,7 +393,7 @@
 							</a>
 						</li>
 						<li class="divider">
-						</li>
+						</li> -->
 						<li>
 							<a href="extra_lock.html">
 							<i class="icon-lock"></i> Lock Screen </a>
@@ -402,14 +403,14 @@
 							<i class="icon-key"></i> Log Out </a>
 						</li>
 					</ul>
-				</li> -->
+				</li>
 				<!-- END USER LOGIN DROPDOWN -->
 				<!-- BEGIN QUICK SIDEBAR TOGGLER -->
-				<li class="dropdown dropdown-quick-sidebar-toggler">
+				<!-- <li class="dropdown dropdown-quick-sidebar-toggler">
 					<a href="javascript:;" class="dropdown-toggle">
 					<i class="icon-logout"></i>
 					</a>
-				</li>
+				</li> -->
 				<!-- END QUICK SIDEBAR TOGGLER -->
 			</ul>
 		</div>

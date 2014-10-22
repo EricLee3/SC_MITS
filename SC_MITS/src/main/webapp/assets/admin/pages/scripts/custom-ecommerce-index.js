@@ -535,7 +535,7 @@ var EcommerceIndex = function () {
 			{
 				if(mode == 'reload'){
 					reload_table_overview('#table_new_list', data.newList);
-					reload_table_overview('#table_pending_list', data.pendingList);
+					reload_table_overview('#table_pending_list', data.releaseList);
 					reload_table_overview('#table_createShipment_list', data.createShipmentList);
 					reload_table_overview('#table_shipped_list', data.shippedList);
 					reload_table_overview('#table_cancelled_list', data.cancelReqList);
@@ -613,16 +613,17 @@ var EcommerceIndex = function () {
 				 var tab_index = $('#tab_overview .nav.nav-tabs li[class="active"]').index();
 				 
 				 var status = "";
+				 var mn = ""; //menu_index
 				 switch(tab_index) {
 				 
-					  case 0: status = "A"; break;
-					  case 1: status = "1300"; break;
-					  case 2: status = "3350"; break;
-					  case 3: status = "3700"; break;
-					  case 4: status = "9002"; break; // 주문취소요청
+					  case 0: status = "1100"; mn="1"; break;
+					  case 1: status = "1300"; mn="5"; break;
+					  case 2: status = "3350"; mn="3"; break;
+					  case 3: status = "3700"; mn="4"; break;
+					  case 4: status = "9002"; mn="6"; break; // 주문취소요청
 				  }
 				 
-				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true');
+				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true&mn='+mn);
 				 
 			 });
         },

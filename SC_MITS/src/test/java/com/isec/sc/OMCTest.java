@@ -396,6 +396,18 @@ public class OMCTest {
 	}
 	
 	
+	@Test
+	public void testConfirmShipment(){
+		
+		
+		String msg = "{		\"orderHeaderKey\":\"20141018000000271014\",		\"sell_code\":\"ASPB\",		\"status\":\"3700\",		\"org_code\":\"80\",		\"list\":[		{		\"custNm\":\"이천재　\",		\"orderLineKey\":\"20141018000000271015\",		\"ship_node\":\"WH601\",		\"custHp\":\"010-9890-7118\",		\"orderId\":\"100001351\",		\"receiptZipcode\":\"157-880\",		\"statuscd\":\"01\",		\"sell_code\":\"ASPB\",		\"orderReleaseKey\":\"20141020091946272349\",		\"itemNm\":\"ASPENBAY_TEST7_2차\",		\"org_code\":\"80\",		\"receiptAddr1\":\"서울특별시강서구강서로12길14-21(인터시티빌라)\",		\"qty\":\"1\",		\"receiptTel\":\"010-9890-7118\",		\"receiptNm\":\"이천재　\",		\"receiptAddr2\":\"C-401\",		\"statusMsg\":\"\",		\"itemId\":\"AYF5AC607016\",		\"receiptHp\":\"010-9890-7118\",		\"shipmentNo\":\"00001\",		\"orderLineNo\":\"1\",		\"deliveryMsg\":\"\",		\"salePrice\":\"23000\",		\"orderDt\":\"20141018\",		\"custTel\":\"010-9890-7118\",		\"expnm\":\"11111\",		\"expNo\":\"00\",		\"outDt\":\"20141016\",		\"outTime\":\"165021\"		}		],		\"tranDt\":\"20141022195842\",		\"orderDt\":\"20141018\",		\"vendor_id\":\"\",		\"orderId\":\"100001351\"		}";
+		
+		listOps.leftPush("80:ASPB:order:update:C2S", msg);
+		
+		
+		
+	}
+	
 	
 	@Ignore
 	public void deleteKeyData() {

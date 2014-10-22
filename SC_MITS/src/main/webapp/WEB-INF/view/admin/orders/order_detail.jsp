@@ -1444,7 +1444,8 @@ License: You must have a valid license purchased only from themeforest(the above
 					 90 - 출고확정건
 				 */
 				$("#cancel-req").remove();
-            		$('<span class="label label-danger">취소처리실패</span>').appendTo("#order_status");
+            		$('<span class="label label-danger">취소처리실패-'+cancelResCode+'</span>').appendTo("#order_status");
+            		$('<span> - '+cancelResText+'</span>').appendTo("#order_status");
             		//$("#order_status").add(cancelResText);
             	
             		
@@ -1464,20 +1465,23 @@ License: You must have a valid license purchased only from themeforest(the above
             		
             		else if(cancelResCode == '09'){
             			
-            			statusDetailText = '<h5>[취소처리실패] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</h4>';
+            			statusDetailText = '<h5><b>[취소처리실패,미대상건] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</b></h4>';
 	    				statusDetailText += '<p class="text-danger">';
-	    				statusDetailText += ' - 취소대상건이 없는 상태인 경우, 주문상태가 [출고준비]상태인지 확인 후 재시도<br>';
-	    				statusDetailText += ' - 실패인 경우 시스템 담당자에게 문의할것.<br>';
+	    				statusDetailText += ' - 취소대상건이 없는 경우, 주문상태가 [출고준비]상태인지 확인 후 주문취소요청 재시도<br>';
+	    				statusDetailText += ' - 취소처리실패인 경우 시스템 담당자에게 문의할것.<br>';
 	    				statusDetailText += '<br>';
     	    				statusDetailText += '</p>';
     	    				
     	    				// 주문취소 요청으로 버튼명 변경
     	    				$("#tool_cancel").text("주문취소 요청");
+    	    				
+    	    				// 부분주문취소버튼 숨김
+    	    				$("#tool_line_cancel").hide();
             		}
             		
             		else if(cancelResCode == '90'){
             			
-            			statusDetailText = '<h5>[출고확정건] - Cube에서 이미 출고처리되어 주문취소가 불가한 상태</h4>';
+            			statusDetailText = '<h5><b>[출고확정건] - Cube에서 이미 출고처리되어 주문취소가 불가한 상태</b></h4>';
 	    				statusDetailText += '<p class="text-danger">';
         	    			statusDetailText += ' - 해당주문의 상태를 다시 확인한 후 주문상태가 [출고확정]이면 고객 아웃바운드 필요.<br>';
         	    			statusDetailText += ' - 주문상태가 [출고확정]이 아닐 경우, Cube의 상태 확인 후 일정시간 대기후 주문상태 재확인 필요.<br>';

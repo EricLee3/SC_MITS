@@ -1,7 +1,7 @@
 <!-- BEGIN FOOTER -->
 <div class="page-footer">
 	<div class="page-footer-inner">
-		 2014 &copy; Metronic by keenthemes.
+		 OMC COPYRIGHT 2014 &copy; ISECommerce.CO.LTD. All Right Reserved.
 	</div>
 	<div class="page-footer-tools">
 		<span class="go-top">

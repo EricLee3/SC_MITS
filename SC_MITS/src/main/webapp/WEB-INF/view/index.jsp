@@ -345,7 +345,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="portlet box blue-steel" id="pt_order_overview">
 						<div class="portlet-title">
 							<div class="caption">
-								<i class="fa fa-thumb-tack"></i>최근 오더목록
+								<i class="fa fa-thumb-tack"></i>상태별 오더목록
 							</div>
 							
 							<div class="tools">
@@ -374,14 +374,14 @@ License: You must have a valid license purchased only from themeforest(the above
 											<a href="javascript:EcommerceIndex.getOrderListByCh('ASPB');">
 											Aspen Bay </a>
 										</li>
-										<li>
+										<!-- <li>
 											<a href="javascript:EcommerceIndex.getOrderListByCh('JNS');">
 											Joseph & Stacey </a>
 										</li>
 										<li>
 											<a href="javascript:EcommerceIndex.getOrderListByCh('OUTRO');">
 											Outro </a>
-										</li>
+										</li> -->
 										<!-- <li class="divider">
 										</li> -->
 										<!-- <li>
@@ -403,23 +403,23 @@ License: You must have a valid license purchased only from themeforest(the above
 							<ul class="nav nav-tabs">
 								<li class="active">
 									<a href="#overview_1" data-toggle="tab">
-									최근 오더 </a>
+									최근오더 </a>
 								</li>
 								<li>
-									<a href="#overview_2" data-toggle="tab">
-									미 출고의뢰건(담당자 확인필요) </a>
+									<a href="#overview_2" data-toggle="tab" >
+									<span class="text-danger">미출고의뢰</span></a>
 								</li>
 								<li>
 									<a href="#overview_3" data-toggle="tab">
-									출고준비 목록 </a>
+									출고준비 </a>
 								</li>
 								<li>
 									<a href="#overview_4" data-toggle="tab">
-									출고완료 목록 </a>
+									출고완료 </a>
 								</li>
 								<li>
 									<a href="#overview_5" data-toggle="tab">
-									주문취소 요청목록 </a>
+									주문취소요청 </a>
 								</li>
 								<!-- <li>
 									<a href="#overview_5" data-toggle="tab">

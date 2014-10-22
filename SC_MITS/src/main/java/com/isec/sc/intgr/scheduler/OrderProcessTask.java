@@ -96,9 +96,6 @@ public class OrderProcessTask {
 	 * MA로 부터 전송된 주문정보로 SC의 주문생성 API(createOrder)를 수행하고,
 	 * 정상일 경우 SC의 schedule&releaseOrder를 바로 실행시킨다.
 	 * 
-	 * Order Release이후의 처리는
-	 * ScOrderStatusHandler의 updateOrderStatus가 처리한다.
-	 * 
 	 * 
 	 * @param redisKey	MA에 전송한 최초 오더생성 정보 ( SC의 CreateOrder API의 Input XML)
 	 * @param redisPushKey MITS에서 오더생성 후 MA로 오더생성 성공여부를 전송하는 Key -> Ma는 이 정보를 확인해서 Placed로 변경한다.
@@ -271,10 +268,12 @@ public class OrderProcessTask {
     				
     				// 상태별 에러키 재지정
     				redisErrKey = redisErrKey+":"+status;
+    				logger.debug("[redisErrKey]"+redisErrKey);
+    				
     				
     				// Create Shipment
     				if("3202".equals(status)){
-    					processReleaseReturn(dataMap, redisKey, redisPushKey, redisErrKey);
+    					processCreateShipment(dataMap, redisKey, redisPushKey, redisErrKey);
     					
     				
     				// Confirm Shipment
@@ -350,9 +349,9 @@ public class OrderProcessTask {
 	 * @param redisErrKey
 	 * 			Aspenbay: KOLOR:ASPB:order:update:error:3202
 	 */
-	private void processReleaseReturn(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
+	private void processCreateShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
-		logger.debug("##### [processReleaseReturn] Job Task Started!!!");
+		logger.debug("##### [processCreateShipment] Job Task Started!!!");
 				
 		// createShipment API 호출
 		String docType = "0001";	// Sales Order
@@ -385,7 +384,7 @@ public class OrderProcessTask {
 				String bar_code =  (String)resultList.get(i).get("itemId");
 				String uom =  (String)resultList.get(i).get("uom");
 				
-				logger.debug("##### [processReleaseReturn] 품절취소발생 Cube shortage occured!!!");
+				logger.debug("##### [processCreateShipment] 품절취소발생 Cube shortage occured!!!");
 				
 				
 				// 1. adjustInventory 호출 - 재고 0으로 변경 - TODO: 재고변경 이벤트핸들러를 통해 MA로 재고변경정보 전송 
@@ -435,9 +434,35 @@ public class OrderProcessTask {
 					listOps.leftPush(cubeShortedKey, data);
 					
 					
-					// TODO: MA와 해당상품의 재고 연동
+					/*
+					 * 0으로 변경된 재고정보 MA 전송키에 저장
+					 * {
+						"list": [
+							        {
+							            "org_code":"사업부코드"
+							            "bar_code": "상품코드", ,
+							            "qty": "수량",
+							        }
+							    ]
+						}
+					 */
+					HashMap<String, String> sendMaInv = new HashMap<String, String>();
+					sendMaInv.put("org_code", entCode);
+					sendMaInv.put("bar_code", bar_code);
+					sendMaInv.put("qty", 0+"");
+					
+					List<HashMap<String,String>> sendMaList = new ArrayList<HashMap<String,String>>();
+					sendMaList.add(sendMaInv);
+					
+					HashMap<String,List<HashMap<String,String>>> sendMaMap = new HashMap<String, List<HashMap<String,String>>>();
+					sendMaMap.put("list", sendMaList);
 					
 					
+					ObjectMapper resultMapper = new ObjectMapper();
+					logger.debug("[MA Send MSG]"+resultMapper.writeValueAsString(sendMaMap));
+					
+					String maKey = entCode+":"+sellerCode+":"+"inventory:S2M";
+					listOps.leftPush(maKey, resultMapper.writeValueAsString(sendMaMap));
 				}
 				
 				
@@ -448,19 +473,17 @@ public class OrderProcessTask {
 				failCount++;
 				
 			}
-			// 성공일 경우 - 전체성공 처리, 루프 한번만 수행
+			// 성공일 경우 - 전체성공 처리, 루프 한번만 수행, createShipment호출
 			else if("01".equals(resultCode)){
 				
 				
 				/*
-				 * createShipment의 Key로 Cube전표번호 사용못함. 
 				 * 주문확정 재처리시  확보된 재고의 ShipNode가 오더라인별로 다를 경우 릴리즈키가 다르게 생성됨.(Shipment도 다르게 생성된다는 의미)
-				 * TODO: Cube전표번호는 참고정보로 별도항목으로 저장필요 
 				 */
-				String shipmentNo =  (String)resultList.get(i).get("shipmentNo");				
+				String cubeShipmentNo =  (String)resultList.get(i).get("shipmentNo");				
 				String orderReleaseKey =  (String)resultList.get(i).get("orderReleaseKey");
 				
-				logger.debug("##### [shipmentNo]" + shipmentNo);
+				logger.debug("##### [cubeShipmentNo]" + cubeShipmentNo);
 				logger.debug("##### [orderReleaseKey]" + orderReleaseKey);
 				
 				
@@ -469,11 +492,12 @@ public class OrderProcessTask {
 				
 				for(int j=0; j<releaseKeys.size(); j++){
 					
-					// TODO: Cube전표번호 항목 매핑필
-					int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
+					int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j), cubeShipmentNo);
 					if(result == 0){
+						
 						// 에러데이타 저장
 						redisService.saveErrDataByOrderId(redisErrKey, orderId, outputMsg);
+						
 						// TODO: 에러발생 처리 - 시스템담당자 메일발송
 					}
 				}
@@ -484,7 +508,7 @@ public class OrderProcessTask {
 			
 			// 전체실패일 경우 에러키에 저장
 			if(failCount == resultList.size()){
-				logger.debug("##### [processReleaseReturn] 출고의뢰 실패 Cube shortage occured!!!");
+				logger.debug("##### [processCreateShipment] 출고의뢰 실패 Cube shortage occured!!!");
 				
 				
 				// 큐브실패 키에 오더정보 저장. TODO: 유효기간 정의 필요
@@ -499,7 +523,7 @@ public class OrderProcessTask {
 		}
 		
 		
-		logger.debug("##### [processReleaseReturn] Job Task End!!!");
+		logger.debug("##### [processCreateShipment] Job Task End!!!");
 	}
 	
 	
@@ -589,8 +613,8 @@ public class OrderProcessTask {
 		// TODO: 택배사코드 테스트코드로 작성
 		String scacOrgCode = entCode;
 		//String scacOrgCode = "CJL";
-		//scacCode = "CJL_STD";
-		scacCode = "19991214183438453"; // USPS Default Code
+		scacCode = "20140917094212141984"; // CJL_STD
+		// scacCode = "19991214183438453"; // USPS Default Code
 		
 		
 		
@@ -631,10 +655,10 @@ public class OrderProcessTask {
 			msg = new MessageFormat(confirmShipment_template);
 			inputXML = msg.format(new String[] {docType, entCode, sellerCode, 
 									shipmentNo, 
-									shipNode, 
-									trackingNo,
-									scacOrgCode,
-									scacCode
+									shipNode, 	// 창고번호
+									trackingNo,	// 전표번호
+									scacOrgCode,	// 택배사조직코드
+									scacCode    // 택배사코드
 							  } );
 			logger.debug("##### [confirmShipment inputXML]"+inputXML); 
 		
@@ -872,122 +896,5 @@ public class OrderProcessTask {
 		logger.debug("##### [processCancelReturn] Job Task End!!!");
 	}
 	
-	
-	
-	
-	
-	/**
-	 * 품절취소 수신 (From Cube)
-	 *  - 
-	 *  
-	 * @param redisKey
-	 * @param redisPushKey
-	 * @param redisErrKey
-	 */
-	public void processSolOutCancel(String redisKey, String redisPushKey, String redisErrKey){
-	
-	}
-	
-	
-	
-	
-	
-	
-	/**
-     * Create Shipment처리 ( OUTRO Test 전용) - 현재 사용안함, processReleaseReturn이 대체
-     *  - MA에서 Order Captured 된 상태의 정보를 받아 Create Shipment를 실행하는 메서드
-     *  - 실 운영에서는 사용하지 않.
-     * 
-     * 
-     * @param redisKey
-     * @param redisPushKey
-     * @param redisErrKey
-     */
-	public void updateOrderStatus(String redisKey, String redisPushKey, String redisErrKey){
-        
-		
-		
-		logger.debug("##### [updateOrderStatus] Job Task Started!!!");
-	    	logger.debug("     ----- Read Key ["+redisKey+"]");
-	    	logger.debug("     ----- Push Key ["+redisPushKey+"]");
-	    	logger.debug("     ----- Error Key ["+redisErrKey+"]");
-	  	
-	  	Map<String,String> sendMsgMap = new HashMap<String,String>();
-		ObjectMapper mapper = new ObjectMapper();
-	  	
-			
-	  	long dataCnt =  listOps.size(redisKey);
-	  	logger.debug("["+redisKey+"] data length: "+dataCnt);
-		
-		try{
-			
-			// 3. Call Sterling API by Type & Key
-			for(int i=0; i<listOps.size(redisKey); i++){
-				
-				String keyData = listOps.rightPop(redisKey);
-				logger.debug("[Redis OrderStatus Update Data]"+keyData);
-				
-				// JSON --> HashMap 변환
-				HashMap<String, Object> dataMap = mapper.readValue(keyData, new TypeReference<HashMap<String,Object>>(){});
-				
-				String status = (String)dataMap.get("status");
-				logger.debug("[status]"+status);
-				
-				/*
-				 * 3201: Outro - OrderStatus가 Order Captured단계 (정상정으로 인보이스가 생성된 상태)
-				 *       WCS     - OrderStatus가 Inventory Fulfilled단계
-				 *       
-				 * Create Shipment 실행
-				 */
-				if("3201".equals(status)){
-				
-					// createShipment API 호출
-					
-					String docType = (String)dataMap.get("docType");
-					String entCode = (String)dataMap.get("entCode");
-					String orderId = (String)dataMap.get("orderId");
-					logger.debug("[docType]"+docType);
-					logger.debug("[entCode]"+entCode);
-					logger.debug("[orderId]"+orderId);
-					
-					// Order Release Key 조회
-					ArrayList<String> releaseKeys = (ArrayList<String>)sterlingApiDelegate.getOrderReleaseList(orderId,"");
-					
-					for(int j=0; j<releaseKeys.size(); j++){
-						
-						logger.debug("[releaseKeys]"+releaseKeys.get(j));
-						
-						/**
-						 * TODO: 현재는 MITS가 Shipment처리를 담당하나 향후에는 CUBE가 출고지시를 할수 있도록 Release된 주문정보를
-						 * Cube로 전송하고 SC(MITS)는 CUBE의 출고확정정보를 받아 Shipped로 주문의 상태를 변경하는 방식으로 변경필요 
-						 */
-						int result = sterlingApiDelegate.createShipment("", releaseKeys.get(j));
-						
-						if(result == 0){
-							/**
-							 * confirm shipment 처리 후 Ma로 shipment 정보를 전송하기 위해
-							 * Ma의 Key값이 되는 오더번호를 별도로 저장해 놓는다. 
-							 */
-//							String shipmentNo = resultMap.get("shipmentNo");
-//							logger.debug("[shipmentNo]"+shipmentNo);
-//							
-//							valueOps.set(shipmentNo, orderId);
-						}else{
-							// TODO: 에러처리
-						}
-						
-					} // End loop ReleaseKey
-					
-				} // End if OrderStatus
-				
-			} // End loop Redis Data
-			
-			
-		}catch(Exception e){
-			logger.debug("##### Update Order Status Task Exeption Occured");
-			e.printStackTrace();
-		}
-		
-	}
 	
 }

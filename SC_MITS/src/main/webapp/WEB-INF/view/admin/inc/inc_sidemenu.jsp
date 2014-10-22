@@ -67,22 +67,37 @@
 							전체오더 조회</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=3700&mn=1">
+							<a href="/orders/order_list.do?action=true&status=1100&mn=1">
+							<i class="fa fa-truck"></i>
+							주문생성 목록</a>
+						</li>
+						<li>
+							<a href="/orders/order_list.do?action=true&status=3200&mn=2">
+							<i class="fa fa-truck"></i>
+							출고의뢰 목록</a>
+						</li>
+						<li>
+							<a href="/orders/order_list.do?action=true&status=3350&mn=3">
+							<i class="fa fa-truck"></i>
+							출고준비 목록</a>
+						</li>
+						<li>
+							<a href="/orders/order_list.do?action=true&status=3700&mn=4">
 							<i class="fa fa-truck"></i>
 							출고완료 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=1300&mn=2">
+							<a href="/orders/order_list.do?action=true&status=1300&mn=5">
 							<i class="fa fa-ban"></i>
-							출고의뢰대기 목록</a>
+							미 출고의뢰건 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=9002&mn=3">
+							<a href="/orders/order_list.do?action=true&status=9002&mn=6">
 							<i class="fa fa-undo"></i>
 							주문취소요청 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=9000&mn=4">
+							<a href="/orders/order_list.do?action=true&status=9000&mn=7">
 							<i class="fa fa-times-circle"></i>
 							주문취소 목록</a>
 						</li>

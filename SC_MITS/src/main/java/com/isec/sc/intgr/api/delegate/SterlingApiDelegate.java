@@ -343,22 +343,22 @@ public class SterlingApiDelegate {
 	
 	/**
 	 * 출고생성
-	 * @param shipmentNo 없는경우 자동생성
-	 * @param releaseKey
+	 * @param shipmentNo ""경우 자동생성
+	 * @param releaseKey 주문릴리즈 키
+	 * @param cubeShipmentNo 큐브 전표번호
 	 * @return
 	 * @throws Exception
 	 */
-	public int createShipment(String shipmentNo, String releaseKey) throws Exception{
+	public int createShipment(String shipmentNo, String releaseKey, String cubeShipmentNo) throws Exception{
 		
 		
 		// Generate SC API Input XML	
 		String template = FileContentReader.readContent(getClass().getResourceAsStream(createShipment_template));
 		
 		MessageFormat msg = new MessageFormat(template);
-//		String xmlData = msg.format(new String[] {shipmentNo, releaseNo, docType, entCode, orderId} );
-		String xmlData = msg.format(new String[] {shipmentNo, releaseKey} );
-		logger.debug("[createShipment intputXML]"+xmlData);
+		String xmlData = msg.format(new String[] {shipmentNo, releaseKey, cubeShipmentNo} );
 		
+		logger.debug("[createShipment intputXML]"+xmlData);
 		
 		Document doc = null;
 		int result = 0;
