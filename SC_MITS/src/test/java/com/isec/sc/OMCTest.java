@@ -310,7 +310,7 @@ public class OMCTest {
 		
 		
 		String createOrderXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		+"<Order DocumentType=\"0001\" EnterpriseCode=\"KOLOR\" SellerOrganizationCode=\"ASPB\" PaymentStatus=\"AUTHORIZED\">"
+		+"<Order DocumentType=\"0001\" EnterpriseCode=\"KOLORtemp\" SellerOrganizationCode=\"ASPBtemp\" PaymentStatus=\"AUTHORIZED\" VendorID=\"11st\">"
 			+"<OrderLines>"
 				+"<OrderLine OrderedQty=\"2\">"
 					+"<Item ItemID=\"AYB5CL50103L\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar BOHO-LUXE\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
@@ -323,23 +323,27 @@ public class OMCTest {
 						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"5.00\" />"
 					+"</LineTaxes>"
 				+"</OrderLine>"
-//				+"<OrderLine OrderedQty=\"3\">"
-//					+"<Item ItemID=\"AYE5CL60303F\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
-//					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"39000.00\"/>"
-//					+"<LineCharges>"
-//						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
-//						+"<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5.00\" />"
-//					+"</LineCharges>"
-//					+"<LineTaxes>"
-//						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"5.00\" />"
-//					+"</LineTaxes>"
-//				+"</OrderLine>"
+				+"<OrderLine OrderedQty=\"3\">"
+					+"<Item ItemID=\"AYE5CL60303F\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
+					+"<LinePriceInfo IsLinePriceForInformationOnly=\"N\" IsPriceLocked=\"Y\" UnitPrice=\"39000.00\"/>"
+					+"<LineCharges>"
+						+"<LineCharge ChargeCategory=\"Shipping\" ChargeName=\"Shipping\" ChargePerLine=\"10.00\" />"
+						+"<LineCharge ChargeCategory=\"Discount\" ChargeName=\"Discount\" ChargePerLine=\"5.00\" />"
+					+"</LineCharges>"
+					+"<LineTaxes>"
+						+"<LineTax ChargeCategory=\"Price\" TaxName=\"Tax\" TaxableFlag=\"Y\" Tax=\"5.00\" />"
+					+"</LineTaxes>"
+				+"</OrderLine>"
 			+"</OrderLines>"
 			+"<PersonInfoShipTo FirstName=\"홍\" LastName=\"길동\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1234-5678\" MobilePhone=\"010-1234-5678\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
 			+"<PersonInfoBillTo  FirstName=\"이\" LastName=\"순신\" EMailID=\"yg.jang@isecommerce.co.kr\" DayPhone=\"02-1111-2222\" MobilePhone=\"010-1111-2222\" AddressLine1=\"강남구 삼성동 78번지\" AddressLine2=\"삼안빌딩 7층 SC-Team\" ZipCode=\"123-456\" City=\"서울\" Country=\"KR\" />"
 			+"<PaymentMethods>"
-				+"<PaymentMethod PaymentType=\"CREDIT_CARD\" CreditCardNo=\"0000000000000000\">"+"</PaymentMethod>"
+//				+"<PaymentMethod PaymentType=\"CREDIT_CARD\" CreditCardNo=\"0000000000000000\">"+"</PaymentMethod>"
+				+"<PaymentMethod PaymentType=\"RTAccTransfer\" CustomerAccountNo=\"0000000000000000\">"+"</PaymentMethod>"
 			+"</PaymentMethods>"
+			+"<Instructions>"
+	        +    "<Instruction InstructionText=\"msg\" InstructionType=\"DLV_MSG\" />"
+	        +"</Instructions>"
 		+"</Order>";
 		
 		
@@ -350,7 +354,7 @@ public class OMCTest {
 							+ "}";
 		
 		
-		String keyName = "KOLOR:ASPB:order";
+		String keyName = "KOLORtemp:ASPBtemp:order";
 		
 		try{
 			
