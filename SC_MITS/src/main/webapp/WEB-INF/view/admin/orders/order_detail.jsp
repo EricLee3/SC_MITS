@@ -1239,6 +1239,8 @@ License: You must have a valid license purchased only from themeforest(the above
         
         var statusDetailText = "";
         
+        var shortedYN = "${shortedYN}";	// 출고의뢰 결과 - 품절취소 여부
+		var failedYN = "${failedYN}";	// 출고의뢰 결과 - 실패 여부
         
         //------------- 정상상태
         // 주문접수
@@ -1269,9 +1271,6 @@ License: You must have a valid license purchased only from themeforest(the above
         	
         		$('#order_status span:eq(1)').removeClass("label-default").addClass("label-"+statusClassName);
 			
-        		var shortedYN = "${shortedYN}";
-        		var failedYN = "${failedYN}";
-        		
         		// Cube 품절취소
         		if(shortedYN == 'Y'){
         			
@@ -1279,12 +1278,13 @@ License: You must have a valid license purchased only from themeforest(the above
 	    	    		statusDetailText = '<h5>'+status_label+' - Cube로 출고의뢰 했으나 상품의 재고가 부족하여 출고의뢰가 거부된 상태</h4>';
 	    	    		statusDetailText += '<p class="text-danger">';
 	    	    		statusDetailText += ' - Cube의 재고확인 후 재고가 다시 확보된 경우 출고의뢰 재시도 필요 <br>';
-	    	    		statusDetailText += ' - Cube의 재고확보가 빠른시간내 확인되지 않을 경우 고객아웃바운드 후 전체주문취소 처리필요<br>';
+	    	    		statusDetailText += ' - Cube의 재고확보가 빠른시간내 확인되지 않을 경우 고객아웃바운드 후 전체 또는 부분주문취소 처리<br>';
+	    	    		statusDetailText += ' - 품절취소가 발생한 상품만 부분취소 후 출고의뢰 재처리 가능.<br>';
 	    	    		statusDetailText += ' - 품절취소가 발생한 상품은 오더라인 항목에서 확인 가능<br>';
-	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '</p>';
-    	    			
+	    	    		
 	    	    		$("#tool_release").text("출고의뢰 재시도");
+	    	    		$("#tool_cancel").text("주문취소");
         			
         		// Cube 처리실패
         		}else if(failedYN == 'Y'){
@@ -1292,7 +1292,7 @@ License: You must have a valid license purchased only from themeforest(the above
         			var status_label = '<span class="label label-sm label-danger">출고의뢰 실패</span>';
 	    	    		statusDetailText = '<h5>'+status_label+' - Cube로 출고의뢰 했으나 Cube에서 출고의뢰 처리도중 실패한 상태.</h4>';
 	    	    		statusDetailText += '<p class="text-danger">';
-	    	    		statusDetailText += ' - 출고의뢰 재시도 또는 계속 실패할 경우 Cube의 상태 확인 후 시스템 관리자에게 문의<br>';
+	    	    		statusDetailText += ' - 출고의뢰 재시도 또는 계속 실패할 경우 Cube의 상태 확인 후 Cube담당자에게 문의<br>';
 	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '<br>';
@@ -1308,12 +1308,13 @@ License: You must have a valid license purchased only from themeforest(the above
 	    	    		statusDetailText = '<h5>'+status_label+' - 재고확인 및 출하창고가 결정되고 Cube로 출고의뢰가 된 상태</h4>';
 	    	    		statusDetailText += '<p class="text-danger">';
 	    	    		statusDetailText += ' - 즉시 주문취소불가, Cube 주문취소요청 가능<br>';
-	    	    		statusDetailText += ' - 부분주문취소 처리후 [출고의뢰]상태인 경우에는 반드시 <a class="btn btn-primary btn-xs blue-stripe">주문확정 재처리</a>를 해야 Cube로 출고의뢰처리됨.<br>';
+	    	    		statusDetailText += ' - 부분주문취소 처리후 [출고의뢰]상태인 경우에는 반드시 <a class="btn btn-primary btn-xs blue-stripe">출고의뢰</a>를 해야 Cube로 출고의뢰처리됨.<br>';
 	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '</p>';
         			
 	    	    		// 주문취소요청으로 버튼명 변경
+	    	    		$("#tool_release").text("출고의뢰");
 	    			$("#tool_cancel").text("주문취소 요청");
         		}
         		
@@ -1335,7 +1336,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		
 	    		// 주문확정 버튼 숨김, 주문취소요청으로 버튼명 변경
 	    		$("#tool_release").hide();
-	    		$("#tool_line_cancel").hide();
+	    		$("#tool_line_cancel").hide(); // 부분취소 불가
 	    		$("#tool_cancel").text("주문취소 요청");
 	    }
         
@@ -1465,10 +1466,10 @@ License: You must have a valid license purchased only from themeforest(the above
             		
             		else if(cancelResCode == '09'){
             			
-            			statusDetailText = '<h5><b>[취소처리실패,미대상건] - Cube에서 주문취소처리가 실패했거나 취소대상건이 없는 상태</b></h4>';
+            			statusDetailText = '<h5><b>[취소처리실패,미대상건] - Cube에서 주문취소처리가 실패했거나 정상주문건이 없는 상태</b></h4>';
 	    				statusDetailText += '<p class="text-danger">';
-	    				statusDetailText += ' - 취소대상건이 없는 경우, 주문상태가 [출고준비]상태인지 확인 후 주문취소요청 재시도<br>';
-	    				statusDetailText += ' - 취소처리실패인 경우 시스템 담당자에게 문의할것.<br>';
+	    				statusDetailText += ' - 정상주문건이 없는 경우, 주문상태가 [출고준비]상태인지 확인 후 주문취소요청 재시도<br>';
+	    				statusDetailText += ' - 취소처리실패인 경우 Cube담당자에게 문의할것.<br>';
 	    				statusDetailText += '<br>';
     	    				statusDetailText += '</p>';
     	    				

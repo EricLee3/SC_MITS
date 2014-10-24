@@ -70,7 +70,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN LOGIN -->
 <div class="content">
 	<!-- BEGIN LOGIN FORM -->
-	<form class="login-form" name="login-form" onsubmit="javascript:goLogin(event);" method="post">
+	<form class="login-form" name="login-form" action=""  method="post">
 		<h3 class="form-title">Login to your account</h3>
 		<div class="alert alert-danger display-hide">
 			<button class="close" data-close="alert"></button>
@@ -546,21 +546,32 @@ License: You must have a valid license purchased only from themeforest(the above
 	});
 	
 	
-	function goLogin(event){
+	function goLogin(){
 		
-		event.preventDefault();
+		//Metronic.blockUI();
 		
 		$.ajax({
 			url: '/login.sc',
 			data: $('.login-form').serialize(),
 			success:function(data)
 			{
-				alert(data.succ);
-				if( data.succ == 'Y'){
+				
+				if( data.succ == '01'){
 					
 					//$(".page-content").load("/admin/returns/return_order_regist.html");
-					location.href = "/index.do";
+					setTimeout(function(){location.href = "/index.do";}, 200);
+				}else if (data.succ == '90'){
+					
+					alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인하시고 다시시도해 주세요.\n계속 실패할 경우 시스템관리자에게 문의하시기 바랍니다.");
+					return;
+				}else if (data.succ == '09'){
+					
+					alert("시스템오류가 발생했습니다. 시스템관리자에게 문의하시기 바랍니다.");
+					return;
 				}
+			},
+			complete:function(){
+				Metronic.unblockUI();
 			}
 		})
 		

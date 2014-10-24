@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -122,7 +123,7 @@ public class OrderController {
 	@RequestMapping(value = "/orderList.sc")
 	public ModelAndView getOrderList( @RequestParam Map<String, String> paramMap,
 							@RequestParam(defaultValue="0001" ) String doc_type,
-							@RequestParam(required=false, value="orderNo[]") String[] orderNos ) throws Exception{ 
+							@RequestParam(required=false, value="orderNo[]") String[] orderNos, HttpServletRequest req ) throws Exception{ 
 		
 		/**
 		 * -------Custom Action 일 경우 - 컬럼값 변경
@@ -200,8 +201,29 @@ public class OrderController {
 		
 		// Search Filter Parameter
 		String orderId = (String)paramMap.get("order_id")==null?"":(String)paramMap.get("order_id");
+		
+		
 		String entCode = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
+		
+		// TODO: 관리조직 세션정보로 얻어옴. 빈값이 넘어올 경우 admin이 아닐 경우 사용자의 세선값으로 적용
+		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
+		if("".equals(entCode)){
+			if(!"*".equals(sesEntCode)){
+				entCode = sesEntCode;
+			}
+		}
+		
+		
+		// TODO: 판매조직 세션정보로 얻어옴. 빈값이 넘어올 경우 admin이 아닐 경우 사용자의 세선값으로 적용
 		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
+		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
+		if("".equals(sellerCode)){
+			if(!"*".equals(sesSellCode)){
+				sellerCode = sesSellCode;
+			}
+		}
+		
+		
 		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
 		if(!"".equals(fromDate)) fromDate = fromDate+"T00:00:00";
 		String toDate = paramMap.get("order_date_to")==null?"":paramMap.get("order_date_to");
@@ -548,8 +570,12 @@ public class OrderController {
 		
 		String billFName = (String)xp.evaluate("PersonInfoBillTo/@FirstName", el, XPathConstants.STRING);
 		String billLName = (String)xp.evaluate("PersonInfoBillTo/@LastName", el, XPathConstants.STRING);
-		String billAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", el, XPathConstants.STRING);
-		String billAddr2 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine2", el, XPathConstants.STRING);
+		String billAddr1 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine1", el, XPathConstants.STRING)
+							+ (String)xp.evaluate("PersonInfoBillTo/@AddressLine2", el, XPathConstants.STRING)
+							+ (String)xp.evaluate("PersonInfoBillTo/@AddressLine3", el, XPathConstants.STRING);
+		String billAddr2 = (String)xp.evaluate("PersonInfoBillTo/@AddressLine4", el, XPathConstants.STRING)
+							+ (String)xp.evaluate("PersonInfoBillTo/@AddressLine5", el, XPathConstants.STRING)
+							+ (String)xp.evaluate("PersonInfoBillTo/@AddressLine6", el, XPathConstants.STRING);
 		String billCity = (String)xp.evaluate("PersonInfoBillTo/@City", el, XPathConstants.STRING);
 		String billState = (String)xp.evaluate("PersonInfoBillTo/@State", el, XPathConstants.STRING);
 		String billZipcode = (String)xp.evaluate("PersonInfoBillTo/@ZipCode", el, XPathConstants.STRING);
@@ -571,8 +597,12 @@ public class OrderController {
 		
 		String shipFName = (String)xp.evaluate("PersonInfoShipTo/@FirstName", el, XPathConstants.STRING);
 		String shipLName = (String)xp.evaluate("PersonInfoShipTo/@LastName", el, XPathConstants.STRING);
-		String shipAddr1 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine1", el, XPathConstants.STRING);
-		String shipAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", el, XPathConstants.STRING);
+		String shipAddr1 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine1", el, XPathConstants.STRING)
+						+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", el, XPathConstants.STRING)
+						+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine3", el, XPathConstants.STRING);
+		String shipAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine4", el, XPathConstants.STRING)
+						+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine5", el, XPathConstants.STRING)
+						+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine6", el, XPathConstants.STRING);
 		String shipCity = (String)xp.evaluate("PersonInfoShipTo/@City", el, XPathConstants.STRING);
 		String shipState = (String)xp.evaluate("PersonInfoShipTo/@State", el, XPathConstants.STRING);
 		String shipZipcode = (String)xp.evaluate("PersonInfoShipTo/@ZipCode", el, XPathConstants.STRING);
@@ -729,8 +759,8 @@ public class OrderController {
 		
 		if("3200".equals(minStatus) && "3200".equals(maxStatus)){
 			
-			String cubeShortedKey = entCode+""+sellerCode+":order:3202:90";
-			String cubeFailedKey = entCode+""+sellerCode+":order:3202:09";
+			String cubeShortedKey = entCode+":"+sellerCode+":order:3202:90";
+			String cubeFailedKey = entCode+":"+sellerCode+":order:3202:09";
 			
 			List<String> shortedList = listOps.range(cubeShortedKey, 0, -1);
 			for( int i=0; i<shortedList.size(); i++){
@@ -1152,8 +1182,31 @@ public class OrderController {
 				return mav;
 			}
 			
+			
+			String cubeShortedKey = ent_code+":"+sell_code+":order:3202:90";
+			String shortedYN = "N";
+			List<String> shortedList = listOps.range(cubeShortedKey, 0, -1);
+			for( int i=0; i<shortedList.size(); i++){
+				
+				String jsonData = shortedList.get(i);
+				HashMap<String,String> map = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				String shortOrderId = map.get("orderId");
+				
+				if(order_no.equals(shortOrderId)){
+					
+					shortedYN = "Y";
+					break;
+				}
+			}
+			
+			// 출고의뢰에서 품절취소가 발생한 경우는 주문취소처리. 주문취소요청아님
+			if("3200".equals(maxStatus) && "Y".equals(shortedYN)){
+				;
+				
+				
 			// 출고의뢰(3200), 출고준비(3350)일 경우 - Cube주문취소 요청
-			if("3200".equals(maxStatus) || "3350".equals(maxStatus)){
+			}else if("3200".equals(maxStatus) || "3350".equals(maxStatus)){
 				
 				
 				// 기 주문취소요청 처리여부 확인
@@ -1187,6 +1240,15 @@ public class OrderController {
 					mav.addObject("errorMsg", outputMsg);
 					return mav;
 				}
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				
 				
 				// 주문기본정보
@@ -1499,7 +1561,7 @@ public class OrderController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/orderOverviewList.sc")
-	public ModelAndView getOrderOverviewList(@RequestParam Map<String, String> paramMap) throws Exception{
+	public ModelAndView getOrderOverviewList(@RequestParam Map<String, String> paramMap, HttpServletRequest req) throws Exception{
 		
 		String ch = (String)paramMap.get("ch");
 		logger.debug("[ch]"+ch);
@@ -1509,11 +1571,8 @@ public class OrderController {
 			docType = "0001";
 		};
 		
-//		String entCode = "DA";
-//		String sellerCode = "OUTRO";
-		
-		// TODO: 향후 로그인 유저의 조직정보로 세팅
-		String entCode = "*";
+		// 관리조직 세션정보로 얻어옴
+		String entCode = (String)req.getSession().getAttribute("S_ORG_CODE");
 		String sellerCode = ch;
 		
 		

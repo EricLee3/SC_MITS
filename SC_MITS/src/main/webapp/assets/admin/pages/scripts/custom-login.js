@@ -7,7 +7,7 @@ var Login = function () {
 	            errorClass: 'help-block', // default input error message class
 	            focusInvalid: false, // do not focus the last invalid input
 	            rules: {
-	                username: {
+	                userid: {
 	                    required: true
 	                },
 	                password: {
@@ -19,7 +19,7 @@ var Login = function () {
 	            },
 
 	            messages: {
-	                username: {
+	                userid: {
 	                    required: "아이디를 입력하세요."
 	                },
 	                password: {
@@ -55,7 +55,7 @@ var Login = function () {
 	            if (e.which == 13) {
 	                if ($('.login-form').validate().form()) {
 	                    //$('.login-form').submit(); //form validation success, call ajax form submit
-	                		goLogin(e);
+	                		goLogin();
 	                }
 	                return false;
 	            }
@@ -174,7 +174,7 @@ var Login = function () {
 	                    required: true
 	                },
 
-	                username: {
+	                userid: {
 	                    required: true
 	                },
 	                password: {

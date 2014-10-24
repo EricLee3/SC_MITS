@@ -429,7 +429,7 @@ public class OrderProcessTask {
 				}else{
 					
 					// 품절취소 키에 오더정보 저장. TODO: 유효기간 정의 필요
-					String cubeShortedKey = entCode+""+sellerCode+":order:3202:90";
+					String cubeShortedKey = entCode+":"+sellerCode+":order:3202:90";
 					String data = "{\"orderId\":\""+orderId+"\",\"itemId\":\""+bar_code+"\"}";
 					listOps.leftPush(cubeShortedKey, data);
 					
@@ -512,7 +512,7 @@ public class OrderProcessTask {
 				
 				
 				// 큐브실패 키에 오더정보 저장. TODO: 유효기간 정의 필요
-				String cubeFailedKey = entCode+""+sellerCode+":order:3202:09";
+				String cubeFailedKey = entCode+":"+sellerCode+":order:3202:09";
 				listOps.leftPush(cubeFailedKey, orderId);
 				
 				

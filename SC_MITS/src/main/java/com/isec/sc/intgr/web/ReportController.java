@@ -16,6 +16,8 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -80,12 +82,15 @@ public class ReportController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/getOrderReportByCh.sc")
-	public ModelAndView getOrderReportByCh( @RequestParam String startMonth, @RequestParam int term) throws Exception{ 
+	public ModelAndView getOrderReportByCh( @RequestParam String startMonth, @RequestParam int term, HttpServletRequest req) throws Exception{ 
 		
-		// TODO: 채널정보 property로 뺼것
-		String entCode[] = {"SLV", "DA", "ISEC"};
-		String sellerCode[] = {"ASPB", "OUTRO", "JNS"};
-		String sellerCodeName[] = {"Aspen Bay", "Outro", "J&S"};
+		// TODO: 채널정보 세션 및 property로 뺼것
+//		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
+//		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
+		
+		String entCode[] = {"KOLOR"};
+		String sellerCode[] = {"ASPB"};
+		String sellerCodeName[] = {"Aspen Bay"};
 		
 //		String entCode[] = {"ISEC"};
 //		String sellerCode[] = {"ASPB"};

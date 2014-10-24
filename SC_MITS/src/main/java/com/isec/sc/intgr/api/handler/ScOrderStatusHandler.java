@@ -498,14 +498,19 @@ public class ScOrderStatusHandler {
 			receiptNm = receiptNm.trim();
 			String receiptTel = (String)xp.evaluate("PersonInfoShipTo/@DayPhone", outputXML, XPathConstants.STRING);
 			String receiptHp = (String)xp.evaluate("PersonInfoShipTo/@MobilePhone", outputXML, XPathConstants.STRING);
-			String receiptAddr1 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine1", outputXML, XPathConstants.STRING);
-			String receiptAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", outputXML, XPathConstants.STRING);
+			String receiptAddr1 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine1", outputXML, XPathConstants.STRING)
+								+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine2", outputXML, XPathConstants.STRING)
+								+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine3", outputXML, XPathConstants.STRING);
+			
+			String receiptAddr2 = (String)xp.evaluate("PersonInfoShipTo/@AddressLine4", outputXML, XPathConstants.STRING)
+								+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine5", outputXML, XPathConstants.STRING)
+								+ (String)xp.evaluate("PersonInfoShipTo/@AddressLine6", outputXML, XPathConstants.STRING);
 			String receiptZipcode = (String)xp.evaluate("PersonInfoShipTo/@ZipCode", outputXML, XPathConstants.STRING);
 			
 			
 //			logger.debug("[receiptNm]"+receiptNm);
-//			logger.debug("[receiptAddr1]"+receiptAddr1);
-//			logger.debug("[receiptAddr2]"+receiptAddr2);
+			logger.debug("[receiptAddr1]"+receiptAddr1);
+			logger.debug("[receiptAddr2]"+receiptAddr2);
 			
 			// 주문자 주소 PersonInfoBillTo - 주문자명, 주문자전화번호, 주문자휴대전화번
 			String custNm = (String)xp.evaluate("PersonInfoBillTo/@FirstName", outputXML, XPathConstants.STRING)

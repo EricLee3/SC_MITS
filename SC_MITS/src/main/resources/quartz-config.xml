@@ -189,7 +189,7 @@
     </bean>
 	
 	<!-- OUTRO > Order -->
-	<bean id="orderCreateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<!-- <bean id="orderCreateJobTrigger_OUTRO" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_OUTRO" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
@@ -202,11 +202,11 @@
         <property name="jobDetail" ref="orderUpdateJob_OUTRO" />
         <property name="startDelay" value="20000" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
-    </bean>
+    </bean> -->
    
     
     <!-- JNS > Order -->
-    <bean id="orderCreateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <!-- <bean id="orderCreateJobTrigger_JNS" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_JNS" />
         <property name="startDelay" value="10000" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
@@ -220,7 +220,7 @@
         <property name="jobDetail" ref="orderUpdateJob_JNS" />
         <property name="startDelay" value="20000" />
         <property name="cronExpression" value="0 0/1 * * * ?" />
-    </bean>
+    </bean> -->
 	<!-- ========== Job Trigger Setting ========== -->
 	
 	
@@ -236,14 +236,14 @@
                 <ref bean="syncInventoryJobTrigger_ASPB"/>
                 
                 <!-- OUTRO -->
-                <ref bean="orderCreateJobTrigger_OUTRO"/>
+                <!-- <ref bean="orderCreateJobTrigger_OUTRO"/>
                 <ref bean="orderReleaseJobTrigger_OUTRO"/>
-                <ref bean="orderUpdateJobTrigger_OUTRO"/>
+                <ref bean="orderUpdateJobTrigger_OUTRO"/> -->
                 
                 <!-- JNS -->
-                <ref bean="orderCreateJobTrigger_JNS"/>
+                <!-- <ref bean="orderCreateJobTrigger_JNS"/>
                 <ref bean="orderReleaseJobTrigger_JNS"/>
-                <ref bean="orderUpdateJobTrigger_JNS"/>
+                <ref bean="orderUpdateJobTrigger_JNS"/> -->
             </list>
         </property>
     </bean>

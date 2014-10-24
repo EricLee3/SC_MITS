@@ -308,10 +308,18 @@ License: You must have a valid license purchased only from themeforest(the above
 										</div>
 									</td>
 									<td>
-										<input type="text" class="form-control form-filter input-sm" name="ent_code">
+										<!-- <input type="text" class="form-control form-filter input-sm" name="ent_code"> -->
+										<select name="ent_code" class="form-control form-filter input-sm">
+											<option value="">Select...</option>
+											<option value="KOLOR">KOLOR</option>
+										</select>
 									</td>
 									<td>
-										<input type="text" class="form-control form-filter input-sm" name="seller_code">
+										<!-- <input type="text" class="form-control form-filter input-sm" name="seller_code"> -->
+										<select name="seller_code" class="form-control form-filter input-sm">
+											<option value="">Select...</option>
+											<option value="ASPB">Aspen Bay</option>
+										</select>
 									</td>
 									<td>
 										<!-- <div class="margin-bottom-5">

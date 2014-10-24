@@ -366,7 +366,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									</a>
 									<ul class="dropdown-menu pull-right">
 										<li>
-											<a href="javascript:EcommerceIndex.getOrderListByCh('*');">
+											<a href="javascript:EcommerceIndex.getOrderListByCh('${S_SELL_CODE}');">
 											All </a>
 										</li>
 										<li class="divider"> </li>

@@ -124,6 +124,7 @@
 						</li>
 					</ul>
 				</li> -->
+				<c:if test="${ S_LOGIN_ID == 'admin' }">
 				<li class="last" id="menu_system">
 					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
@@ -142,6 +143,7 @@
 						</li>
 					</ul>
 				</li>
+				</c:if>
 			</ul>
 			<!-- END SIDEBAR MENU1 -->
 		</div>

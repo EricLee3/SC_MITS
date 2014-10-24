@@ -1,3 +1,8 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+    
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+
 <!-- BEGIN HEADER -->
 <div class="page-header navbar navbar-fixed-top">
 	<!-- BEGIN HEADER INNER -->
@@ -6,7 +11,7 @@
 		<div class="page-logo" style="padding-top:5px;">
 			<a href="/">
 			<!-- <img src="../../assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/> -->
-			<button class="btn bg-blue-hoki"  type="button">Order Management Center</button>
+			<button class="btn bg-grey-gallery"  type="button">Order Management Center</button>
 			</a>
 			<div class="menu-toggler sidebar-toggler hide">
 				<!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
@@ -21,7 +26,7 @@
 		<div class="top-menu">
 			<ul class="nav navbar-nav pull-right">
 				<!-- BEGIN NOTIFICATION DROPDOWN -->
-				<li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">
+				<!-- <li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
 					<i class="icon-bell"></i>
 					<span class="badge badge-default">
@@ -124,7 +129,7 @@
 							</a>
 						</li>
 					</ul>
-				</li>
+				</li> -->
 				<!-- END NOTIFICATION DROPDOWN -->
 				<!-- BEGIN INBOX DROPDOWN -->
 				<!-- <li class="dropdown dropdown-extended dropdown-inbox" id="header_inbox_bar">
@@ -366,15 +371,27 @@
 				<!-- BEGIN USER LOGIN DROPDOWN -->
 				<li class="dropdown dropdown-user">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-					<img alt="" class="img-circle" src="../../assets/admin/layout/img/avatar3_small.jpg"/>
+					<!-- <img alt="" class="img-circle" src="../../assets/admin/layout/img/avatar3_small.jpg"/> -->
 					<span class="username">
-					Login User1 </span>
+					사용자: ${S_USER_NAME}&nbsp;&nbsp;&nbsp;관리조직: ${S_ORG_CODE}</span>
 					<i class="fa fa-angle-down"></i>
 					</a>
 					<ul class="dropdown-menu">
 						<li>
 							<a href="extra_profile.html">
-							<i class="icon-user"></i> My Profile </a>
+							<i class="icon-user"></i> 판매조직: ${S_SELL_CODE}</a>
+						</li>
+						<li>
+							<a href="extra_profile.html">
+							<i class="icon-user"></i> 유저ID: ${S_LOGIN_ID}</a>
+						</li>
+						<%-- <li>
+							<a href="extra_profile.html">
+							<i class="icon-user"></i> 유저그룹: ${S_USER_GRP_NAME}</a>
+						</li> --%>
+						<li>
+							<a href="extra_profile.html">
+							<i class="icon-user"></i> 언어: ${S_LOCALE}</a>
 						</li>
 						<!-- <li>
 							<a href="page_calendar.html">
@@ -394,13 +411,15 @@
 						</li>
 						<li class="divider">
 						</li> -->
-						<li>
+						<!-- <li>
 							<a href="extra_lock.html">
 							<i class="icon-lock"></i> Lock Screen </a>
+						</li> -->
+						<li class="divider">
 						</li>
 						<li>
-							<a href="login.html">
-							<i class="icon-key"></i> Log Out </a>
+							<a href="/logout.do">
+							<i class="icon-key"></i> 로그아웃 </a>
 						</li>
 					</ul>
 				</li>
