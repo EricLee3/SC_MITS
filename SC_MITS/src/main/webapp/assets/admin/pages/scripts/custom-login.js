@@ -61,6 +61,48 @@ var Login = function () {
 	            }
 	        });
 	}
+	
+	
+	var goLogin = function(){
+		
+			Metronic.blockUI();
+			
+			$.ajax({
+				url: '/login.sc',
+				data: $('.login-form').serialize(),
+				success:function(data)
+				{
+					
+					if( data.succ == '01'){
+						
+						//$(".page-content").load("/admin/returns/return_order_regist.html");
+						
+//						var currPath = getParam("currPath");
+//						if(currPath == '' || currPath == undefined){
+//							location.href = "/index.do";
+//						}else{
+//							location.href = currPath;
+//						}
+						
+						location.href = "/index.do";
+						
+						
+					}else if (data.succ == '90'){
+						
+						alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인하시고 다시시도해 주세요.\n계속 실패할 경우 시스템관리자에게 문의하시기 바랍니다.");
+						return;
+					}else if (data.succ == '09'){
+						
+						alert("네트위크문제로 인해 로그인이 실패했습니다. 시스템관리자에게 문의하시기 바랍니다.");
+						return;
+					}
+				},
+				complete:function(){
+					Metronic.unblockUI();
+				}
+			})
+		
+	}
 
 	var handleForgetPassword = function () {
 		$('.forget-form').validate({

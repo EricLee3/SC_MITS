@@ -1,5 +1,6 @@
 package com.isec.sc.intgr.web;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,12 +26,13 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 		String path = req.getServletPath();
 		logger.debug("[PATH]"+path);
 		
+		// 로그인 페이지 이동은 세션체크 제외
 		if(path.equals("/login.sc")){
 			return true;
 		}
 		
+		// SC API EventHandler에서 호출하는 URL은 세션체크 제외
 		if(path.startsWith("/sc")){
-			
 			return true;
 		}
 		
@@ -43,7 +45,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 		
 		if(sesUserId == null){
 			
-			res.sendRedirect("/admin/login.html");
+			String currPath = URLEncoder.encode(path, "UTF-8");
+			
+			res.sendRedirect("/admin/login.html?currPath="+currPath);
 			return false;
 		}else{
 			return true;

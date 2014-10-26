@@ -173,7 +173,8 @@
     </bean>
     <bean id="orderReleaseJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderReleaseJob_ASPB" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <!-- <property name="cronExpression" value="0 0/1 * * * ?" /> -->
+        <property name="cronExpression" value="0 20/5 2-4 ? * 1-7" />
     </bean>
 	<bean id="orderStatusUpdateJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderStatusUpdateJob_ASPB" />

@@ -21,11 +21,12 @@
 <script src="../../assets/global/scripts/metronic.js" type="text/javascript"></script>
 <script src="../../assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
 <script src="../../assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
+<script src="../../assets/admin/pages/scripts/components-pickers.js"></script>
 <script src="../../assets/admin/pages/scripts/custom-main.js" type="text/javascript"></script>
 
 <script>
 	jQuery(document).ready(function() {    
-			
+		
 		Metronic.init(); // init metronic core components
 		Layout.init(); // init current layout
 		QuickSidebar.init() // init quick sidebar

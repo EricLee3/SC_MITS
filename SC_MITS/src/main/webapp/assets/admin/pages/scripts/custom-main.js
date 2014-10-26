@@ -98,27 +98,28 @@ var Custom = function () {
         init: function () {
 	         
         	
-        	$.ajaxSetup({
-		         cache: true,
-		         dataType: 'json',
-		         error: function(xhr, status, error){
-			         alert('An error occurred: ' + error);
-		         },
-		         timeout: 10000,
-		         type: 'POST',
-		         url:''
-	           });
+	        	$.ajaxSetup({
+			         cache: true,
+			         dataType: 'json',
+			         error: function(xhr, status, error){
+				         alert('An error occurred: ' + error);
+			         },
+			         timeout: 10000,
+			         type: 'POST',
+			         url:''
+            });
+		        
 	        
-        
-        	$.fn.digits = function(){ 
-	    	    return this.each(function(){ 
-	    	        $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") ); 
-	    	    });
-	    	}
+	        	$.fn.digits = function(){ 
+		    	    return this.each(function(){ 
+		    	        $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") ); 
+		    	    });
+		    	}
         },
-
+	
         setFormValidation: function (formName) {
-        	handleValidation1(formName);
+        		handleValidation1(formName);
+        
         }
 	        
     };

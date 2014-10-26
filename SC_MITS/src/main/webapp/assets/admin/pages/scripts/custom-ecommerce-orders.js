@@ -34,10 +34,10 @@ var EcommerceOrders = function () {
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
                 
             		"lengthMenu": [
-                    [15, 20, 50, 100, 150, -1],
-                    [15, 20, 50, 100, 150, "All"] // change per page values here
+                    [10, 20, 50, 100, -1],
+                    [10, 20, 50, 100, "All"] // change per page values here
                 ],
-                "pageLength": 15, // default record count per page
+                "pageLength": 10, // default record count per page
                 "serverSide": true, 
                 "ajax": {
                     "url": "/orders/orderList.sc"  // ajax source
@@ -47,6 +47,14 @@ var EcommerceOrders = function () {
                 	//$('td:eq(8)', nRow).addClass( "pull-right");
                 },
                 "columnDefs": [ 
+                               
+                               {
+                            	   	  "render": function(data, type, row){
+                         	          return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+data+'">'+data+'</a>';
+                         	      },
+                         	      "targets": 1	// Order#
+                            	   
+                               },
                                {
                                    "render": function ( data, type, row ) {
                                 	      if(row['cancelReq'] == 'Y'){
@@ -82,12 +90,12 @@ var EcommerceOrders = function () {
 //                              "orderable":false,
 //                            },
                             { 
-                            	"class":          'details-control',
-                            "orderable":      false,
-                            "data":           null,
-                            "defaultContent": '<span class="row-details row-details-close"></span>'
+	                            	"class":          'details-control',
+	                            "orderable":      false,
+	                            "data":           null,
+	                            "defaultContent": '<span class="row-details row-details-close"></span>'
 	                        },
-                            { "data": "orderNo" },
+                            { "data": "orderNo"},
                             { 
                             		"data": function render(data, type, row)
 	                            	  {
@@ -216,10 +224,13 @@ var EcommerceOrders = function () {
             var nTr = $(this).parents('tr')[0];
             if (table.fnIsOpen(nTr)) {
                 /* This row is already open - close it */
+            		$('#row_all_exp').addClass("row-details-close").removeClass("row-details-open");
                 $(this).addClass("row-details-close").removeClass("row-details-open");
+                
                 table.fnClose(nTr);
             } else {
                 /* Open this row */
+            		$('#row_all_exp').addClass("row-details-open").removeClass("row-details-close");
                 $(this).addClass("row-details-open").removeClass("row-details-close");
                 table.fnOpen(nTr, fnFormatDetails(table, nTr), 'details');
             }
@@ -265,6 +276,7 @@ var EcommerceOrders = function () {
 
             initPickers();
             handleOrders(table_name);
+                       
         }
 
     };

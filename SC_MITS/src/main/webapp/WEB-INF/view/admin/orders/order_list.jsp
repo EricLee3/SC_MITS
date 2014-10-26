@@ -46,9 +46,9 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- <link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
 <link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/> -->
 
-<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>-->
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>-->
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/> 
 <!-- END PAGE LEVEL STYLES -->
@@ -121,9 +121,9 @@ License: You must have a valid license purchased only from themeforest(the above
 					<h3 class="page-title">
 					오더관리 <small>orders listing</small>
 					</h3>
-					<ul class="page-breadcrumb breadcrumb">
+					<!-- <ul class="page-breadcrumb breadcrumb">
 						<li class="btn-group">
-							<!-- <button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
+							<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
 							<span>Actions</span><i class="fa fa-angle-down"></i>
 							</button>
 							<ul class="dropdown-menu pull-right" role="menu">
@@ -141,7 +141,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								<li>
 									<a href="#">Separated link</a>
 								</li>
-							</ul> -->
+							</ul>
 						</li>
 						<li>
 							<i class="fa fa-home"></i>
@@ -155,7 +155,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						<li>
 							<a href="/admin/orders/order_list.html" class="ajaxify">오더조회</a>
 						</li>
-					</ul>
+					</ul> -->
 					<!-- END PAGE TITLE & BREADCRUMB-->
 				</div>
 			</div>
@@ -217,16 +217,23 @@ License: You must have a valid license purchased only from themeforest(the above
 								<div class="table-actions-wrapper">
 									<span>
 									</span>
-									
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('days', '7');">
+									<a class="btn btn-sm blue" href="javascript:orderListByDatePeroid('days', 0, 1);">
+										<i class="fa fa-calendar"></i>
+										Yesterday
+									</a>
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('days', 0, 0);">
+										<i class="fa fa-calendar"></i>
+										Today
+									</a>
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('days', 7, 0);">
 										<i class="fa fa-calendar"></i>
 										1 week
 									</a>
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', '1');">
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', 1, 0);">
 										<i class="fa fa-calendar"></i>
 										1 month
 									</a>
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', '3');">
+									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', 3, 0);">
 										<i class="fa fa-calendar"></i>
 										3 month
 									</a>
@@ -286,21 +293,20 @@ License: You must have a valid license purchased only from themeforest(the above
 									</th>
 								</tr>
 								<tr role="row" class="filter">
-									<!-- <td>
-									</td> -->
 									<td>
+										<span class="row-details row-details-close" id="row_all_exp"></span>
 									</td>
 									<td>
 										<input type="text" class="form-control form-filter input-sm" name="order_id">
 									</td>
 									<td>
-										<div class="input-group date date-picker margin-bottom-5" data-date-format="yyyy-mm-dd">
+										<div class="input-group date date-picker margin-bottom-5"  data-date-start-date="-3m" data-date-format="yyyy-mm-dd">
 											<input type="text" class="form-control form-filter input-sm" readonly name="order_date_from" placeholder="From">
 											<span class="input-group-btn">
 											<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
 											</span>
 										</div>
-										<div class="input-group date date-picker" data-date-format="yyyy-mm-dd">
+										<div class="input-group date date-picker" data-date-start-date="+0d" data-date-format="yyyy-mm-dd">
 											<input type="text" class="form-control form-filter input-sm" readonly name="order_date_to" placeholder="To">
 											<span class="input-group-btn">
 											<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
@@ -457,22 +463,33 @@ License: You must have a valid license purchased only from themeforest(the above
 	    } );
 	    $( tableTools.fnContainer() ).insertAfter('div.btn-group');
 	    
-	    <%
-	    	String action = (String)request.getAttribute("action");
-	    	String status = (String)request.getAttribute("status");
+	    
+	    var action = "${action}";
+	    var status = "${status}";
+	    
+	    if( action != '' &&  action == 'true'){
+	    		
+	    		var sDate = moment().subtract('day', 6).format('YYYY-MM-DD');
+			var eDate = moment().subtract('day', 0).format('YYYY-MM-DD');
+			
+			$('input.form-filter[name="order_date_from"]').val(sDate);
+			$('input.form-filter[name="order_date_to"]').val(eDate);
 	    	
-	    	if(action != null && "true".equals(action)){
-	    %>
-		    $('select.form-filter[name="order_status"]').val('<%=status%>');
-			$('#btn_orderList').click();
-		
-		<% } %>
+	    	
+	    		$('select.form-filter[name="order_status"]').val(status);
+			$('#btn_orderList').trigger('click');
+	    }
+	    
+	    // Row 전체 Expand
+	    $('#row_all_exp').click(function(){
+	    		$('#datatable_orders tbody td .row-details').trigger('click');
+	    });
 	});
 	
-	function orderListByDatePeroid(dateType, term){
+	function orderListByDatePeroid(dateType, term, startTerm){
 		
-		var sDate = moment().subtract(dateType, term).format('YYYY-MM-DD');
-		var eDate = moment().format('YYYY-MM-DD');
+		var sDate = moment().subtract(dateType, startTerm+term).format('YYYY-MM-DD');
+		var eDate = moment().subtract(dateType, startTerm).format('YYYY-MM-DD');
 		
 		$('input.form-filter[name="order_date_from"]').val(sDate);
 		$('input.form-filter[name="order_date_to"]').val(eDate);

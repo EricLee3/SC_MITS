@@ -701,10 +701,12 @@ public class OrderController {
 			
 			// 상품의 현재고/가용재고 조회(모든창고)
 			Double supplyQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, itemId, "", uom, "S");
+			logger.debug("["+itemId+"][현재고]"+supplyQty);
 			Double availQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, itemId, "", uom, "A");
+			logger.debug("["+itemId+"][가용재고]"+availQty);
+			
 			orderLineMap.put("supplyQty", supplyQty);
 			orderLineMap.put("availQty", availQty);
-			
 			
 			orderLineList.add(orderLineMap);
 		}

@@ -59,6 +59,7 @@ public class DefaultController {
 		
 	}
 	
+	
 	@RequestMapping(value = "/logout.do")
 	public String logout(HttpServletRequest req, HttpServletResponse res) throws Exception{ 
 		

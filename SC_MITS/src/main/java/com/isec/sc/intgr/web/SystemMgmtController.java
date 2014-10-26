@@ -380,10 +380,41 @@ public class SystemMgmtController {
 		List<String> keyDataList= listOps.range(key, 0, -1);
 		System.out.println("["+key+" - size]"+keyDataList.size());
 			
+		List<Map<String, String>> dataList = new ArrayList<Map<String,String>>();
+		int seq = 1;
+		for(String keyData: keyDataList){
+			Map<String, String> keyDataMap = new HashMap<String, String>();
+			keyDataMap.put("seq", seq+"");
+			keyDataMap.put("keyData", keyData);
+			
+			dataList.add(keyDataMap);
+			seq++;
+		}
+		
+		
 		
 		ModelAndView mav = new ModelAndView("jsonView");
-		mav.addObject("dataList", keyDataList);
+		mav.addObject("data", dataList);
 		return mav;
 		
 	}
+	
+	
+	@RequestMapping(value = "/deleteKey.sc")
+	public ModelAndView deleteRedisKetDataByIndex( @RequestParam String key, @RequestParam int index, @RequestParam String t_key_data) throws Exception{ 
+		
+		logger.debug("[key]"+key);
+		logger.debug("[index]"+index);
+		logger.debug("[t_key_data]"+t_key_data);
+		
+		long cnt = listOps.remove(key, index, t_key_data);
+		logger.debug("[cnt]"+cnt);
+		
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		mav.addObject("result", cnt);
+		return mav;
+		
+	}
+		
 }

@@ -8,10 +8,10 @@
 	<!-- BEGIN HEADER INNER -->
 	<div class="page-header-inner">
 		<!-- BEGIN LOGO -->
-		<div class="page-logo" style="padding-top:5px;">
+		<div class="page-logo">
 			<a href="/">
-			<!-- <img src="../../assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/> -->
-			<button class="btn bg-grey-gallery"  type="button">Order Management Center</button>
+			<img src="../../assets/admin/layout/img/omc_logo.png" alt="logo" class="logo-default"/>
+			<!-- <button class="btn bg-grey-gallery"  type="button">Order Management Center</button> -->
 			</a>
 			<div class="menu-toggler sidebar-toggler hide">
 				<!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
@@ -373,25 +373,26 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
 					<!-- <img alt="" class="img-circle" src="../../assets/admin/layout/img/avatar3_small.jpg"/> -->
 					<span class="username">
-					사용자: ${S_USER_NAME}&nbsp;&nbsp;&nbsp;관리조직: ${S_ORG_CODE}</span>
+					<i class="icon-user"></i> 
+					${S_USER_NAME} (${S_LOGIN_ID})</span>
 					<i class="fa fa-angle-down"></i>
 					</a>
 					<ul class="dropdown-menu">
 						<li>
-							<a href="extra_profile.html">
-							<i class="icon-user"></i> 판매조직: ${S_SELL_CODE}</a>
+							<a href="#">
+							<i class="icon-users"></i> 관리조직: ${S_ORG_CODE}</a>
 						</li>
 						<li>
-							<a href="extra_profile.html">
-							<i class="icon-user"></i> 유저ID: ${S_LOGIN_ID}</a>
+							<a href="#">
+							<i class="icon-users"></i> 판매조직: ${S_SELL_CODE}</a>
 						</li>
 						<%-- <li>
 							<a href="extra_profile.html">
 							<i class="icon-user"></i> 유저그룹: ${S_USER_GRP_NAME}</a>
 						</li> --%>
 						<li>
-							<a href="extra_profile.html">
-							<i class="icon-user"></i> 언어: ${S_LOCALE}</a>
+							<a href="#">
+							<i class="icon-globe"></i> 언어: ${S_LOCALE}</a>
 						</li>
 						<!-- <li>
 							<a href="page_calendar.html">

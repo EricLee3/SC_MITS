@@ -95,11 +95,11 @@ public class ProductSyncTask {
         
     	try {
     		 
-    		logger.debug("#####" + "["+redisKeyC2S+"][syncProductFromCube] Job Task Started!");
+    		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] Started!");
 
     		
     	  	long dataCnt =  listOps.size(redisKeyC2S);
-    	  	logger.debug("["+redisKeyC2S+"] data length: "+dataCnt);
+    	  	logger.debug("["+redisKeyC2S+"][syncProductFromCube] data length: "+dataCnt);
 			
     	  	ObjectMapper mapper = new ObjectMapper();
     	  	
@@ -246,6 +246,7 @@ public class ProductSyncTask {
 			e.printStackTrace();
 		}
 		
+    		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] End!");
     }
     
     /**
@@ -271,11 +272,11 @@ public class ProductSyncTask {
      */
     public void syncInventoryFromCube(String redisKeyC2S, String redisKeyS2C,  String redisKeyS2M, String redisErrKey){
     	
-    	logger.debug("#####" + "["+redisKeyC2S+"][syncProductFromCube] Job Task Started!");
+    		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] Started!");
 
 		try{
 		  	long dataCnt =  listOps.size(redisKeyC2S);
-		  	logger.debug("["+redisKeyC2S+"] data length: "+dataCnt);
+		  	logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] data length: "+dataCnt);
 			
 		  	ObjectMapper mapper = new ObjectMapper();
 		  	
@@ -477,6 +478,7 @@ public class ProductSyncTask {
 			e.printStackTrace();
 		}
     	
+		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] End!");
     	
     }
 	

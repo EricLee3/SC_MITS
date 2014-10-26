@@ -310,7 +310,7 @@ public class OMCTest {
 		
 		
 		String createOrderXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		+"<Order DocumentType=\"0001\" EnterpriseCode=\"KOLORtemp\" SellerOrganizationCode=\"ASPBtemp\" PaymentStatus=\"AUTHORIZED\" VendorID=\"11st\">"
+		+"<Order DocumentType=\"0001\" EnterpriseCode=\"KOLOR\" SellerOrganizationCode=\"ASPB\" PaymentStatus=\"AUTHORIZED\" VendorID=\"11st\">"
 			+"<OrderLines>"
 				+"<OrderLine OrderedQty=\"2\">"
 					+"<Item ItemID=\"AYB5CL50103L\" UnitOfMeasure=\"EACH\" ItemShortDesc=\"Capri Blue Blue Signature Jar BOHO-LUXE\" ItemDesc=\"http://www.aspenbay.co.kr/capri-blue/capri-blue-blue-signature-jar-boho-luxe.html\"/>"
@@ -354,7 +354,7 @@ public class OMCTest {
 							+ "}";
 		
 		
-		String keyName = "KOLORtemp:ASPBtemp:order";
+		String keyName = "KOLOR:ASPB:order";
 		
 		try{
 			

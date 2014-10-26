@@ -104,10 +104,10 @@ public class OrderProcessTask {
     public void createOrder(String redisKey, String redisPushKey, String redisErrKey){
         
     	
-	    	logger.debug("##### [createOrder] Job Task Started!!!");
+	    	logger.debug("##### ["+redisKey+"][createOrder] Started!!!");
 	    	
 	    	long dataCnt =  listOps.size(redisKey);
-		logger.debug("["+redisKey+"] data length: "+dataCnt);
+		logger.debug("##### ["+redisKey+"][createOrder] data length: "+dataCnt);
 		
 		String orderInputXml = "";
 		
@@ -143,7 +143,7 @@ public class OrderProcessTask {
 			listOps.leftPush(redisErrKey, orderInputXml);
 		}
 		
-		logger.debug("##### [createOrder] Job Task End!!!");
+		logger.debug("##### ["+redisKey+"][createOrder] End!!!");
     }
     
     
@@ -161,10 +161,10 @@ public class OrderProcessTask {
      */
     public void processOrderRelease(String redisKey, String redisPushKey, String redisErrKey){
     	
-		logger.debug("##### [processOrderRelease] Job Task Start!!!");
+		logger.debug("##### ["+redisKey+"][releaseOrder] Start!!!");
     	
 		long dataCnt =  listOps.size(redisKey);
-		logger.debug("["+redisKey+"] data length: "+dataCnt);
+		logger.debug("##### ["+redisKey+"][releaseOrder] data length: "+dataCnt);
     		
 		// Set Input XML
 		String scheduleNrelease = "Y";	// Schedule과 Release를 동시에 처리함.
@@ -206,20 +206,20 @@ public class OrderProcessTask {
 				if("Errors".equals(doc.getFirstChild().getNodeName())){
 					
 					logger.debug("[Error Message]"+outputMsg);
-					redisService.saveErrDataByOrderId(redisErrKey+":3200", orderId, keyData);
+					redisService.saveErrDataByOrderId(redisErrKey, orderId, keyData);
 				}
 			
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
-				redisService.saveErrDataByOrderId(redisErrKey+":3200", orderId, keyData);
+				redisService.saveErrDataByOrderId(redisErrKey, orderId, keyData);
 				
 			}
 		
 		} // End for
 		
-		logger.debug("##### [processOrderRelease] Job Task End!!!");
+		logger.debug("##### ["+redisKey+"][releaseOrder] End!!!");
     	
     	
     }
@@ -241,9 +241,11 @@ public class OrderProcessTask {
      */
     		
     public void processOrderUpdate(String redisKey, String redisPushKey, String redisErrKey){
+    		
+    		logger.debug("##### ["+redisKey+"][processOrderUpdate] Start!!!");
     	
     		long dataCnt =  listOps.size(redisKey);
-		logger.debug("["+redisKey+"] data length: "+dataCnt);
+		logger.debug("##### ["+redisKey+"][processOrderUpdate] data length: "+dataCnt);
     	
     	
     		try{
@@ -292,7 +294,8 @@ public class OrderProcessTask {
     		}catch(Exception e){
     			e.printStackTrace();
     		}
-    	
+    		
+    		logger.debug("##### ["+redisKey+"][processOrderUpdate] End!!!");
     }
     
     
@@ -351,7 +354,7 @@ public class OrderProcessTask {
 	 */
 	private void processCreateShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
-		logger.debug("##### [processCreateShipment] Job Task Started!!!");
+		logger.debug("##### ["+redisKey+"][createShipment] Started!!!");
 				
 		// createShipment API 호출
 		String docType = "0001";	// Sales Order
@@ -523,7 +526,7 @@ public class OrderProcessTask {
 		}
 		
 		
-		logger.debug("##### [processCreateShipment] Job Task End!!!");
+		logger.debug("##### ["+redisKey+"][createShipment] End!!!");
 	}
 	
 	
@@ -545,7 +548,7 @@ public class OrderProcessTask {
 	 */
 	private void processConfirmShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
-		logger.debug("##### [processConfirmShipment] Job Task Started!!!");
+		logger.debug("##### ["+redisKey+"][cofirmShipment] Started!!!");
 		
 		
 		/**
@@ -602,7 +605,7 @@ public class OrderProcessTask {
 		HashMap<String,String> shipmentInfo = shipmentInfoList.get(0);
 		
 		// TODO: 택배사코드는 조직에 코드추가 및 매핑필요.
-		String cubeShipmentNo = shipmentInfo.get("shipmentNo");
+		String cubeShipmentNo = shipmentInfo.get("shipmentNo");	// 출고생성시점에 이미 반영됨
 		String shipNode = shipmentInfo.get("ship_node");
 		String trackingNo = shipmentInfo.get("expnm");		    // 송장번호
 		String scacCode = shipmentInfo.get("expNo");				// 택배사코드
@@ -632,14 +635,14 @@ public class OrderProcessTask {
 			
 			ObjectMapper mapper = new ObjectMapper();
 			String errJson = mapper.writeValueAsString(dataMap);
-			listOps.leftPush(redisErrKey+":3700", errJson);
+			listOps.leftPush(redisErrKey, errJson);
 			
 			throw new Exception("getShipmentListForOrder Failed!!!!!");
 			
 		}
 		
 		
-		// shipmentNo 만큼 confirmShipment 수행. TODO:전표번호 처리
+		// shipmentNo 만큼 confirmShipment 수행
 		XPath xp = XPathFactory.newInstance().newXPath();
 		NodeList shipmentList = (NodeList)xp.evaluate("/ShipmentList/Shipment", doc.getDocumentElement(), XPathConstants.NODESET);
 		
@@ -656,7 +659,7 @@ public class OrderProcessTask {
 			inputXML = msg.format(new String[] {docType, entCode, sellerCode, 
 									shipmentNo, 
 									shipNode, 	// 창고번호
-									trackingNo,	// 전표번호
+									trackingNo,	// 송장번호: trailerNo
 									scacOrgCode,	// 택배사조직코드
 									scacCode    // 택배사코드
 							  } );
@@ -671,14 +674,14 @@ public class OrderProcessTask {
 				
 				ObjectMapper mapper = new ObjectMapper();
 				String errJson = mapper.writeValueAsString(dataMap);
-				listOps.leftPush(redisErrKey+":3700", errJson);
+				listOps.leftPush(redisErrKey, errJson);
 				
 				throw new Exception("ConfirmShipment Failed!!!!!");
 				
 			}
 		}		
 		
-		logger.debug("##### [processConfirmShipment] Job Task End!!!");
+		logger.debug("##### ["+redisKey+"][cofirmShipment] End!!!");
 		
 	}
 
@@ -714,7 +717,7 @@ public class OrderProcessTask {
 	public void processCancelReturn(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
 		
-		logger.debug("##### [processCancelReturn] Job Task Started!!!");
+		logger.debug("##### ["+redisKey+"][cancelOrder By Cube-Result] Started!!!");
 		/*
 		 * {
 			    "org_code": "80",
@@ -893,7 +896,7 @@ public class OrderProcessTask {
 			}
 		}
 		
-		logger.debug("##### [processCancelReturn] Job Task End!!!");
+		logger.debug("##### ["+redisKey+"][[cancelOrder By Cube-Result]] End!!!");
 	}
 	
 	

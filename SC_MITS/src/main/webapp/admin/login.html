@@ -18,7 +18,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN HEAD -->
 <head>
 <meta charset="utf-8"/>
-<title>Metronic | Admin Dashboard Template</title>
+<title>OMC - Order Management Center</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="" name="description"/>
@@ -58,8 +58,8 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN LOGO -->
 <div class="logo">
 	<!-- <a href="index.html"> -->
-	<!-- <img src="../../assets/admin/layout/img/logo-big.png" alt=""/> -->
-	<button class="btn btn-lg bg-grey-gallery" type="button">Oder Management Center <h5>with Sterling OMS</h5></button>
+	<img src="../../assets/admin/layout/img/omc_logo.png" alt=""/>
+	<!-- <button class="btn btn-lg bg-grey-gallery" type="button">Oder Management Center <h5>with Sterling OMS</h5></button> -->
 	<!-- </a> -->
 </div>
 <!-- END LOGO -->
@@ -529,7 +529,6 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
 <script src="../../assets/global/scripts/metronic.js" type="text/javascript"></script>
 <script src="../../assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
-<script src="../../assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
 <script src="../../assets/admin/pages/scripts/custom-main.js" type="text/javascript"></script>
 
 <script src="../../assets/admin/pages/scripts/custom-login.js" type="text/javascript"></script>
@@ -538,47 +537,28 @@ License: You must have a valid license purchased only from themeforest(the above
 	jQuery(document).ready(function() {     
 	  Metronic.init(); // init metronic core components
 	  Layout.init(); // init current layout
-	  QuickSidebar.init() // init quick sidebar
 	  
 	  Custom.init();
-	  
 	  Login.init();
+	  
+	  $('.login-form input[name="userid"]').focus();
+	  
+	  
 	});
 	
 	
-	function goLogin(){
-		
-		//Metronic.blockUI();
-		
-		$.ajax({
-			url: '/login.sc',
-			data: $('.login-form').serialize(),
-			success:function(data)
-			{
-				
-				if( data.succ == '01'){
-					
-					//$(".page-content").load("/admin/returns/return_order_regist.html");
-					setTimeout(function(){location.href = "/index.do";}, 200);
-				}else if (data.succ == '90'){
-					
-					alert("로그인에 실패했습니다. 아이디와 비밀번호를 확인하시고 다시시도해 주세요.\n계속 실패할 경우 시스템관리자에게 문의하시기 바랍니다.");
-					return;
-				}else if (data.succ == '09'){
-					
-					alert("시스템오류가 발생했습니다. 시스템관리자에게 문의하시기 바랍니다.");
-					return;
-				}
-			},
-			complete:function(){
-				Metronic.unblockUI();
-			}
-		})
-		
-		
-		
-	}
-	
+	var getParam = function(key){
+        var _parammap = {};
+        document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+            function decode(s) {
+                return decodeURIComponent(s.split("+").join(" "));
+            }
+ 
+            _parammap[decode(arguments[1])] = decode(arguments[2]);
+        });
+ 
+        return _parammap[key];
+    };
 	
 	</script>
 <!-- END JAVASCRIPTS -->

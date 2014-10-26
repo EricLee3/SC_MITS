@@ -40,6 +40,12 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <!-- BEGIN PAGE LEVEL STYLES -->
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/Scroller/css/dataTables.scroller.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/ColReorder/css/dataTables.colReorder.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/>
+
+<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/>
 <!-- END PAGE LEVEL STYLES -->
 
 <!-- BEGIN THEME STYLES -->
@@ -70,7 +76,6 @@ License: You must have a valid license purchased only from themeforest(the above
 </div>
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
-	
 	<!-- BEGIN SIDEBAR -->
 	<jsp:include page="../inc/inc_sidemenu.jsp" />
 	<!-- END SIDEBAR -->
@@ -79,8 +84,6 @@ License: You must have a valid license purchased only from themeforest(the above
 		<div class="page-content">
 			<!-- BEGIN STYLE CUSTOMIZER -->
 			<!-- END STYLE CUSTOMIZER -->
-
-
 <!-- BEGIN PAGE HEADER-->
 <div class="row">
 	<div class="col-md-12">
@@ -157,7 +160,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						<div class="col-md-6 col-sm-12">
 							<h4>주문정보 연동데이타 - SC-MA</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -192,8 +195,8 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.create.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
-										<span class="label label-sm label-info">Details</span> </a>
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
+										<span class="label label-sm label-info" >Details</span> </a>
 									</td>
 								</tr>
 								<!-- 주문확정 대상 -->
@@ -210,7 +213,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.release.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -229,7 +232,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_update_s2m.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -252,7 +255,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							
 							<h4>주문정보 연동데이타 - SC-CUBE</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -287,7 +290,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_update_s2c.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -304,7 +307,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_update_c2s.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -316,7 +319,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							
 							<h4>Cube 요청데이터 결과</h4>
 							<div class="table-container">
-							<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+							<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -351,7 +354,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_cube_3202_90.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -368,7 +371,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_cube_3202_09.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -385,7 +388,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_cube_9000_req.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -402,7 +405,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_cube_9000_res.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -412,9 +415,9 @@ License: You must have a valid license purchased only from themeforest(the above
 							
 							<h4>주문정보 에러데이타</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
-								<tr role="row" class="heading">
+								<tr class="heading">
 									<th width="2%">
 										<!-- <input type="checkbox" class="group-checkable"> -->
 									</th>
@@ -440,13 +443,13 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR_ERR.info_create_err.name}
 									</td>
 									<td>
-										 ${KOLOR_ERR.info_create_err.name}
+										 ${KOLOR_ERR.info_create_err.desc}
 									</td>
 									<td class="text-right">
 										 ${KOLOR_ERR.info_create_err.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -459,13 +462,13 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${errKeyList.name}
 									</td>
 									<td>
-										 ${errKeyList.name}
+										 ${errKeyList.desc}
 									</td>
 									<td class="text-right">
 										 ${errKeyList.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -480,7 +483,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						<div class="col-md-6 col-sm-6">
 							<h4>상품정보 연동데이타 - SC-CUBE</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -515,7 +518,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_product_c2s.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -532,7 +535,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_product_s2c.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -542,7 +545,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							</div>
 							<h4>상품정보 연동데이타 - SC-MA</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -576,7 +579,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_product_s2m.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -588,7 +591,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						
 							<h4>상품정보 연동 에러데이타</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -623,7 +626,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR_ERR.info_product_err_ca.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -641,7 +644,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR_ERR.info_product_err_ma.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -656,7 +659,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						<div class="col-md-6 col-sm-6">
 							<h4>재고정보 연동데이타 - SC-CUBE</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -691,7 +694,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_inventory_c2s.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -708,7 +711,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_inventory_s2c.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -718,7 +721,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							
 							<h4>재고정보 연동데이타 - SC-MA</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -753,7 +756,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR.info_inventory_c2s.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -766,7 +769,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							
 							<h4>재고정보 연동 에러데이타</h4>
 							<div class="table-container">
-								<table class="table table-hover table-bordered table-striped" id="table_orderLine">
+								<table class="table table-hover table-condensed" id="table_orderLine">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="2%">
@@ -801,7 +804,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR_ERR.info_inventory_err_ca.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
@@ -819,29 +822,16 @@ License: You must have a valid license purchased only from themeforest(the above
 										 ${KOLOR_ERR.info_inventory_err_ma.size}
 									</td>
 									<td>
-										<a href="#" class="pull-right" target="_blank">
+										<a class="pull-right" data-toggle="modal" id="key-detail" >
 										<span class="label label-sm label-info">Details</span> </a>
 									</td>
 								</tr>
 								</tbody>
 								</table>
+								<!-- Detail DataList Modal -->
+								<div class="modal container fade" id="md_key_detail" tabindex="-1" style="height:350px;" role="dialog" aria-hidden="true">
+								</div>
 								
-								
-								<table class="table table-striped table-hover table-bordered" id="data_list_table">
-										<thead>
-										<tr>
-											<th>
-												 순번
-											</th>
-											<th>
-												 데이타
-											</th>
-											
-										</tr>
-										</thead>
-										<tbody>
-										</tbody>
-										</table>
 							</div>
 						</div>
 					</div>
@@ -851,6 +841,9 @@ License: You must have a valid license purchased only from themeforest(the above
 </div>
 
 <form name="form_action" id="form_action" method="POST">
+	<input type="hidden" name="t_key_data">
+	<!-- <input type="hidden" name="key">
+	<input type="hidden" name="index"> -->
 </form>
 <!-- END PAGE CONTENT-->
 
@@ -878,34 +871,139 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <!-- BEGIN PAGE LEVEL PLUGINS -->
+
 <!-- END PAGE LEVEL PLUGINS -->
 
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
+<script src="../../assets/global/plugins/bootstrap-modal/js/bootstrap-modalmanager.js" type="text/javascript"></script>
+<script src="../../assets/global/plugins/bootstrap-modal/js/bootstrap-modal.js" type="text/javascript"></script>
+
+<!-- data table -->
+<script type="text/javascript" src="../../assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/ColReorder/js/dataTables.colReorder.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/Scroller/js/dataTables.scroller.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
+
 <!-- END PAGE LEVEL SCRIPTS -->
 
 <script>
 
 	jQuery(document).ready(function() {
         
+		// general settings
+        $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner = 
+          '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' +
+            '<div class="progress progress-striped active">' +
+              '<div class="progress-bar" style="width: 100%;"></div>' +
+            '</div>' +
+          '</div>';
+
+        $.fn.modalmanager.defaults.resize = true;
 		
-		 var err_table = $('#data_list_table');
-		 err_table.dataTable({
-		 	"paging":   false,
-		    "ordering": false,
-		     "info":     false,
-		 	 "processing": true,
-		     "serverSide": true,
-		     "dom":"",
-		     "data": data.errList,
-		     "columns": [
-		                 { "data": "orderId" },
-		                 { "data": "" }
-		                 
-		             ]
-		 });
 		
+		//ajax demo:
+        var $modal = $('#md_key_detail');
+
+        $('a#key-detail').on('click', function(){
+          // create the backdrop and wait for next modal to be triggered
+          $('body').modalmanager('loading');
+		  
+          var keyName =  $(this).parent().parent().children().eq(1).text();
+          keyName = $.trim(keyName);
+          
+          var keyDesc =  $(this).parent().parent().children().eq(2).text();
+          keyDesc = $.trim(keyDesc);
+          
+          
+          setTimeout(function(){
+              $modal.load('/admin/system/redis_detail_list.html', '', function(){
+	              
+            	  		$('#md_key_detail .modal-header .modal-title').text(keyDesc+" ("+keyName+") List");
+            	  
+	            	  	
+            	  		setDatatable(keyName);
+            	  		$modal.modal();
+	            });
+        	  }, 200);
+        });
+		
+        
+        
+        
+        
+        
+        
+        /* $modal.on('click', '.update', function(){
+          $modal.modal('loading');
+          setTimeout(function(){
+            $modal
+              .modal('loading')
+              .find('.modal-body')
+                .prepend('<div class="alert alert-info fade in">' +
+                  'Updated!<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                '</div>');
+          }, 1000);
+        }); */
 		
      });	
+	
+function setDatatable(keyName){
+    	
+    	$('#data_list_table').dataTable( {
+	        "ajax": "/system/getRedisKeyData.sc?key="+keyName,
+	        "paging":   false,
+		    "ordering": false,
+		    "info":     false,
+		 	"processing": true,
+		    "dom":"",
+		    "dataType":"xml",
+	        "columns": [
+	            { "data": "seq" },
+	            { "data": function render(data, type, row)
+	  				{
+						return '<textarea class="form-control input-sm" rows="5" name="">'+data["keyData"]+'</textarea>';
+	  				 }
+	            },
+	            {
+  				  "data": function render(data, type, row)
+  				  {
+						return '<a href="javascript:retryKey(\''+keyName+'\','+data["seq"]+');" class="btn default btn-xs blue-stripe">Retry</a>';
+  				  }
+	            },
+	            {
+  				  "data": function render(data, type, row)
+  				  {
+						return "<a href='javascript:deleteKey(\""+keyName+"\","+data["seq"]+");' class='btn default btn-xs red-stripe'>Delete</a>";
+  				  }
+	            }
+	        ]
+	    } );
+	
+	
+}
+
+
+function retryKey(key, index){
+	
+}
+
+function deleteKey(key, index, data){
+	
+	/* $("#form_action input[name='t_key_data']").val(data);
+	
+	$.ajax({
+		url: '/system/deleteKey.sc?key='+key+'&index='+index,
+		data: $('#form_action').serialize(),
+		success:function(data)
+		{
+			var table = $("#data_list_table").dataTable();
+			table.api().ajax.reload();	
+		}
+	
+	}); */
+}
      
  </script>
 <!-- END JAVASCRIPTS -->
