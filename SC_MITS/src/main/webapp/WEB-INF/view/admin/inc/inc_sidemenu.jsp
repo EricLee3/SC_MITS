@@ -91,13 +91,13 @@
 							<i class="fa fa-ban"></i>
 							미 출고의뢰건 목록</a>
 						</li>
-						<li>
+						<!-- <li>
 							<a href="/orders/order_list.do?action=true&status=9002&mn=6">
 							<i class="fa fa-undo"></i>
 							주문취소요청 목록</a>
-						</li>
+						</li> -->
 						<li>
-							<a href="/orders/order_list.do?action=true&status=9000&mn=7">
+							<a href="/orders/order_list.do?action=true&status=9000&mn=6">
 							<i class="fa fa-times-circle"></i>
 							주문취소 목록</a>
 						</li>

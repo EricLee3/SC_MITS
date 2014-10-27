@@ -51,6 +51,7 @@ import scala.annotation.meta.setter;
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.FileContentReader;
 import com.isec.sc.intgr.scheduler.OrderProcessTask;
+import com.isec.sc.intgr.scheduler.ProductSyncTask;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -65,6 +66,7 @@ public class RedisTest2 {
 	
 	
 	@Autowired	private OrderProcessTask orderTask;
+	@Autowired	private ProductSyncTask productTask;
 	
 	
 	
@@ -90,6 +92,26 @@ public class RedisTest2 {
 	
 	@Value("${channel.ma.jns.order}")
 	private String ch_ma_jns_order;
+	
+	
+	
+	
+	@Test
+	public void testQuartzJobRun(){
+		
+		// 스케쥴러 수동 실행
+		// orderTask.processOrderRelease("SLV:ASPB:order:release", "SLV:ASPB:order:update:S2M", "SLV:ASPB:order:error");
+		productTask.syncProductFromCube("80:product:C2S", "80:product:S2C", "KOLOR:ASPB:product:S2M", "80:product:error");
+		//productTask.syncInventoryFromCube("80:inventory:C2S", "80:inventory:S2C", "KOLOR:ASPB:inventory:S2M", "80:inventory:error");
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	@Ignore
@@ -146,13 +168,7 @@ public class RedisTest2 {
         return timeform.format(d);  
     } 
 	
-	@Ignore
-	public void testQuartzJobRun(){
-		
-		// 스케쥴러 수동 실행
-		orderTask.processOrderRelease("SLV:ASPB:order:release", "SLV:ASPB:order:update:S2M", "SLV:ASPB:order:error");
-		
-	}
+	
 	
 	@Ignore
 	public void SortedSetTest() throws Exception{

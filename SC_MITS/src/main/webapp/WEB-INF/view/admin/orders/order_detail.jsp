@@ -267,11 +267,11 @@ License: You must have a valid license purchased only from themeforest(the above
 							4 </span>
 							</a>
 						</li> -->
-						<li>
+						<!-- <li>
 							<a href="#tab_4" data-toggle="tab">
 							출고확정정보</span>
 							</a>
-						</li>
+						</li> -->
 						<!-- <li>
 							<a href="#tab_5" data-toggle="tab">
 							History </a>
@@ -306,33 +306,32 @@ License: You must have a valid license purchased only from themeforest(the above
 													 오더생성일자:
 												</div>
 												<div class="col-md-7 value" id="order_date">
-													 
 												</div>
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 관리조직/판매채널 :
+													 관리조직/판매채널/2차DOS :
 												</div>
 												<div class="col-md-7 value">
-													${baseInfo.entCode} / ${baseInfo.sellerCode}
+													${baseInfo.entCode} / ${baseInfo.sellerCode} / ${baseInfo.vendor_id}
 												</div>
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 주문자명:
+													 주문자명/연락처:
 												</div>
 												<div class="col-md-7 value">
-													 ${custInfo.custName}
+													 ${custInfo.custName}/ ${custInfo.custPhone}
 												</div>
 											</div>
-											<div class="row static-info">
+											<%-- <div class="row static-info">
 												<div class="col-md-5 name">
 													 연락처:
 												</div>
 												<div class="col-md-7 value">
 													 ${custInfo.custPhone}
 												</div>
-											</div>
+											</div> --%>
 											<div class="row static-info">
 												<div class="col-md-5 name">
 													 Email:
@@ -347,6 +346,14 @@ License: You must have a valid license purchased only from themeforest(the above
 												</div>
 												<div class="col-md-7 value">
 													 ${baseInfo.paymentType }
+												</div>
+											</div>
+											<div class="row static-info">
+												<div class="col-md-5 name">
+													 배송메세지:
+												</div>
+												<div class="col-md-7 value">
+													 ${baseInfo.deliveryMsg}
 												</div>
 											</div>
 										</div>
@@ -871,7 +878,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							</div>
 						
 							<div class="table-container">
-								<table class="table table-striped table-bordered table-hover" id="datatable_credit_memos">
+								<table class="table table-striped table-bordered" id="datatable_credit_memos">
 								<thead>
 								<tr role="row" class="heading">
 									<th width="15%">

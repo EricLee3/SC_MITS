@@ -57,16 +57,20 @@ var EcommerceOrders = function () {
                                },
                                {
                                    "render": function ( data, type, row ) {
-                                	      if(row['cancelReq'] == 'Y'){
-                                	    	    var cacelLabel = '&nbsp;<span class="label label-sm label-danger">취소요청중</span>'
-                                	    	  	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>'+cacelLabel;
-                                	      }else if(row['cancelRes'] == 'Y'){
-                            	    	  		var cacelLabel = '&nbsp;<span class="label label-sm label-danger">취소실패-'+row['cancelRes_code']+'</span>';
-                                  	    	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>'+cacelLabel;
-                                	      }
-                                	      else{
-                                	    	  	return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span>';
-                                	      }
+                                	      
+                                	   		  var cacelReqLabel = "";
+                                	   		  var cacelResLabel = "";
+                                	   		
+	                                	      if(row['cancelReq'] == 'Y'){
+	                                	    	  		cacelReqLabel = '<span class="label label-sm label-danger">취소요청</span> '
+	                                	      }
+                                	      
+	                                	      if(row['cancelRes'] == 'Y'){
+	                                	    	  		cacelResLabel = '<span class="label label-sm label-danger" data-toggle="tooltip" title="'+row["cancelRes_text"]+'">결과-'+row['cancelRes_code']+'</span> ';
+	                                	      }
+	                                	      
+	                                	      return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span><br>'+cacelReqLabel+cacelResLabel;
+                                	      
                                        
                                    },
                                    "targets": 9  // Status Icon
@@ -75,9 +79,9 @@ var EcommerceOrders = function () {
                             	   	  "render": function(data, type, row){
                             	          return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+row['orderNo']+'" class="btn default btn-xs blue-stripe"><i class="fa fa-search"></i> View</a>';
                             	      },
-                            	      "targets": 10	// View Button
+                            	      "targets": 11	// View Button
                                },
-                               { "visible": false,  "targets": [11] },  // cancelReq Hidden
+                               { "visible": false,  "targets": [12] },  // cancelReq Hidden
                                { "type": "decimal", "class": "right", "targets": [ 8 ] }
                                
                            ],
@@ -113,6 +117,7 @@ var EcommerceOrders = function () {
                         					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
                       	  				}, "orderable":false },
                             { "data": "status_text", "orderable":false },
+                            { "data": "vendor_id", "orderable":false },
                             { "data": null, "orderable":false },
                             { "data": "cancelReq", "orderable":false }
                         ],

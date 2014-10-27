@@ -169,24 +169,24 @@
 	<!-- ASPB > Order -->
 	<bean id="orderCreateJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderCreateJob_ASPB" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 10/10 8-23 ? * MON-FRI" />
     </bean>
     <bean id="orderReleaseJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderReleaseJob_ASPB" />
         <!-- <property name="cronExpression" value="0 0/1 * * * ?" /> -->
-        <property name="cronExpression" value="0 20/5 2-4 ? * 1-7" />
+        <property name="cronExpression" value="0 20 8-23 ? * MON-FRI" />
     </bean>
 	<bean id="orderStatusUpdateJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="orderStatusUpdateJob_ASPB" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 30/5 8-23 ? * MON-FRI" />
     </bean>
     <bean id="syncProductJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="syncProductJob_ASPB" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 10 8-23 ? * MON-FRI" />
     </bean>
     <bean id="syncInventoryJobTrigger_ASPB" class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="syncInventoryJob_ASPB" />
-        <property name="cronExpression" value="0 0/1 * * * ?" />
+        <property name="cronExpression" value="0 20/30 8-23 ? * MON-FRI" />
     </bean>
 	
 	<!-- OUTRO > Order -->

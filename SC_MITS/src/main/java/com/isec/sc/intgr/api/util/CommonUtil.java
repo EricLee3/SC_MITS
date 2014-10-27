@@ -84,4 +84,24 @@ public class CommonUtil {
 	    String strDate = sdfDate.format(now);
 	    return strDate;
 	}
+	
+	
+	
+	 /**
+	  * XML 특수 문자 처리
+	  * XML에서 특정 문자열을 출력시 파싱 오류가 나는 사전 정의어를 파싱해준다.
+	  * @throws UtilException
+	  */
+	 public static String replaceXmlStr(String str) throws Exception {
+		 
+	  if(str == null || "".equals(str)) return str;
+		 
+	  str = str.replaceAll("\"", "&quot;");
+	  str = str.replaceAll("&", "&amp;");
+	  str = str.replaceAll("\'", "&apos;");
+	  str = str.replaceAll("<", "&lt;");
+	  str = str.replaceAll(">", "&gt;");
+	  str = str.trim();
+	  return str;
+	 }
 }

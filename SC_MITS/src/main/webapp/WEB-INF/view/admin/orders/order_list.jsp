@@ -261,13 +261,13 @@ License: You must have a valid license purchased only from themeforest(the above
 									<th width="5%">
 										 오더번호&nbsp;#
 									</th>
-									<th width="15%">
+									<th width="12%">
 										 오더생성일
 									</th>
-									<th width="10%">
+									<th width="8%">
 										 관리조직
 									</th>
-									<th width="10%">
+									<th width="8%">
 										 판매채널
 									</th>
 									<th width="10%">
@@ -282,13 +282,16 @@ License: You must have a valid license purchased only from themeforest(the above
 									<!-- <th width="10%">
 										 Payment&nbsp;Type
 									</th> -->
-									<th width="10%">
+									<th width="8%">
 										 결제금액
 									</th>
-									<th width="15%">
+									<th width="12%">
 										 주문상태
 									</th>
 									<th width="10%">
+										 2차DOS
+									</th>
+									<th width="8%">
 										 Actions
 									</th>
 								</tr>
@@ -368,9 +371,11 @@ License: You must have a valid license purchased only from themeforest(the above
 											<option value="3200">출고의뢰</option>
 											<option value="3350">출고준비</option>
 											<option value="3700">출고완료</option>											
-											<option value="9002">주문취소요청</option>											
+											<!-- <option value="9002">주문취소요청</option> -->											
 											<option value="9000">주문취소</option>
 										</select>
+									</td>
+									<td>
 									</td>
 									<td>
 										<div class="margin-bottom-5">

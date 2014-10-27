@@ -99,24 +99,28 @@ public class OMCTest {
 	public void testDelListData() throws Exception{
 		
 		
-		String cancelReqKey = "KOLOR:ASPB:order:cancel";
+		String a = "VELVET MOSS & ' \" <>JASMINE";
 		
-		List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
-		for( int i=0; i<cancelReqRedisList.size(); i++){
-			
-			String jsonData = cancelReqRedisList.get(i);
-			
-			System.out.println("[jsonData]"+ jsonData);
-			HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-			
-			String cancelOrderNo = cancelReqMap.get("orderNo");
-			
-			if("Y100000380".equals(cancelOrderNo)){
-				System.out.println("[cancelOrderNo]"+cancelOrderNo);
-				listOps.remove(cancelReqKey, i, jsonData);
-				break;
-			}
-		}
+		System.out.println(CommonUtil.replaceXmlStr(a));
+		
+//		String cancelReqKey = "KOLOR:ASPB:order:cancel";
+//		
+//		List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
+//		for( int i=0; i<cancelReqRedisList.size(); i++){
+//			
+//			String jsonData = cancelReqRedisList.get(i);
+//			
+//			System.out.println("[jsonData]"+ jsonData);
+//			HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+//			
+//			String cancelOrderNo = cancelReqMap.get("orderNo");
+//			
+//			if("Y100000380".equals(cancelOrderNo)){
+//				System.out.println("[cancelOrderNo]"+cancelOrderNo);
+//				listOps.remove(cancelReqKey, i, jsonData);
+//				break;
+//			}
+//		}
 		
 	}
 	

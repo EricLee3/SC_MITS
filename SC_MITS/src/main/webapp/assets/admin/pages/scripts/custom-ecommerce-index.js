@@ -414,7 +414,13 @@ var EcommerceIndex = function () {
 	                           },
 	                           { "data": function render(data, type)
 	   		      	  				{
-	   		        					return '<span class="label label-xs label-'+data['status_class']+' ">'+data['status_text']+'</span>';
+	   		        						
+	                        	   		   var cancelResLabel = "";
+			                        	   if(data["res_status_code"] != undefined && data["res_status_code"] != ""){
+			                        		   cancelResLabel = '<span class="label label-sm label-danger" data-toggle="tooltip" title="'+data["res_status_text"]+'">결과-'+data["res_status_code"]+'</span> ';
+			                   	      }
+	                        	   
+	                        	   		  return '<span class="label label-sm label-'+data['status_class']+' ">'+data['status_text']+'</span>&nbsp;'+cancelResLabel;
 	   		      	  				} 
 		   		                },
 		   		                { "data": null, "orderable":false }
@@ -620,7 +626,7 @@ var EcommerceIndex = function () {
 					  case 1: status = "1300"; mn="5"; break;
 					  case 2: status = "3350"; mn="3"; break;
 					  case 3: status = "3700"; mn="4"; break;
-					  case 4: status = "9002"; mn="6"; break; // 주문취소요청
+					  case 4: status = "9000"; mn="6"; break; // 주문취소
 				  }
 				 
 				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true&mn='+mn);

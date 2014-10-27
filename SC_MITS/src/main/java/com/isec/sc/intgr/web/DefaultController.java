@@ -160,6 +160,8 @@ public class DefaultController {
 				ses.setAttribute("S_SELL_NAME", S_SELL_NAME);
 				ses.setAttribute("S_USER_NAME", S_USER_NAME);
 				ses.setAttribute("S_USER_GRP_NAME", S_USER_GRP_NAME);
+				
+				ses.setMaxInactiveInterval(7200);
 			}
 			
 			

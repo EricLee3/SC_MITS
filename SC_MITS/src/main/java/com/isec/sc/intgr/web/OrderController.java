@@ -267,7 +267,7 @@ public class OrderController {
 		String inputXML = msg.format(new String[] {
 				                                entCode,
 				                                sellerCode, 
-				                                "9002".equals(orderStatus)?"":orderStatus, // 주문취소요청일 경우 전체주문조회 처리후 List저장시 Filtering
+				                                orderStatus,
 												orderId,
 												fromDate,
 												toDate,
@@ -311,7 +311,7 @@ public class OrderController {
 		
 		
 		
-		
+		int canceReqCnt = 0;
 		
 		
 		for(int i=0; i<orderNodeList.getLength(); i++){
@@ -340,7 +340,11 @@ public class OrderController {
 			String maxStatus = (String)xp.evaluate("@MaxOrderStatus", orderNodeList.item(i), XPathConstants.STRING);
 			String defaultText = (String)xp.evaluate("@Status", orderNodeList.item(i), XPathConstants.STRING);
 			
-			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
+			String vendorId = (String)xp.evaluate("@VendorID", orderNodeList.item(i), XPathConstants.STRING); // 2차DOS명
+			
+			
+			
+			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);	
 			
 			
 			dataMap.put("orderNo", orderNo);
@@ -357,6 +361,7 @@ public class OrderController {
 			dataMap.put("maxStatus", maxStatus);
 			dataMap.put("status_text", status[0]);
 			dataMap.put("status_class", status[1]);
+			dataMap.put("vendor_id", vendorId);
 			
 			// 주문취소요청 여부 조회
 			String checkReqKey = enterPrise+":"+sellerOrg+":order:cancel";
@@ -382,6 +387,7 @@ public class OrderController {
 				if(orderNo.equals( cancelResMap.get("orderNo") )){
 					cancelRes = "Y";
 					dataMap.put("cancelRes_code", cancelResMap.get("status_code"));
+					dataMap.put("cancelRes_text", cancelResMap.get("status_text"));
 					dataMap.put("cancelRes", cancelRes);
 					
 					break;
@@ -440,17 +446,7 @@ public class OrderController {
 			dataMap.put("lineList", orderLineList);
 			
 			
-			// 주문취소요청건 조회일 경우 해당건만 List에 저장
-			if("9002".equals(orderStatus)){
-				
-				if("Y".equals(cancelReq)){
-					data.add(dataMap);
-				}
-			}else{
-				data.add(dataMap);
-			}
-			
-
+			data.add(dataMap);
 		}
 	  
 
@@ -459,6 +455,7 @@ public class OrderController {
 		mav.addObject("draw", paramMap.get("draw"));
 		mav.addObject("recordsTotal", totCnt);
 		mav.addObject("recordsFiltered", totCnt);
+		
 		
 		String custActionType = (String)paramMap.get("customActionType"); 
 		if ("group_action".equals(custActionType)) {
@@ -505,6 +502,8 @@ public class OrderController {
 		String maxStatus = (String)xp.evaluate("@MaxOrderStatus", el, XPathConstants.STRING);
 		String defaultText = (String)xp.evaluate("@Status", el, XPathConstants.STRING);
 		
+		String vendorId = (String)xp.evaluate("@VendorID", el, XPathConstants.STRING); // 2차DOS명
+		
 		String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
 		
 		baseInfoMap.put("orderNo", orderNo);
@@ -515,9 +514,20 @@ public class OrderController {
 		baseInfoMap.put("minStatus", minStatus);
 		baseInfoMap.put("maxStatus", maxStatus);
 		baseInfoMap.put("orderStatus", status[0]);
-		baseInfoMap.put("orderStatus_class", status[1] );
+		baseInfoMap.put("orderStatus_class", status[1]);
 		baseInfoMap.put("sellerCode", sellerCode );
 		baseInfoMap.put("entCode", entCode );
+		baseInfoMap.put("vendor_id", vendorId);
+		
+		/*
+		 * +"<Instructions>"
+	        +    "<Instruction InstructionText=\"msg\" InstructionType=\"DLV_MSG\" />"
+	        +"</Instructions>"
+		 */
+		String deliveryMsg = (String)xp.evaluate("Instructions/Instruction[@InstructionType='DLV_MSG']/@InstructionText", el, XPathConstants.STRING);
+		baseInfoMap.put("deliveryMsg", deliveryMsg);
+		
+		
 		
 		// 주문 전체 가격정보
 		Double totLineSub = 0.00;
@@ -620,6 +630,9 @@ public class OrderController {
 		shipInfoMap.put("shipPhone", shipPhone);
 		shipInfoMap.put("shipMPhone", shipMPhone);
 		shipInfoMap.put("shipFaxNo", shipFaxNo);
+		
+		
+		
 		
 		
 		//-------- 3. Order Line Info
@@ -1628,10 +1641,26 @@ public class OrderController {
 				
 				logger.debug("[jsonData]"+ jsonData);
 				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				// 취소요청 결과정보 조회
+				String orderNo = cancelReqMap.get("orderNo");
+				HashMap<String,Object> resMap =  getCacelReqInfo(cancelReqKey+":result", entCode, sellerCode, orderNo);
+				
+				logger.debug("[res_status_code]"+resMap.get("status_code"));
+				if(resMap.get("status_code") != null)
+				{
+					cancelReqMap.put("res_status_code",(String)resMap.get("status_code"));
+					cancelReqMap.put("res_status_text",(String)resMap.get("status_text"));
+					
+				}
 				cancelReqList.add(cancelReqMap);
 			}
 		
 		}
+		
+		
+		
+		
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("newList",getOrderOverviewList(docType, entCode, sellerCode, "1100") );	// New Order List - Top10
 		mav.addObject("releaseList",getOrderOverviewList(docType, entCode, sellerCode, "1300") );	// 미 출고의뢰건

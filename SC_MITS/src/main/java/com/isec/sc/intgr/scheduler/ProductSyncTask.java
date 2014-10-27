@@ -133,10 +133,18 @@ public class ProductSyncTask {
 					logger.debug("##### [ent_code]" + ent_code);
 					
 					String prodinc = (String)itemMap.get("prodinc");
+					
 					String pname = (String)itemMap.get("pname");
+					pname = CommonUtil.replaceXmlStr(pname);
+					
 					String sale_price = (String)itemMap.get("sale_price");
+					
 					String brand_id = (String)itemMap.get("brand_id");
+					brand_id = CommonUtil.replaceXmlStr(brand_id);
+					
 					String brand_name = (String)itemMap.get("brand_name");
+					brand_name = CommonUtil.replaceXmlStr(brand_name);
+					
 					String tran_date = (String)itemMap.get("tran_date");
 					String tran_seq = (String)itemMap.get("tran_seq");
 					String status = "3000";	// 판매가능상태
@@ -149,13 +157,18 @@ public class ProductSyncTask {
 					for(int kk=0; kk<barCodeList.size(); kk++){
 						
 						String item_color = (String)barCodeList.get(kk).get("item_color");
+						item_color = CommonUtil.replaceXmlStr(item_color);
+						
 						String item_size = (String)barCodeList.get(kk).get("item_size");
+						item_size = CommonUtil.replaceXmlStr(item_size);
+						
+						
 						String bar_code = (String)barCodeList.get(kk).get("bar_code");
 						
 						MessageFormat msg = new MessageFormat(manageItemItemTempate);
 						String itemXML = msg.format(new String[] {
 																	bar_code, ent_code, "EACH", 
-																	CommonUtil.cuurentDateFromFormat("yyyy-MM-dd"),"9999-12-31",
+																	"9999-12-31",CommonUtil.cuurentDateFromFormat("yyyy-MM-dd"),
 																	brand_id, brand_name, sale_price, pname,
 																	item_color, item_size, status
 																} 
@@ -179,8 +192,9 @@ public class ProductSyncTask {
 					// Login 실패일 경우 Key에 다시 기록 - 재처리 시도
 					if("90".equals(succ)){
 						
-						logger.debug("Login Failed!!!");
+						logger.debug("########## Login Failed!!!");
 						listOps.leftPush(redisKeyC2S, jsonString);
+						listOps.leftPush(redisKeyC2S+":input", itemXML);
 						continue;
 					}
 					
@@ -326,9 +340,9 @@ public class ProductSyncTask {
 					Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, ship_node, uom, "A");
 					// Cube의 재고수량 - 현 재고수량 차감 
 					Double adjustQty = Double.parseDouble(qty) - currScQty;
-					logger.debug("#####[SC 현재고]"+currScQty);
-					logger.debug("#####[Cube 현재고]"+qty);
-					logger.debug("#####[증감분]"+adjustQty);
+//					logger.debug("#####[SC 현재고]"+currScQty);
+//					logger.debug("#####[Cube 현재고]"+qty);
+					logger.debug("#####[증감분] "+bar_code+" "+adjustQty);
 					
 					// SC 재고차감
 					// adjustInventory Input XML Generation
@@ -452,6 +466,8 @@ public class ProductSyncTask {
 						
 						// 모든창고의 가용재고 수량 조회
 						Double currScQty = sterlingApiDelegate.getCalcQtyBeforeAdjustInv(ent_code, bar_code, "", uom, "A");
+						logger.info("[qty] "+bar_code+"     "+currScQty);
+						
 						
 						// MA 전송결과값 생성
 						HashMap<String, Object> returnItemMap = new HashMap<String, Object>();

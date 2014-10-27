@@ -27,8 +27,8 @@ public class ScInventoryHandler {
 								  Model model,
 								  HttpServletResponse res) throws Exception{
 		
-		logger.debug("[returnXML]"+returnXML);
-		logger.debug("[status]"+status);
+		// logger.debug("[returnXML]"+returnXML);
+		// logger.debug("[status]"+status);
 		
 		
 		// 1. Sterling Status   aaa
