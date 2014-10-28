@@ -490,11 +490,11 @@ public class SterlingApiDelegate {
 		sterlingHTTPConnector.setApi(sc_get_orderReleaseList);
 		sterlingHTTPConnector.setData(xmlData);
 		String outputXML = sterlingHTTPConnector.run();
-		logger.debug("[getOrderReleaseList outputXML]"+outputXML);
+		logger.info("[getOrderReleaseList outputXML]"+outputXML);
 		
 		// OutPut XML Parsing
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
-		logger.debug("result:::"+doc.getFirstChild().getNodeName());
+		logger.info("result:::"+doc.getFirstChild().getNodeName());
 		
 		
 		// Error 발생

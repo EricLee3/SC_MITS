@@ -616,7 +616,8 @@ public class OrderProcessTask {
 		// TODO: 택배사코드 테스트코드로 작성
 		String scacOrgCode = entCode;
 		//String scacOrgCode = "CJL";
-		scacCode = "20140917094212141984"; // CJL_STD
+		scacCode = "20141016212607191960"; // TODO: CJL_STD PROD
+		// scacCode = "20140917094212141984"; // CJL_STD DEV
 		// scacCode = "19991214183438453"; // USPS Default Code
 		
 		

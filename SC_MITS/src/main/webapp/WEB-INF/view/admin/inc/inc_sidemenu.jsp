@@ -86,20 +86,20 @@
 							<i class="fa fa-truck"></i>
 							출고완료 목록</a>
 						</li>
-						<li>
-							<a href="/orders/order_list.do?action=true&status=1300&mn=5">
-							<i class="fa fa-ban"></i>
-							미 출고의뢰건 목록</a>
-						</li>
 						<!-- <li>
 							<a href="/orders/order_list.do?action=true&status=9002&mn=6">
 							<i class="fa fa-undo"></i>
 							주문취소요청 목록</a>
 						</li> -->
 						<li>
-							<a href="/orders/order_list.do?action=true&status=9000&mn=6">
+							<a href="/orders/order_list.do?action=true&status=9000&mn=5">
 							<i class="fa fa-times-circle"></i>
 							주문취소 목록</a>
+						</li>
+						<li>
+							<a href="/orders/order_list.do?action=true&status=1300&mn=6">
+							<i class="fa fa-ban"></i>
+							미 출고의뢰건 목록</a>
 						</li>
 					</ul>
 				</li>

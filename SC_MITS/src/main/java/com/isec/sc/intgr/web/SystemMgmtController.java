@@ -309,7 +309,7 @@ public class SystemMgmtController {
 		info_create_err.put("size", listOps.size(KEY_MA_KOLOR_ASPB_ORDER_ERROR));
 		keyInfo_error.put("info_create_err", info_create_err);
 		
-		Set<String> kolor_order_error_keys = maStringRedisTemplate.keys(KOLOR_ASPB_KEY+"order:update:error:*");
+		Set<String> kolor_order_error_keys = maStringRedisTemplate.keys(KOLOR_ASPB_KEY+":order:update:error:*");
 		List<HashMap<String,String>> err_key_list = new ArrayList<HashMap<String,String>>();
 		for( String keyName : kolor_order_error_keys ){
 			

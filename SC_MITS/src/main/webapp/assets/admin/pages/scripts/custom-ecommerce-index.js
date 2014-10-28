@@ -446,10 +446,12 @@ var EcommerceIndex = function () {
     var initTable_overviews = function(data) {
     	
     	initTable_common('#table_new_list', data.newList);
-    	initTable_common('#table_pending_list', data.releaseList);
+    	initTable_common('#table_releaseConfirm_list', data.releaseConfirmList);
     	initTable_common('#table_createShipment_list', data.createShipmentList);
     	initTable_common('#table_shipped_list', data.shippedList);
-    	initTable_common('#table_cancelled_list', data.cancelReqList);
+//    	initTable_common('#table_cancelled_list', data.cancelReqList); // 주문취소요청건
+    	initTable_common('#table_cancelled_list', data.cancelList); // 주문취소건
+    	initTable_common('#table_pending_list', data.releaseList);
     	
     	// Error List - TODO: 향후 수정
 //    	var err_table = $('#table_error_list');
@@ -541,10 +543,12 @@ var EcommerceIndex = function () {
 			{
 				if(mode == 'reload'){
 					reload_table_overview('#table_new_list', data.newList);
-					reload_table_overview('#table_pending_list', data.releaseList);
+					reload_table_overview('#table_releaseConfirm_list', data.releaseConfirmList);
 					reload_table_overview('#table_createShipment_list', data.createShipmentList);
 					reload_table_overview('#table_shipped_list', data.shippedList);
-					reload_table_overview('#table_cancelled_list', data.cancelReqList);
+//					reload_table_overview('#table_cancelled_list', data.cancelReqList); // 주문취소요청건
+					reload_table_overview('#table_cancelled_list', data.canceList); // 주문취소건
+					reload_table_overview('#table_pending_list', data.releaseList);
 					
 				}else{
 					initTable_overviews(data);
@@ -623,10 +627,11 @@ var EcommerceIndex = function () {
 				 switch(tab_index) {
 				 
 					  case 0: status = "1100"; mn="1"; break;
-					  case 1: status = "1300"; mn="5"; break;
+					  case 1: status = "3200"; mn="2"; break;
 					  case 2: status = "3350"; mn="3"; break;
 					  case 3: status = "3700"; mn="4"; break;
-					  case 4: status = "9000"; mn="6"; break; // 주문취소
+					  case 4: status = "9000"; mn="5"; break;
+					  case 5: status = "1300"; mn="6"; break;
 				  }
 				 
 				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true&mn='+mn);

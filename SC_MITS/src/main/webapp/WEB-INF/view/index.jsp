@@ -403,12 +403,13 @@ License: You must have a valid license purchased only from themeforest(the above
 							<ul class="nav nav-tabs">
 								<li class="active">
 									<a href="#overview_1" data-toggle="tab">
-									최근오더 </a>
+									주문접수 </a>
 								</li>
 								<li>
-									<a href="#overview_2" data-toggle="tab" >
-									<span class="text-danger">미출고의뢰</span></a>
+									<a href="#overview_2" data-toggle="tab">
+									출고의뢰 </a>
 								</li>
+								
 								<li>
 									<a href="#overview_3" data-toggle="tab">
 									출고준비 </a>
@@ -418,8 +419,12 @@ License: You must have a valid license purchased only from themeforest(the above
 									출고완료 </a>
 								</li>
 								<li>
-									<a href="#overview_5" data-toggle="tab">
-									주문취소요청 </a>
+									<a href="#overview_5" data-toggle="tab" >
+									<span class="text-danger">주문취소</span></a>
+								</li>
+								<li>
+									<a href="#overview_6" data-toggle="tab">
+									<span class="text-danger">미출고의뢰</span> </a>
 								</li>
 								<!-- <li>
 									<a href="#overview_5" data-toggle="tab">
@@ -450,6 +455,8 @@ License: You must have a valid license purchased only from themeforest(the above
 								</li> -->
 							</ul>
 							<div class="tab-content">
+								
+								<!-- 주문접수 목록 -->
 								<div class="tab-pane active" id="overview_1">
 									<div class="table-scrollable">
 										<table class="table table-striped table-hover table-bordered" id="table_new_list">
@@ -486,9 +493,11 @@ License: You must have a valid license purchased only from themeforest(the above
 											</table>
 									</div>
 								</div>
+								
+								<!-- 출고의뢰 목록 -->
 								<div class="tab-pane" id="overview_2">
 									<div class="table-scrollable">
-										<table class="table table-striped table-hover table-bordered" id="table_pending_list">
+										<table class="table table-striped table-hover table-bordered" id="table_releaseConfirm_list">
 										<thead>
 										<tr>
 											<th>
@@ -523,6 +532,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									</div>
 								</div>
 								
+								<!-- 출고준비 목록 -->
 								<div class="tab-pane" id="overview_3">
 									<div class="table-scrollable">
 										<table class="table table-striped table-hover table-bordered" id="table_createShipment_list">
@@ -559,7 +569,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										</table>
 									</div>
 								</div>
-								
+								<!-- 출고확정 목록 -->
 								<div class="tab-pane" id="overview_4">
 									<div class="table-scrollable">
 										<table class="table table-striped table-hover table-bordered" id="table_shipped_list">
@@ -596,6 +606,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										</table>
 									</div>
 								</div>
+								<!-- 주문취소 요청 목록 -->
 								<div class="tab-pane" id="overview_5">
 									<div class="table-scrollable">
 										<table class="table table-striped table-hover table-bordered" id="table_cancelled_list">
@@ -632,6 +643,44 @@ License: You must have a valid license purchased only from themeforest(the above
 										</table>
 									</div>
 								</div>
+								<!-- 미출고 의뢰 목록 -->
+								<div class="tab-pane" id="overview_6">
+									<div class="table-scrollable">
+										<table class="table table-striped table-hover table-bordered" id="table_pending_list">
+										<thead>
+										<tr>
+											<th>
+												 오더번호
+											</th>
+											<th>
+												 오더일시
+											</th>
+											<th>
+												 관리조직
+											</th>
+											<th>
+												 판매처
+											</th>
+											<th>
+												 통화
+											</th>
+											<th>
+												 금액
+											</th>
+											<th>
+												 Status
+											</th>
+											<th>
+											     상세
+											</th>
+										</tr>
+										</thead>
+										<tbody>
+										</tbody>
+										</table>
+									</div>
+								</div>
+								
 								
 							</div>
 							</div>

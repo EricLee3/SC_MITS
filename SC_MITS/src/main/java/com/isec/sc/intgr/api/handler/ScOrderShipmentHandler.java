@@ -306,7 +306,7 @@ public class ScOrderShipmentHandler {
 		String carrierTitle = (String)xp.evaluate("@SCAC", el, XPathConstants.STRING);
 		logger.debug("[carrierTitle]" + carrierTitle);
 		
-		String trackingNo = (String)xp.evaluate("@TrackingNo", el, XPathConstants.STRING);
+		String trackingNo = (String)xp.evaluate("@TrailerNo", el, XPathConstants.STRING);
 		logger.debug("[trackingNo]" + trackingNo);
 		
 		

@@ -1664,9 +1664,10 @@ public class OrderController {
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("newList",getOrderOverviewList(docType, entCode, sellerCode, "1100") );	// New Order List - Top10
 		mav.addObject("releaseList",getOrderOverviewList(docType, entCode, sellerCode, "1300") );	// 미 출고의뢰건
+		mav.addObject("releaseConfirmList",getOrderOverviewList(docType, entCode, sellerCode, "3200") );	// 출고의뢰건
 		mav.addObject("createShipmentList",getOrderOverviewList(docType, entCode, sellerCode, "3350") );	// 출고준비건
 		mav.addObject("shippedList",getOrderOverviewList(docType, entCode, sellerCode, "3700") ); // 출고완료 리스트
-		mav.addObject("cancelReqList",cancelReqList ); // 주문취소요청 리스트
+		mav.addObject("cancelReqList",cancelReqList ); // TODO: 주문취소요청 리스트
 		mav.addObject("cancelList",getOrderOverviewList(docType, entCode, sellerCode, "9000") ); // 주문취소 리스트
 		//mav.addObject("cancelReqList",cancelReqList);
 		
