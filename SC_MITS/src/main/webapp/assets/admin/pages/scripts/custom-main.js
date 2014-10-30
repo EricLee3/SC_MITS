@@ -99,14 +99,34 @@ var Custom = function () {
 	         
         	
 	        	$.ajaxSetup({
-			         cache: true,
-			         dataType: 'json',
-			         error: function(xhr, status, error){
-				         alert('An error occurred: ' + error);
-			         },
-			         timeout: 10000,
-			         type: 'POST',
-			         url:''
+	        		
+				 beforeSend: function(xhr) {
+				
+				 xhr.setRequestHeader("AJAX", true);
+				
+				 },
+				 cache: true,
+				 dataType: 'json',
+				 error: function(xhr, status, error){
+				     
+				     
+			        if (xhr.status == 401) {
+				        		alert('에러가 발생했습니다. 다시 시도해 주세요');
+				
+					} else if (xhr.status == 403) {
+					
+					       alert("로그인 세션시간이 만료되어 자동로그아웃 되었습니다.\n 로그인페이지로 이동합니다.");
+					   location.href = "/";
+					
+					} else {
+					
+					    alert("예외가 발생했습니다. 관리자에게 문의하세요.");
+					
+					        }
+				 },
+				 timeout: 10000,
+				 type: 'POST',
+				 url:''
             });
 		        
 	        

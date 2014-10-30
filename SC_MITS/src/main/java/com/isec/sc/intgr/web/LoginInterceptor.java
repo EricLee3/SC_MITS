@@ -19,6 +19,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginInterceptor.class);
 	
+	
+	private static String ajaxHeader = "AJAX";
+	
 	@Override
 	public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) throws Exception{
 		
@@ -46,13 +49,20 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 		if(sesUserId == null){
 			
 			String currPath = URLEncoder.encode(path, "UTF-8");
-			
 			res.sendRedirect("/admin/login.html?currPath="+currPath);
+			
 			return false;
 		}else{
 			return true;
 		}
 		
+	}
+	
+	
+	private boolean isAjaxRequest(HttpServletRequest req){
+		
+		return req.getHeader(ajaxHeader) != null && 
+				req.getHeader(ajaxHeader).equals(Boolean.TRUE.toString());
 	}
 	
 	

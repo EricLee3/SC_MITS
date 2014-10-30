@@ -186,6 +186,21 @@
 			<artifactId>spring-boot-starter</artifactId>
 			<version>1.1.4.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>3.2.4.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>3.2.4.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>3.2.4.RELEASE</version>
+		</dependency>
 	</dependencies>	
 	
 	
@@ -199,8 +214,8 @@
 		          <!-- <url>http://192.168.0.7:8080/manager</url> -->
 		          
 		          
-		          <!-- <url>http://192.168.1.111:8080/manager/text</url> -->
-		          <url>http://220.117.243.17:8080/manager/text</url>
+		          <url>http://192.168.1.111:8080/manager/text</url>
+		          <!-- <url>http://220.117.243.17:8080/manager/text</url> -->
 		          <server>mits_server</server>
         		  <path>/</path>
         		  <username>mitsadmin</username>
