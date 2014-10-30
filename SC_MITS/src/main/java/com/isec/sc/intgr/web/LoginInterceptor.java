@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.isec.sc.intgr.api.handler.ScOrderStatusHandler;
-
 @Service
 public class LoginInterceptor extends HandlerInterceptorAdapter {
 
@@ -47,9 +45,16 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 		logger.debug("[sesUserId]"+sesUserId);
 		
 		if(sesUserId == null){
-			
-			String currPath = URLEncoder.encode(path, "UTF-8");
-			res.sendRedirect("/admin/login.html?currPath="+currPath);
+		
+			if(isAjaxRequest(req)){
+				
+				res.getWriter().write("timeout"); 
+				
+			}else{
+				
+				String currPath = URLEncoder.encode(path, "UTF-8");
+				res.sendRedirect("/admin/login.html?currPath="+currPath);
+			}
 			
 			return false;
 		}else{

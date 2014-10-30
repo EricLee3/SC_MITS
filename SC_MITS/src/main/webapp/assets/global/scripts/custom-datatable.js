@@ -112,8 +112,16 @@ var Datatable = function () {
 
                             return res.data;
                         },
-                        "error": function () { // handle general connection errors
-                            if (tableOptions.onError) {
+                        "error": function (xhr, status, error) { // handle general connection errors
+                            
+	                        	if(xhr.responseText != undefined && xhr.responseText == 'timeout'){
+	        						alert("로그인 세션시간이 만료되어 자동로그아웃 되었습니다.\n 로그인페이지로 이동합니다.");
+	        					    location.href = "/";
+	        					    
+	        					}                       	
+                        	
+                        	
+                        		if (tableOptions.onError) {
                                 tableOptions.onError.call(undefined, the);
                             }
 
@@ -128,8 +136,10 @@ var Datatable = function () {
                             $('.dataTables_processing', tableWrapper).remove();
                         },
                         "beforeSend": function(xhr, status){
-                    		Metronic.blockUI();
-                    	},
+                        	
+                        		xhr.setRequestHeader("AJAX", true);
+	                    		Metronic.blockUI();
+	                    	},
                 		"complete":  function(xhr, status){
                 			Metronic.unblockUI();
                 		}
