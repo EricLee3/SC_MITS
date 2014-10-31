@@ -254,7 +254,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						</li>
 						<li>
 							<a href="#tab_2" data-toggle="tab">
-							Contact History
+							접촉이력
 						    <c:if test="${! empty( noteList ) }">
 						        <span class="badge badge-info">
 								${fn:length(noteList)} </span>
@@ -267,11 +267,15 @@ License: You must have a valid license purchased only from themeforest(the above
 							4 </span>
 							</a>
 						</li> -->
-						<!-- <li>
+						<li>
 							<a href="#tab_4" data-toggle="tab">
-							출고확정정보</span>
+							출고확정정보  
+							<c:if test="${ fn:length(shipList) > 0 }">
+						        <span class="badge badge-info">
+								${fn:length(shipList)} </span>
+						    </c:if>
 							</a>
-						</li> -->
+						</li>
 						<!-- <li>
 							<a href="#tab_5" data-toggle="tab">
 							History </a>
@@ -881,6 +885,9 @@ License: You must have a valid license purchased only from themeforest(the above
 								<table class="table table-striped table-bordered" id="datatable_credit_memos">
 								<thead>
 								<tr role="row" class="heading">
+								    <th width="5%">
+										No
+									</th>
 									<th width="15%">
 										 접촉일시
 									</th>
@@ -902,8 +909,11 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tr>
 								</thead>
 								<tbody>
-									<c:forEach items="${noteList}" var="note">
+									<c:forEach items="${noteList}" var="note" varStatus="status">
 									<tr>
+								    		<td>
+											${status.count}
+										</td>
 								    		<td>
 											${note.noteDate}
 										</td>
@@ -1026,22 +1036,31 @@ License: You must have a valid license purchased only from themeforest(the above
 								<thead>
 								<tr role="row" class="heading">
 									<th width="5%">
-										 Shipment&nbsp;#
-									</th>
-									<th width="15%">
-										 Ship&nbsp;To
-									</th>
-									<th width="15%">
-										 Shipped&nbsp;Date
+										No
 									</th>
 									<th width="10%">
-										 Quantity
+										 출고번호&nbsp;#
 									</th>
 									<th width="10%">
-										 Actions
+										 전표번호&nbsp;#
+									</th>
+									<th width="15%">
+										 출고일시
+									</th>
+									<th width="15%">
+										 출하노드
+									</th>
+									<!-- <th width="5%">
+										 상태
+									</th> -->
+									<th>
+										 택배사
+									</th>
+									<th width="15%">
+										 송장번호
 									</th>
 								</tr>
-								<tr role="row" class="filter">
+								<!-- <tr role="row" class="filter">
 									<td>
 										<input type="text" class="form-control form-filter input-sm" name="order_shipment_no">
 									</td>
@@ -1074,9 +1093,52 @@ License: You must have a valid license purchased only from themeforest(the above
 										</div>
 										<button class="btn btn-sm red filter-cancel"><i class="fa fa-times"></i> Reset</button>
 									</td>
-								</tr>
+								</tr> -->
 								</thead>
 								<tbody>
+									<c:forEach items="${shipList}" var="ship" varStatus="status">
+									<!-- 
+									
+										dataMap.put("sellerCode", sellerCode);
+										dataMap.put("shipmentNo", shipmentNo);
+										dataMap.put("shipmentNoCube", shipmentNoCube);
+										dataMap.put("shipNode", shipNode);
+										dataMap.put("shipNodeString", shipNodeString);
+										dataMap.put("status", status);
+										dataMap.put("scac", scac);
+										dataMap.put("scacService", scacService);
+										dataMap.put("trackingNo", trackingNo);
+										dataMap.put("aShipDate", aShipDate);
+										dataMap.put("eShipDate", eShipDate);
+									 -->
+									<tr>
+										<td>
+											${status.count}
+										</td>
+								    		<td>
+											${ship.shipmentNo}
+										</td>
+										<td>
+											${ship.shipmentNoCube}
+										</td>
+										<td>
+											 ${ship.aShipDate}
+										</td>
+										<td>
+											${ship.shipNodeString}
+										</td>
+										<%-- <td>
+											${ship.status}
+										</td> --%>
+										<td>
+											${ship.scacService}
+										</td>
+										<td>
+											${ship.trackingNo}
+										</td>
+									</tr>
+									
+									</c:forEach>
 								</tbody>
 								</table>
 							</div>
@@ -1084,7 +1146,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						
 						
 						<!-- History Tab -->
-						<div class="tab-pane" id="tab_5">
+						<!-- <div class="tab-pane" id="tab_5">
 							<div class="table-container">
 								<table class="table table-striped table-bordered table-hover" id="datatable_history">
 								<thead>
@@ -1140,7 +1202,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								</tbody>
 								</table>
 							</div>
-						</div>
+						</div> -->
 						
 						
 					</div>

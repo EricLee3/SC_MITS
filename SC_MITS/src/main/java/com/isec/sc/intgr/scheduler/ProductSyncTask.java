@@ -93,26 +93,26 @@ public class ProductSyncTask {
 	 */
     public void syncProductFromCube(String redisKeyC2S, String redisKeyS2C,  String redisKeyS2M, String redisErrKey){
         
-    	try {
-    		 
     		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] Started!");
-
-    		
-    	  	long dataCnt =  listOps.size(redisKeyC2S);
-    	  	logger.debug("["+redisKeyC2S+"][syncProductFromCube] data length: "+dataCnt);
-			
-    	  	ObjectMapper mapper = new ObjectMapper();
-    	  	
-    	  	String manageItemItemTempate = FileContentReader.readContent(getClass().getResourceAsStream(MANAGEITEM_ITEM_TEMPLATE));
+    	
+    		long dataCnt =  listOps.size(redisKeyC2S);
+	  	logger.debug("["+redisKeyC2S+"][syncProductFromCube] data length: "+dataCnt);
+		
+	  	String jsonString = "";
+    	
+	  	try {
+    		 
+	    		
+	    	  	String manageItemItemTempate = FileContentReader.readContent(getClass().getResourceAsStream(MANAGEITEM_ITEM_TEMPLATE));
     	  	
 			// TODO: 건수제한 처리 고려
 			for(int i=0; i<dataCnt; i++){
 				
-				String jsonString = listOps.rightPop(redisKeyC2S);
+				jsonString = listOps.rightPop(redisKeyC2S);
 				logger.debug("##### [Redis Read Data - Product From Cube]" + jsonString);
 				
 				
-				
+				ObjectMapper mapper = new ObjectMapper();
 				HashMap<String, Object> itemListMap = mapper.readValue(jsonString, new TypeReference<HashMap<String,Object>>(){});
 				ArrayList<HashMap<String,Object>> itemList = (ArrayList<HashMap<String,Object>>)itemListMap.get("list");
 				
@@ -231,7 +231,7 @@ public class ProductSyncTask {
 				returnListMap.put("list", returnList);
 				ObjectMapper resultMapper = new ObjectMapper();
 				 listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnListMap));
-				logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnListMap));
+				//logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnListMap));
 				
 				
 				
@@ -240,13 +240,13 @@ public class ProductSyncTask {
 				succMap.put("list", succList);
 				
 				listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(succMap));
-				logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(succMap));
+				//logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(succMap));
 				
 				
 				// Error키에 실패데이타 저장 - SC 관리용
 				if(failList.size() > 0){
 					listOps.leftPush(redisErrKey, resultMapper.writeValueAsString(failList));
-					logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(failList));
+					//logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(failList));
 				}
 				
 				
@@ -256,8 +256,10 @@ public class ProductSyncTask {
 			
 		} catch (Exception e) {
 			
-			// TODO: 예외처리
+			// TODO: 상품연동 예외처리
 			e.printStackTrace();
+			listOps.leftPush(redisErrKey, jsonString);
+			
 		}
 		
     		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] End!");
@@ -287,7 +289,8 @@ public class ProductSyncTask {
     public void syncInventoryFromCube(String redisKeyC2S, String redisKeyS2C,  String redisKeyS2M, String redisErrKey){
     	
     		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] Started!");
-
+    		String jsonString = "";
+    		
 		try{
 		  	long dataCnt =  listOps.size(redisKeyC2S);
 		  	logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] data length: "+dataCnt);
@@ -300,7 +303,7 @@ public class ProductSyncTask {
 			// TODO: 건수제한 처리 고려
 			for(int i=0; i<dataCnt; i++){
 	    	
-				String jsonString = listOps.rightPop(redisKeyC2S);
+				jsonString = listOps.rightPop(redisKeyC2S);
 				logger.debug("##### [Redis Read Data - Product From Cube]" + jsonString);
 				
 				HashMap<String, Object> invListMap = mapper.readValue(jsonString, new TypeReference<HashMap<String,Object>>(){});
@@ -404,7 +407,7 @@ public class ProductSyncTask {
 					
 					
 					listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnMap));
-					logger.debug("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
+					logger.info("#####["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
 					
 					
 					// Error키에 별도저장 - SC 관리용
@@ -426,7 +429,7 @@ public class ProductSyncTask {
 					resultMap.put("err_date", CommonUtil.cuurentDateFromFormat("yyyy-MM-dd HH:mm:ss"));
 					
 					listOps.leftPush(redisErrKey, mapper.writeValueAsString(resultMap));
-					logger.debug("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(resultMap));
+					logger.info("#####["+redisErrKey+"]"+resultMapper.writeValueAsString(resultMap));
 					
 				// 성공 
 				}else{
@@ -449,7 +452,7 @@ public class ProductSyncTask {
 					returnMap.put("list", returnItemInvList);
 					
 					listOps.leftPush(redisKeyS2C, resultMapper.writeValueAsString(returnMap));
-					logger.debug("#####Inventory Sync Success ["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
+					logger.info("#####Inventory Sync Success ["+redisKeyS2C+"]"+resultMapper.writeValueAsString(returnMap));
 					
 					
 					//========== 2. MA에 해당상품의 모든창고의 가용재고 수량 전달
@@ -485,13 +488,14 @@ public class ProductSyncTask {
 					
 					// MA 전송키에 저장
 					listOps.leftPush(redisKeyS2M, resultMapper.writeValueAsString(returnMap));
-					logger.debug("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(returnMap));
+					logger.info("#####["+redisKeyS2M+"]"+resultMapper.writeValueAsString(returnMap));
 				}
 			} // End For DataCnt
 			
 		}catch(Exception e){
 			// TODO: 재고정보 동기화 예외처리
 			e.printStackTrace();
+			listOps.leftPush(redisErrKey, jsonString);
 		}
     	
 		logger.debug("##### ["+redisKeyC2S+"][syncProductFromCube] End!");

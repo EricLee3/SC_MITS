@@ -91,7 +91,8 @@ public class OrderController {
 	@Value("${sc.api.changeOrder.addNote.template}")
 	private String CHANGE_ORDER_ADD_NOTE_TEMPLATE;
 	
-	
+	@Value("${sc.api.getShipmentListForOrder.template}")
+	private String GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE;
 	
 	
 	@RequestMapping(value = "/order_list.do")
@@ -766,6 +767,10 @@ public class OrderController {
 		mav.addObject("noteList", noteList);
 		
 		
+		//-------- 4. Shipment Info
+		List<Map<String, Object>> shipList = getShipmentListForOrder(docType, entCode, orderNo);
+		mav.addObject("shipList", shipList);
+		
 		
 		// 출고의뢰상태일 경우에만 품절취소 및 출고의뢰 실패여부 체크
 		String shortedYN = "N";
@@ -1255,16 +1260,7 @@ public class OrderController {
 					mav.addObject("errorMsg", outputMsg);
 					return mav;
 				}
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
+
 				
 				// 주문기본정보
 				String docType = orderEle.getAttribute("DocumentType"); // 오더유형
@@ -1855,6 +1851,88 @@ public class OrderController {
 		
 		
 		return cacenReqInfo;
+	}
+	
+	
+	/**
+	 * 오더의 출하정보 조회
+	 * 
+	 * @param docType
+	 * @param entCode
+	 * @param orderNo
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String,Object>> getShipmentListForOrder( String docType, String entCode, String orderNo  ) throws Exception{
+		
+		
+		// Template Load
+		String inputTemplate = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE));
+		
+		
+		// Input XML Create
+	    MessageFormat msg = new MessageFormat(inputTemplate);
+		String inputXML = msg.format(new String[] {
+													docType, entCode, orderNo
+												  } );
+		logger.debug("[getShipmentListForOrder input]"+inputXML); 
+		
+		// Call API
+		String outputXML = sterlingApiDelegate.comApiCall("getShipmentListForOrder", inputXML);
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		
+		
+		logger.debug("[getShipmentListForOrder output]"+outputXML); 
+		
+		// OutPut 
+		XPath xp = XPathFactory.newInstance().newXPath();
+		NodeList shipNodeList = (NodeList)xp.evaluate("ShipmentList/Shipment[@Status='1400']", doc, XPathConstants.NODESET);
+		
+		List<Map<String, Object>> shipList = new ArrayList<Map<String,Object>>();
+		
+		
+		for(int i=0; i<shipNodeList.getLength(); i++) {
+			
+				
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			
+			String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", shipNodeList.item(i), XPathConstants.STRING);
+			String shipmentNo = (String)xp.evaluate("@ShipmentNo", shipNodeList.item(i), XPathConstants.STRING);
+			String shipmentNoCube = (String)xp.evaluate("@PickticketNo", shipNodeList.item(i), XPathConstants.STRING);
+			
+			String shipNode = (String)xp.evaluate("@ShipNode", shipNodeList.item(i), XPathConstants.STRING);
+			String shipNodeString = "";
+			if(shipNode != null && !"".equals(shipNode)){
+				shipNodeString = shipNode+ " ("+env.getProperty(shipNode)+")";
+			}
+			
+			String status = (String)xp.evaluate("@Status", shipNodeList.item(i), XPathConstants.STRING);
+			String scac = (String)xp.evaluate("@SCAC", shipNodeList.item(i), XPathConstants.STRING);
+			String scacService = (String)xp.evaluate("@ScacAndService", shipNodeList.item(i), XPathConstants.STRING);
+			String trackingNo = (String)xp.evaluate("@TrailerNo", shipNodeList.item(i), XPathConstants.STRING);
+			
+			String aShipDate = (String)xp.evaluate("@ActualShipmentDate", shipNodeList.item(i), XPathConstants.STRING);
+			String eShipDate = (String)xp.evaluate("@ExpectedShipmentDate", shipNodeList.item(i), XPathConstants.STRING);
+			
+			
+			dataMap.put("sellerCode", sellerCode);
+			dataMap.put("shipmentNo", shipmentNo);
+			dataMap.put("shipmentNoCube", shipmentNoCube);
+			dataMap.put("shipNode", shipNode);
+			dataMap.put("shipNodeString", shipNodeString);
+			dataMap.put("status", status);
+			dataMap.put("scac", scac);
+			dataMap.put("scacService", scacService);
+			dataMap.put("trackingNo", trackingNo);
+			dataMap.put("aShipDate", aShipDate);
+			dataMap.put("eShipDate", eShipDate);
+			
+			shipList.add(dataMap);
+		}
+			
+		
+		return shipList;
+		
 	}
 
 }

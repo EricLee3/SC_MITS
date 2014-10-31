@@ -1,7 +1,6 @@
 var EcommerceOrders = function () {
 
     var initPickers = function () {
-        //init date pickers
         $('.date-picker').datepicker({
             rtl: Metronic.isRTL(),
             autoclose: true
@@ -26,52 +25,40 @@ var EcommerceOrders = function () {
         grid.init({
             src: $(table_name),
             onSuccess: function (grid) {
-                // execute some code after table records loaded
             },
             onError: function (grid) {
-                // execute some code on network or other general error  
             },
             dataTable: { // here you can define a typical datatable settings from http://datatables.net/usage/options 
                 
             		"lengthMenu": [
                     [10, 20, 50, 100, -1],
-                    [10, 20, 50, 100, "All"] // change per page values here
+                    [10, 20, 50, 100, "All"]
                 ],
-                "pageLength": 10, // default record count per page
+                "pageLength": 10,
                 "serverSide": true, 
                 "ajax": {
-                    "url": "/orders/orderList.sc"  // ajax source
+                    "url": "/orders/orderList.sc" 
                 	
                 },
-                "fnRowCallback"  : function(nRow,aData,iDisplayIndex) {
-                	//$('td:eq(8)', nRow).addClass( "pull-right");
-                },
                 "columnDefs": [ 
-                               
                                {
                             	   	  "render": function(data, type, row){
                          	          return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+data+'">'+data+'</a>';
                          	      },
                          	      "targets": 1	// Order#
-                            	   
                                },
                                {
                                    "render": function ( data, type, row ) {
-                                	      
                                 	   		  var cacelReqLabel = "";
                                 	   		  var cacelResLabel = "";
-                                	   		
 	                                	      if(row['cancelReq'] == 'Y'){
 	                                	    	  		cacelReqLabel = '<span class="label label-sm label-danger">취소요청</span> '
 	                                	      }
-                                	      
 	                                	      if(row['cancelRes'] == 'Y'){
 	                                	    	  		cacelResLabel = '<span class="label label-sm label-danger" data-toggle="tooltip" title="'+row["cancelRes_text"]+'">결과-'+row['cancelRes_code']+'</span> ';
 	                                	      }
 	                                	      
 	                                	      return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span><br>'+cacelReqLabel+cacelResLabel;
-                                	      
-                                       
                                    },
                                    "targets": 9  // Status Icon
                                },
@@ -94,17 +81,16 @@ var EcommerceOrders = function () {
 //                              "orderable":false,
 //                            },
                             { 
-	                            	"class":          'details-control',
+	                            "class":          'details-control',
 	                            "orderable":      false,
 	                            "data":           null,
 	                            "defaultContent": '<span class="row-details row-details-close"></span>'
 	                        },
                             { "data": "orderNo"},
-                            { 
-                            		"data": function render(data, type, row)
-	                            	  {
-	                            		return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
-	                            	  }
+                            { "data": function render(data, type, row)
+                            	  {
+                            		return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
+                            	  }
                             },
                             { "data": "enterPrise" },
                             { "data": "sellerOrg" },
@@ -114,7 +100,7 @@ var EcommerceOrders = function () {
 //                            { "data": "paymentType", "orderable":false },
                             { "data": function render(data, type, row)
                       	  				{
-                        					return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
+                        						return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
                       	  				}, "orderable":false },
                             { "data": "status_text", "orderable":false },
                             { "data": "vendor_id", "orderable":false },
@@ -128,46 +114,6 @@ var EcommerceOrders = function () {
                 //"dom": "<'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-8 col-sm-12'pli><'col-md-4 col-sm-12'>>", // datatable layout
                 "dom":"<'row'<'col-md-4 col-sm-12'l><'col-md-8 col-sm-12'<'table-group-actions pull-right'>>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
                 
-                
-//                "tableTools": {
-//                    "sSwfPath": "../../assets/global/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
-//                    "aButtons": [
-//     	                        "copy",
-//     	                        {
-//     	                        	
-//     	                        	"sExtends": "print",
-//     		                        "sButtonText": "Print",
-//     		                        "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
-//     		                        "sMessage": "Generated by DataTables"
-//     	                        	
-//     	                        },
-//     	                        {
-//     	                            "sExtends":    "collection",
-//     	                            "sButtonText": "Save",
-//     	                            "aButtons":    [ "csv", "xls", "pdf" ]
-//     	                        }
-//     	                    ]
-//                    "aButtons": [{
-//                        "sExtends": "pdf",
-//                        "sButtonText": "PDF"
-//                    }, {
-//                        "sExtends": "csv",
-//                        "sButtonText": "CSV"
-//                    }, {
-//                        "sExtends": "xls",
-//                        "sButtonText": "Excel"
-//                    }, {
-//                        "sExtends": "print",
-//                        "sButtonText": "Print",
-//                        "sInfo": 'Please press "CTRL+P" to print or "ESC" to quit',
-//                        "sMessage": "Generated by DataTables"
-//                    }, {
-//                        "sExtends": "copy",
-//                        "sButtonText": "Copy"
-//                    }]
-//                }
-                
-                
             }
         });
         
@@ -177,38 +123,23 @@ var EcommerceOrders = function () {
             var sOut = '<table width="00%">';
             
             
-//            sOut += '<tr><td colspan="18">&nbsp;</td>';
-//            sOut += '<td>Payment Type:</td><td >' + aData['paymentType'] + '</td>';
-//        	sOut += '<td>Total Amount:</td><td class="pull-right">' + aData['currency'] +' '+ aData['totalAmount'] + '</td>';
-//            sOut += "</tr>";
-            
-            
             for(var i=0; i<aData['lineList'].length; i++){
+            
             	
-            	/*
-            	 * orderLineMap.put("qty", qty);
-				orderLineMap.put("lineTatal", lineTatal);
-				orderLineMap.put("UnitPrice", UnitPrice);
-				orderLineMap.put("lineShipCharge", lineShipCharge);
-				orderLineMap.put("lineDisount", -lineDisountCharge);
-				orderLineMap.put("lineTax", lineTax);
-            	 * 
-            	 */
-            	
-            	sOut += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
-            	sOut += '<td>' + aData['lineList'][i]['PrimeLineNo'] + '</td>';
-            	sOut += '<td>ItemID:</td><td>' + aData['lineList'][i]['itemId'] + '</td>';
-            	sOut += '<td></td><td>' + aData['lineList'][i]['itemShortDesc'] + '</td>';
-            	sOut += '<td>UnitPrice:</td><td>' + aData['lineList'][i]['UnitPrice'] + '</td>';
-            	sOut += '<td>Qty:</td><td>' + aData['lineList'][i]['qty'] + '</td>';
-            	sOut += '<td>Status:</td><td>'+aData['lineList'][i]['status_text']+'</td>';
-            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
-            	sOut += '<td>Charge:</td><td>' + aData['lineList'][i]['lineShipCharge'] + '</td>';
-            	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';
-            	sOut += '<td>Discount:</td><td>' + aData['lineList'][i]['lineDisount'] + '</td>';
-            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
-            	sOut += '<td>LineTotal:</td><td class="pull-right">' + aData['lineList'][i]['lineTotal'] + '</td>';
-            	sOut += "</tr>";
+	            	sOut += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
+	            	sOut += '<td>' + aData['lineList'][i]['PrimeLineNo'] + '</td>';
+	            	sOut += '<td>ItemID:</td><td>' + aData['lineList'][i]['itemId'] + '</td>';
+	            	sOut += '<td></td><td>' + aData['lineList'][i]['itemShortDesc'] + '</td>';
+	            	sOut += '<td>UnitPrice:</td><td>' + aData['lineList'][i]['UnitPrice'] + '</td>';
+	            	sOut += '<td>Qty:</td><td>' + aData['lineList'][i]['qty'] + '</td>';
+	            	sOut += '<td>Status:</td><td>'+aData['lineList'][i]['status_text']+'</td>';
+	            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
+	            	sOut += '<td>Charge:</td><td>' + aData['lineList'][i]['lineShipCharge'] + '</td>';
+	            	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';
+	            	sOut += '<td>Discount:</td><td>' + aData['lineList'][i]['lineDisount'] + '</td>';
+	            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
+	            	sOut += '<td>LineTotal:</td><td class="pull-right">' + aData['lineList'][i]['lineTotal'] + '</td>';
+	            	sOut += "</tr>";
             }
             
             sOut += '</table>';

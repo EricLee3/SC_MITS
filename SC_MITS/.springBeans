@@ -12,6 +12,7 @@
 	</configs>
 	<autoconfigs>
 		<config>src/main/resources/quartz-config.xml</config>
+		<config>src/main/webapp/WEB-INF/json-config.xml</config>
 	</autoconfigs>
 	<configSets>
 	</configSets>
