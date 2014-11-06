@@ -321,10 +321,6 @@ public class OrderController {
 		ArrayList<Object> data = new ArrayList<Object>();
 		
 		
-		
-		int canceReqCnt = 0;
-		
-		
 		for(int i=0; i<orderNodeList.getLength(); i++){
 			
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
@@ -1165,7 +1161,8 @@ public class OrderController {
 	
 	
 	/**
-	 * 주문 취소
+	 * 주문 취소 및 주문취소 요청처리 
+	 * TODO - 주문취소 요청처리 로직 분리 필요
 	 * 
 	 * @param doc_type
 	 * @param ent_code

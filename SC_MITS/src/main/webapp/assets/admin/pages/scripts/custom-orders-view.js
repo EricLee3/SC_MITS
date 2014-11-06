@@ -292,7 +292,14 @@ var OrderDetailView = function () {
         	
         	// Release Order (Schedule and Release)
         $('#tool_release').click(function(e){
-        	if( confirm("Are you sure release this order?")){
+        	
+        	if($(this).text() == '출고의뢰'){
+        		confirmMsg = "부분주문취소 후 주문상태가 부분재고부족 -> 출고의뢰로 변경된 경우에만 사용하는 기능입니다. \n해당 주문을 출고의뢰 하시겠습니까? ";
+        	}else{
+        		confirmMsg = "해당 주문을 다시 주문확정 처리하시겠습니까?\n상품의 재고가 확보된 경우 자동으로 출고의뢰 상태로 변경되고 Cube로 출고의뢰가 됩니다. ";
+        	}
+        	
+        	if( confirm(confirmMsg)){
         		e.preventDefault();
         		ajaxCallApi(this, '/orders/scheduleOrder.sc', 'form_action');
         	}
@@ -303,6 +310,10 @@ var OrderDetailView = function () {
         $('#btn_cancel').click(function(e){
         	//if( confirm("Are you sure cancel this order?")){
         		e.preventDefault();
+        		
+        		$("#form_cancel input[name='cancel_type']").val("order");
+        		$("#form_cancel input[name='line_keys']").val("");
+        		
         		ajaxCallApi(this, '/orders/cancelOrder.sc', 'form_cancel');
         		
         		var $modal = $('#md_cancel_order');

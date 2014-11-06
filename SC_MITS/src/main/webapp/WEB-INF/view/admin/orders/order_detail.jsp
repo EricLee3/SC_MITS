@@ -383,6 +383,9 @@ License: You must have a valid license purchased only from themeforest(the above
 												<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order" id="tool_cancel">
 												주문취소
 												</a>
+												<a class="btn btn-danger btn-sm red-stripe hidden"  data-toggle="modal" href="#md_cancel_order" id="tool_cancel_req">
+												주문취소요청
+												</a>
 											</div>
 										</div>
 										<div class="portlet-body">
@@ -1344,8 +1347,8 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		statusDetailText += '</p>';
 	    		
 	    		
-			// 주문확정, 주문취소, 부분주문취소 숨김
-			// $("#tool_release").hide();
+			// 주문확정 숨김
+			$("#tool_release").hide();
 			// $("#tool_cancel").hide();
 			// $("#tool_line_cancel").hide();
 	    }
@@ -1367,7 +1370,13 @@ License: You must have a valid license purchased only from themeforest(the above
 	    	    		statusDetailText += '</p>';
 	    	    		
 	    	    		$("#tool_release").text("출고의뢰 재시도");
-	    	    		$("#tool_cancel").text("주문취소");
+	    	    		
+	    	    		// 주문취소가능. 주문취소요청 불가
+	    	    		$("#tool_cancel").show();
+	    	    		$("#tool_cancel_req").hide();
+	    	    		
+	    	    		
+	    	    		$("#tool_line_cancel").hide(); // 부분취소 가능
         			
         		// Cube 처리실패
         		}else if(failedYN == 'Y'){
@@ -1383,6 +1392,14 @@ License: You must have a valid license purchased only from themeforest(the above
     	    		
     	    		
         			$("#tool_release").text("출고의뢰 재시도");
+        			
+        			// 주문취소가능. 주문취소요청 불가
+    	    		$("#tool_cancel").show();
+    	    		$("#tool_cancel_req").hide();
+    	    		
+    	    		
+    	    		$("#tool_line_cancel").hide(); // 부분취소 가능
+    	    		
         		
         		// 정상출고의뢰
         		}else{
@@ -1396,11 +1413,15 @@ License: You must have a valid license purchased only from themeforest(the above
 	    	    		statusDetailText += '<br>';
 	    	    		statusDetailText += '</p>';
         			
-	    	    		// 주문취소요청으로 버튼명 변경
+	    	    		// 출고의뢰 가능 - 부분취소후 상태일 수 있기 때문 TODO: 정상출고의뢰상태와 부분취소후 출고의뢰상태 구분필요
 	    	    		$("#tool_release").text("출고의뢰");
-	    			$("#tool_cancel").text("주문취소 요청");
+	    			
+		    			// 주문취소 불가, 주문취소요청 가능
+	    	    		$("#tool_cancel").hide();
+	    	    		$("#tool_cancel_req").removeClass("hidden").show();
+	    	    		
+	    	    		$("#tool_line_cancel").hide(); // 부분취소 불가
         		}
-        		
 			
         }
         // 출고준비
@@ -1420,7 +1441,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		// 주문확정 버튼 숨김, 주문취소요청으로 버튼명 변경
 	    		$("#tool_release").hide();
 	    		$("#tool_line_cancel").hide(); // 부분취소 불가
-	    		$("#tool_cancel").text("주문취소 요청");
+	    		
+	    		// 주문취소 불가, 주문취소요청 가능
+	    		$("#tool_cancel").hide();
+	    		$("#tool_cancel_req").removeClass("hidden").show();
 	    }
         
         // 출고완료
@@ -1438,10 +1462,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		statusDetailText += '</p>';
 	    		
 	    		
-	    		
-	    		// 주문확정, 주문취소 버튼 숨김
+	    		// 주문확정, 주문취소, 주문취소요청 불가
 	    		$("#tool_release").hide();
 	    		$("#tool_cancel").hide();
+	    		$("#tool_cancel_req").hide();
 	    		$("#tool_line_cancel").hide();
 	    		
 	    }
@@ -1468,6 +1492,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		
         		// 주문확정 재처리 버튼표시
         		$("#tool_release").text("주문확정 재처리");
+        		
+        		// 주문취소 가능
+	    		$("#tool_cancel").show();
+	    		$("#tool_cancel_req").hide();
         }
         
         // 주문취소
@@ -1481,15 +1509,16 @@ License: You must have a valid license purchased only from themeforest(the above
 	    		statusDetailText += '<br>';
 	    		statusDetailText += '</p>';
         		
-	    		// 주문확정, 주문취소 버튼 숨김
+	    		// 주문확정, 주문취소 불가
 	    		$("#tool_release").hide();
 	    		$("#tool_cancel").hide();
+	    		$("#tool_cancel_req").hide();
 	    		$("#tool_line_cancel").hide();
         }
         else
-        	{
+       	{
         	
-        		var cancelReqCode = "${cancelReqInfo.status_code}";
+       		// var cancelReqCode = "${cancelReqInfo.status_code}";
             var cancelReqText = "${cancelReqInfo.status_text}";
             
             var cancelResCode = "${cancelResultInfo.status_code}"; // 02,09,90
@@ -1508,9 +1537,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	    	    		statusDetailText += ' - 환불처리결과는 Front Admin에서 확인가능<br>';
 	    	    		statusDetailText += '</p>';
 	            		
-	    	        	// 주문확정, 주문취소 버튼 숨김
+	    	        	// 주문확정, 주문취소 불가
 	    	    		$("#tool_release").hide();
 	    	    		$("#tool_cancel").hide();
+	    	    		$("#tool_cancel_req").hide();
 	    	    		$("#tool_line_cancel").hide();
         		
             		
@@ -1527,12 +1557,12 @@ License: You must have a valid license purchased only from themeforest(the above
 					 09 - 실패 또는 처리대상건 없음
 					 90 - 출고확정건
 				 */
-				$("#cancel-req").remove();
+					$("#cancel-req").remove();
             		$('<span class="label label-danger">취소처리실패-'+cancelResCode+'</span>').appendTo("#order_status");
             		$('<span> - '+cancelResText+'</span>').appendTo("#order_status");
             		//$("#order_status").add(cancelResText);
             	
-            		
+            		// 이미 처리된 건
             		if(cancelResCode == '02'){
             		 	
             			statusDetailText = '<h5>[중복요청건] - Cube에서 이미 주문취소가 처리된 건</h4>';
@@ -1542,27 +1572,31 @@ License: You must have a valid license purchased only from themeforest(the above
         	    			statusDetailText += '<br>';
         	    			statusDetailText += '</p>';
         	    			
-        	    			// 주문취소요청 버튼 숨김
+        	    			// 주문취소요청 불가
         	    			$("#tool_cancel").hide();
+        	    			$("#tool_cancel_req").hide();
+        	    			
+        	    			// 부분주문취소버튼 숨김
         	    			$("#tool_line_cancel").hide();
             		}
-            		
+            		// 실패 또는 정상건 없음
             		else if(cancelResCode == '09'){
             			
             			statusDetailText = '<h5><b>[취소처리실패,미대상건] - Cube에서 주문취소처리가 실패했거나 정상주문건이 없는 상태</b></h4>';
 	    				statusDetailText += '<p class="text-danger">';
-	    				statusDetailText += ' - 정상주문건이 없는 경우, 주문상태가 [출고준비]상태인지 확인 후 주문취소요청 재시도<br>';
-	    				statusDetailText += ' - 취소처리실패인 경우 Cube담당자에게 문의할것.<br>';
+	    				statusDetailText += ' - Cube담당자에게 문의한 후 정상주문건이 없는 상태이면 주문취소요청 재시도<br>';
+	    				statusDetailText += ' - 실패처리된 건이면 시스템 담당자에게 문의할 것.<br>';
 	    				statusDetailText += '<br>';
     	    				statusDetailText += '</p>';
     	    				
-    	    				// 주문취소 요청으로 버튼명 변경
-    	    				$("#tool_cancel").text("주문취소 요청");
+    	    				// 주문취소요청 가능(재요청)
+    	    				$("#tool_cancel").hide();
+    	    				$("#tool_cancel_req").removeClass("hidden").show();
     	    				
     	    				// 부분주문취소버튼 숨김
     	    				$("#tool_line_cancel").hide();
             		}
-            		
+            		// 출고확정
             		else if(cancelResCode == '90'){
             			
             			statusDetailText = '<h5><b>[출고확정건] - Cube에서 이미 출고처리되어 주문취소가 불가한 상태</b></h4>';
@@ -1575,16 +1609,17 @@ License: You must have a valid license purchased only from themeforest(the above
         	    			
         	    			// 주문취소요청 버튼 숨김
         	    			$("#tool_cancel").hide();
+        	    			$("#tool_cancel_req").hide();
         	    			$("#tool_line_cancel").hide();
             		}
             	
             	
-	    	        	// 주문확정 재처리 버튼 숨김
-	    	    		$("#tool_release").hide();
+    	        	// 주문확정 재처리 버튼 숨김
+    	    		$("#tool_release").hide();
 	        			
-            }
+            	}
         	
-        	}
+        	}// 예외사항 체크 End
         
         statusDetailText = '<div class="note note-warning">'+statusDetailText+'</div>';
         $("#order_status_detail").html(statusDetailText);

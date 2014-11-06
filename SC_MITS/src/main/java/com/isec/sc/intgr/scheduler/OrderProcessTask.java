@@ -739,7 +739,7 @@ public class OrderProcessTask {
 		logger.debug("[cubeStatus]"+cubeStatus);
 		
 		
-		// 주문취소 Result키에 기록
+		// 성공/실패에 관계없이 주문취소결과 Result키에 기록
 		HashMap<String, String> cancelResMap = new HashMap<String, String>();
 		cancelResMap.put("orderNo", orderId);
 		cancelResMap.put("enterPrise", entCode);
@@ -839,22 +839,22 @@ public class OrderProcessTask {
 		
 		
 		
-		// 취소요청 RedisKey에 있는 데이타 삭제
+		// 취소요청 RedisKey에 있는 데이타 삭제 - 취소요청 히스토리 관리를 위해 삭제하지 않음 
 		// 조직코드:채널코드:order:cancel 
-		String cancelReqKey = entCode+":"+sellCode+":order:cancel";
-		
-		List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
-		for( int i=0; i<cancelReqRedisList.size(); i++){
-			
-			String jsonData = cancelReqRedisList.get(i);
-			HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-			String cancelOrderNo = cancelReqMap.get("orderNo");
-			if(orderId.equals(cancelOrderNo)){
-				logger.debug("[cancelOrderNo]"+cancelOrderNo);
-				listOps.remove(cancelReqKey, i, jsonData);
-				break;
-			}
-		}
+//		String cancelReqKey = entCode+":"+sellCode+":order:cancel";
+//		
+//		List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
+//		for( int i=0; i<cancelReqRedisList.size(); i++){
+//			
+//			String jsonData = cancelReqRedisList.get(i);
+//			HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+//			String cancelOrderNo = cancelReqMap.get("orderNo");
+//			if(orderId.equals(cancelOrderNo)){
+//				logger.debug("[cancelOrderNo]"+cancelOrderNo);
+//				listOps.remove(cancelReqKey, i, jsonData);
+//				break;
+//			}
+//		}
 		
 		logger.debug("##### ["+redisKey+"][[cancelOrder By Cube-Result]] End!!!");
 	}
