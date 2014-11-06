@@ -409,7 +409,7 @@ var EcommerceIndex = function () {
 	                           { "data": function render(data, type)
 	                 	  				{
 	                   					//return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
-	                   					return data["totalAmount"];
+	                   					return '<span class="pull-right">'+data["totalAmount"].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span>';
 	                 	  				} 
 	                           },
 	                           { "data": function render(data, type)

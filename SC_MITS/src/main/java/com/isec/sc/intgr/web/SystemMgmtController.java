@@ -241,12 +241,12 @@ public class SystemMgmtController {
 		info_inventory_s2m.put("size", listOps.size(KEY_MA_KOLOR_ASPB_INVENTORY_S2M));
 		// 재고연동 Cube-SC
 		HashMap<String, Object> info_inventory_c2s = new HashMap<String, Object>();
-		info_inventory_c2s.put("name", KEY_CA_KOLOR_ASPB_PRODUCT_C2S);
+		info_inventory_c2s.put("name", KEY_CA_KOLOR_ASPB_INVENTORY_C2S);
 		info_inventory_c2s.put("desc", "재고연동 Cube to SC");
-		info_inventory_c2s.put("size", listOps.size(KEY_CA_KOLOR_ASPB_PRODUCT_C2S));
+		info_inventory_c2s.put("size", listOps.size(KEY_CA_KOLOR_ASPB_INVENTORY_C2S));
 		// 재고연동 SC-Cube
 		HashMap<String, Object> info_inventory_s2c = new HashMap<String, Object>();
-		info_inventory_s2c.put("name", KEY_CA_KOLOR_ASPB_PRODUCT_S2C);
+		info_inventory_s2c.put("name", KEY_CA_KOLOR_ASPB_INVENTORY_S2C);
 		info_inventory_s2c.put("desc", "재고연동 SC to Cube");
 		info_inventory_s2c.put("size", listOps.size(KEY_CA_KOLOR_ASPB_INVENTORY_S2C));
 		

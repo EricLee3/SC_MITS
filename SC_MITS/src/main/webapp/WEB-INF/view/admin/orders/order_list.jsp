@@ -289,7 +289,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 주문상태
 									</th>
 									<th width="10%">
-										 2차DOS
+										 2차 DOS
 									</th>
 									<th width="8%">
 										 Actions
@@ -376,6 +376,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										</select>
 									</td>
 									<td>
+										<input type="text" class="form-control form-filter input-sm" name="vendor_id">
 									</td>
 									<td>
 										<div class="margin-bottom-5">

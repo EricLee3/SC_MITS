@@ -205,7 +205,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		<div class="portlet">
 			<div class="portlet-title">
 				<div class="caption">
-					<i class="fa fa-shopping-cart"></i>오더번호:${orderNo} | 오더 생성일:<span class="hidden-480" id="title_order_date">
+					<i class="fa fa-shopping-cart"></i>오더번호:${orderNo} | 오더 생성일:<span class="hidden-480">
 					${baseInfo.orderDate} <!-- Dec 27, 2013 7:16:25 --> </span>
 				</div>
 				<div class="actions">
@@ -309,7 +309,8 @@ License: You must have a valid license purchased only from themeforest(the above
 												<div class="col-md-5 name">
 													 오더생성일자:
 												</div>
-												<div class="col-md-7 value" id="order_date">
+												<div class="col-md-7 value">
+													${baseInfo.orderDate}
 												</div>
 											</div>
 											<div class="row static-info">
@@ -349,7 +350,7 @@ License: You must have a valid license purchased only from themeforest(the above
 													 결제수단:
 												</div>
 												<div class="col-md-7 value">
-													 ${baseInfo.paymentType }
+													 ${baseInfo.paymentTypeName }
 												</div>
 											</div>
 											<div class="row static-info">
@@ -898,7 +899,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										 접촉사유
 									</th>
 									<th width="15%">
-										 접축수단
+										 접촉수단
 									</th>
 									<!-- <th width="15%">
 										 Contact Reference
@@ -921,10 +922,22 @@ License: You must have a valid license purchased only from themeforest(the above
 											${note.noteUser}
 										</td>
 										<td>
-											 ${note.noteReason}
+											${note.noteReason}
+											 <!-- <select class="form-control input-sm" name="contact_reason_view">
+												<option value="BACKORDER_INFO">Backorder Information</option>
+												<option value="CALLED_CUSTOMER">고객 아웃바운드</option>
+												<option value="CUSTOMER_CALLED">고객 인바운드</option>
+												<option value="SCHEDULE_AND_RELEASE">출고의뢰 관련</option>
+												<option value="CONFIRM_SHIPMENT">출고확정 관련</option>
+												<option value="CANCEL_INFO">주문취소 관련</option>
+											</select> -->
 										</td>
 										<td>
 											${note.noteContactType}
+											<!-- <select class="form-control input-sm" name="contact_type_view">
+												<option value="PHONE">Phone</option>
+												<option value="EMAIL"">E-mail</option>
+											</select> -->
 										</td>
 										<%-- <td>
 											 ${note.noteContactRef}
@@ -1286,11 +1299,12 @@ License: You must have a valid license purchased only from themeforest(the above
         
 		
 		// 오더상세 날짜 포맷변경
-        $('#title_order_date').html(moment('${baseInfo.orderDate}', moment.ISO_8601).format("YYYY-MM-DD HH:mm"));
-        $('#order_date').html($('#title_order_date').html());
+        /* $('#title_order_date').html(moment('${baseInfo.orderDate}', moment.ISO_8601).format("YYYY-MM-DD HH:mm"));
+        $('#order_date').html($('#title_order_date').html()); */
 		
         $('.nav.nav-tabs li').eq(order_detail_tab_index).addClass('active');
         $('.tab-content .tab-pane').eq(order_detail_tab_index).addClass("active");
+        
         
         /**
 		ui.status.cssname.1000=default

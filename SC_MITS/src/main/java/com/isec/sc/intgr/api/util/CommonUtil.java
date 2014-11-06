@@ -7,11 +7,105 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.isec.sc.intgr.web.OrderController;
 
 @Component
 public class CommonUtil {
-
+	
+	
+	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
+	
+	/**
+	 * SC의 날짜형식을 화면에 표시하기 위한 날짜로 변환
+	 * SC DateFormat: yyyy-MM-dd'T'HH:mm:ss ex) 2014-11-04T05:00:00+09:00
+	 * 
+	 * 변환 포맷: yyyy-MM-dd HH:mm:ss
+	 * 
+	 * @param dateString
+	 * @return
+	 */
+	public static String getDateTimeByTimeZone(String dateString){
+		
+		String pattern = "yyyy-MM-dd'T'HH:mm:ss";
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		
+		String transDate = "";
+		try{
+		
+			Date date = sdf.parse(dateString);
+			logger.debug("[date]"+date);
+			
+			SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		    transDate = sdfDate.format(date);
+		    logger.debug("[transDate]"+transDate);
+		    
+		    return transDate;
+		
+		}catch(Exception e){
+			
+			e.printStackTrace();
+			return dateString;
+		}
+		
+	}
+	
+	/**
+	 * 시분초까지의 날짜 스트링을 SC DateFormat으로 변환
+	 * 2014-11-04T05:00:00
+	 * 
+	 * 
+	 * @param dateString YYYYMMDDHHMISS 
+	 * @param delim 날짜구분값
+	 * @return
+	 */
+	public static String getDateTimeToScDate(String dateString, String delim){
+		
+		if(dateString == null || dateString.length() != 14) 
+			return dateString;
+		
+		if(delim == null) delim = "-";
+		
+		String transDate = "";
+		String date = dateString.substring(0,4) + delim + dateString.substring(4,6) + delim + dateString.substring(6,8);
+		String time = dateString.substring(8,10) + ":" + dateString.substring(10,12) + ":" + dateString.substring(12,14);
+		
+		transDate = date+"T"+time;
+		logger.debug("[transDate]"+transDate);
+		
+		return transDate;
+	}
+	
+	/**
+	 * 날짜 스트링을 SC DateFormat으로 변환
+	 * 2014-11-04T00:00:00
+	 * 
+	 * 
+	 * @param dateString YYYYMMDD
+	 * @param delim 날짜구분값
+	 * @return
+	 */
+	public static String getDateToScDate(String dateString, String delim){
+		
+		if(dateString == null || dateString.length() != 8) 
+			return dateString;
+		
+		if(delim == null) delim = "-";
+		
+		String transDate = "";
+		String date = dateString.substring(0,4) + delim + dateString.substring(4,6) + delim + dateString.substring(6,8);
+		String time = "00:00:00";
+		
+		transDate = date+"T"+time;
+		logger.debug("[transDate]"+transDate);
+		
+		return transDate;
+	}
+	
+	
 	/**
 	 * 현재의 날짜를 주어진 포맷으로 변경
 	 * 

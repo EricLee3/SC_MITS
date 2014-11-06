@@ -91,8 +91,8 @@ License: You must have a valid license purchased only from themeforest(the above
 		<h3 class="page-title">
 		연동데이타 정보 <small>view order details</small>
 		</h3>
-		<ul class="page-breadcrumb breadcrumb">
-			<!-- <li class="btn-group">
+		<!-- <ul class="page-breadcrumb breadcrumb">
+			<li class="btn-group">
 				<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
 				<span>Actions</span><i class="fa fa-angle-down"></i>
 				</button>
@@ -112,7 +112,7 @@ License: You must have a valid license purchased only from themeforest(the above
 						<a href="#">Separated link</a>
 					</li>
 				</ul>
-			</li> -->
+			</li>
 			<li>
 				<i class="fa fa-home"></i>
 				<a href="index.html">Home</a>
@@ -125,7 +125,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			<li>
 				<a href="#">주문 상세 정보</a>
 			</li>
-		</ul>
+		</ul> -->
 		<!-- END PAGE TITLE & BREADCRUMB-->
 	</div>
 </div>

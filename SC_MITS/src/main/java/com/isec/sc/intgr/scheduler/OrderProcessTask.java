@@ -40,6 +40,7 @@ import org.w3c.dom.NodeList;
 import scala.Array;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
+import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
 import com.isec.sc.intgr.api.util.RedisCommonService;
 
@@ -86,8 +87,11 @@ public class OrderProcessTask {
 	@Value("${sc.api.changeShipment.template}")
 	private String CHANGE_SHIPMENT_TEMPLATE;
 	
+	@Value("${sc.SCAC.CJL.STD}")
+	private String SCAC_CJL_STD;
 	
-	
+	@Value("${sc.order.type.sales}")
+	private String SC_ORDER_TYPE_SALES;
 	
 	
 	/**
@@ -352,12 +356,12 @@ public class OrderProcessTask {
 	 * @param redisErrKey
 	 * 			Aspenbay: KOLOR:ASPB:order:update:error:3202
 	 */
-	private void processCreateShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
+	public void processCreateShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
 		logger.debug("##### ["+redisKey+"][createShipment] Started!!!");
 				
 		// createShipment API 호출
-		String docType = "0001";	// Sales Order
+		String docType = SC_ORDER_TYPE_SALES;	// Sales Order
 		String entCode = env.getProperty("ca."+(String)dataMap.get("org_code")); // TODO: Cube의 사업부코드 - SC조직코드로 매핑
 		String sellerCode = (String)dataMap.get("sell_code");
 		String orderId = (String)dataMap.get("orderId");
@@ -431,11 +435,10 @@ public class OrderProcessTask {
 					// TODO: 에러발생 처리 - 시스템담당자 메일발송
 				}else{
 					
-					// 품절취소 키에 오더정보 저장. TODO: 유효기간 정의 필요
+					// 품절취소 키에 오더정보 저장. TODO: KEY 유효기간 정의 필요
 					String cubeShortedKey = entCode+":"+sellerCode+":order:3202:90";
 					String data = "{\"orderId\":\""+orderId+"\",\"itemId\":\""+bar_code+"\"}";
 					listOps.leftPush(cubeShortedKey, data);
-					
 					
 					/*
 					 * 0으로 변경된 재고정보 MA 전송키에 저장
@@ -467,7 +470,6 @@ public class OrderProcessTask {
 					String maKey = entCode+":"+sellerCode+":"+"inventory:S2M";
 					listOps.leftPush(maKey, resultMapper.writeValueAsString(sendMaMap));
 				}
-				
 				
 			}
 			// 실패 - 오더라인별로 처리, 09와 90이 같이 들어올수 있음
@@ -546,50 +548,14 @@ public class OrderProcessTask {
 	 * @param redisErrKey
 	 * 			Aspenbay: SLV:ASPB:order:error
 	 */
-	private void processConfirmShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
+	public void processConfirmShipment(HashMap<String, Object> dataMap, String redisKey, String redisPushKey, String redisErrKey) throws Exception{
 	
 		logger.debug("##### ["+redisKey+"][cofirmShipment] Started!!!");
 		
 		
-		/**
-		 * {
-			    "org_code": "80",
-			    "sell_code": "ASPB",
-			    "orderId": "Y100001100",
-			    "orderHeaderKey": "20141010191200239236",
-			    "tranDt": "20141016",
-			    "status": "3700",
-			    "list": [
-			        {
-			            "ship_node": "WH001",
-			            "orderLineNo": "1",
-			            "orderLineKey": "20141010191200239237",
-			            "orderReleaseKey": "20141010191300239277",
-			            "shipmentNo": "341015007",
-			            "expnm": "11111",  -- 송장번호
-			            "expNo": "00",     -- 택배사코드
-			            "outDt": "20141016",
-			            "outTime": "165021"
-			        },
-			        {
-			            "ship_node": "WH001",
-			            "orderLineNo": "2",
-			            "orderLineKey": "20141010191200239238",
-			            "orderReleaseKey": "20141010191300239277",
-			            "shipmentNo": "341015007",
-			            "expnm": "11111",
-			            "expNo": "00",
-			            "outDt": "20141016",
-			            "outTime": "165021"
-			        }
-			    ]
-			}
-
-		 */
-				
 		// confirmShipment API 호출
 		
-		String docType = "0001";
+		String docType = SC_ORDER_TYPE_SALES;
 		String entCode = env.getProperty("ca."+(String)dataMap.get("org_code"));
 		String sellerCode = (String)dataMap.get("sell_code");
 		String orderId = (String)dataMap.get("orderId");
@@ -604,22 +570,23 @@ public class OrderProcessTask {
 		ArrayList<HashMap<String,String>> shipmentInfoList = (ArrayList<HashMap<String,String>>)dataMap.get("list");
 		HashMap<String,String> shipmentInfo = shipmentInfoList.get(0);
 		
-		// TODO: 택배사코드는 조직에 코드추가 및 매핑필요.
-		String cubeShipmentNo = shipmentInfo.get("shipmentNo");	// 출고생성시점에 이미 반영됨
-		String shipNode = shipmentInfo.get("ship_node");
-		String trackingNo = shipmentInfo.get("expnm");		    // 송장번호
-		String scacCode = shipmentInfo.get("expNo");				// 택배사코드
+//		String cubeShipmentNo = shipmentInfo.get("shipmentNo");	   // 출고생성시점에 이미 반영됨, 사용안
+		String shipNode   = shipmentInfo.get("ship_node");
+		String trackingNo = shipmentInfo.get("expnm");		        // 송장번호
+		String scacCode   = shipmentInfo.get("expNo");				// 택배사코드
+		String outDt      = shipmentInfo.get("outDt");				// 출고일자 YYYYMMDD
+		String outTime    = shipmentInfo.get("outTime");				// 출고시간 HH:MI:SS
 		
+		logger.debug("[outDt]"+outDt);
+		logger.debug("[outTime]"+outTime);
 		logger.debug("[trackingNo]"+trackingNo);
 		logger.debug("[scacCode]"+scacCode);
 		
-		// TODO: 택배사코드 테스트코드로 작성
-		String scacOrgCode = entCode;
-		//String scacOrgCode = "CJL";
-		scacCode = "20141016212607191960"; // TODO: CJL_STD PROD
+		String aShipDate = CommonUtil.getDateTimeToScDate(outDt+outTime, "-");
+		logger.debug("[sShipDate]"+aShipDate);
+		 
+		// scacCode = "20141016212607191960"; // TODO: CJL_STD PROD
 		// scacCode = "20140917094212141984"; // CJL_STD DEV
-		// scacCode = "19991214183438453"; // USPS Default Code
-		
 		
 		
 		
@@ -661,8 +628,8 @@ public class OrderProcessTask {
 									shipmentNo, 
 									shipNode, 	// 창고번호
 									trackingNo,	// 송장번호: trailerNo
-									scacOrgCode,	// 택배사조직코드
-									scacCode    // 택배사코드
+									aShipDate,  // 출고일시
+									SCAC_CJL_STD    // TODO: 택배사코드 고정값사 CJL - Standard Logistic
 							  } );
 			logger.debug("##### [confirmShipment inputXML]"+inputXML); 
 		
@@ -748,7 +715,7 @@ public class OrderProcessTask {
 			 }
 
 		 */
-		String docType = "0001";
+		String docType = SC_ORDER_TYPE_SALES;
 		String entCode = env.getProperty("ca."+(String)dataMap.get("org_code")); // TODO: Cube의 사업부코드 - SC조직코드로 매핑
 		String sellCode = (String)dataMap.get("sell_code");
 		String orderId = (String)dataMap.get("orderId");
@@ -756,8 +723,6 @@ public class OrderProcessTask {
 		logger.debug("[entCode]"+entCode);
 		logger.debug("[orderId]"+orderId);
 		logger.debug("[sellerCode]"+sellCode);
-		
-		
 		
 		
 		/*
@@ -773,32 +738,31 @@ public class OrderProcessTask {
 		
 		logger.debug("[cubeStatus]"+cubeStatus);
 		
-		// 실패 또는 처리대상건 없음, 출고확정건, 기처리건
+		
+		// 주문취소 Result키에 기록
+		HashMap<String, String> cancelResMap = new HashMap<String, String>();
+		cancelResMap.put("orderNo", orderId);
+		cancelResMap.put("enterPrise", entCode);
+		cancelResMap.put("sellerOrg", sellCode);
+		cancelResMap.put("status_code", cubeStatus);
+		cancelResMap.put("status_text", cubeStatusMsg);
+		cancelResMap.put("status_class", "danger");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String resJson = mapper.writeValueAsString(cancelResMap);
+		
+		String cancelResKey = entCode+":"+sellCode+":order:cancel:result";
+		logger.debug("[9000 CanceReq Result key]"+cancelResKey);
+		logger.debug("[9000 CanceReq Result Data]"+resJson);
+		
+		listOps.leftPush(cancelResKey, resJson);
+		
+		
+		// 실패 또는 처리대상건 없음, 출고확정건, 기처리건 - 주문취소 수행하지 않고 리턴 (운영자판단)
 		// TODO: 09인 경우 자체주문취소 처리필요
 		if("09".equals(cubeStatus) || "90".equals(cubeStatus) || "02".equals(cubeStatus)){
 			
-			// 주문취소 Result키에 기록
 			logger.debug("주문취소요청 실패[CanceOrder Request Result is failed]");
-			
-			HashMap<String, String> cancelReqMap = new HashMap<String, String>();
-			cancelReqMap.put("orderNo", orderId);
-			cancelReqMap.put("enterPrise", entCode);
-			cancelReqMap.put("sellerOrg", sellCode);
-			
-			cancelReqMap.put("status_code", cubeStatus);
-			cancelReqMap.put("status_text", cubeStatusMsg);
-			cancelReqMap.put("status_class", "danger");
-			
-			ObjectMapper mapper = new ObjectMapper();
-			String resJson = mapper.writeValueAsString(cancelReqMap);
-			
-			
-			String cancelResKey = entCode+":"+sellCode+":order:cancel:result";
-			logger.debug("[9000 CanceReq Result key]"+cancelResKey);
-			logger.debug("[9000 CanceReq Result Data]"+resJson);
-			
-			listOps.leftPush(cancelResKey, resJson);
-			
 			return;
 		}
 		
@@ -814,11 +778,8 @@ public class OrderProcessTask {
 			logger.debug("[maxStatus]"+scStatus);
 			
 				
-			// 3350일 경우 changeShipment 수행 --> cancelOrder 수행
+			// 3350일 경우 cancelOrder전  changeShipment 수행 
 			if("3350".equals(scStatus)){
-				
-				// changeShipment 수행 - 출고생성 취소
-				
 				
 				// ShipNode, ShipmentNo 조회
 				String xml_template = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE));
@@ -838,7 +799,7 @@ public class OrderProcessTask {
 				logger.debug("[shipmentNo]"+shipmentNo);
 				
 				
-				// changeShipment API Call
+				// changeShipment API Call - Cancel Shipment
 				xml_template = FileContentReader.readContent(getClass().getResourceAsStream(CHANGE_SHIPMENT_TEMPLATE));
 				msg = new MessageFormat(xml_template);
 				inputXML = msg.format(new String[] {entCode, sellCode, shipNode, shipmentNo} );
@@ -887,9 +848,7 @@ public class OrderProcessTask {
 			
 			String jsonData = cancelReqRedisList.get(i);
 			HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-			
 			String cancelOrderNo = cancelReqMap.get("orderNo");
-			
 			if(orderId.equals(cancelOrderNo)){
 				logger.debug("[cancelOrderNo]"+cancelOrderNo);
 				listOps.remove(cancelReqKey, i, jsonData);

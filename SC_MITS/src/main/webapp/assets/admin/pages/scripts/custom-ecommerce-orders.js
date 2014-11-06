@@ -100,7 +100,7 @@ var EcommerceOrders = function () {
 //                            { "data": "paymentType", "orderable":false },
                             { "data": function render(data, type, row)
                       	  				{
-                        						return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"]+'</span>';
+                        						return '<span class="pull-right">'+data["currency"] + '&nbsp;&nbsp;' + data["totalAmount"].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+'</span>';
                       	  				}, "orderable":false },
                             { "data": "status_text", "orderable":false },
                             { "data": "vendor_id", "orderable":false },
@@ -120,29 +120,28 @@ var EcommerceOrders = function () {
         /* Formatting function for row details */
         function fnFormatDetails(oTable, nTr) {
             var aData = oTable.fnGetData(nTr);
-            var sOut = '<table width="00%">';
+            var sOut = '<div>';
+            	    sOut += '<table class="table" width="80%">';
             
             
             for(var i=0; i<aData['lineList'].length; i++){
             
             	
-	            	sOut += '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
-	            	sOut += '<td>' + aData['lineList'][i]['PrimeLineNo'] + '</td>';
-	            	sOut += '<td>ItemID:</td><td>' + aData['lineList'][i]['itemId'] + '</td>';
-	            	sOut += '<td></td><td>' + aData['lineList'][i]['itemShortDesc'] + '</td>';
-	            	sOut += '<td>UnitPrice:</td><td>' + aData['lineList'][i]['UnitPrice'] + '</td>';
-	            	sOut += '<td>Qty:</td><td>' + aData['lineList'][i]['qty'] + '</td>';
-	            	sOut += '<td>Status:</td><td>'+aData['lineList'][i]['status_text']+'</td>';
-	            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
-	            	sOut += '<td>Charge:</td><td>' + aData['lineList'][i]['lineShipCharge'] + '</td>';
-	            	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';
-	            	sOut += '<td>Discount:</td><td>' + aData['lineList'][i]['lineDisount'] + '</td>';
-	            	sOut += '<td>&nbsp;&nbsp;&nbsp;</td>';
-	            	sOut += '<td>LineTotal:</td><td class="pull-right">' + aData['lineList'][i]['lineTotal'] + '</td>';
+	            	sOut += '<tr><td width="2%"></td>';
+	            	sOut += '<td width="3%">' + aData['lineList'][i]['PrimeLineNo'] + '</td>';
+	            	sOut += '<td width="40%"><span class="label label-sm label-default"> 상품 </span>&nbsp;&nbsp;[' + aData['lineList'][i]['itemId'] +'] '+aData['lineList'][i]['itemShortDesc']+'</td>';
+	            	sOut += '<td width="6%"><span class="label label-sm label-default"> 수량 </span>&nbsp;&nbsp;' + aData['lineList'][i]['qty'] + '</td>';
+	            	sOut += '<td width="10%"><span class="label label-sm label-default"> 개별판매가격 </span>&nbsp;&nbsp;' + aData['lineList'][i]['UnitPrice'] + '</td>';
+//	            	sOut += '<td width="10%"><span class="label label-sm label-default"> 배송비 </span>&nbsp;&nbsp;' + aData['lineList'][i]['lineShipCharge'] + '</td>';
+//	            	sOut += '<td>Tax:</td><td>' + aData['lineList'][i]['lineTax'] + '</td>';
+//	            	sOut += '<td width="10%"><span class="label label-sm label-default"> 할인금액 </span>&nbsp;&nbsp;' + aData['lineList'][i]['lineDisount'] + '</td>';
+	            	sOut += '<td width="10%"><span class="label label-sm label-default"> 라인합계 </span>&nbsp;&nbsp;' + aData['lineList'][i]['lineTotal'] + '</td>';
+	            	sOut += '<td><span class="label label-sm label-default"> 주문상태 </span>&nbsp;&nbsp;'+aData['lineList'][i]['status_text']+'</td>';
 	            	sOut += "</tr>";
             }
             
             sOut += '</table>';
+            sOut += '</div>';
 
             return sOut;
         }

@@ -95,6 +95,10 @@ public class OrderController {
 	private String GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE;
 	
 	
+	@Value("${sc.order.type.sales}")
+	private String SC_ORDER_TYPE_SALES;
+	
+	
 	@RequestMapping(value = "/order_list.do")
 	public ModelAndView orderList(@RequestParam(defaultValue="false" ) String action, @RequestParam(defaultValue="A" ) String status) throws Exception{ 
 		
@@ -234,7 +238,10 @@ public class OrderController {
 		String cust_lname = paramMap.get("cust_lname")==null?"":paramMap.get("cust_lname");
 		String cust_phone = paramMap.get("cust_phone")==null?"":paramMap.get("cust_phone");
 		String cust_email = paramMap.get("cust_email")==null?"":paramMap.get("cust_email");
+		String vendor_id = paramMap.get("vendor_id")==null?"":paramMap.get("vendor_id");
 		
+		
+		// 오더상태 전체처리
 		String orderStatus = (String)paramMap.get("order_status")==null?"":(String)paramMap.get("order_status");
 		if("A".equals(orderStatus)) orderStatus = ""; // All 일 경우
 		
@@ -260,7 +267,9 @@ public class OrderController {
 		     + " CustomerEMailID=\"{6}\"  CustomerEMailIDQryType=\"LIKE\" "
 		     // 고객명/전화번호 검색
 		     + " CustomerFirstName=\"{7}\"  CustomerLastName=\"{8}\" CustomerFirstNameQryType=\"LIKE\" CustomerLastNameQryType=\"LIKE\" "
-		     + " CustomerPhoneNo=\"{9}\"  CustomerPhoneNoQryType=\"LIKE\" >"
+		     + " CustomerPhoneNo=\"{9}\"  CustomerPhoneNoQryType=\"LIKE\" "
+		     // 2차DOS 검색
+		     + " VendorID=\"{10}\" VendorIDQryType=\"LIKE\" >"
 		     + sortTag
 		+ "</Order> ";
 		
@@ -275,7 +284,8 @@ public class OrderController {
 												cust_email,
 												cust_fname,
 												cust_lname,
-												cust_phone
+												cust_phone,
+												vendor_id
 										} );
 		logger.debug("[inputXML]"+inputXML); 
 		
@@ -411,11 +421,33 @@ public class OrderController {
 				// Line Basic Info
 				String lineKey = (String)xp.evaluate("@OrderLineKey", lineNode, XPathConstants.STRING);
 				String PrimeLineNo = (String)xp.evaluate("@PrimeLineNo", lineNode, XPathConstants.STRING);
-				String lineStatus = (String)xp.evaluate("@Status", lineNode, XPathConstants.STRING);
+				
+				
+				String lineStatusText = (String)xp.evaluate("@Status", lineNode, XPathConstants.STRING);
+				String lineStatusCode = "";
+				
+				if("Created".equals(lineStatusText)){
+					lineStatusCode = "1100";
+				}else if("Backordered".equals(lineStatusText)){
+					lineStatusCode = "1300";
+				}else if("Scheduled".equals(lineStatusText)){
+					lineStatusCode = "1500";
+				}else if("Released".equals(lineStatusText)){
+					lineStatusCode = "3200";
+				}else if("Included In Shipment".equals(lineStatusText)){
+					lineStatusCode = "3350";
+				}else if("Shipped".equals(lineStatusText)){
+					lineStatusCode = "3700";
+				}else if("Cancelled".equals(lineStatusText)){
+					lineStatusCode = "9000";
+				}
+				
+				String[] lineStatus = genOrderStatusText(lineStatusCode, lineStatusCode, lineStatusText);
 				
 				orderLineMap.put("lineKey", lineKey);
 				orderLineMap.put("PrimeLineNo", PrimeLineNo);
-				orderLineMap.put("status_text", lineStatus);
+				orderLineMap.put("status_text", lineStatus[0]);
+				orderLineMap.put("status_class", lineStatus[1]);
 				
 				// Line Price, Charge, Tax Info
 				Double qty = (Double)xp.evaluate("@OrderedQty", lineNode, XPathConstants.NUMBER);
@@ -472,7 +504,8 @@ public class OrderController {
 	 * 오더상세 조회
 	 * 
 	 * @param orderNo 오더번호
-	 * @param docType 주문유형 
+	 * @param entCode 조직코드
+	 * @param docType 오더유형
 	 * @return
 	 * @throws Exception
 	 */
@@ -490,12 +523,16 @@ public class OrderController {
 		//-------- 1. base info
 		HashMap<String, Object> baseInfoMap = new HashMap<String, Object>();
 		
-		String ordreDate = (String)xp.evaluate("@OrderDate", el, XPathConstants.STRING);
+		String orderDate = (String)xp.evaluate("@OrderDate", el, XPathConstants.STRING);
+		orderDate = CommonUtil.getDateTimeByTimeZone(orderDate);
+		
 //		String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", el, XPathConstants.STRING);
 		String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", el, XPathConstants.STRING);	// Discount 포함
 		
 		String currency = (String)xp.evaluate("PriceInfo/@Currency", el, XPathConstants.STRING);
 		String paymentType = (String)xp.evaluate("PaymentMethods/PaymentMethod/@PaymentType", el, XPathConstants.STRING);
+		String paymentTypeName = env.getProperty("sc.payment.type."+paymentType);
+		
 		String sellerCode = (String)xp.evaluate("@SellerOrganizationCode", el, XPathConstants.STRING);
 		
 		
@@ -508,10 +545,11 @@ public class OrderController {
 		String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
 		
 		baseInfoMap.put("orderNo", orderNo);
-		baseInfoMap.put("orderDate", ordreDate);
+		baseInfoMap.put("orderDate", orderDate);
 		baseInfoMap.put("currency", currency);
 		baseInfoMap.put("totalAmount", totalAmount);
 		baseInfoMap.put("paymentType", paymentType);
+		baseInfoMap.put("paymentTypeName", paymentTypeName);
 		baseInfoMap.put("minStatus", minStatus);
 		baseInfoMap.put("maxStatus", maxStatus);
 		baseInfoMap.put("orderStatus", status[0]);
@@ -735,6 +773,8 @@ public class OrderController {
 			
 			// Date, User, Reason, Contact Type, Contact Reference, Notes
 			String noteDate = (String)xp.evaluate("@ContactTime", noteNodeList.item(i), XPathConstants.STRING);
+			noteDate = CommonUtil.getDateTimeByTimeZone(noteDate);
+			
 			String noteUser = (String)xp.evaluate("@ContactUser", noteNodeList.item(i), XPathConstants.STRING);
 			String noteUserName = (String)xp.evaluate("User/@Username", noteNodeList.item(i), XPathConstants.STRING);
 			String noteReason = (String)xp.evaluate("@ReasonCode", noteNodeList.item(i), XPathConstants.STRING);
@@ -1537,7 +1577,7 @@ public class OrderController {
 				redisService.saveErrDataByOrderId(errKey, paramMap.get("order_no"), outputMsg);
 				
 			}else{
-				mav.addObject("outputMsg", "Cancel Order Transaction was processed Successfully.");
+				mav.addObject("outputMsg", "요청하신 작업이 정상적으로 처리되었습니다.");
 			}
 		
 		}
@@ -1579,7 +1619,7 @@ public class OrderController {
 		
 		String docType = (String)paramMap.get("doc_type");
 		if( docType == null || "".equals(docType)){
-			docType = "0001";
+			docType = SC_ORDER_TYPE_SALES;
 		};
 		
 		// 관리조직 세션정보로 얻어옴
@@ -1912,8 +1952,9 @@ public class OrderController {
 			String trackingNo = (String)xp.evaluate("@TrailerNo", shipNodeList.item(i), XPathConstants.STRING);
 			
 			String aShipDate = (String)xp.evaluate("@ActualShipmentDate", shipNodeList.item(i), XPathConstants.STRING);
+			aShipDate = CommonUtil.getDateTimeByTimeZone(aShipDate);
 			String eShipDate = (String)xp.evaluate("@ExpectedShipmentDate", shipNodeList.item(i), XPathConstants.STRING);
-			
+			eShipDate = CommonUtil.getDateTimeByTimeZone(eShipDate);
 			
 			dataMap.put("sellerCode", sellerCode);
 			dataMap.put("shipmentNo", shipmentNo);

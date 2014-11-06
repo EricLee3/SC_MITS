@@ -94,6 +94,15 @@ public class OMCTest {
 	@Value("${redis.port}")
 	private String redis_port;
 	
+	@Value("${sc.order.type.sales}")
+	private String SC_ORDER_TYPE_SALES;
+	
+	
+	@Test
+	public void testEnvGetProperties() throws Exception{
+		
+		System.out.println("[SC_ORDER_TYPE_SALES]"+SC_ORDER_TYPE_SALES);
+	}
 	
 	@Test
 	public void testDelListData() throws Exception{

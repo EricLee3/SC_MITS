@@ -2,7 +2,7 @@
 <Shipment 
     DocumentType="{0}" EnterpriseCode="{1}"
     SellerOrganizationCode="{2}" 
-    ShipmentNo="{3}" ShipNode="{4}" TrailerNo="{5}">
-    <ScacAndService OrganizationCode="{6}"
-        ScacAndServiceKey="{7}"/>
+    ShipmentNo="{3}" ShipNode="{4}" TrailerNo="{5}" ActualShipmentDate="{6}">
+    <ScacAndService OrganizationCode="DEFAULT"
+        ScacAndService="{7}"/>
 </Shipment>
