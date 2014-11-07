@@ -1159,6 +1159,249 @@ public class OrderController {
 	}
 	
 	
+	@RequestMapping(value = "/cancelOrderReq.sc")
+	public ModelAndView cancelOrderReq(@RequestParam Map<String, String> paramMap) throws Exception
+	{
+		String doc_type = (String)paramMap.get("doc_type");
+		String ent_code = (String)paramMap.get("ent_code");
+		String sell_code = (String)paramMap.get("sell_code");
+		String order_no = (String)paramMap.get("order_no");
+		String cancel_reason = (String)paramMap.get("cancel_reason");
+		String cancel_note = (String)paramMap.get("cancel_note");
+		String cancel_type = (String)paramMap.get("cancel_type");
+		String line_keys = (String)paramMap.get("line_keys");
+		
+		logger.debug("##### Cancel Order API Called !!!");
+		
+		logger.debug("##### [doc_type]"+ doc_type);
+		logger.debug("##### [ent_code]"+ ent_code);
+		logger.debug("##### [sell_code]"+ sell_code);
+		logger.debug("##### [order_no]"+ order_no);
+		logger.debug("##### [cancel_reason]"+ cancel_reason);
+		logger.debug("##### [cancel_note]"+ cancel_note);
+		logger.debug("##### [cancel_type]"+ cancel_type);
+		logger.debug("##### [line_keys]"+ line_keys);
+		
+		
+		Document doc = null;
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		String outputMsg =  "";
+		String succ = "Y";
+		
+		
+		// 주문취소 가능여부 재 확인 - 현 주문상태 조회, 3700이면 취소불가
+		
+		/*
+		 * 출고의뢰여부 상태조회
+		 *  - 주문상태가 부분주문확정 3200이전 상태인 경우 -> 의뢰전 -> 주문취소처리 -> MA전송
+		 *  - 주문상태 3700이 아닌경우 -> Cube주문취소요청 -> 응답확인 -> 정상일 경우 주문취소 -> MA 전송   
+		 *                                                                 실패일 경우 - 출고확정상태인 경우 주문취소 불가 통보
+		 */
+		doc = sterlingApiDelegate.getOrderDetails(doc_type, ent_code, order_no);
+		Element orderEle = doc.getDocumentElement();
+			
+		XPath xp = XPathFactory.newInstance().newXPath();
+		
+		
+		String minStatus = (String)xp.evaluate("@MinOrderStatus", orderEle, XPathConstants.STRING);
+		String maxStatus = (String)xp.evaluate("@MaxOrderStatus", orderEle, XPathConstants.STRING);
+		String defaultText = (String)xp.evaluate("@Status", orderEle, XPathConstants.STRING);
+			
+			
+		// 출고확정(3700)일 경우 - 취소불가
+		if("3700".equals(maxStatus)){
+			logger.debug("##### 출고확정, 주문취소불가");
+			outputMsg = "해당주문건은 이미 [출고확정]된 주문건으로 주문취소 요청을 처리할 수 없습니다.\n고객응대후 주문취소를 요구할 경우 반풒프로세스를 수행하시기 바랍니다.";
+			succ = "N";
+			
+			mav.addObject("success", succ);
+			mav.addObject("errorMsg", outputMsg);
+			return mav;
+		}
+			
+		// 해당주문의 품절취소여부 조회 - TODO: 이미 오더상세에서 체크한 항목이라 Skip
+		/*
+		String cubeShortedKey = ent_code+":"+sell_code+":order:3202:90";
+		
+		String shortedYN = "N";
+		List<String> shortedList = listOps.range(cubeShortedKey, 0, -1);
+		for( int i=0; i<shortedList.size(); i++){
+			
+			String jsonData = shortedList.get(i);
+			HashMap<String,String> map = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+			
+			String shortOrderId = map.get("orderId");
+			
+			if(order_no.equals(shortOrderId)){
+				
+				shortedYN = "Y";
+				break;
+			}
+		}*/
+			
+			
+		// 출고의뢰(3200), 출고준비(3350)일 경우 - Cube주문취소 요청
+		if("3200".equals(maxStatus) || "3350".equals(maxStatus)){
+				
+				
+			// 기 주문취소요청 처리여부 확인
+			boolean isRequest = false;
+			
+			String checkReqKey = ent_code+":"+sell_code+":order:cancel";
+			
+			List<String> cancelReqRedisList = listOps.range(checkReqKey, 0, -1);
+			for(String jsonData: cancelReqRedisList){
+				
+				logger.debug("[jsonData]"+ jsonData);
+				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				String cancelOrderNo = cancelReqMap.get("orderNo");
+				if(order_no.equals(cancelOrderNo)){
+					
+					isRequest = true;
+					break;
+				}
+			}
+				
+			if(isRequest){
+				
+				outputMsg = "해당주문건은 이미 주문취소요청 상태입니다. 주문취소상태를 확인하시기 바랍니다.";
+				succ = "N";
+				
+				mav.addObject("success", succ);
+				mav.addObject("errorMsg", outputMsg);
+				return mav;
+			}
+
+			
+			
+			
+			
+			
+				
+			// 주문기본정보
+			String docType = orderEle.getAttribute("DocumentType"); // 오더유형
+			String orderNo = orderEle.getAttribute("OrderNo");	// 오더번호
+			String orderKey = orderEle.getAttribute("OrderHeaderKey");
+			String orderDate = orderEle.getAttribute("OrderDate");
+			String orderDateCube = orderDate.substring(0,4)+orderDate.substring(5,7)+orderDate.substring(8,10);
+		
+			// 3200 or 3350 된 OrderLine정보만 추출
+			NodeList releaseOrderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@MaxLineStatus='3200' or @MaxLineStatus='3350']", orderEle, XPathConstants.NODESET);
+			logger.debug("[OrderLine Count]"+releaseOrderLineList.getLength());
+						
+			List<HashMap<String,Object>> cancelList = new ArrayList<HashMap<String,Object>>();
+			
+			for(int i=0; i<releaseOrderLineList.getLength(); i++){
+				Node lineNode = releaseOrderLineList.item(i);
+				HashMap<String, Object> orderLineMap = new HashMap<String, Object>();
+				
+				String orderLineKey = (String)xp.evaluate("@OrderLineKey", lineNode, XPathConstants.STRING);
+				String primeLineNo = (String)xp.evaluate("@PrimeLineNo", lineNode, XPathConstants.STRING);
+				String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus/@OrderReleaseKey", lineNode, XPathConstants.STRING);
+				
+				// 상품정보, 가격정보
+				String itemID = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
+				String itemNm = (String)xp.evaluate("Item/@ItemShortDesc", lineNode, XPathConstants.STRING);
+				Double pricingQty = (Double)xp.evaluate("LineOverallTotals/@PricingQty", lineNode, XPathConstants.NUMBER);	// 주문수량
+				Double lineTotal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.NUMBER);	// 오더라인 최종판매금액(배송비,과세,할인 적용금액)
+				Double salePrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.NUMBER);	// 개별판매단가(배송비,과세,할인 미적용금액)
+				int cubePrice = (int)(lineTotal/pricingQty);	// 큐브전송 개별판매단가(배송비,과세,할인 적용금액을 수량으로 나눔)
+				
+				
+				//---------------------  오더라인 단위정보 저장 for JSON ---------------------//
+				// 오더라인 공통정보 (동일한 값)
+				orderLineMap.put("org_code", env.getProperty("ca."+ent_code)); // TODO: 관리조직코드 -> 사업부코드로 변환
+				orderLineMap.put("sell_code", sell_code);	// TODO: 셀러코드는 SC의 코드사용
+				orderLineMap.put("orderId", orderNo);
+				orderLineMap.put("orderDt", orderDateCube);
+				
+				// 오더라인순/오더라인키/오더릴리즈키
+				orderLineMap.put("orderLineNo", primeLineNo);
+				orderLineMap.put("orderLineKey", orderLineKey);
+				orderLineMap.put("orderReleaseKey", orderReleaseKey);
+				orderLineMap.put("ship_node", "");	// 주문취소요청시는 필요없는 정보
+				
+				// 상품/가격 정보
+				orderLineMap.put("itemId", itemID);
+				orderLineMap.put("itemNm", itemNm);
+				orderLineMap.put("qty", pricingQty.intValue()+"");
+				orderLineMap.put("salePrice", cubePrice+"");
+				
+				cancelList.add(orderLineMap);
+			} // End for ReleaseList
+			
+			
+			// Redis Send Data Set - 주문취소요청상태
+			String custFname = (String)xp.evaluate("@CustomerFirstName", orderEle, XPathConstants.STRING);
+			String custLname = (String)xp.evaluate("@CustomerLastName", orderEle, XPathConstants.STRING);
+			String custName = custFname+custLname;
+			String currency = (String)xp.evaluate("PriceInfo/@Currency", orderEle, XPathConstants.STRING);
+//						String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderEle, XPathConstants.STRING);
+			String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderEle, XPathConstants.STRING);	// Discount 포함
+			
+			HashMap<String, String> cancelReqMap = new HashMap<String, String>();
+			cancelReqMap.put("orderNo", orderNo);
+			cancelReqMap.put("orderDate", orderDate);
+			cancelReqMap.put("enterPrise", ent_code);
+			cancelReqMap.put("sellerOrg", sell_code);
+			cancelReqMap.put("custName", custName);
+			cancelReqMap.put("currency", currency);
+			cancelReqMap.put("totalAmount", totalAmount);
+			
+			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
+			cancelReqMap.put("status_code", "00"); // 주문취소 요청상태
+			cancelReqMap.put("status_text", "주문취소 요청중");
+			cancelReqMap.put("status_class", "danger");
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String reqJson = mapper.writeValueAsString(cancelReqMap);
+			
+			
+			String cancelReqKey = ent_code+":"+sell_code+":order:cancel";
+			logger.debug("[9000 S2C - CanceReq key]"+cancelReqKey);
+			logger.debug("[9000 S2C - CanceReq Data]"+reqJson);
+			
+			listOps.leftPush(cancelReqKey, reqJson);
+			
+			
+			// Redis Send Data Set - Cube 주문취소요청
+			HashMap<String,Object> sendMsgMap = new HashMap<String,Object>();
+			String orgCode = env.getProperty("ca."+ent_code); // 사업부코드 - 조직코드 변환
+			sendMsgMap.put("org_code", orgCode);
+			sendMsgMap.put("sell_code", sell_code);
+			sendMsgMap.put("orderId", orderNo);
+			sendMsgMap.put("orderDt", orderDate);
+			sendMsgMap.put("orderHeaderKey", orderKey);
+			sendMsgMap.put("status", "9000");	// 주문취소 요청
+			String tranDt = CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm");
+			sendMsgMap.put("tranDt", tranDt);
+			sendMsgMap.put("list", cancelList);
+			
+			String jsonMsg = mapper.writeValueAsString(sendMsgMap);
+			String pushKey = orgCode+":"+sell_code+":order:update:S2C";
+			
+			logger.debug("[9000 S2C - trans Data]"+jsonMsg);
+			logger.debug("[9000 S2C - trans Key]"+pushKey);
+			
+			// RedisDB에 메세지 저장
+			listOps.leftPush(pushKey, jsonMsg);
+			
+			
+			logger.debug("##### OrderCancel Request was successful.");
+			outputMsg = "해당주문건에 대한 주문취소요청이 정상적으로 처리되었습니다.\nCube의 주문취소 처리결과는 최대 1시간 ~ 1시간30분정도 소요될 수 있습니다. ";
+			outputMsg += "\n\n주문취소상태를 해당시간이후 반드시 확인하시기 바랍니다.";
+			succ = "Y";
+			
+			mav.addObject("success", succ);
+			mav.addObject("outputMsg", outputMsg);
+		}
+		
+		
+		return mav;
+	}
+	
 	
 	/**
 	 * 주문 취소 및 주문취소 요청처리 
@@ -1204,224 +1447,6 @@ public class OrderController {
 		
 		// Redis 에러키 - 주문취소
 		String errKey = ent_code+":"+sell_code+":order:update:error:9000";
-		
-		// 주문취소 가능여부 재 확인 - 현 주문상태 조회, 3700이면 취소불가
-		
-		/*
-		 * 출고의뢰여부 상태조회
-		 *  - 주문상태가 부분주문확정 3200이전 상태인 경우 -> 의뢰전 -> 주문취소처리 -> MA전송
-		 *  - 주문상태 3700이 아닌경우 -> Cube주문취소요청 -> 응답확인 -> 정상일 경우 주문취소 -> MA 전송   
-		 *                                                                 실패일 경우 - 출고확정상태인 경우 주문취소 불가 통보
-		 */
-		
-		// 전체주문취소일 경우만 수행
-		if("order".equals(cancel_type)){
-			
-			doc = sterlingApiDelegate.getOrderDetails(doc_type, ent_code, order_no);
-			Element orderEle = doc.getDocumentElement();
-			
-			XPath xp = XPathFactory.newInstance().newXPath();
-			
-			
-			String minStatus = (String)xp.evaluate("@MinOrderStatus", orderEle, XPathConstants.STRING);
-			String maxStatus = (String)xp.evaluate("@MaxOrderStatus", orderEle, XPathConstants.STRING);
-			String defaultText = (String)xp.evaluate("@Status", orderEle, XPathConstants.STRING);
-			
-			
-			// 출고확정(3700)일 경우 - 취소불가
-			if("3700".equals(maxStatus)){
-				logger.debug("##### 출고확정, 주문취소불가");
-				outputMsg = "해당주문건은 이미 [출고확정]된 주문건으로 주문취소 요청을 처리할 수 없습니다.\n반풒프로세스를 수행하시기 바랍니다.";
-				succ = "N";
-				
-				mav.addObject("success", succ);
-				mav.addObject("errorMsg", outputMsg);
-				return mav;
-			}
-			
-			
-			String cubeShortedKey = ent_code+":"+sell_code+":order:3202:90";
-			String shortedYN = "N";
-			List<String> shortedList = listOps.range(cubeShortedKey, 0, -1);
-			for( int i=0; i<shortedList.size(); i++){
-				
-				String jsonData = shortedList.get(i);
-				HashMap<String,String> map = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-				
-				String shortOrderId = map.get("orderId");
-				
-				if(order_no.equals(shortOrderId)){
-					
-					shortedYN = "Y";
-					break;
-				}
-			}
-			
-			// 출고의뢰에서 품절취소가 발생한 경우는 주문취소처리. 주문취소요청아님
-			if("3200".equals(maxStatus) && "Y".equals(shortedYN)){
-				;
-				
-				
-			// 출고의뢰(3200), 출고준비(3350)일 경우 - Cube주문취소 요청
-			}else if("3200".equals(maxStatus) || "3350".equals(maxStatus)){
-				
-				
-				// 기 주문취소요청 처리여부 확인
-				boolean isRequest = false;
-				
-				String checkReqKey = ent_code+":"+sell_code+":order:cancel";
-				
-				List<String> cancelReqRedisList = listOps.range(checkReqKey, 0, -1);
-				for( int i=0; i<cancelReqRedisList.size(); i++){
-					
-					String jsonData = cancelReqRedisList.get(i);
-					
-					logger.debug("[jsonData]"+ jsonData);
-					HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-					
-					String cancelOrderNo = cancelReqMap.get("orderNo");
-					
-					if(order_no.equals(cancelOrderNo)){
-						
-						isRequest = true;
-						break;
-					}
-				}
-				
-				if(isRequest){
-					
-					outputMsg = "해당주문건은 이미 주문취소요청 상태입니다. 주문취소상태를 확인하시기 바랍니다.";
-					succ = "N";
-					
-					mav.addObject("success", succ);
-					mav.addObject("errorMsg", outputMsg);
-					return mav;
-				}
-
-				
-				// 주문기본정보
-				String docType = orderEle.getAttribute("DocumentType"); // 오더유형
-				String orderNo = orderEle.getAttribute("OrderNo");	// 오더번호
-				String orderKey = orderEle.getAttribute("OrderHeaderKey");
-				String orderDate = orderEle.getAttribute("OrderDate");
-				String orderDateCube = orderDate.substring(0,4)+orderDate.substring(5,7)+orderDate.substring(8,10);
-			
-				// 3200 or 3350 된 OrderLine정보만 추출
-				NodeList releaseOrderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@MaxLineStatus='3200' or @MaxLineStatus='3350']", orderEle, XPathConstants.NODESET);
-				logger.debug("[OrderLine Count]"+releaseOrderLineList.getLength());
-							
-				List<HashMap<String,Object>> cancelList = new ArrayList<HashMap<String,Object>>();
-				
-				for(int i=0; i<releaseOrderLineList.getLength(); i++){
-					Node lineNode = releaseOrderLineList.item(i);
-					HashMap<String, Object> orderLineMap = new HashMap<String, Object>();
-					
-					String orderLineKey = (String)xp.evaluate("@OrderLineKey", lineNode, XPathConstants.STRING);
-					String primeLineNo = (String)xp.evaluate("@PrimeLineNo", lineNode, XPathConstants.STRING);
-					String orderReleaseKey = (String)xp.evaluate("OrderStatuses/OrderStatus/@OrderReleaseKey", lineNode, XPathConstants.STRING);
-					
-					// 상품정보, 가격정보
-					String itemID = (String)xp.evaluate("Item/@ItemID", lineNode, XPathConstants.STRING);
-					String itemNm = (String)xp.evaluate("Item/@ItemShortDesc", lineNode, XPathConstants.STRING);
-					Double pricingQty = (Double)xp.evaluate("LineOverallTotals/@PricingQty", lineNode, XPathConstants.NUMBER);	// 주문수량
-					Double lineTotal = (Double)xp.evaluate("LineOverallTotals/@LineTotal", lineNode, XPathConstants.NUMBER);	// 오더라인 최종판매금액(배송비,과세,할인 적용금액)
-					Double salePrice = (Double)xp.evaluate("LineOverallTotals/@UnitPrice", lineNode, XPathConstants.NUMBER);	// 개별판매단가(배송비,과세,할인 미적용금액)
-					int cubePrice = (int)(lineTotal/pricingQty);	// 큐브전송 개별판매단가(배송비,과세,할인 적용금액을 수량으로 나눔)
-					
-					
-					//---------------------  오더라인 단위정보 저장 for JSON ---------------------//
-					// 오더라인 공통정보 (동일한 값)
-					orderLineMap.put("org_code", env.getProperty("ca."+ent_code)); // TODO: 관리조직코드 -> 사업부코드로 변환
-					orderLineMap.put("sell_code", sell_code);	// TODO: 셀러코드는 SC의 코드사용
-					orderLineMap.put("orderId", orderNo);
-					orderLineMap.put("orderDt", orderDateCube);
-					
-					// 오더라인순/오더라인키/오더릴리즈키
-					orderLineMap.put("orderLineNo", primeLineNo);
-					orderLineMap.put("orderLineKey", orderLineKey);
-					orderLineMap.put("orderReleaseKey", orderReleaseKey);
-					orderLineMap.put("ship_node", "");	// 주문취소요청시는 필요없는 정보
-					
-					// 상품/가격 정보
-					orderLineMap.put("itemId", itemID);
-					orderLineMap.put("itemNm", itemNm);
-					orderLineMap.put("qty", pricingQty.intValue()+"");
-					orderLineMap.put("salePrice", cubePrice+"");
-					
-					cancelList.add(orderLineMap);
-				} // End for ReleaseList
-				
-				
-				// Redis Send Data Set - 주문취소요청상태
-				String custFname = (String)xp.evaluate("@CustomerFirstName", orderEle, XPathConstants.STRING);
-				String custLname = (String)xp.evaluate("@CustomerLastName", orderEle, XPathConstants.STRING);
-				String custName = custFname+custLname;
-				String currency = (String)xp.evaluate("PriceInfo/@Currency", orderEle, XPathConstants.STRING);
-//				String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderEle, XPathConstants.STRING);
-				String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderEle, XPathConstants.STRING);	// Discount 포함
-				
-				HashMap<String, String> cancelReqMap = new HashMap<String, String>();
-				cancelReqMap.put("orderNo", orderNo);
-				cancelReqMap.put("orderDate", orderDate);
-				cancelReqMap.put("enterPrise", ent_code);
-				cancelReqMap.put("sellerOrg", sell_code);
-				cancelReqMap.put("custName", custName);
-				cancelReqMap.put("currency", currency);
-				cancelReqMap.put("totalAmount", totalAmount);
-				
-				String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
-				cancelReqMap.put("status_code", "00"); // 주문취소 요청상태
-				cancelReqMap.put("status_text", "주문취소 요청중");
-				cancelReqMap.put("status_class", "danger");
-				
-				ObjectMapper mapper = new ObjectMapper();
-				String reqJson = mapper.writeValueAsString(cancelReqMap);
-				
-				
-				String cancelReqKey = ent_code+":"+sell_code+":order:cancel";
-				logger.debug("[9000 S2C - CanceReq key]"+cancelReqKey);
-				logger.debug("[9000 S2C - CanceReq Data]"+reqJson);
-				
-				listOps.leftPush(cancelReqKey, reqJson);
-				
-				
-				// Redis Send Data Set - Cube 주문취소요청
-				HashMap<String,Object> sendMsgMap = new HashMap<String,Object>();
-				String orgCode = env.getProperty("ca."+ent_code); // 사업부코드 - 조직코드 변환
-				sendMsgMap.put("org_code", orgCode);
-				sendMsgMap.put("sell_code", sell_code);
-				sendMsgMap.put("orderId", orderNo);
-				sendMsgMap.put("orderDt", orderDate);
-				sendMsgMap.put("orderHeaderKey", orderKey);
-				sendMsgMap.put("status", "9000");	// 주문취소 요청
-				String tranDt = CommonUtil.cuurentDateFromFormat("yyyyMMddHHssmm");
-				sendMsgMap.put("tranDt", tranDt);
-				sendMsgMap.put("list", cancelList);
-				
-				String jsonMsg = mapper.writeValueAsString(sendMsgMap);
-				String pushKey = orgCode+":"+sell_code+":order:update:S2C";
-				
-				logger.debug("[9000 S2C - trans Data]"+jsonMsg);
-				logger.debug("[9000 S2C - trans Key]"+pushKey);
-				
-				// RedisDB에 메세지 저장
-				listOps.leftPush(pushKey, jsonMsg);
-				
-				
-				logger.debug("##### OrderCancel Request was successful.");
-				outputMsg = "해당주문건에 대한 주문취소요청이 정상적으로 처리되었습니다.\nCube의 주문취소 처리결과는 최대 1시간 ~ 1시간30분정도 소요될 수 있습니다. ";
-				outputMsg += "\n\n주문취소상태를 해당시간이후 반드시 확인하시기 바랍니다.";
-				succ = "Y";
-				
-				mav.addObject("success", succ);
-				mav.addObject("outputMsg", outputMsg);
-				return mav;
-				
-			}
-			
-		} // End 주문취소 요청 체크
-		
-		
 		
 		
 		String templateFile = "";

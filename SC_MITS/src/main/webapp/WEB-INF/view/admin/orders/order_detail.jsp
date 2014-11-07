@@ -383,7 +383,7 @@ License: You must have a valid license purchased only from themeforest(the above
 												<a class="btn btn-danger btn-sm red-stripe" data-toggle="modal" href="#md_cancel_order" id="tool_cancel">
 												주문취소
 												</a>
-												<a class="btn btn-danger btn-sm red-stripe hidden"  data-toggle="modal" href="#md_cancel_order" id="tool_cancel_req">
+												<a class="btn btn-danger btn-sm red-stripe hidden"  id="tool_cancel_req">
 												주문취소요청
 												</a>
 											</div>

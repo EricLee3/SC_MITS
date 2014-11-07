@@ -290,7 +290,7 @@ var OrderDetailView = function () {
             */
         	
         	
-        	// Release Order (Schedule and Release)
+        // Release Order (Schedule and Release)
         $('#tool_release').click(function(e){
         	
         	if($(this).text() == '출고의뢰'){
@@ -304,7 +304,7 @@ var OrderDetailView = function () {
         		ajaxCallApi(this, '/orders/scheduleOrder.sc', 'form_action');
         	}
         });
-            
+        
             
         // Cancel Order 
         $('#btn_cancel').click(function(e){
@@ -320,6 +320,21 @@ var OrderDetailView = function () {
    		    $modal.modal("hide");
         	//}
         }); 
+        
+        
+        // Cancel Order Request
+        $('#tool_cancel_req').click(function(e){
+        	if( confirm("해당 주문을 Cube로 주문취소요청 하시겠습니까?")){
+        		e.preventDefault();
+        		
+        		$("#form_cancel input[name='cancel_type']").val("order_req");
+        		$("#form_cancel input[name='line_keys']").val("");
+        		
+        		ajaxCallApi(this, '/orders/cancelOrderReq.sc', 'form_cancel');
+        		
+        	}
+        }); 
+        
             
         	
             // Event Handler - Save Note
