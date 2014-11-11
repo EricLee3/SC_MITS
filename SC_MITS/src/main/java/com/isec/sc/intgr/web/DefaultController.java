@@ -41,6 +41,11 @@ public class DefaultController {
 	private String LOGIN_TEMPLATE;
 	
 	
+	/**
+	 * 메인화면 이동
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = {"/","/index.do"})
 	public String home() throws Exception{ 
 		
@@ -51,6 +56,12 @@ public class DefaultController {
 		
 	}
 	
+	
+	/**
+	 * 로그인 화면 리다이렉트
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/login.do")
 	public String goLogin() throws Exception{ 
 		
@@ -60,6 +71,13 @@ public class DefaultController {
 	}
 	
 	
+	/**
+	 * 로그아웃 처리
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/logout.do")
 	public String logout(HttpServletRequest req, HttpServletResponse res) throws Exception{ 
 		
@@ -77,6 +95,14 @@ public class DefaultController {
 	}
 	
 	
+	/**
+	 * 로그인 처리
+	 * @param userid
+	 * @param password
+	 * @param req
+	 * @param res
+	 * @return
+	 */
 	@RequestMapping(value = "/login.sc")
 	public ModelAndView login(@RequestParam String userid, @RequestParam String password,  HttpServletRequest req, HttpServletResponse res){
 		

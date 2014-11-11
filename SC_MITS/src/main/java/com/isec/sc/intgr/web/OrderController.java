@@ -115,6 +115,7 @@ public class OrderController {
 		
 	}
 	
+	
 	/**
 	 * 오더목록조회 (판매오더, 반품오더)
 	 *  - 오더의 상태가 Create(1100) ~ Shipped(3700)까지만 조회
@@ -1159,6 +1160,13 @@ public class OrderController {
 	}
 	
 	
+	/**
+	 * 주문취소 요청처리
+	 * 
+	 * @param paramMap
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/cancelOrderReq.sc")
 	public ModelAndView cancelOrderReq(@RequestParam Map<String, String> paramMap) throws Exception
 	{
@@ -1275,19 +1283,60 @@ public class OrderController {
 			}
 
 			
-			
-			
-			
-			
-				
 			// 주문기본정보
 			String docType = orderEle.getAttribute("DocumentType"); // 오더유형
 			String orderNo = orderEle.getAttribute("OrderNo");	// 오더번호
 			String orderKey = orderEle.getAttribute("OrderHeaderKey");
 			String orderDate = orderEle.getAttribute("OrderDate");
 			String orderDateCube = orderDate.substring(0,4)+orderDate.substring(5,7)+orderDate.substring(8,10);
-		
-			// 3200 or 3350 된 OrderLine정보만 추출
+			
+			
+			
+			// 주문취소요청상태 저장
+			String custFname = (String)xp.evaluate("@CustomerFirstName", orderEle, XPathConstants.STRING);
+			String custLname = (String)xp.evaluate("@CustomerLastName", orderEle, XPathConstants.STRING);
+			String custEmail = (String)xp.evaluate("@CustomerEMailID", orderEle, XPathConstants.STRING);
+			String custPhone = (String)xp.evaluate("@CustomerPhoneNo", orderEle, XPathConstants.STRING);
+			String custName = custFname+custLname;
+			String currency = (String)xp.evaluate("PriceInfo/@Currency", orderEle, XPathConstants.STRING);
+//									String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderEle, XPathConstants.STRING);
+			String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderEle, XPathConstants.STRING);	// Discount 포함
+			String vendorId = (String)xp.evaluate("@VendorID", orderEle, XPathConstants.STRING); // 2차DOS명
+			
+			
+			HashMap<String, String> cancelReqMap = new HashMap<String, String>();
+			cancelReqMap.put("orderNo", orderNo);
+			cancelReqMap.put("orderDate", orderDate);
+			cancelReqMap.put("enterPrise", ent_code);
+			cancelReqMap.put("sellerOrg", sell_code);
+			cancelReqMap.put("custName", custName);
+			cancelReqMap.put("custEmail", custEmail);
+			cancelReqMap.put("custPhone", custPhone);
+			cancelReqMap.put("currency", currency);
+			cancelReqMap.put("totalAmount", totalAmount);
+			cancelReqMap.put("vendorId", vendorId);
+			
+			// 원주문 상태 
+			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
+			cancelReqMap.put("org_status_text", status[0]);
+			cancelReqMap.put("org_status_class", status[1]);
+			// 주문취소 요청상태
+			cancelReqMap.put("status_code", "00"); 
+			cancelReqMap.put("status_text", "주문취소 요청중");
+			cancelReqMap.put("status_class", "danger");
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String reqJson = mapper.writeValueAsString(cancelReqMap);
+			
+			String cancelReqKey = ent_code+":"+sell_code+":order:cancel";
+			logger.debug("[9000 S2C - CanceReq key]"+cancelReqKey);
+			logger.debug("[9000 S2C - CanceReq Data]"+reqJson);
+			
+			// OMC Key에 저장
+			listOps.leftPush(cancelReqKey, reqJson);
+			
+			
+			// Cube 전송데이타 처리3200 or 3350 된 OrderLine정보만 추출
 			NodeList releaseOrderLineList = (NodeList)xp.evaluate("/Order/OrderLines/OrderLine[@MaxLineStatus='3200' or @MaxLineStatus='3350']", orderEle, XPathConstants.NODESET);
 			logger.debug("[OrderLine Count]"+releaseOrderLineList.getLength());
 						
@@ -1333,38 +1382,6 @@ public class OrderController {
 			} // End for ReleaseList
 			
 			
-			// Redis Send Data Set - 주문취소요청상태
-			String custFname = (String)xp.evaluate("@CustomerFirstName", orderEle, XPathConstants.STRING);
-			String custLname = (String)xp.evaluate("@CustomerLastName", orderEle, XPathConstants.STRING);
-			String custName = custFname+custLname;
-			String currency = (String)xp.evaluate("PriceInfo/@Currency", orderEle, XPathConstants.STRING);
-//						String totalAmount = (String)xp.evaluate("PriceInfo/@TotalAmount", orderEle, XPathConstants.STRING);
-			String totalAmount = (String)xp.evaluate("OverallTotals/@GrandTotal", orderEle, XPathConstants.STRING);	// Discount 포함
-			
-			HashMap<String, String> cancelReqMap = new HashMap<String, String>();
-			cancelReqMap.put("orderNo", orderNo);
-			cancelReqMap.put("orderDate", orderDate);
-			cancelReqMap.put("enterPrise", ent_code);
-			cancelReqMap.put("sellerOrg", sell_code);
-			cancelReqMap.put("custName", custName);
-			cancelReqMap.put("currency", currency);
-			cancelReqMap.put("totalAmount", totalAmount);
-			
-			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
-			cancelReqMap.put("status_code", "00"); // 주문취소 요청상태
-			cancelReqMap.put("status_text", "주문취소 요청중");
-			cancelReqMap.put("status_class", "danger");
-			
-			ObjectMapper mapper = new ObjectMapper();
-			String reqJson = mapper.writeValueAsString(cancelReqMap);
-			
-			
-			String cancelReqKey = ent_code+":"+sell_code+":order:cancel";
-			logger.debug("[9000 S2C - CanceReq key]"+cancelReqKey);
-			logger.debug("[9000 S2C - CanceReq Data]"+reqJson);
-			
-			listOps.leftPush(cancelReqKey, reqJson);
-			
 			
 			// Redis Send Data Set - Cube 주문취소요청
 			HashMap<String,Object> sendMsgMap = new HashMap<String,Object>();
@@ -1385,7 +1402,7 @@ public class OrderController {
 			logger.debug("[9000 S2C - trans Data]"+jsonMsg);
 			logger.debug("[9000 S2C - trans Key]"+pushKey);
 			
-			// RedisDB에 메세지 저장
+			// Cube Key에 저장
 			listOps.leftPush(pushKey, jsonMsg);
 			
 			
@@ -1873,7 +1890,161 @@ public class OrderController {
 	
 	
 	/**
-	 * 주문취소요청 및 결과정보 조회
+	 * 주문취소요청 조회 페이지 이동
+	 * @param action
+	 * @param status
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/cancelOrderReqList.do")
+	public ModelAndView cancelOrderReqList(@RequestParam(defaultValue="false" ) String action, @RequestParam(defaultValue="A" ) String status) throws Exception{ 
+		
+		logger.debug("[action]"+action);
+		logger.debug("[status]"+status);
+		
+		
+		ModelAndView mav = new ModelAndView("");
+		mav.addObject("action", action); 
+		mav.addObject("status", status);
+		
+		mav.setViewName("/admin/claim/cancel_req_list");
+		return mav;
+		
+	}
+	
+	
+	/**
+	 * 주문취소요청 목록 조회
+	 * 
+	 * @param paramMap
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getOrderCancelReqList.sc")
+	public ModelAndView getOrderCancelReqList(@RequestParam Map<String, String> paramMap, HttpServletRequest req) throws Exception {
+		
+		/*
+		 * cancelReqMap.put("orderNo", orderNo);
+			cancelReqMap.put("orderDate", orderDate);
+			cancelReqMap.put("enterPrise", ent_code);
+			cancelReqMap.put("sellerOrg", sell_code);
+			cancelReqMap.put("custName", custName);
+			cancelReqMap.put("custEmail", custEmail);
+			cancelReqMap.put("custPhone", custPhone);
+			cancelReqMap.put("currency", currency);
+			cancelReqMap.put("totalAmount", totalAmount);
+			cancelReqMap.put("vendorId", vendorId);
+			
+			// 원주문 상태 
+			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
+			cancelReqMap.put("org_status_text", status[0]);
+			cancelReqMap.put("org_status_class", status[1]);
+			// 주문취소 요청상태
+			cancelReqMap.put("status_code", "00"); 
+			cancelReqMap.put("status_text", "주문취소 요청중");
+			cancelReqMap.put("status_class", "danger");
+		 * 
+		 */
+		logger.debug("action: "+paramMap.get("action")); 
+		logger.debug("start: "+paramMap.get("start")); 
+		logger.debug("length: "+paramMap.get("length")); 
+		logger.debug("draw: "+paramMap.get("draw")); 
+		logger.debug("customActionType: "+paramMap.get("customActionType")); 
+		logger.debug("customActionMessage: "+paramMap.get("customActionMessage")); 
+		
+		
+		String doc_type = (String)paramMap.get("doc_type");
+		String ent_code = (String)paramMap.get("ent_code");
+		String seller_code = (String)paramMap.get("seller_code");
+		
+		// TODO: 관리조직,판매조직 세션정보로 얻어옴. 검색값이 빈값일 경우 사용자의 세선값으로 적용
+		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
+		if(ent_code == null || "".equals(ent_code)){
+			ent_code = sesEntCode;
+		}
+		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
+		if(seller_code == null || "".equals(seller_code)){
+			seller_code = sesSellCode;
+		}
+		
+		
+		logger.debug("[ent_code]" + ent_code); 
+		logger.debug("[seller_code]" + seller_code); 
+		
+		
+//		int start = Integer.parseInt(paramMap.get("start"));
+//		int length = Integer.parseInt(paramMap.get("length")); 
+		
+		int start = 0;
+		int length = 0;
+		
+		
+		logger.debug("[start]" + start);
+		logger.debug("[length]" + length);
+		
+		
+		List<Map<String,String>> cancelReqList = new ArrayList<Map<String,String>>();
+		String cancelReqAllKey = ent_code + ":" + seller_code + ":order:cancel";
+		logger.debug("[cancelReqAllKey]" + cancelReqAllKey);
+		
+		Set<String> cancelReq_key_names= maStringRedisTemplate.keys(cancelReqAllKey);
+		Iterator<String> canItr = cancelReq_key_names.iterator();
+		
+//		long totCnt = 0;
+		while(canItr.hasNext()){
+			
+			String cancelReqKey = canItr.next();
+			logger.debug("[cancelReqKey]"+cancelReqKey);
+			
+//			totCnt += listOps.size(cancelReqKey);
+			
+			List<String> cancelReqRedisList = listOps.range(cancelReqKey, start, start+(length-1));
+			for( String jsonData:  cancelReqRedisList){
+				
+				logger.debug("[jsonData]"+ jsonData);
+				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+				
+				
+				// 취소요청 결과정보 조회
+				String orderNo = cancelReqMap.get("orderNo");
+				HashMap<String,Object> resMap =  getCacelReqInfo(cancelReqKey+":result", ent_code, seller_code, orderNo);
+				
+				logger.debug("[res_status_code]"+resMap.get("status_code"));
+				if(resMap.get("status_code") != null)
+				{
+					cancelReqMap.put("res_status_code",(String)resMap.get("status_code"));
+					cancelReqMap.put("res_status_text",(String)resMap.get("status_text"));
+				}else{
+					cancelReqMap.put("res_status_code","");
+					cancelReqMap.put("res_status_text","");
+				}
+				
+				
+				cancelReqList.add(cancelReqMap);
+			}
+		
+		}
+		
+		ModelAndView mav = new ModelAndView("jsonView");
+		mav.addObject("data",cancelReqList);
+//		mav.addObject("draw", paramMap.get("draw"));
+//		mav.addObject("recordsTotal", totCnt+"");
+//		mav.addObject("recordsFiltered", totCnt+"");
+		
+		
+		String custActionType = (String)paramMap.get("customActionType"); 
+		if ("group_action".equals(custActionType)) {
+			mav.addObject("customActionStatus","OK"); // pass custom message(useful for getting status of group actions)
+			mav.addObject("customActionMessage","Group action successfully has been completed. Well done!"); // pass custom message(useful for getting status of group actions)
+		}
+		
+		return mav;   
+	}
+	
+	
+	
+	/**
+	 * 오더의 주문취소요청 및 결과정보 조회
 	 * 
 	 * 
 	 * @param key 조직코드:판매채널코드:order:cancel, 조직코드:판매채널코드:order:cancel:result
@@ -1885,9 +2056,7 @@ public class OrderController {
 	 */
 	private HashMap<String, Object> getCacelReqInfo(String key, String entCode, String sellerCode, String orderNo) throws Exception{
 		
-		
 		HashMap<String, Object> cacenReqInfo = new HashMap<String, Object>();
-		
 		
 		List<String> cancelReqRedisList = listOps.range(key, 0, -1);
 		for( int i=0; i<cancelReqRedisList.size(); i++){
@@ -1910,8 +2079,6 @@ public class OrderController {
 				break;
 			}
 		}
-		
-		
 		return cacenReqInfo;
 	}
 	
@@ -1997,5 +2164,6 @@ public class OrderController {
 		return shipList;
 		
 	}
+	
 
 }

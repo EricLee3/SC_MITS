@@ -103,6 +103,22 @@
 						</li>
 					</ul>
 				</li>
+				<li id="menu_claim">
+					<a href="javascript:;">
+					<i class="icon-basket"></i>
+					<span class="title">
+					클레임 관리 </span>
+					<span class="arrow">
+					</span>
+					</a>
+					<ul class="sub-menu">
+						<li>
+							<a href="/orders/cancelOrderReqList.do">
+							<i class="fa fa-list"></i>
+							주문취소요청 현황</a>
+						</li>
+					</ul>
+				</li>
 				<!-- <li class="last">
 					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>

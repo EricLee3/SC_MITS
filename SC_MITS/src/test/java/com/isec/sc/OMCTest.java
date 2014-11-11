@@ -605,4 +605,42 @@ public class OMCTest {
 	    maStringRedisTemplate.delete(key6);
 	    maStringRedisTemplate.delete(key7);
 	}
+	
+	
+	@Test
+	public void insertCancelResTest() throws Exception{
+		
+		/**
+		 * cancelResMap.put("orderNo", orderId);
+		cancelResMap.put("enterPrise", entCode);
+		cancelResMap.put("sellerOrg", sellCode);
+		cancelResMap.put("status_code", cubeStatus);
+		cancelResMap.put("status_text", cubeStatusMsg);
+		cancelResMap.put("status_class", "danger");
+		 */
+		
+		/*
+		 *   01 - 성공
+			 02 - 기처리
+			 09 - 실패 또는 처리대상건 없음
+			 90 - 출고확정건
+		 */
+		HashMap<String, String> cancelResMap = new HashMap<String, String>();
+		cancelResMap.put("orderNo", "100001418");
+		cancelResMap.put("enterPrise", "KOLOR");
+		cancelResMap.put("sellerOrg", "ASPB");
+		cancelResMap.put("status_code", "90");
+		cancelResMap.put("status_text", "출고확정건");
+		cancelResMap.put("status_class", "danger");
+		
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String resJson = mapper.writeValueAsString(cancelResMap);
+		
+		String cancelResKey = "KOLOR:ASPB:order:cancel:result";
+		
+		listOps.leftPush(cancelResKey, resJson);
+		
+		
+	}
 }
