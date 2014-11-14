@@ -100,7 +100,7 @@ public class CommonUtil {
 		String time = "00:00:00";
 		
 		transDate = date+"T"+time;
-		logger.debug("[transDate]"+transDate);
+//		logger.debug("[transDate]"+transDate);
 		
 		return transDate;
 	}

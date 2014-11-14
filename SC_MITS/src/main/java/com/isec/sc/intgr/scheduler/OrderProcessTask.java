@@ -744,9 +744,34 @@ public class OrderProcessTask {
 		cancelResMap.put("orderNo", orderId);
 		cancelResMap.put("enterPrise", entCode);
 		cancelResMap.put("sellerOrg", sellCode);
+		
+		String statusTxt = "";
+		String statusCls = "";
+		if("01".equals(cubeStatus))
+		{
+			statusTxt = "성공";
+			statusCls = "success";
+		}
+		else if("02".equals(cubeStatus)) // 큐브에서 이미 주문취소된 건이므로 OMC에서 주문취소 가능해야 함
+		{
+			statusTxt = "기처리건";
+			statusCls = "success";
+		}
+		else if("09".equals(cubeStatus))
+		{
+			statusTxt = "실패";
+			statusCls = "danger";
+		}
+		else if("90".equals(cubeStatus))
+		{
+			statusTxt = "출고확정건";
+			statusCls = "warning";
+		}
+		
 		cancelResMap.put("status_code", cubeStatus);
-		cancelResMap.put("status_text", cubeStatusMsg);
-		cancelResMap.put("status_class", "danger");
+		cancelResMap.put("status_text", statusTxt);
+		cancelResMap.put("status_class", statusCls);
+		cancelResMap.put("cube_msg", cubeStatusMsg);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String resJson = mapper.writeValueAsString(cancelResMap);

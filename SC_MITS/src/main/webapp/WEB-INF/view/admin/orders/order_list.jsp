@@ -119,7 +119,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="col-md-12">
 					<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 					<h3 class="page-title">
-					오더관리 <small>orders listing</small>
+					오더관리 <small>orders management</small>
 					</h3>
 					<!-- <ul class="page-breadcrumb breadcrumb">
 						<li class="btn-group">
@@ -172,7 +172,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="portlet">
 						<div class="portlet-title">
 							<div class="caption">
-								<i class="fa fa-shopping-cart"></i>오더조회
+								<i class="fa fa-circle-o"></i>오더조회
 							</div>
 							<div class="actions">
 								<!-- <a href="#" class="btn default yellow-stripe">
@@ -382,7 +382,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="margin-bottom-5">
 											<button class="btn btn-sm yellow filter-submit margin-bottom" id="btn_orderList"><i class="fa fa-search"></i> Search</button>
 										</div>
-										<button class="btn btn-sm red filter-cancel"><i class="fa fa-times"></i> Reset</button>
+										<button class="btn btn-sm red filter-cancel"><i class="fa fa-times"></i> Reset&nbsp;&nbsp;&nbsp;</button>
 									</td>
 								</tr>
 								</thead>
@@ -501,26 +501,6 @@ License: You must have a valid license purchased only from themeforest(the above
 		$('input.form-filter[name="order_date_to"]').val(eDate);
 		
 		$('#btn_orderList').click();
-	}
-	
-	
-	function getQueryVariable(variable) {
-	  //var query = window.location.search.substring(1);
-	  var query = window.location.search.toString();
-	  
-	  alert(query);
-	  
-	  if(query.indexOf('?') == -1 ) return '';
-	  query = query.substring(query.indexOf('?')+1);
-	  
-	  var vars = query.split("&");
-	  for (var i=0;i<vars.length;i++) {
-	    var pair = vars[i].split("=");
-	    if (pair[0] == variable) {
-	      return pair[1];
-	    }
-	  } 
-	  //alert('Query Variable ' + variable + ' not found');
 	}
 	
 </script>

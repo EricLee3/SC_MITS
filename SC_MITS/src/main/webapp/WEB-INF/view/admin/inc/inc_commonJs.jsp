@@ -79,28 +79,30 @@
    		var currLoc = window.location.pathname;
    		
    		if(currLoc == "/" || currLoc == "/index.do"){
-   			$('#menu_home').addClass("active open");
+   			$("ul.page-sidebar-menu li").eq(2).addClass("active open");
    		}else{
    			
-   			var submenu_idx = $.getUrlVar("mn");
-			if( submenu_idx == undefined){
-				submenu_idx = 0;
-			}
+   			var menu_dep1_idx = $.getUrlVar("mn_d1");
+   			var menu_dep2_idx = $.getUrlVar("mn_d2");
+			
+   			var currMenu = $("ul.page-sidebar-menu").children().eq(menu_dep1_idx);
    			
-   			// 오더메뉴
-   			if(currLoc.indexOf("/orders/") > -1){
-   				
-   				$('#menu_order').addClass("active open");
-   		   		$('#menu_order .sub-menu li').eq(submenu_idx).addClass("active");
-   			
-   		   		// 
-   			}if(currLoc.indexOf("/system/") > -1){
-   				$('#menu_system').addClass("active open");
-   		   		$('#menu_system .sub-menu li').eq(submenu_idx).addClass("active");
-   			}
+			currMenu.addClass("active open").children("a").children("i").removeClass("font-red");
+			currMenu.children('ul').children().eq(menu_dep2_idx).addClass("active");
    		}
    		
-   		
-   		
 	});
+	
+	// 메뉴이동
+	function goPage(url, param, obj) {
+		
+		var menuParam = "mn_d1="+$(obj).parents().parents().parents().index()+"&mn_d2="+$(obj).parents().index()
+		var urlParam = '';
+		if( param == ''){
+			urlParam = "?"+menuParam;
+		}else{
+			urlParam = "?"+param+"&"+menuParam;
+		}
+		location.href = url+urlParam;
+	}
 </script>

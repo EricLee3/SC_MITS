@@ -49,16 +49,16 @@ var EcommerceOrders = function () {
                                },
                                {
                                    "render": function ( data, type, row ) {
-                                	   		  var cacelReqLabel = "";
-                                	   		  var cacelResLabel = "";
-	                                	      if(row['cancelReq'] == 'Y'){
-	                                	    	  		cacelReqLabel = '<span class="label label-sm label-danger">취소요청</span> '
-	                                	      }
-	                                	      if(row['cancelRes'] == 'Y'){
-	                                	    	  		cacelResLabel = '<span class="label label-sm label-danger" data-toggle="tooltip" title="'+row["cancelRes_text"]+'">결과-'+row['cancelRes_code']+'</span> ';
-	                                	      }
+//                                	   		  var cacelReqLabel = "";
+//                                	   		  var cacelResLabel = "";
+//	                                	      if(row['cancelReq'] == 'Y'){
+//	                                	    	  		cacelReqLabel = '<span class="label label-sm label-danger">취소요청</span> '
+//	                                	      }
+//	                                	      if(row['cancelRes'] == 'Y'){
+//	                                	    	  		cacelResLabel = '<span class="label label-sm label-danger" data-toggle="tooltip" title="'+row["cancelRes_text"]+'">결과-'+row['cancelRes_code']+'</span> ';
+//	                                	      }
 	                                	      
-	                                	      return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span><br>'+cacelReqLabel+cacelResLabel;
+	                                	      return '<span class="label label-sm label-'+row['status_class']+' ">'+data+'</span><br>';
                                    },
                                    "targets": 9  // Status Icon
                                },
@@ -68,7 +68,6 @@ var EcommerceOrders = function () {
                             	      },
                             	      "targets": 11	// View Button
                                },
-                               { "visible": false,  "targets": [12] },  // cancelReq Hidden
                                { "type": "decimal", "class": "right", "targets": [ 8 ] }
                                
                            ],
@@ -104,8 +103,7 @@ var EcommerceOrders = function () {
                       	  				}, "orderable":false },
                             { "data": "status_text", "orderable":false },
                             { "data": "vendor_id", "orderable":false },
-                            { "data": null, "orderable":false },
-                            { "data": "cancelReq", "orderable":false }
+                            { "data": null, "orderable":false }
                         ],
                 "order": [
                           [2, "desc"]

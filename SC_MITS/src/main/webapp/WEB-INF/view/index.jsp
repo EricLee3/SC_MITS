@@ -345,7 +345,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="portlet box blue-steel" id="pt_order_overview">
 						<div class="portlet-title">
 							<div class="caption">
-								<i class="fa fa-thumb-tack"></i>상태별 오더목록
+								<i class="fa fa-thumb-tack"></i>상태별 오더목록 - 최근 1주일
 							</div>
 							
 							<div class="tools">

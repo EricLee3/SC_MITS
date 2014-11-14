@@ -38,7 +38,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/select2/select2.css"/>
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/select2/select2.css"/> -->
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/Scroller/css/dataTables.scroller.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/ColReorder/css/dataTables.colReorder.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/>
@@ -48,9 +48,9 @@ License: You must have a valid license purchased only from themeforest(the above
 
 <!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>-->
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/> 
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/> -->
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/> -->
+<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/>  -->
 <!-- END PAGE LEVEL STYLES -->
 
 
@@ -172,7 +172,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="portlet">
 						<div class="portlet-title">
 							<div class="caption">
-								<i class="fa fa-shopping-cart"></i>주문취소요청 현황
+								<i class="fa fa-circle-o"></i>주문취소요청 현황
 							</div>
 							<div class="actions">
 								<!-- <a href="#" class="btn default yellow-stripe">
@@ -255,13 +255,13 @@ License: You must have a valid license purchased only from themeforest(the above
 										<input type="checkbox" class="group-checkable">
 										<input type="hidden" class="search-filter" name="doc_type" value="0001">
 									</th> -->
-									<th width="2%">
+									<!-- <th width="2%">
 										 &nbsp;#
-									</th>
-									<th width="5%">
+									</th> -->
+									<th width="7%">
 										 오더번호&nbsp;#
 									</th>
-									<th width="12%">
+									<th width="10%">
 										 오더생성일
 									</th>
 									<th width="8%">
@@ -270,10 +270,10 @@ License: You must have a valid license purchased only from themeforest(the above
 									<th width="8%">
 										 판매채널
 									</th>
-									<th width="8%">
+									<th width="10%">
 										 고객명
 									</th>
-									<th width="10%">
+									<th width="8%">
 										 연락처
 									</th>
 									<!-- <th width="15%">
@@ -291,20 +291,20 @@ License: You must have a valid license purchased only from themeforest(the above
 									<th width="8%">
 										 원주문상태
 									</th>
-									<th width="12%">
+									<th width="8%">
 										 취소요청상태
 									</th>
-									<th width="12%">
-										 결과
+									<th width="10%">
+										 취소요청결과
 									</th>
 									<th width="8%">
 										 Actions
 									</th>
 								</tr>
 								<tr role="row" class="filter">
-									<td>
+									<!-- <td>
 										<span class="row-details row-details-close" id="row_all_exp"></span>
-									</td>
+									</td> -->
 									<td>
 										<input type="text" class="form-control search-filter input-sm" name="order_id">
 									</td>
@@ -360,6 +360,13 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 									</td>
 									<td>
+										<select name="res_status_text" class="form-control search-filter input-sm">
+											<option value="">Select...</option>
+											<option value="01">[01] 정상</option>
+											<option value="02">[02] 기처리건</option>
+											<option value="09">[09] 실패</option>
+											<option value="90">[90] 출고확정건</option>
+										</select>
 									</td>
 									<td>
 										<div class="margin-bottom-5">
@@ -402,8 +409,6 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <!-- BEGIN PAGE LEVEL PLUGINS -->
-
-<script type="text/javascript" src="../../assets/global/plugins/select2/select2.min.js"></script>
 <!-- date/datetime picker -->
 <script type="text/javascript" src="../../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/bootstrap-daterangepicker/moment.min.js"></script>
@@ -413,6 +418,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <script type="text/javascript" src="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/ColReorder/js/dataTables.colReorder.min.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/Scroller/js/dataTables.scroller.min.js"></script>
+
 <!-- END PAGE LEVEL PLUGINS -->
 
 

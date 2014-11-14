@@ -624,15 +624,37 @@ public class OMCTest {
 			 02 - 기처리
 			 09 - 실패 또는 처리대상건 없음
 			 90 - 출고확정건
+			 
+			 if("01".equals(cubeStatus))
+			{
+				statusTxt = "성공";
+				statusCls = "success";
+			}
+			else if("02".equals(cubeStatus)) // 큐브에서 이미 주문취소된 건이므로 OMC에서 주문취소 가능해야 함
+			{
+				statusTxt = "기처리건";
+				statusCls = "success";
+			}
+			else if("09".equals(cubeStatus))
+			{
+				statusTxt = "실패";
+				statusCls = "danger";
+			}
+			else if("90".equals(cubeStatus))
+			{
+				statusTxt = "출고확정건";
+				statusCls = "warning";
+			}
 		 */
+		
 		HashMap<String, String> cancelResMap = new HashMap<String, String>();
-		cancelResMap.put("orderNo", "100001418");
+		cancelResMap.put("orderNo", "100001410");
 		cancelResMap.put("enterPrise", "KOLOR");
 		cancelResMap.put("sellerOrg", "ASPB");
-		cancelResMap.put("status_code", "90");
-		cancelResMap.put("status_text", "출고확정건");
-		cancelResMap.put("status_class", "danger");
-		
+		cancelResMap.put("status_code", "02");
+		cancelResMap.put("status_text", "기처리건");
+		cancelResMap.put("status_class", "success");
+		cancelResMap.put("cube_msg", "Cube에서 이미 주문취소가 처리된 건");
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String resJson = mapper.writeValueAsString(cancelResMap);

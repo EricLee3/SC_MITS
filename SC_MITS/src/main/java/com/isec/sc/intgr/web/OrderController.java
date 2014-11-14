@@ -372,35 +372,35 @@ public class OrderController {
 			dataMap.put("vendor_id", vendorId);
 			
 			// 주문취소요청 여부 조회
-			String checkReqKey = enterPrise+":"+sellerOrg+":order:cancel";
-			String cancelReq = "N";
-			List<String> cancelReqRedisList = listOps.range(checkReqKey, 0, -1);
-			for( String jsonData: cancelReqRedisList){
-				
-				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-				if(orderNo.equals( cancelReqMap.get("orderNo") )){
-					cancelReq = "Y";
-					break;
-				}
-			}
-			dataMap.put("cancelReq", cancelReq);
+//			String checkReqKey = enterPrise+":"+sellerOrg+":order:cancel";
+//			String cancelReq = "N";
+//			List<String> cancelReqRedisList = listOps.range(checkReqKey, 0, -1);
+//			for( String jsonData: cancelReqRedisList){
+//				
+//				HashMap<String,String> cancelReqMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+//				if(orderNo.equals( cancelReqMap.get("orderNo") )){
+//					cancelReq = "Y";
+//					break;
+//				}
+//			}
+//			dataMap.put("cancelReq", cancelReq);
 			
 			// 주문취소요청 결과 조회
-			String checkResKey = enterPrise+":"+sellerOrg+":order:cancel:result";
-			String cancelRes = "N";
-			List<String> cancelResRedisList = listOps.range(checkResKey, 0, -1);
-			for( String jsonData: cancelResRedisList){
-				
-				HashMap<String,String> cancelResMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
-				if(orderNo.equals( cancelResMap.get("orderNo") )){
-					cancelRes = "Y";
-					dataMap.put("cancelRes_code", cancelResMap.get("status_code"));
-					dataMap.put("cancelRes_text", cancelResMap.get("status_text"));
-					dataMap.put("cancelRes", cancelRes);
-					
-					break;
-				}
-			}
+//			String checkResKey = enterPrise+":"+sellerOrg+":order:cancel:result";
+//			String cancelRes = "N";
+//			List<String> cancelResRedisList = listOps.range(checkResKey, 0, -1);
+//			for( String jsonData: cancelResRedisList){
+//				
+//				HashMap<String,String> cancelResMap = new ObjectMapper().readValue(jsonData, new TypeReference<HashMap<String,String>>(){});
+//				if(orderNo.equals( cancelResMap.get("orderNo") )){
+//					cancelRes = "Y";
+//					dataMap.put("cancelRes_code", cancelResMap.get("status_code"));
+//					dataMap.put("cancelRes_text", cancelResMap.get("status_text"));
+//					dataMap.put("cancelRes", cancelRes);
+//					
+//					break;
+//				}
+//			}
 			
 			
 			
@@ -1174,10 +1174,6 @@ public class OrderController {
 		String ent_code = (String)paramMap.get("ent_code");
 		String sell_code = (String)paramMap.get("sell_code");
 		String order_no = (String)paramMap.get("order_no");
-		String cancel_reason = (String)paramMap.get("cancel_reason");
-		String cancel_note = (String)paramMap.get("cancel_note");
-		String cancel_type = (String)paramMap.get("cancel_type");
-		String line_keys = (String)paramMap.get("line_keys");
 		
 		logger.debug("##### Cancel Order API Called !!!");
 		
@@ -1185,10 +1181,6 @@ public class OrderController {
 		logger.debug("##### [ent_code]"+ ent_code);
 		logger.debug("##### [sell_code]"+ sell_code);
 		logger.debug("##### [order_no]"+ order_no);
-		logger.debug("##### [cancel_reason]"+ cancel_reason);
-		logger.debug("##### [cancel_note]"+ cancel_note);
-		logger.debug("##### [cancel_type]"+ cancel_type);
-		logger.debug("##### [line_keys]"+ line_keys);
 		
 		
 		Document doc = null;
@@ -1751,7 +1743,7 @@ public class OrderController {
 	
 	
 	/**
-	 * 오더상태별 오더목록 조회 - Dashboard > Orders Overview
+	 * 오더상태별 최근 오더목록 조회(1주일전, 7건) - Dashboard > Orders Overview
 	 * 	 신규주문건 - All
 	 *	 주문확정대기 건 - BackOrdered,  3200 - Partially Released, Released
 	 *	 출고완료목록 - 3700 Shipped
@@ -1771,16 +1763,22 @@ public class OrderController {
 		entCode = "*".equals(entCode)?"":entCode;
 		sellerCode = "*".equals(sellerCode)?"":sellerCode;
 		
-		logger.debug("[status]"+ orderStatus);
+		//logger.debug("[status]"+ orderStatus);
 		
 		
 		String rowCount = "7";
+		
+		String toDate = CommonUtil.cuurentDateFromFormat("yyyyMMdd");
+		String fromDate = CommonUtil.calcDate(toDate, -7);
+		//logger.debug("[fromDate]"+fromDate);
+		//logger.debug("[toDate]"+toDate);
 		
 		// Input XML Creation
 		String getOrderList_input = ""
 		+ "<Order DocumentType=\""+ docType +"\" "
 		+ " EnterpriseCode=\"{0}\" SellerOrganizationCode=\"{1}\" DraftOrderFlag=\"N\" Status=\"{2}\" "
-		+ " MaximumRecords  = \"{3}\"  >"
+	    + " MaximumRecords  = \"{3}\" "
+	    + " FromOrderDate=\"{4}\" ToOrderDate=\"{5}\" OrderDateQryType=\"BETWEEN\" >"
 		// Descending OrderDate
 		+ "<OrderBy><Attribute Desc=\"Y\" Name=\"OrderDate\"/></OrderBy> "
 		+ "</Order> ";
@@ -1790,9 +1788,11 @@ public class OrderController {
 		                                entCode,
 		                                sellerCode, 
 		                                orderStatus,
-		                                rowCount
+		                                rowCount,
+		                                fromDate,
+		                                toDate
 								} );
-		logger.debug("[inputXML]"+inputXML); 
+		//logger.debug("[inputXML]"+inputXML); 
 		
 		
 		// API Call
@@ -1923,28 +1923,6 @@ public class OrderController {
 	@RequestMapping(value = "/getOrderCancelReqList.sc")
 	public ModelAndView getOrderCancelReqList(@RequestParam Map<String, String> paramMap, HttpServletRequest req) throws Exception {
 		
-		/*
-		 * cancelReqMap.put("orderNo", orderNo);
-			cancelReqMap.put("orderDate", orderDate);
-			cancelReqMap.put("enterPrise", ent_code);
-			cancelReqMap.put("sellerOrg", sell_code);
-			cancelReqMap.put("custName", custName);
-			cancelReqMap.put("custEmail", custEmail);
-			cancelReqMap.put("custPhone", custPhone);
-			cancelReqMap.put("currency", currency);
-			cancelReqMap.put("totalAmount", totalAmount);
-			cancelReqMap.put("vendorId", vendorId);
-			
-			// 원주문 상태 
-			String[] status = genOrderStatusText(minStatus, maxStatus, defaultText);
-			cancelReqMap.put("org_status_text", status[0]);
-			cancelReqMap.put("org_status_class", status[1]);
-			// 주문취소 요청상태
-			cancelReqMap.put("status_code", "00"); 
-			cancelReqMap.put("status_text", "주문취소 요청중");
-			cancelReqMap.put("status_class", "danger");
-		 * 
-		 */
 		logger.debug("action: "+paramMap.get("action")); 
 		logger.debug("start: "+paramMap.get("start")); 
 		logger.debug("length: "+paramMap.get("length")); 
@@ -2012,11 +1990,22 @@ public class OrderController {
 				logger.debug("[res_status_code]"+resMap.get("status_code"));
 				if(resMap.get("status_code") != null)
 				{
-					cancelReqMap.put("res_status_code",(String)resMap.get("status_code"));
-					cancelReqMap.put("res_status_text",(String)resMap.get("status_text"));
+					
+					logger.debug("[status_code]"+resMap.get("status_code"));
+					logger.debug("[status_class]"+resMap.get("status_class"));
+					logger.debug("[status_text]"+resMap.get("status_text"));
+					logger.debug("[cube_msg]"+resMap.get("cube_msg"));
+					
+					
+					cancelReqMap.put("res_status_code",(String)resMap.get("status_code"));	// 결과코드
+					cancelReqMap.put("res_status_class",(String)resMap.get("status_class"));	// 결과코드
+					cancelReqMap.put("res_status_text",(String)resMap.get("status_text"));	// 결과상태명
+					cancelReqMap.put("cube_msg",(String)resMap.get("cube_msg"));		// Cube 결과메세지
 				}else{
 					cancelReqMap.put("res_status_code","");
+					cancelReqMap.put("res_status_class","");
 					cancelReqMap.put("res_status_text","");
+					cancelReqMap.put("res_cube_text","");
 				}
 				
 				
@@ -2075,6 +2064,10 @@ public class OrderController {
 				
 				cacenReqInfo.put("status_code", map.get("status_code"));
 				cacenReqInfo.put("status_text", map.get("status_text"));
+				
+				// 주문취소요청결과
+				cacenReqInfo.put("status_class", map.get("status_class"));
+				cacenReqInfo.put("cube_msg", map.get("cube_msg"));
 				
 				break;
 			}

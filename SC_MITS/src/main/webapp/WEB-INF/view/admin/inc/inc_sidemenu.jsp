@@ -41,7 +41,7 @@
 				</li> -->
 				
 				<!-- Menu DashBoard -->
-				<li class="start" id="menu_home">
+				<li class="start ">
 					<a href="/index.do">
 					<i class="icon-home"></i>
 					<span class="title">
@@ -52,7 +52,7 @@
 				</li>
 				
 				<!-- Menu Order Management -->
-				<li id="menu_order">
+				<li>
 					<a href="javascript:;">
 					<i class="icon-basket"></i>
 					<span class="title">
@@ -62,50 +62,45 @@
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a href="/orders/order_list.do?action=true&status=A&mn=0">
-							<i class="fa fa-list"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=A',this);">
+							<i class="icon-list"></i>
 							전체오더 조회</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=1100&mn=1">
-							<i class="fa fa-truck"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=1100',this);">
+							<i class="icon-basket"></i>
 							주문생성 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=3200&mn=2">
-							<i class="fa fa-truck"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=3200',this);">
+							<i class="icon-check"></i>
 							출고의뢰 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=3350&mn=3">
-							<i class="fa fa-truck"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=3350',this);">
+							<i class="icon-present"></i>
 							출고준비 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=3700&mn=4">
-							<i class="fa fa-truck"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=3700',this);">
+							<i class="icon-plane"></i>
 							출고완료 목록</a>
 						</li>
-						<!-- <li>
-							<a href="/orders/order_list.do?action=true&status=9002&mn=6">
-							<i class="fa fa-undo"></i>
-							주문취소요청 목록</a>
-						</li> -->
 						<li>
-							<a href="/orders/order_list.do?action=true&status=9000&mn=5">
-							<i class="fa fa-times-circle"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=9000',this);">
+							<i class="icon-close font-red"></i>
 							주문취소 목록</a>
 						</li>
 						<li>
-							<a href="/orders/order_list.do?action=true&status=1300&mn=6">
-							<i class="fa fa-ban"></i>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=1300',this);">
+							<i class="icon-info font-red"></i>
 							미 출고의뢰건 목록</a>
 						</li>
 					</ul>
 				</li>
 				<li id="menu_claim">
 					<a href="javascript:;">
-					<i class="icon-basket"></i>
+					<i class="icon-call-in font-red"></i>
 					<span class="title">
 					클레임 관리 </span>
 					<span class="arrow">
@@ -113,37 +108,17 @@
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a href="/orders/cancelOrderReqList.do">
-							<i class="fa fa-list"></i>
+							<a href="javascript:;" onclick="goPage('/orders/cancelOrderReqList.do','',this);">
+							<i class="icon-close"></i>
 							주문취소요청 현황</a>
 						</li>
 					</ul>
 				</li>
-				<!-- <li class="last">
-					<a href="javascript:;">
-					<i class="fa fa-cogs"></i>
-					<span class="title">
-					반품오더 관리 </span>
-					<span class="selected">
-					</span>
-					<span class="arrow">
-					</span>
-					</a>
-					<ul class="sub-menu">
-						<li>
-							<a href="/admin/returns/return_order_regist.html">
-							반품오더 접수 </a>
-						</li>
-						<li>
-							<a href="/admin/returns/return_order_list.html">
-							반품오더 조회 </a>
-						</li>
-					</ul>
-				</li> -->
+				
 				<c:if test="${ S_LOGIN_ID == 'admin' }">
-				<li class="last" id="menu_system">
+				<li class="last ">
 					<a href="javascript:;">
-					<i class="fa fa-cogs"></i>
+					<i class="icon-settings"></i>
 					<span class="title">
 					시스템 관리 </span>
 					<span class="selected">
@@ -153,8 +128,8 @@
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a href="/system/getRedisDataListByCh.do?entCode=KOLOR&sellCode=ASPB&mn=0">
-							<i class="fa fa-desktop"></i>
+							<a href="javascript:;" onclick="goPage('/system/getRedisDataListByCh.do','entCode=KOLOR&sellCode=ASPB',this);">
+							<i class="icon-screen-desktop"></i>
 							연동데이타 모니터링 </a>
 						</li>
 					</ul>

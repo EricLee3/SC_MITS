@@ -41,6 +41,8 @@ var EcommerceOrders = function() {
 								[ 10, 20, 50, 100, "All" ] ],
 						"pageLength" : 10,
 						"serverSide" : false,
+						"scrollY": "400px",
+						"deferRender": true,
 						"ajax" : {
 							"url" : "/orders/getOrderCancelReqList.sc"
 
@@ -57,7 +59,7 @@ var EcommerceOrders = function() {
 												+ data + '</a>';
 									},
 									"orderable": true,
-									"targets" : 1
+									"targets" : 0
 								},
 								// Original Order Status
 								{
@@ -69,7 +71,7 @@ var EcommerceOrders = function() {
 												+ data
 												+ '</span><br>';
 									},
-									"targets" : 9
+									"targets" : 8
 								},
 								// Cancel Req Status
 								{
@@ -81,7 +83,7 @@ var EcommerceOrders = function() {
 												+ data
 												+ '</span><br>';
 									},
-									"targets" : 10
+									"targets" : 9
 								},
 								// Cancel Res Status
 								{
@@ -91,11 +93,12 @@ var EcommerceOrders = function() {
 											return '';
 										}
 										
-										return '<span class="label label-sm label-warning data-toggle="tooltip" title="'+row["res_status_text"]+'">'
-												+ '결과코드 - '+data
+										//<button class="btn popovers" data-trigger="hover" data-placement="right" data-content="Popover body goes here! Popover body goes here!" data-original-title="Popover in right">Right</button>
+										return '<span class="label label-sm label-'+row["res_status_class"]+' data-toggle="tooltip" title="'+row["cube_msg"]+'">'
+												+ '['+data+'] '+row["res_status_text"]
 												+ '</span>';
 									},
-									"targets" : 11
+									"targets" : 10
 								},
 								// Detail View Button
 								{
@@ -106,18 +109,19 @@ var EcommerceOrders = function() {
 												+ row['orderNo']
 												+ '" class="btn default btn-xs blue-stripe"><i class="fa fa-search"></i> View</a>';
 									},
-									"targets" : 12
+									"targets" : 11
 								}
 
 						],
 						"columns" : [
 						             
-								{
-									"class" : 'details-control',
-									"orderable" : false,
-									"data" : null,
-									"defaultContent" : '<span class="row-details row-details-close"></span>'
-								},
+//								{
+//									"class" : 'details-control',
+//									"orderable" : false,
+//									"data" : null,
+//									"visible": false,
+//									"defaultContent" : '<span class="row-details row-details-close"></span>'
+//								},
 								{
 									"data" : "orderNo"
 								},
@@ -172,11 +176,11 @@ var EcommerceOrders = function() {
 									"data" : null,
 									"orderable" : false
 								} ],
-						"order" : [ [ 2, "desc" ] ], // set first column as a
+						"order" : [ [ 1, "desc" ] ], // set first column as a
 														// default sort by asc
 
-						"dom" : "<'row'<'col-md-4 col-sm-12'l><'col-md-8 col-sm-12'<'table-group-actions pull-right'>>r>" +
-								"<'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>"
+						"dom" : "<'row'<'col-md-4 col-sm-12'l><'col-md-8 col-sm-12'<'table-group-actions pull-right'>>r>t<'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>"
+						//"<'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r>t<'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>"
 
 					}
 				});
@@ -217,7 +221,7 @@ var EcommerceOrders = function() {
 	}
 	
 	
-	
+	// 컬럼별 검색처리
 	var filterColumn = function( table_name, filterObj ) {
 	    	
 		$(table_name).DataTable().column( $(filterObj).parents().index() )
