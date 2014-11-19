@@ -601,18 +601,22 @@ public class OrderProcessTask {
 		
 		if("Errors".equals(doc.getFirstChild().getNodeName())){
 			
+			logger.debug("Error Message:"+ outputXML);
+			
 			ObjectMapper mapper = new ObjectMapper();
 			String errJson = mapper.writeValueAsString(dataMap);
 			listOps.leftPush(redisErrKey, errJson);
 			
-			throw new Exception("getShipmentListForOrder Failed!!!!!");
+			return;
+//			throw new Exception("getShipmentListForOrder Failed!!!!!");
 			
 		}
 		
 		
 		// shipmentNo 만큼 confirmShipment 수행
 		XPath xp = XPathFactory.newInstance().newXPath();
-		NodeList shipmentList = (NodeList)xp.evaluate("/ShipmentList/Shipment", doc.getDocumentElement(), XPathConstants.NODESET);
+//		NodeList shipmentList = (NodeList)xp.evaluate("/ShipmentList/Shipment", doc.getDocumentElement(), XPathConstants.NODESET);
+		NodeList shipmentList = (NodeList)xp.evaluate("/ShipmentList/Shipment[starts-with(@Status,'1100') or starts-with(@Status,'1200') or starts-with(@Status,'1300')]", doc.getDocumentElement(), XPathConstants.NODESET);
 		
 		String confirmShipment_template = FileContentReader.readContent(getClass().getResourceAsStream(CONFIRM_SHIPMENT_TEMPLATE));
 		inputXML = "";
@@ -640,11 +644,14 @@ public class OrderProcessTask {
 			
 			if("Errors".equals(doc.getFirstChild().getNodeName())){
 				
+				logger.debug("Error Message:"+ outputXML);
+				
 				ObjectMapper mapper = new ObjectMapper();
 				String errJson = mapper.writeValueAsString(dataMap);
 				listOps.leftPush(redisErrKey, errJson);
 				
-				throw new Exception("ConfirmShipment Failed!!!!!");
+				continue;
+//				throw new Exception("ConfirmShipment Failed!!!!!");
 				
 			}
 		}		
