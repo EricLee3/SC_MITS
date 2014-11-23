@@ -41,7 +41,7 @@ var EcommerceOrders = function() {
 								[ 10, 20, 50, 100, "All" ] ],
 						"pageLength" : 10,
 						"serverSide" : false,
-						"scrollY": "400px",
+//						"scrollY": "400px",
 						"deferRender": true,
 						"ajax" : {
 							"url" : "/orders/getOrderCancelReqList.sc"
@@ -238,7 +238,7 @@ var EcommerceOrders = function() {
 			initPickers();
 			handleOrders(table_name);
 			
-			$('select.search-filter, input.search-filter').on( 'keyup change', function (event) {
+			$('select.form-filter, input.form-filter').on( 'keyup change', function (event) {
 				filterColumn( table_name, $(this) );
 		    } );
 			

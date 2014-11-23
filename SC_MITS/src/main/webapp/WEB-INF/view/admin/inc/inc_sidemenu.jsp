@@ -87,11 +87,6 @@
 							출고완료 목록</a>
 						</li>
 						<li>
-							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=9000',this);">
-							<i class="icon-close font-red"></i>
-							주문취소 목록</a>
-						</li>
-						<li>
 							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=1300',this);">
 							<i class="icon-info font-red"></i>
 							미 출고의뢰건 목록</a>
@@ -109,12 +104,32 @@
 					<ul class="sub-menu">
 						<li>
 							<a href="javascript:;" onclick="goPage('/orders/cancelOrderReqList.do','',this);">
-							<i class="icon-close"></i>
+							<i class="icon-list"></i>
 							주문취소요청 현황</a>
+						</li>
+						<li>
+							<a href="javascript:;" onclick="goPage('/orders/order_list.do','action=true&status=9000',this);">
+							<i class="icon-list"></i>
+							주문취소 목록</a>
 						</li>
 					</ul>
 				</li>
-				
+				<li id="menu_inven">
+					<a href="javascript:;">
+					<i class="icon-present"></i>
+					<span class="title">
+					상품재고 현황 </span>
+					<span class="arrow">
+					</span>
+					</a>
+					<ul class="sub-menu">
+						<li>
+							<a href="javascript:;" onclick="goPage('/inventory/invenItemList.do','',this);">
+							<i class="icon-list"></i>
+							상품재고 현황조회</a>
+						</li>
+					</ul>
+				</li>
 				<c:if test="${ S_LOGIN_ID == 'admin' }">
 				<li class="last ">
 					<a href="javascript:;">

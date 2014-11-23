@@ -41,6 +41,8 @@ import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
 import com.isec.sc.intgr.api.util.RedisCommonService;
+import com.isec.sc.intgr.api.xml.beans.Organization;
+import com.isec.sc.intgr.api.xml.beans.OrganizationList;
 
 
 
@@ -100,15 +102,20 @@ public class OrderController {
 	
 	
 	@RequestMapping(value = "/order_list.do")
-	public ModelAndView orderList(@RequestParam(defaultValue="false" ) String action, @RequestParam(defaultValue="A" ) String status) throws Exception{ 
+	public ModelAndView orderList(@RequestParam(defaultValue="false" ) String action, @RequestParam(defaultValue="A" ) String status, HttpServletRequest req ) throws Exception{ 
 		
 		logger.debug("[action]"+action);
 		logger.debug("[status]"+status);
+		
+		List<Organization> entOrgList = (List<Organization>)req.getSession().getAttribute("S_ENT_ORG_LIST");
+		List<Organization> sellerOrgList = (List<Organization>)req.getSession().getAttribute("S_SELLER_ORG_LIST");
 		
 		
 		ModelAndView mav = new ModelAndView("");
 		mav.addObject("action", action); 
 		mav.addObject("status", status);
+		mav.addObject("entOrgList", entOrgList);
+		mav.addObject("sellerOrgList", sellerOrgList);
 		
 		mav.setViewName("/admin/orders/order_list");
 		return mav;
@@ -207,27 +214,31 @@ public class OrderController {
 		
 		// Search Filter Parameter
 		String orderId = (String)paramMap.get("order_id")==null?"":(String)paramMap.get("order_id");
-		
-		
 		String entCode = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
+		if("*".equals(entCode)){
+			entCode = "";
+		}
 		
 		// TODO: 관리조직 세션정보로 얻어옴. 빈값이 넘어올 경우 admin이 아닐 경우 사용자의 세선값으로 적용
-		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
-		if("".equals(entCode)){
-			if(!"*".equals(sesEntCode)){
-				entCode = sesEntCode;
-			}
-		}
+//		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
+//		if("".equals(entCode)){
+//			if(!"*".equals(sesEntCode)){
+//				entCode = sesEntCode;
+//			}
+//		}
 		
 		
 		// TODO: 판매조직 세션정보로 얻어옴. 빈값이 넘어올 경우 admin이 아닐 경우 사용자의 세선값으로 적용
 		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
-		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
-		if("".equals(sellerCode)){
-			if(!"*".equals(sesSellCode)){
-				sellerCode = sesSellCode;
-			}
+		if("*".equals(sellerCode)){
+			sellerCode = "";
 		}
+//		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
+//		if("".equals(sellerCode)){
+//			if(!"*".equals(sesSellCode)){
+//				sellerCode = sesSellCode;
+//			}
+//		}
 		
 		
 		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
@@ -1645,6 +1656,7 @@ public class OrderController {
 	@RequestMapping(value = "/orderOverviewList.sc")
 	public ModelAndView getOrderOverviewList(@RequestParam Map<String, String> paramMap, HttpServletRequest req) throws Exception{
 		
+		// 판매채널 - 전체일 경우 *로 넘어옴
 		String ch = (String)paramMap.get("ch");
 		logger.debug("[ch]"+ch);
 		
@@ -1789,8 +1801,8 @@ public class OrderController {
 		                                sellerCode, 
 		                                orderStatus,
 		                                rowCount,
-		                                fromDate,
-		                                toDate
+		                                fromDate+"T00:00:00",
+		                                toDate+"T23:59:59"
 								} );
 		//logger.debug("[inputXML]"+inputXML); 
 		
@@ -1932,18 +1944,27 @@ public class OrderController {
 		
 		
 		String doc_type = (String)paramMap.get("doc_type");
-		String ent_code = (String)paramMap.get("ent_code");
-		String seller_code = (String)paramMap.get("seller_code");
+		
+		
+		String ent_code = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
+		if("*".equals(ent_code)){
+			ent_code = "";
+		}
+		
+		String seller_code = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
+		if("*".equals(seller_code)){
+			seller_code = "";
+		}
 		
 		// TODO: 관리조직,판매조직 세션정보로 얻어옴. 검색값이 빈값일 경우 사용자의 세선값으로 적용
-		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
-		if(ent_code == null || "".equals(ent_code)){
-			ent_code = sesEntCode;
-		}
-		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
-		if(seller_code == null || "".equals(seller_code)){
-			seller_code = sesSellCode;
-		}
+//		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
+//		if(ent_code == null || "".equals(ent_code)){
+//			ent_code = sesEntCode;
+//		}
+//		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
+//		if(seller_code == null || "".equals(seller_code)){
+//			seller_code = sesSellCode;
+//		}
 		
 		
 		logger.debug("[ent_code]" + ent_code); 

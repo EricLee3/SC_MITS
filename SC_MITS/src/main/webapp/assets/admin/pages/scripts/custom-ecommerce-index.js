@@ -626,15 +626,15 @@ var EcommerceIndex = function () {
 				 var mn = ""; //menu_index
 				 switch(tab_index) {
 				 
-					  case 0: status = "1100"; mn="0"; break;
-					  case 1: status = "3200"; mn="1"; break;
-					  case 2: status = "3350"; mn="2"; break;
-					  case 3: status = "3700"; mn="3"; break;
-					  case 4: status = "9000"; mn="4"; break;
-					  case 5: status = "1300"; mn="5"; break;
+					  case 0: status = "1100"; mn1=3, mn2="1"; break;
+					  case 1: status = "3200"; mn1=3, mn2="2"; break;
+					  case 2: status = "3350"; mn1=3, mn2="3"; break;
+					  case 3: status = "3700"; mn1=3, mn2="4"; break;
+					  case 4: status = "9000"; mn1=4, mn2="1"; break;
+					  case 5: status = "1300"; mn1=3, mn2="5"; break;
 				  }
 				 
-				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true&mn_d1=3&mn_d2='+mn);
+				 $(location).attr('href','/orders/order_list.do?status='+status+'&action=true&mn_d1='+mn1+'&mn_d2='+mn2);
 				 
 			 });
         },

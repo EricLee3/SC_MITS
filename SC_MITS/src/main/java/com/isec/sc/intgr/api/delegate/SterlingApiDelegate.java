@@ -662,8 +662,8 @@ public class SterlingApiDelegate {
 			
 			Double totSupply = (Double)xp.evaluate("@TotalSupply", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 공급수량 (ONHAND)
 			Double totDemand = (Double)xp.evaluate("@TotalDemand", shipNodeInvList.item(ii), XPathConstants.NUMBER);	// 수요수량 
-			logger.info("["+bar_code+"][창고코드:"+ship_node+"][총 공급수량]"+totSupply);
-			logger.info("["+bar_code+"][창고코드:"+ship_node+"][총 수요수량]"+totDemand);
+//			logger.info("["+bar_code+"][창고코드:"+ship_node+"][총 공급수량]"+totSupply);
+//			logger.info("["+bar_code+"][창고코드:"+ship_node+"][총 수요수량]"+totDemand);
 			
 			// 가용재고 = 공급수량 - Allocated수량 (MA 전송시)
 			if("A".equals(qty_type))
@@ -675,12 +675,12 @@ public class SterlingApiDelegate {
 					
 					String demandType = (String)xp.evaluate("@DemandType", demandsList.item(jj), XPathConstants.STRING);	// 수요유형(Allocated.. 등)
 					Double demandQty = (Double)xp.evaluate("@Quantity", demandsList.item(jj), XPathConstants.NUMBER);	// 수요수량
-					logger.info("["+bar_code+"][창고코드:"+ship_node+"][수요유형]"+demandType);
+//					logger.info("["+bar_code+"][창고코드:"+ship_node+"][수요유형]"+demandType);
 					
 					
 					// TODO: 수요유형이 Allocated인 경우만 수요수량 합산
 					if("ALLOCATED".equals(demandType)){
-						logger.info("["+bar_code+"][창고코드:"+ship_node+"][수요수량]"+demandQty);
+//						logger.info("["+bar_code+"][창고코드:"+ship_node+"][수요수량]"+demandQty);
 						demandQtySum = demandQtySum + demandQty;
 					}
 				}

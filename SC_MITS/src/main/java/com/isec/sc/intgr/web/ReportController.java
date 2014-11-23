@@ -46,6 +46,8 @@ import org.w3c.dom.NodeList;
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
+import com.isec.sc.intgr.api.xml.beans.Organization;
+import com.isec.sc.intgr.api.xml.beans.OrganizationList;
 
 
 
@@ -88,9 +90,13 @@ public class ReportController {
 //		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
 //		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
 		
-		String entCode[] = {"KOLOR"};
-		String sellerCode[] = {"ASPB"};
-		String sellerCodeName[] = {"Aspen Bay"};
+//		String entCode[] = {"KOLOR"};
+		List<Organization> entOrgList = (List<Organization>)req.getSession().getAttribute("S_ENT_ORG_LIST");
+		
+//		String sellerCode[] = {"ASPB"};
+//		String sellerCodeName[] = {"Aspen Bay"};
+		List<Organization> sellerOrgList = (List<Organization>)req.getSession().getAttribute("S_SELLER_ORG_LIST");
+		
 		
 //		String entCode[] = {"ISEC"};
 //		String sellerCode[] = {"ASPB"};
@@ -104,7 +110,7 @@ public class ReportController {
 		List<HashMap<String, Object>> chDataList = new ArrayList<HashMap<String, Object>>();
 		
 		// 채널별 통계데이타
-		for( int i=0; i<sellerCode.length; i++){
+		for( int i=0; i<entOrgList.size(); i++){
 			
 			List<String[]> cnt_list = new ArrayList<String[]>(); // Order Count List
 			List<String[]> amt_list = new ArrayList<String[]>(); // Order Amount List
@@ -123,8 +129,10 @@ public class ReportController {
 				String mm = currMonth<10?"0"+currMonth:""+currMonth;
 				logger.debug("[currDate]"+currYear+mm);
 				
-				String cntKey = "count:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm;
-				String amtKey = "amount:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm;
+//				String cntKey = "count:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm;
+//				String amtKey = "amount:"+entCode[i]+":"+sellerCode[i]+":orders:"+currYear+mm;
+				String cntKey = "count:"+entOrgList.get(i).getOrganizationCode()+":"+sellerOrgList.get(i).getOrganizationCode()+":orders:"+currYear+mm;
+				String amtKey = "amount:"+entOrgList.get(i).getOrganizationCode()+":"+sellerOrgList.get(i).getOrganizationCode()+":orders:"+currYear+mm;
 				
 				Set<String> cnt_key_names= reportStringRedisTemplate.keys(cntKey+"*");
 				List<String> orderCntList = valueOps.multiGet(cnt_key_names);
@@ -151,7 +159,8 @@ public class ReportController {
 			dataMap.put("amount", amt_list);
 			
 			HashMap<String, Object> chMap = new HashMap<String, Object>();
-			chMap.put("chName", sellerCodeName[i]);
+//			chMap.put("chName", sellerCodeName[i]);
+			chMap.put("chName", sellerOrgList.get(i).getOrganizationName());
 			chMap.put("chData", dataMap);
 			
 			chDataList.add(chMap);

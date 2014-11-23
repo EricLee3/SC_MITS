@@ -306,23 +306,31 @@ License: You must have a valid license purchased only from themeforest(the above
 										<span class="row-details row-details-close" id="row_all_exp"></span>
 									</td> -->
 									<td>
-										<input type="text" class="form-control search-filter input-sm" name="order_id">
+										<input type="text" class="form-control form-filter input-sm" name="order_id">
 									</td>
 									<td>
-										<input class="form-control form-control-inline search-filter input-sm date-picker" size="8" type="text" data-date-start-date="-3m" data-date-format="yyyy-mm-dd"/>
+										<input class="form-control form-control-inline form-filter input-sm date-picker" size="8" type="text" data-date-start-date="-3m" data-date-format="yyyy-mm-dd"/>
 									</td>
 									<td>
 										<!-- <input type="text" class="form-control search-filter input-sm" name="ent_code"> -->
-										<select name="ent_code" class="form-control search-filter input-sm">
-											<option value="">Select...</option>
-											<option value="KOLOR">KOLOR</option>
+										<select name="ent_code" class="form-control form-filter input-sm">
+											<c:if test="${S_ORG_CODE == '*'}">
+												<option value="*">All</option>
+											</c:if>
+											<c:forEach items="${S_ENT_ORG_LIST}" var="list" varStatus="status">
+												<option value="${list.organizationCode}">${list.organizationName}</option>
+											</c:forEach>
 										</select>
 									</td>
 									<td>
 										<!-- <input type="text" class="form-control search-filter input-sm" name="seller_code"> -->
-										<select name="seller_code" class="form-control search-filter input-sm">
-											<option value="">Select...</option>
-											<option value="ASPB">Aspen Bay</option>
+										<select name="seller_code" class="form-control form-filter input-sm">
+											<c:if test="${S_ORG_CODE == '*'}">
+												<option value="*">All</option>
+											</c:if>
+											<c:forEach items="${S_SELLER_ORG_LIST}" var="list" varStatus="status">
+												<option value="${list.organizationCode}">${list.organizationName}</option>
+											</c:forEach>
 										</select>
 									</td>
 									<td>
@@ -331,27 +339,27 @@ License: You must have a valid license purchased only from themeforest(the above
 										</div>
 										<input type="text" class="form-control search-filter input-sm" name="order_base_price_to" placeholder="To"/> -->
 										<!-- <div class="input-group margin-bottom-5"> -->
-											<input type="text" class="form-control search-filter input-sm" name="cust_fname" placeholder=""/>
+											<input type="text" class="form-control form-filter input-sm" name="cust_fname" placeholder=""/>
 										<!-- </div> -->
 									</td>
 									<td>
-										<input type="text" class="form-control search-filter input-sm" name="cust_phone">
+										<input type="text" class="form-control form-filter input-sm" name="cust_phone">
 									</td>
 									<!-- <td>
-										<input type="text" class="form-control search-filter input-sm" name="cust_email">
+										<input type="text" class="form-control form-filter input-sm" name="cust_email">
 									</td> -->
 									<td>
 										<!-- <div class="margin-bottom-5">
-											<input type="text" class="form-control search-filter input-sm margin-bottom-5 clearfix" name="order_purchase_price_from" placeholder="From"/>
+											<input type="text" class="form-control form-filter input-sm margin-bottom-5 clearfix" name="order_purchase_price_from" placeholder="From"/>
 										</div>
-										<input type="text" class="form-control search-filter input-sm" name="order_purchase_price_to" placeholder="To"/> -->
-										<!-- <input type="text" class="form-control search-filter input-sm" name="total_amount"/> -->
+										<input type="text" class="form-control form-filter input-sm" name="order_purchase_price_to" placeholder="To"/> -->
+										<!-- <input type="text" class="form-control form-filter input-sm" name="total_amount"/> -->
 									</td>
 									<td>
-										<input type="text" class="form-control search-filter input-sm" name="vendor_id">
+										<input type="text" class="form-control form-filter input-sm" name="vendor_id">
 									</td>
 									<td>
-										<select name="status_text" class="form-control search-filter input-sm">
+										<select name="status_text" class="form-control form-filter input-sm">
 											<option value="">Select...</option>
 											<option value="출고의뢰">출고의뢰</option>
 											<option value="출고준비">출고준비</option>
@@ -360,7 +368,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 									</td>
 									<td>
-										<select name="res_status_text" class="form-control search-filter input-sm">
+										<select name="res_status_text" class="form-control form-filter input-sm">
 											<option value="">Select...</option>
 											<option value="01">[01] 정상</option>
 											<option value="02">[02] 기처리건</option>

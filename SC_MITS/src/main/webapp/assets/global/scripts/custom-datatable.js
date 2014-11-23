@@ -216,26 +216,26 @@ var Datatable = function () {
             
             
             // add by jyk
-            table.on('keyup', 'input.form-filter', function (e) {
-            	
-            	if(e.keyCode == 13){
-            		
-            		if($(this).val() == "") return;
-            		
-                	e.preventDefault();
-                	the.submitFilter();
-                
-            	}
-            });
+//            table.on('keyup', 'input.form-filter', function (e) {
+//            	
+//            	if(e.keyCode == 13){
+//            		
+//            		if($(this).val() == "") return;
+//            		
+//                	e.preventDefault();
+//                	the.submitFilter();
+//                
+//            	}
+//            });
             
             // add by jyk
-            table.on('change', 'select.form-filter', function (e) {
-            	
-            	if($(this).val() == "") return;
-            	
-            	e.preventDefault();
-            	the.submitFilter();
-            });
+//            table.on('change', 'select.form-filter', function (e) {
+//            	
+//            	if($(this).val() == "") return;
+//            	
+//            	e.preventDefault();
+//            	the.submitFilter();
+//            });
         },
 
         submitFilter: function () {

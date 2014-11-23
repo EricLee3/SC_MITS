@@ -319,15 +319,23 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 										<!-- <input type="text" class="form-control form-filter input-sm" name="ent_code"> -->
 										<select name="ent_code" class="form-control form-filter input-sm">
-											<option value="">Select...</option>
-											<option value="KOLOR">KOLOR</option>
+											<c:if test="${S_ORG_CODE == '*'}">
+												<option value="*">All</option>
+											</c:if>
+											<c:forEach items="${S_ENT_ORG_LIST}" var="list" varStatus="status">
+												<option value="${list.organizationCode}">${list.organizationName}</option>
+											</c:forEach>
 										</select>
 									</td>
 									<td>
 										<!-- <input type="text" class="form-control form-filter input-sm" name="seller_code"> -->
 										<select name="seller_code" class="form-control form-filter input-sm">
-											<option value="">Select...</option>
-											<option value="ASPB">Aspen Bay</option>
+											<c:if test="${S_ORG_CODE == '*'}">
+												<option value="*">All</option>
+											</c:if>
+											<c:forEach items="${S_SELLER_ORG_LIST}" var="list" varStatus="status">
+												<option value="${list.organizationCode}">${list.organizationName}</option>
+											</c:forEach>
 										</select>
 									</td>
 									<td>
@@ -443,6 +451,8 @@ License: You must have a valid license purchased only from themeforest(the above
 	jQuery(document).ready(function() {    
 		
 		EcommerceOrders.init('#datatable_orders');
+		
+		
 		
 	    var table = $('#datatable_orders').dataTable();
 	    var tableTools = new $.fn.dataTable.TableTools( table, {

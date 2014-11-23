@@ -365,15 +365,19 @@ License: You must have a valid license purchased only from themeforest(the above
 									스토어 <i class="fa fa-angle-down"></i>
 									</a>
 									<ul class="dropdown-menu pull-right">
+										<c:if test="${S_ORG_CODE == '*'}">
 										<li>
-											<a href="javascript:EcommerceIndex.getOrderListByCh('${S_SELL_CODE}');">
+											<a href="javascript:EcommerceIndex.getOrderListByCh('${S_ORG_CODE}');">
 											All </a>
 										</li>
 										<li class="divider"> </li>
+										</c:if>
+										<c:forEach items="${S_SELLER_ORG_LIST}" var="list" varStatus="status">
 										<li>
-											<a href="javascript:EcommerceIndex.getOrderListByCh('ASPB');">
-											Aspen Bay </a>
+											<a href="javascript:EcommerceIndex.getOrderListByCh('${list.organizationCode}');">
+											${list.organizationName} </a>
 										</li>
+										</c:forEach>
 										<!-- <li>
 											<a href="javascript:EcommerceIndex.getOrderListByCh('JNS');">
 											Joseph & Stacey </a>

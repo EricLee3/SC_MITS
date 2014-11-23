@@ -37,12 +37,16 @@ import org.codehaus.jackson.type.TypeReference;
 import org.junit.Ignore; 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persist;
+import org.simpleframework.xml.core.Persister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.Assert;
 import org.springframework.data.redis.connection.jedis.JedisConnection;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
@@ -52,6 +56,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import scala.annotation.meta.setter;
@@ -59,6 +64,7 @@ import scala.annotation.meta.setter;
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.CommonUtil;
 import com.isec.sc.intgr.api.util.FileContentReader;
+import com.isec.sc.intgr.api.xml.beans.InventoryList;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -98,6 +104,10 @@ public class OMCTest {
 	private String SC_ORDER_TYPE_SALES;
 	
 	
+	@Value("${sc.api.getShipmentListForOrder.template}")
+	private String GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE;
+	
+	
 	@Test
 	public void testEnvGetProperties() throws Exception{
 		
@@ -130,6 +140,31 @@ public class OMCTest {
 //				break;
 //			}
 //		}
+		
+	}
+	
+	/**
+	 * 
+	 * XML to Java Bean Mapping Test ( used simpleframework )
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testXMLtoJava() throws Exception{
+		
+		Serializer persister = new Persister();
+		
+		String inputXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<InventoryItem InventoryOrganizationCode=\"\" "
+				+ " OrganizationCode=\"KOLOR\" ItemID=\"\" UnitOfMeasure=\"EACH\" ProductClass=\"\" ShipNode=\"\" MaximumRecords=\"\"/>";
+		
+		String output = sterlingApiDelegate.comApiCall("getInventoryItemList", inputXML);
+		System.out.println(output);
+		
+		InventoryList invenList =  persister.read(InventoryList.class, output);
+		
+		System.out.println(invenList.getTotalInventoryItemList());
+		System.out.println(invenList.getInventoryItem().get(5).getItemID());
 		
 	}
 	
@@ -664,5 +699,28 @@ public class OMCTest {
 		listOps.leftPush(cancelResKey, resJson);
 		
 		
+	}
+	
+	@Test
+	public void testGetShipmentListForOrder() throws Exception{
+		
+		// shipment 정보조회
+		String shipmentInfo_template = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPMENT_LIST_FOR_ORDER_TEMPLATE));
+		MessageFormat msg = new MessageFormat(shipmentInfo_template);
+		String inputXML = msg.format(new String[] {"0001", "KOLOR", "100001409"} );
+		
+		String outputXML = sterlingApiDelegate.comApiCall("getShipmentListForOrder", inputXML);
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(outputXML.getBytes("UTF-8")));
+		
+		
+		// shipmentNo 만큼 confirmShipment 수행
+		XPath xp = XPathFactory.newInstance().newXPath();
+//				NodeList shipmentList = (NodeList)xp.evaluate("/ShipmentList/Shipment", doc.getDocumentElement(), XPathConstants.NODESET);
+		NodeList shipmentList = (NodeList)xp.evaluate("/ShipmentList/Shipment[starts-with(@Status,'1100') or starts-with(@Status,'1200') or starts-with(@Status,'1300')]", doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		for(int i=0; i<shipmentList.getLength(); i++){
+			String shipmentNo = (String)xp.evaluate("@ShipmentNo", shipmentList.item(i), XPathConstants.STRING);
+			System.out.println(shipmentNo);
+		}
 	}
 }
