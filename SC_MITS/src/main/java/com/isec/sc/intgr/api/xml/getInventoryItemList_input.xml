@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<InventoryItem InventoryOrganizationCode=""  
+    OrganizationCode="{0}" ItemID="{1}" ItemIDQryType="LIKE" 
+    ProductClass="{2}" 
+    UnitOfMeasure="{3}" 
+    ShipNode="{4}" 
+    MaximumRecords="10" >
+</InventoryItem>

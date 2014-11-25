@@ -1947,14 +1947,14 @@ public class OrderController {
 		
 		
 		String ent_code = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
-		if("*".equals(ent_code)){
-			ent_code = "";
-		}
+//		if("*".equals(ent_code)){
+//			ent_code = "";
+//		}
 		
 		String seller_code = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
-		if("*".equals(seller_code)){
-			seller_code = "";
-		}
+//		if("*".equals(seller_code)){
+//			seller_code = "";
+//		}
 		
 		// TODO: 관리조직,판매조직 세션정보로 얻어옴. 검색값이 빈값일 경우 사용자의 세선값으로 적용
 //		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");

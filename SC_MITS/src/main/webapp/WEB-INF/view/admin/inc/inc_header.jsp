@@ -380,11 +380,15 @@
 					<ul class="dropdown-menu">
 						<li>
 							<a href="#">
-							<i class="icon-users"></i> 관리조직: ${S_ORG_CODE}</a>
+							<i class="icon-users"></i> 소속조직: ${S_ORG_CODE}</a>
 						</li>
 						<li>
 							<a href="#">
-							<i class="icon-users"></i> 판매조직: ${S_SELL_CODE}</a>
+							<i class="icon-users"></i> 조직역할: ${S_USER_ROLES}</a>
+						</li>
+						<li>
+							<a href="#">
+							<i class="icon-users"></i> 엔터프라이즈: ${S_USER_ENT_CODE}</a>
 						</li>
 						<%-- <li>
 							<a href="extra_profile.html">

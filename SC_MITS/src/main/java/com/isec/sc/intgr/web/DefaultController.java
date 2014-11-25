@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.isec.sc.intgr.api.delegate.SterlingApiDelegate;
 import com.isec.sc.intgr.api.util.FileContentReader;
@@ -166,7 +168,7 @@ public class DefaultController {
 				// Input XML Creation
 				/*
 				   <?xml version="1.0" encoding="UTF-8"?>
-					<Organization isEnterprise="{0}">
+					<Organization isEnterprise="{0}" OrganizationCode="{3}">
 					<OrgRoleList>
 						<OrgRole RoleKey="{1}"/>
 					    </OrgRoleList>
@@ -175,29 +177,84 @@ public class DefaultController {
 				 */
 				String getOrderList_input = FileContentReader.readContent(getClass().getResourceAsStream(GET_ORGANIZATION_LIST_TEMPLATE));
 			    msg = new MessageFormat(getOrderList_input);
-				inputXML = msg.format(new String[] {
+				
+			    // 권한 Enterprise 조직목록
+			    inputXML = msg.format(new String[] {
 						                                "Y",
 						                                "ENTERPRISE",
-						                                S_LOGIN_ID
+						                                S_LOGIN_ID,
+						                                "",
 													} );
 				
 			    String entOrgListOutPut = sterlingApiDelegate.comApiCall("getOrganizationList", inputXML);
-				logger.debug("[entOrgListOutPut]"+entOrgListOutPut); 
+				logger.info("[entOrgListOutPut]"+entOrgListOutPut); 
 				
 				
+				// 권한 Seller 조직목록
 				inputXML = msg.format(new String[] {
-                        "Y",
-                        "SELLER",
-                        S_LOGIN_ID
-					} );
+								                        "N",
+								                        "SELLER",
+								                        S_LOGIN_ID,
+								                        ""
+													} );
 
 				String sellerOrgListOutPut = sterlingApiDelegate.comApiCall("getOrganizationList", inputXML);
-				logger.debug("[sellerOrgListOutPut]"+sellerOrgListOutPut); 
+				logger.info("[sellerOrgListOutPut]"+sellerOrgListOutPut); 
 				
 				
 				// XML to JSON
 				Serializer persister = new Persister();
 				OrganizationList entOrgList =  persister.read(OrganizationList.class, entOrgListOutPut);
+				
+				// 로그인유저의 조직상세 정보 조회
+				logger.debug("[S_ORG_CODE]"+S_ORG_CODE);
+				inputXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+						 + "<Organization OrganizationCode=\""+S_ORG_CODE+"\" >"
+						 + "</Organization>";
+				
+				String orgInfoOutPut = sterlingApiDelegate.comApiCall("getOrganizationHierarchy", inputXML);
+				logger.info(orgInfoOutPut);
+				
+				doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(orgInfoOutPut.getBytes("UTF-8")));
+				
+				
+				// 소속조직의 ROLE ( ENTERPRISE, SELLER, BUYER, NODE )
+				String S_USER_ROLES = "";
+				NodeList orgRoleList = (NodeList)xp.evaluate("/Organization/OrgRoleList/OrgRole", doc.getDocumentElement(), XPathConstants.NODESET);
+				for(int i=0; i<orgRoleList.getLength(); i++){
+					
+					Node orgRoleNode = orgRoleList.item(i);
+					String  roleKey = (String)xp.evaluate("@RoleKey", orgRoleNode, XPathConstants.STRING);
+					if(i==0) S_USER_ROLES += roleKey;
+					else S_USER_ROLES += ","+roleKey;
+				}
+				logger.debug("[S_USER_ROLES]"+S_USER_ROLES);
+				
+				
+				
+				String S_USER_ENT_CODE = ""; // 유저의 소속조직의 엔터프라이즈조직코드 (자신의 조직이 될수도 있고 상위조직이 될수도 있음)
+				if(S_USER_ROLES.indexOf("ENTERPRISE") > -1){
+					S_USER_ENT_CODE = S_ORG_CODE; // 자신의 소속조직
+				}
+				else // 유저의 소속조직이 Enterprise가 아닐 경우 소속조직의 PrimaryEnterpise를 권한 관리조직리스트로 등록
+				{
+					String  primaryEntCode = (String)xp.evaluate("/Organization/@PrimaryEnterpriseKey", doc.getDocumentElement(), XPathConstants.STRING);
+					logger.debug("[primaryEntCode]"+primaryEntCode);
+					
+					S_USER_ENT_CODE = primaryEntCode; // 자신의 상위엔터프라이즈 조직
+					
+					// 상위엔터프라이즈 상세정보
+					inputXML = msg.format(new String[] {
+							                             "Y",
+							                             "ENTERPRISE",
+							                             "",
+							                             primaryEntCode
+													   } );
+					 String primaryEntOutPut = sterlingApiDelegate.comApiCall("getOrganizationList", inputXML);
+					 entOrgList =  persister.read(OrganizationList.class, primaryEntOutPut);
+				}
+				
+				
 				OrganizationList sellerOrgList =  persister.read(OrganizationList.class, sellerOrgListOutPut);
 				
 				
@@ -229,8 +286,10 @@ public class DefaultController {
 				ses.setAttribute("S_LOGIN_ID", S_LOGIN_ID);
 				ses.setAttribute("S_LOCALE", S_LOCALE);
 				ses.setAttribute("S_ORG_CODE", S_ORG_CODE);
+				ses.setAttribute("S_USER_ENT_CODE", S_USER_ENT_CODE);
 				ses.setAttribute("S_USER_NAME", S_USER_NAME);
 				ses.setAttribute("S_USER_GRP_NAME", S_USER_GRP_NAME);
+				ses.setAttribute("S_USER_ROLES", S_USER_ROLES);
 				
 				ses.setAttribute("S_ENT_ORG_LIST", entOrgList.getOrganization());
 				ses.setAttribute("S_SELLER_ORG_LIST", sellerOrgList.getOrganization());

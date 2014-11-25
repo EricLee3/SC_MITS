@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Organization isEnterprise="{0}" OrganizationCode="{3}">
+<OrgRoleList>
+	<OrgRole RoleKey="{1}"/>
+</OrgRoleList>
+<DataAccessFilter UserId="{2}"/>
+</Organization>

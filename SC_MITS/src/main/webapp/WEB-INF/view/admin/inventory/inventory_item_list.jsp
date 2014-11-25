@@ -38,19 +38,9 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/select2/select2.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/Scroller/css/dataTables.scroller.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/extensions/ColReorder/css/dataTables.colReorder.min.css"/>
 <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css"/>
-
-<!-- <link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
-<link href="../../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/> -->
-
-<!-- <link rel="stylesheet" type="text/css" href="../../assets/global/plugins/clockface/css/clockface.css"/>-->
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
-<link rel="stylesheet" type="text/css" href="../../assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/> 
 <!-- END PAGE LEVEL STYLES -->
 
 
@@ -119,10 +109,10 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="col-md-12">
 					<!-- BEGIN PAGE TITLE & BREADCRUMB-->
 					<h3 class="page-title">
-					오더관리 <small>orders management</small>
+					상품재고 현황 <small>inventory management</small>
 					</h3>
-					<!-- <ul class="page-breadcrumb breadcrumb">
-						<li class="btn-group">
+					<ul class="page-breadcrumb breadcrumb">
+						<!-- <li class="btn-group">
 							<button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
 							<span>Actions</span><i class="fa fa-angle-down"></i>
 							</button>
@@ -142,20 +132,20 @@ License: You must have a valid license purchased only from themeforest(the above
 									<a href="#">Separated link</a>
 								</li>
 							</ul>
-						</li>
+						</li> -->
 						<li>
 							<i class="fa fa-home"></i>
-							<a href="index.html">Home</a>
+							<a href="/index.do">Home</a>
 							<i class="fa fa-angle-right"></i>
 						</li>
 						<li>
-							<a href="#">오더관리</a>
+							<a href="#">상품재고현황</a>
 							<i class="fa fa-angle-right"></i>
 						</li>
 						<li>
-							<a href="/admin/orders/order_list.html" class="ajaxify">오더조회</a>
+							<a href="/inventory/invenItemList.do">상품재고 현황 조회</a>
 						</li>
-					</ul> -->
+					</ul>
 					<!-- END PAGE TITLE & BREADCRUMB-->
 				</div>
 			</div>
@@ -172,7 +162,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="portlet">
 						<div class="portlet-title">
 							<div class="caption">
-								<i class="fa fa-circle-o"></i>오더조회
+								<i class="fa fa-circle-o"></i>상품재고 현황 조회
 							</div>
 							<div class="actions">
 								<!-- <a href="#" class="btn default yellow-stripe">
@@ -212,109 +202,48 @@ License: You must have a valid license purchased only from themeforest(the above
 						</div>
 						<div class="portlet-body">
 							<div class="table-container">
-								
-								
 								<div class="table-actions-wrapper">
 									<span>
 									</span>
-									<a class="btn btn-sm blue" href="javascript:orderListByDatePeroid('days', 0, 1);">
-										<i class="fa fa-calendar"></i>
-										Yesterday
-									</a>
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('days', 0, 0);">
-										<i class="fa fa-calendar"></i>
-										Today
-									</a>
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('days', 7, 0);">
-										<i class="fa fa-calendar"></i>
-										1 week
-									</a>
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', 1, 0);">
-										<i class="fa fa-calendar"></i>
-										1 month
-									</a>
-									<a class="btn btn-sm green" href="javascript:orderListByDatePeroid('month', 3, 0);">
-										<i class="fa fa-calendar"></i>
-										3 month
-									</a>
-									
-									
-									<!-- <select class="table-group-action-input form-control input-inline input-small input-sm">
-										<option value="">Select...</option>
-										<option value="1500">Scheduled</option>
-										<option value="3200">Released</option>
-										<option value="3700">Confirm Shipment</option>
-										<option value="9000">Close</option>
-									</select>
-									<button class="btn btn-sm yellow table-group-action-submit"><i class="fa fa-check"></i> Submit</button> -->
 								</div>
-								<table class="table table-striped table-bordered table-hover" id="datatable_orders">
+								<table class="table table-striped table-bordered table-hover" id="datatable_items">
 								<thead>
 								<tr role="row" class="heading">
 									<!-- <th width="2%">
 										<input type="checkbox" class="group-checkable">
 										<input type="hidden" class="form-filter" name="doc_type" value="0001">
 									</th> -->
-									<th width="2%">
+									<!-- <th width="2%">
 										 &nbsp;#
-									</th>
-									<th width="5%">
-										 오더번호&nbsp;#
+									</th> -->
+									<th width="10%">
+										 상품코드
 									</th>
 									<th width="12%">
-										 오더생성일
-									</th>
-									<th width="8%">
 										 관리조직
 									</th>
+									<th width="25%">
+										 상품명
+									</th>
+									<th width="%">
+										 상품설명
+									</th>
 									<th width="8%">
-										 판매채널
+										 상품분류
 									</th>
-									<th width="10%">
-										 고객명
-									</th>
-									<th width="10%">
-										 연락처
-									</th>
-									<th width="15%">
-										 이메일
-									</th>
-									<!-- <th width="10%">
-										 Payment&nbsp;Type
-									</th> -->
 									<th width="8%">
-										 결제금액
-									</th>
-									<th width="12%">
-										 주문상태
-									</th>
-									<th width="10%">
-										 2차 DOS
+										 측정단위
 									</th>
 									<th width="8%">
 										 Actions
 									</th>
 								</tr>
 								<tr role="row" class="filter">
-									<td>
+									<!-- <td>
 										<span class="row-details row-details-close" id="row_all_exp"></span>
-									</td>
+									</td> -->
 									<td>
-										<input type="text" class="form-control form-filter input-sm" name="order_id">
-									</td>
-									<td>
-										<div class="input-group date date-picker margin-bottom-5"  data-date-start-date="-3m" data-date-format="yyyy-mm-dd">
-											<input type="text" class="form-control form-filter input-sm" readonly name="order_date_from" placeholder="From">
-											<span class="input-group-btn">
-											<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
-											</span>
-										</div>
-										<div class="input-group date date-picker" data-date-start-date="+0d" data-date-format="yyyy-mm-dd">
-											<input type="text" class="form-control form-filter input-sm" readonly name="order_date_to" placeholder="To">
-											<span class="input-group-btn">
-											<button class="btn btn-sm default" type="button"><i class="fa fa-calendar"></i></button>
-											</span>
-										</div>
+										<input type="text" class="form-control form-filter input-sm" name="item_id">
 									</td>
 									<td>
 										<!-- <input type="text" class="form-control form-filter input-sm" name="ent_code"> -->
@@ -323,74 +252,33 @@ License: You must have a valid license purchased only from themeforest(the above
 												<option value="*">All</option>
 											</c:if>
 											<c:forEach items="${S_ENT_ORG_LIST}" var="list" varStatus="status">
-												<option value="${list.organizationCode}">${list.organizationCode}</option>
+												<option value="${list.organizationCode}">${list.organizationName}</option>
 											</c:forEach>
 										</select>
 									</td>
 									<td>
-										<!-- <input type="text" class="form-control form-filter input-sm" name="seller_code"> -->
-										<select name="seller_code" class="form-control form-filter input-sm">
-											<c:if test="${S_ORG_CODE == '*'}">
-												<option value="*">All</option>
-											</c:if>
-											<c:forEach items="${S_SELLER_ORG_LIST}" var="list" varStatus="status">
-												<option value="${list.organizationCode}">${list.organizationCode}</option>
-											</c:forEach>
+									</td>
+									<td>
+									</td>
+									<td>
+										<select name="product_class" class="form-control form-filter input-sm">
+											<option value="">All</option>
+											<option value="GOOD">Good</option>
+											<option value="DEMAGE">Demage</option>
 										</select>
 									</td>
+									
 									<td>
-										<!-- <div class="margin-bottom-5">
-											<input type="text" class="form-control form-filter input-sm" name="order_base_price_from" placeholder="From"/>
-										</div>
-										<input type="text" class="form-control form-filter input-sm" name="order_base_price_to" placeholder="To"/> -->
-										<div class="input-group margin-bottom-5">
-											<input type="text" class="form-control form-filter input-sm" name="cust_fname" placeholder="First Name"/>
-										</div>
-										<div class="input-group">
-											<input type="text" class="form-control form-filter input-sm" name="cust_lname" placeholder="Last Name"/>
-										</div>
-									</td>
-									<td>
-										<input type="text" class="form-control form-filter input-sm" name="cust_phone">
-									</td>
-									<td>
-										<input type="text" class="form-control form-filter input-sm" name="cust_email">
-									</td>
-									<!-- <td>
-										<select name="payment_type" class="form-control form-filter input-sm">
-											<option value="">Select...</option>
-											<option value="A">All</option>
-											<option value="CREDIT_CARD">CREDIT_CARD</option>
+										<select name="uom" class="form-control form-filter input-sm">
+											<option value="">All</option>
+											<option value="EACH">Each</option>
+											<option value="BOX">Box</option>
 										</select>
-									</td> -->
-									<td>
-										<!-- <div class="margin-bottom-5">
-											<input type="text" class="form-control form-filter input-sm margin-bottom-5 clearfix" name="order_purchase_price_from" placeholder="From"/>
-										</div>
-										<input type="text" class="form-control form-filter input-sm" name="order_purchase_price_to" placeholder="To"/> -->
-										<!-- <input type="text" class="form-control form-filter input-sm" name="total_amount"/> -->
-									</td>
-									<td>
-										<select name="order_status" class="form-control form-filter input-sm">
-											<option value="">Select...</option>
-											<option value="A">All</option>
-											<option value="1100">주문접수</option>
-											<option value="1300">재고부족</option>
-											<option value="3200">출고의뢰</option>
-											<option value="3350">출고준비</option>
-											<option value="3700">출고완료</option>											
-											<!-- <option value="9002">주문취소요청</option> -->											
-											<option value="9000">주문취소</option>
-										</select>
-									</td>
-									<td>
-										<input type="text" class="form-control form-filter input-sm" name="vendor_id">
 									</td>
 									<td>
 										<div class="margin-bottom-5">
-											<button class="btn btn-sm yellow filter-submit margin-bottom" id="btn_orderList"><i class="fa fa-search"></i> Search</button>
+											<button class="btn btn-sm yellow filter-submit margin-bottom" id="btn_search"><i class="fa fa-search"></i> Search</button>
 										</div>
-										<button class="btn btn-sm red filter-cancel"><i class="fa fa-times"></i> Reset&nbsp;&nbsp;&nbsp;</button>
 									</td>
 								</tr>
 								</thead>
@@ -428,10 +316,6 @@ License: You must have a valid license purchased only from themeforest(the above
 
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 
-<script type="text/javascript" src="../../assets/global/plugins/select2/select2.min.js"></script>
-<!-- date/datetime picker -->
-<script type="text/javascript" src="../../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<script type="text/javascript" src="../../assets/global/plugins/bootstrap-daterangepicker/moment.min.js"></script>
 <!-- data table -->
 <script type="text/javascript" src="../../assets/global/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="../../assets/global/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
@@ -442,75 +326,40 @@ License: You must have a valid license purchased only from themeforest(the above
 
 
 <script src="../../assets/global/scripts/custom-datatable.js"></script>
-<script src="../../assets/admin/pages/scripts/custom-ecommerce-orders.js"></script>
-
+<script src="../../assets/admin/pages/scripts/custom-inventory-list.js"></script>
 
 <script>
 
 
 	jQuery(document).ready(function() {    
 		
-		EcommerceOrders.init('#datatable_orders');
+		InventoryItemList.init('#datatable_items');
 		
-		
-		
-	    var table = $('#datatable_orders').dataTable();
+	    var table = $('#datatable_items').dataTable();
 	    var tableTools = new $.fn.dataTable.TableTools( table, {
 	        
 	    	"sSwfPath": "../../assets/global/plugins/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
 	    	"aButtons": [
-	                        {
-	                        	"sExtends": "copy",
-		                        "sButtonText": "Copy to clipboard",
-		                        "sMessage": "Copied!"
-	                        },
-	                        /* {
-	                        	"sExtends": "print",
-		                        "sButtonText": "Print",
-		                        "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
-		                        "sMessage": "Generated by DataTables"
-	                        }, */
-	                        {
-	                            "sExtends":    "collection",
-	                            "sButtonText": "Save",
-	                            "aButtons":    [ "csv", "xls", "pdf" ]
-	                        }
-	                    ]
+                        {
+                        	"sExtends": "copy",
+	                        "sButtonText": "Copy to clipboard",
+	                        "sMessage": "Copied!"
+                        },
+                        /* {
+                        	"sExtends": "print",
+	                        "sButtonText": "Print",
+	                        "sInfo": 'Please press "CTR+P" to print or "ESC" to quit',
+	                        "sMessage": "Generated by DataTables"
+                        }, */
+                        {
+                            "sExtends":    "collection",
+                            "sButtonText": "Save",
+                            "aButtons":    [ "csv", "xls", "pdf" ]
+                        }
+                    ]
 	    } );
 	    $( tableTools.fnContainer() ).insertAfter('div.btn-group');
 	    
-	    
-	    var action = "${action}";
-	    var status = "${status}";
-	    
-	    if( action != '' &&  action == 'true'){
-	    		
-	    		var sDate = moment().subtract('day', 6).format('YYYY-MM-DD');
-			var eDate = moment().subtract('day', 0).format('YYYY-MM-DD');
-			
-			$('input.form-filter[name="order_date_from"]').val(sDate);
-			$('input.form-filter[name="order_date_to"]').val(eDate);
-	    	
-	    	
-	    		$('select.form-filter[name="order_status"]').val(status);
-			$('#btn_orderList').trigger('click');
-	    }
-	    
-	    // Row 전체 Expand
-	    $('#row_all_exp').click(function(){
-	    		$('#datatable_orders tbody td .row-details').trigger('click');
-	    });
 	});
-	
-	function orderListByDatePeroid(dateType, term, startTerm){
-		
-		var sDate = moment().subtract(dateType, startTerm+term).format('YYYY-MM-DD');
-		var eDate = moment().subtract(dateType, startTerm).format('YYYY-MM-DD');
-		
-		$('input.form-filter[name="order_date_from"]').val(sDate);
-		$('input.form-filter[name="order_date_to"]').val(eDate);
-		
-		$('#btn_orderList').click();
-	}
 	
 </script>

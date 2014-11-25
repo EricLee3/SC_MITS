@@ -42,12 +42,6 @@ var EcommerceOrders = function () {
                 },
                 "columnDefs": [ 
                                {
-                            	   	  "render": function(data, type, row){
-                         	          return '<a href="/orders/orderDetail.do?docType=0001&entCode='+row['enterPrise']+'&orderNo='+data+'">'+data+'</a>';
-                         	      },
-                         	      "targets": 1	// Order#
-                               },
-                               {
                                    "render": function ( data, type, row ) {
 //                                	   		  var cacelReqLabel = "";
 //                                	   		  var cacelResLabel = "";
@@ -85,11 +79,15 @@ var EcommerceOrders = function () {
 	                            "data":           null,
 	                            "defaultContent": '<span class="row-details row-details-close"></span>'
 	                        },
-                            { "data": "orderNo"},
                             { "data": function render(data, type, row)
-                            	  {
-                            		return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
-                            	  }
+	                        		  {
+			                   	          return '<a href="/orders/orderDetail.do?docType=0001&entCode='+data['enterPrise']+'&orderNo='+data['orderNo']+'">'+data['orderNo']+'</a>';
+			                   	      }
+	                        },
+                            { "data": function render(data, type, row)
+	                            	  {
+	                            	      return moment(data["orderDate"], moment.ISO_8601).format("YYYY-MM-DD HH:mm");
+	                            	  }
                             },
                             { "data": "enterPrise" },
                             { "data": "sellerOrg" },
