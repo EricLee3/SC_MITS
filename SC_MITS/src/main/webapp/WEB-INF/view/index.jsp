@@ -288,21 +288,21 @@ License: You must have a valid license purchased only from themeforest(the above
 										<a href="#portlet_tab2" role="tab"  data-toggle="tab" id="statistics_amounts_tab2">
 										오더건수 </a>
 									</li>
-									<li>
+									<li class="active">
 										<a href="#portlet_tab1" role="tab"  data-toggle="tab" id="statistics_amounts_tab1">
 										결제금액 </a>
 									</li>
-									<li class="active">
+									<!-- <li class="active">
 										<a href="#portlet_tab0" role="tab"  data-toggle="tab" id="statistics_amounts_tab0">
 										Overall </a>
-									</li>
+									</li> -->
 								</ul>
 								<div class="tab-content">
-									<div class="tab-pane active" id="portlet_tab0">
+									<!-- <div class="tab-pane active" id="portlet_tab0">
 										<div id="statistics_0" class="chart">
 										</div>
-									</div>
-									<div class="tab-pane" id="portlet_tab1">
+									</div> -->
+									<div class="tab-pane active" id="portlet_tab1">
 										<div id="statistics_1" class="chart">
 										</div>
 									</div>

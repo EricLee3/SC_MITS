@@ -145,8 +145,8 @@ var EcommerceIndex = function () {
 
     var totalChart = function (totCount, totAmount) {
     	
-	    	var lineColors = [ "#f89f9f","#BAD9F5" ];
-	    	var seriesDataSet = new Array();
+    	var lineColors = [ "#f89f9f","#BAD9F5" ];
+    	var seriesDataSet = new Array();
 		seriesDataSet[0] = {
 			data:totCount,
             label: "오더건수",
@@ -498,6 +498,12 @@ var EcommerceIndex = function () {
 	// 월별 오더리포트 차트데이타 조회
     var setOrderReportChart = function(startMonth) {
     	
+    	Metronic.blockUI({
+    		
+            target: '#ptl_bd_orderChart',
+            imageOnly:true
+         });
+
     	$.ajax({
 			url: '/reports/getOrderReportByCh.sc',
 			data: "startMonth="+startMonth+"&term="+(term+1),
@@ -513,9 +519,11 @@ var EcommerceIndex = function () {
 				}else if( chart_index == 1){
 					orderAmountChart(chartData.data);
 					
-				}else if( chart_index == 2){
-					totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
 				}
+//				else if( chart_index == 2){
+//					
+//					totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+//				}
 				
 				// 4가지 항목 집계데이타 표시 - 총결제금액, 총주문건수, 총비용, 환불금액 
                 $('#tot_amount_month h3').html(chartData.tot_amount).digits();
@@ -523,6 +531,11 @@ var EcommerceIndex = function () {
                 $('#tot_charge_month h3').html(chartData.tot_shipping_charge).digits();
                 $('#tot_cancel_month h3').html(chartData.tot_cancel_amount).digits();
 
+			},
+			complete:function(xhr, status){
+				window.setTimeout(function () {
+	                Metronic.unblockUI('#ptl_bd_orderChart');
+	            }, 100);
 			}
     	});
     	
@@ -581,17 +594,19 @@ var EcommerceIndex = function () {
             
             
         	// Chart Tab 이동 이벤트 핸들러
-    		$('#statistics_amounts_tab0').on('click', function (e) {
-    			$(this).tab("show");
-                totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
-            });
+//    		$('#statistics_amounts_tab0').on('click', function (e) {
+//    			$(this).tab("show");
+//                totalChart(chartData.tot_cnt_data, chartData.tot_amt_data);
+//            });
         	
+    		// 결제금액 차트
     		$('#statistics_amounts_tab1').on('click', function (e) {
     			$(this).tab("show");
     			orderAmountChart(chartData.data);
     			
             });
         	
+    		// 주문건수 차트
             $('#statistics_amounts_tab2').on('click', function (e) {
             	$(this).tab("show");
             	orderCountChart(chartData.data);
