@@ -219,27 +219,11 @@ public class OrderController {
 			entCode = "";
 		}
 		
-		// TODO: 관리조직 세션정보로 얻어옴. 빈값이 넘어올 경우 admin이 아닐 경우 사용자의 세선값으로 적용
-//		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
-//		if("".equals(entCode)){
-//			if(!"*".equals(sesEntCode)){
-//				entCode = sesEntCode;
-//			}
-//		}
-		
-		
 		// TODO: 판매조직 세션정보로 얻어옴. 빈값이 넘어올 경우 admin이 아닐 경우 사용자의 세선값으로 적용
 		String sellerCode = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
 		if("*".equals(sellerCode)){
 			sellerCode = "";
 		}
-//		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
-//		if("".equals(sellerCode)){
-//			if(!"*".equals(sesSellCode)){
-//				sellerCode = sesSellCode;
-//			}
-//		}
-		
 		
 		String fromDate = paramMap.get("order_date_from")==null?"":paramMap.get("order_date_from");
 		if(!"".equals(fromDate)) fromDate = fromDate+"T00:00:00";
@@ -1658,7 +1642,6 @@ public class OrderController {
 		
 		// 판매채널 - 전체일 경우 *로 넘어옴
 		String ch = (String)paramMap.get("ch");
-		logger.debug("[ch]"+ch);
 		
 		String docType = (String)paramMap.get("doc_type");
 		if( docType == null || "".equals(docType)){
@@ -1666,9 +1649,13 @@ public class OrderController {
 		};
 		
 		// 관리조직 세션정보로 얻어옴
-		String entCode = (String)req.getSession().getAttribute("S_ORG_CODE");
+		String entCode = (String)req.getSession().getAttribute("S_USER_ENT_CODE");
+		if("DEFAULT".equals(entCode)){
+			entCode = "*";
+		}
 		String sellerCode = ch;
-		
+		logger.debug("[entCode]"+entCode);
+		logger.debug("[sellerCode]"+ch);
 		
 		
 		//에러리스트 조회
@@ -1774,9 +1761,6 @@ public class OrderController {
 		
 		entCode = "*".equals(entCode)?"":entCode;
 		sellerCode = "*".equals(sellerCode)?"":sellerCode;
-		
-		//logger.debug("[status]"+ orderStatus);
-		
 		
 		String rowCount = "7";
 		
@@ -1943,43 +1927,13 @@ public class OrderController {
 		logger.debug("customActionMessage: "+paramMap.get("customActionMessage")); 
 		
 		
-		String doc_type = (String)paramMap.get("doc_type");
-		
-		
 		String ent_code = (String)paramMap.get("ent_code")==null?"":(String)paramMap.get("ent_code");
-//		if("*".equals(ent_code)){
-//			ent_code = "";
-//		}
-		
 		String seller_code = (String)paramMap.get("seller_code")==null?"":(String)paramMap.get("seller_code");
-//		if("*".equals(seller_code)){
-//			seller_code = "";
-//		}
-		
-		// TODO: 관리조직,판매조직 세션정보로 얻어옴. 검색값이 빈값일 경우 사용자의 세선값으로 적용
-//		String sesEntCode = (String)req.getSession().getAttribute("S_ORG_CODE");
-//		if(ent_code == null || "".equals(ent_code)){
-//			ent_code = sesEntCode;
-//		}
-//		String sesSellCode = (String)req.getSession().getAttribute("S_SELL_CODE");
-//		if(seller_code == null || "".equals(seller_code)){
-//			seller_code = sesSellCode;
-//		}
 		
 		
 		logger.debug("[ent_code]" + ent_code); 
 		logger.debug("[seller_code]" + seller_code); 
 		
-		
-//		int start = Integer.parseInt(paramMap.get("start"));
-//		int length = Integer.parseInt(paramMap.get("length")); 
-		
-		int start = 0;
-		int length = 0;
-		
-		
-		logger.debug("[start]" + start);
-		logger.debug("[length]" + length);
 		
 		
 		List<Map<String,String>> cancelReqList = new ArrayList<Map<String,String>>();
@@ -1989,15 +1943,12 @@ public class OrderController {
 		Set<String> cancelReq_key_names= maStringRedisTemplate.keys(cancelReqAllKey);
 		Iterator<String> canItr = cancelReq_key_names.iterator();
 		
-//		long totCnt = 0;
 		while(canItr.hasNext()){
 			
 			String cancelReqKey = canItr.next();
 			logger.debug("[cancelReqKey]"+cancelReqKey);
 			
-//			totCnt += listOps.size(cancelReqKey);
-			
-			List<String> cancelReqRedisList = listOps.range(cancelReqKey, start, start+(length-1));
+			List<String> cancelReqRedisList = listOps.range(cancelReqKey, 0, -1);
 			for( String jsonData:  cancelReqRedisList){
 				
 				logger.debug("[jsonData]"+ jsonData);
@@ -2037,10 +1988,6 @@ public class OrderController {
 		
 		ModelAndView mav = new ModelAndView("jsonView");
 		mav.addObject("data",cancelReqList);
-//		mav.addObject("draw", paramMap.get("draw"));
-//		mav.addObject("recordsTotal", totCnt+"");
-//		mav.addObject("recordsFiltered", totCnt+"");
-		
 		
 		String custActionType = (String)paramMap.get("customActionType"); 
 		if ("group_action".equals(custActionType)) {

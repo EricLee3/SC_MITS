@@ -319,7 +319,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 										<!-- <input type="text" class="form-control form-filter input-sm" name="ent_code"> -->
 										<select name="ent_code" class="form-control form-filter input-sm">
-											<c:if test="${S_ORG_CODE == '*'}">
+											<c:if test="${S_USER_ENT_CODE == 'DEFAULT'}">
 												<option value="*">All</option>
 											</c:if>
 											<c:forEach items="${S_ENT_ORG_LIST}" var="list" varStatus="status">
@@ -330,7 +330,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 										<!-- <input type="text" class="form-control form-filter input-sm" name="seller_code"> -->
 										<select name="seller_code" class="form-control form-filter input-sm">
-											<c:if test="${S_ORG_CODE == '*'}">
+											<c:if test="${S_USER_ENT_CODE == 'DEFAULT'}">
 												<option value="*">All</option>
 											</c:if>
 											<c:forEach items="${S_SELLER_ORG_LIST}" var="list" varStatus="status">

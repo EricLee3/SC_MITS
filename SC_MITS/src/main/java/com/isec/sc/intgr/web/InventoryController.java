@@ -105,30 +105,18 @@ public class InventoryController {
 		InventoryList invenList =  persister.read(InventoryList.class, outPutXML);
 		
 		
-		
-		for(InventoryItem invenItem : invenList.getInventoryItem()){
-			String getShipNodeTempate = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPNODE_TEMPLATE));
-			
-			msg = new MessageFormat(getShipNodeTempate);
-			String getInvXML = msg.format(new String[] {
-					entCode, invenItem.getItemID(), "", uom 
-					} 
-			);
-			String getInv_output = sterlingApiDelegate.comApiCall("getShipNodeInventory", getInvXML);
-		
-		}
-		
-		
-		// 상품의 현재고/가용재고 조회(모든창고)
+//		
 //		for(InventoryItem invenItem : invenList.getInventoryItem()){
+//			String getShipNodeTempate = FileContentReader.readContent(getClass().getResourceAsStream(GET_SHIPNODE_TEMPLATE));
 //			
-//			Double supplyQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, invenItem.getItemID(), "", invenItem.getUnitOfMeasure(), "S");
-//			invenItem.setSupplyQty(supplyQty);
-//			
-//			Double availQty =  sterlingApiDelegate.getCalcQtyBeforeAdjustInv(entCode, invenItem.getItemID(), "", invenItem.getUnitOfMeasure(), "A");
-//			invenItem.setAvailQty(availQty);
+//			msg = new MessageFormat(getShipNodeTempate);
+//			String getInvXML = msg.format(new String[] {
+//					entCode, invenItem.getItemID(), "", uom 
+//					} 
+//			);
+//			String getInv_output = sterlingApiDelegate.comApiCall("getShipNodeInventory", getInvXML);
+//		
 //		}
-		
 		
 		String totCnt = invenList.getTotalInventoryItemList();
 		logger.debug("[inputXML]"+totCnt); 

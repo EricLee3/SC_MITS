@@ -386,18 +386,20 @@
 							<a href="#">
 							<i class="icon-users"></i> 조직역할: ${S_USER_ROLES}</a>
 						</li>
+						<li class="divider">
+						</li>
 						<li>
 							<a href="#">
-							<i class="icon-users"></i> 엔터프라이즈: ${S_USER_ENT_CODE}</a>
+							<i class="icon-users"></i> 관리조직: ${S_USER_ENT_CODE}</a>
 						</li>
 						<%-- <li>
 							<a href="extra_profile.html">
 							<i class="icon-user"></i> 유저그룹: ${S_USER_GRP_NAME}</a>
 						</li> --%>
-						<li>
+						<%-- <li>
 							<a href="#">
 							<i class="icon-globe"></i> 언어: ${S_LOCALE}</a>
-						</li>
+						</li> --%>
 						<!-- <li>
 							<a href="page_calendar.html">
 							<i class="icon-calendar"></i> My Calendar </a>

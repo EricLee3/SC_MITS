@@ -365,9 +365,9 @@ License: You must have a valid license purchased only from themeforest(the above
 									스토어 <i class="fa fa-angle-down"></i>
 									</a>
 									<ul class="dropdown-menu pull-right">
-										<c:if test="${S_ORG_CODE == '*'}">
+										<c:if test="${S_USER_ENT_CODE == 'DEFAULT'}">
 										<li>
-											<a href="javascript:EcommerceIndex.getOrderListByCh('${S_ORG_CODE}');">
+											<a href="javascript:EcommerceIndex.getOrderListByCh('*');">
 											All </a>
 										</li>
 										<li class="divider"> </li>

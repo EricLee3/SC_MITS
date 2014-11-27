@@ -257,23 +257,6 @@ public class DefaultController {
 				
 				OrganizationList sellerOrgList =  persister.read(OrganizationList.class, sellerOrgListOutPut);
 				
-				
-				// TODO: 로그인시 판매조직 세션처리. 현재 ASPB고정값사용
-//				String  S_SELL_CODE = "ASPB";
-//				String  S_SELL_NAME = "Aspen Bay";
-//				
-//				if("DEFAULT".equals(S_ORG_CODE)){
-//					S_ORG_CODE = "*";
-//					S_SELL_CODE = "*";
-//				}
-//				logger.debug("[S_ORG_CODE]"+S_ORG_CODE);
-//				logger.debug("[S_SELL_CODE]"+S_SELL_CODE);
-//				logger.debug("[S_SELL_NAME]"+S_SELL_NAME);
-//				
-				// User의 소속그룹이 Default일 경우 전체조직을 조회할 수 있는 권한가짐
-				if("DEFAULT".equals(S_ORG_CODE)){
-					S_ORG_CODE = "*";
-				}
 				String  S_LOCALE = (String)xp.evaluate("@LocaleCode", doc.getDocumentElement(), XPathConstants.STRING);
 				String  S_USER_NAME = (String)xp.evaluate("@UserName", doc.getDocumentElement(), XPathConstants.STRING);
 				String  S_USER_GRP_NAME = (String)xp.evaluate("@UserGroup_Name", doc.getDocumentElement(), XPathConstants.STRING);

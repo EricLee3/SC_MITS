@@ -313,6 +313,8 @@ public class SystemMgmtController {
 		List<HashMap<String,String>> err_key_list = new ArrayList<HashMap<String,String>>();
 		for( String keyName : kolor_order_error_keys ){
 			
+			logger.debug("[key]"+keyName);
+			
 			HashMap<String, String> errKeyMap = new HashMap<String, String>();
 			errKeyMap.put("name", keyName);
 			errKeyMap.put("size", listOps.size(keyName)+"");

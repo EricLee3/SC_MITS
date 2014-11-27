@@ -248,11 +248,8 @@ License: You must have a valid license purchased only from themeforest(the above
 									<td>
 										<!-- <input type="text" class="form-control form-filter input-sm" name="ent_code"> -->
 										<select name="ent_code" class="form-control form-filter input-sm">
-											<c:if test="${S_ORG_CODE == '*'}">
-												<option value="*">All</option>
-											</c:if>
-											<c:forEach items="${S_ENT_ORG_LIST}" var="list" varStatus="status">
-												<option value="${list.organizationCode}">${list.organizationName}</option>
+											<c:forEach items="${S_ENT_ORG_LIST}" var="list">
+												<option value="${list.organizationCode}">${list.organizationCode}</option>
 											</c:forEach>
 										</select>
 									</td>
