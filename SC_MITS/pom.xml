@@ -206,8 +206,8 @@
 		          <!-- <url>http://192.168.0.7:8080/manager</url> -->
 		          
 		          
-		          <url>http://192.168.1.111:8080/manager/text</url>
-		          <!-- <url>http://220.117.243.17:8080/manager/text</url> -->
+		          <!-- <url>http://192.168.1.111:8080/manager/text</url> -->
+		          <url>http://220.117.243.17:8080/manager/text</url>
 		          <server>mits_server</server>
         		  <path>/</path>
         		  <username>mitsadmin</username>

@@ -497,7 +497,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<div class="portlet-body">
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Line Sub Total:
+													 오더라인 소계:
 												</div>
 												<div class="col-md-7 value text-right">
 													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalLine}" />
@@ -505,7 +505,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Total Charges:
+													 총 배송비:
 												</div>
 												<div class="col-md-7 value text-right">
 													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalCharge}" />
@@ -513,7 +513,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Total Tax:
+													 총 과세:
 												</div>
 												<div class="col-md-7 value text-right">
 													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalTax}" />
@@ -521,7 +521,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Total Discount:
+													 총 할인액:
 												</div>
 												<div class="col-md-7 value text-right">
 													 <fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalDiscount}" />
@@ -531,7 +531,7 @@ License: You must have a valid license purchased only from themeforest(the above
 											</div>
 											<div class="row static-info">
 												<div class="col-md-5 name">
-													 Grand Total:
+													 총 금액:
 												</div>
 												<div class="col-md-7 value text-right">
 													 ${baseInfo.currency}&nbsp;&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${baseInfo.totalAmount}" />

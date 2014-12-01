@@ -114,7 +114,7 @@
 						</li>
 					</ul>
 				</li>
-				<li id="menu_inven">
+				<!-- <li id="menu_inven">
 					<a href="javascript:;">
 					<i class="icon-present"></i>
 					<span class="title">
@@ -129,7 +129,7 @@
 							상품재고 현황조회</a>
 						</li>
 					</ul>
-				</li>
+				</li> -->
 				<c:if test="${ S_LOGIN_ID == 'admin' }">
 				<li class="last ">
 					<a href="javascript:;">

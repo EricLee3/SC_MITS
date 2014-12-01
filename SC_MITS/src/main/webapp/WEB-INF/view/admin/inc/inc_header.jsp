@@ -377,14 +377,14 @@
 					${S_USER_NAME} (${S_LOGIN_ID})</span>
 					<i class="fa fa-angle-down"></i>
 					</a>
-					<ul class="dropdown-menu">
+					<ul class="dropdown-menu" style="padding-right: 10px;">
 						<li>
 							<a href="#">
 							<i class="icon-users"></i> 소속조직: ${S_ORG_CODE}</a>
 						</li>
 						<li>
 							<a href="#">
-							<i class="icon-users"></i> 조직역할: ${S_USER_ROLES}</a>
+							<i class="icon-eye"></i> 조직역할: ${S_USER_ROLES}</a>
 						</li>
 						<li class="divider">
 						</li>

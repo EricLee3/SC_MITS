@@ -51,6 +51,14 @@
 	    	</list>
 	    </property>
 	</bean>
+	
+	
+	
+	
+	
+	
+	
+	
     <!-- ASPB - Product -->
 	<bean id="syncProductJob_ASPB" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 	    <property name="targetObject"><ref bean="productSyncBean"/></property>
