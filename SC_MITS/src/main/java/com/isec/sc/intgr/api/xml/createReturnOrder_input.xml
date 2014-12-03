@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order DocumentType="0003" EnterpriseCode="{0}" SellerOrganizationCode="{1}" OrderNo="{2}">
+	<OrderLines>
+        {3}
+     </OrderLines>
+	<PersonInfoShipTo FirstName="{7}" LastName="{8}" DayPhone="{9}" MobilePhone="{10}" EMailID="{11}"
+                       AddressLine1="{12}" AddressLine2="{13}" City="{14}" ZipCode="{15}" />
+    <PersonInfoBillTo FirstName="{7}" LastName="{8}" DayPhone="{9}" MobilePhone="{10}" EMailID="{11}"
+                       AddressLine1="{12}" AddressLine2="{13}" City="{14}" ZipCode="{15}" />
+</Order>
