@@ -3,8 +3,8 @@
 	<OrderLines>
         {3}
      </OrderLines>
-	<PersonInfoShipTo FirstName="{7}" LastName="{8}" DayPhone="{9}" MobilePhone="{10}" EMailID="{11}"
-                       AddressLine1="{12}" AddressLine2="{13}" City="{14}" ZipCode="{15}" />
-    <PersonInfoBillTo FirstName="{7}" LastName="{8}" DayPhone="{9}" MobilePhone="{10}" EMailID="{11}"
-                       AddressLine1="{12}" AddressLine2="{13}" City="{14}" ZipCode="{15}" />
+	<PersonInfoShipTo FirstName="{4}" LastName="{5}" DayPhone="{6}" MobilePhone="{7}" EMailID="{8}"
+                       AddressLine1="{9}" AddressLine2="{10}" AddressLine3="{11}" AddressLine4="{12}" City="{13}" Country="{14}" ZipCode="{15}"/>
+    <PersonInfoBillTo  FirstName="{4}" LastName="{5}" DayPhone="{6}" MobilePhone="{7}" EMailID="{8}"
+                       AddressLine1="{9}" AddressLine2="{10}" AddressLine3="{11}" AddressLine4="{12}" City="{13}" Country="{14}" ZipCode="{15}" />
 </Order>

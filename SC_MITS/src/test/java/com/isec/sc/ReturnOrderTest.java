@@ -104,8 +104,11 @@ public class ReturnOrderTest {
 	private String SC_ORDER_TYPE_SALES;
 	
 	
-	@Value("${sc.api.createOrder.template}")
-	private String CREATE_ORDER_TEMPLATE;
+	@Value("${sc.api.returnOrder.template}")
+	private String RETURN_ORDER_TEMPLATE;
+	
+	@Value("${sc.api.returnOrderLine.template}")
+	private String RETURN_ORDER_LINE_TEMPLATE;
 	
 	/**
 	 * 반품오더 생성 테스트 - 원주문
@@ -115,18 +118,76 @@ public class ReturnOrderTest {
 	@Test
 	public void testCreateReturnOrder() throws Exception{
 		
-		String orderXML = FileContentReader.readContent(getClass().getResourceAsStream(CREATE_ORDER_TEMPLATE));
+		String returnOrderXML = FileContentReader.readContent(getClass().getResourceAsStream(RETURN_ORDER_TEMPLATE));
+		String returnOrderLineXML = FileContentReader.readContent(getClass().getResourceAsStream(RETURN_ORDER_LINE_TEMPLATE));
+		
+		/**
+		 * 	<OrderLine ReturnReason="{0}" ShipNode="{1}" >
+		        <OrderLineTranQuantity OrderedQty="{2}"/>
+		      	<DerivedFrom DocumentType="{3}" EnterpriseCode="{4}" OrderNo="{5}"  PrimeLineNo="{6}" SubLineNo="{7}"/>
+		    </OrderLine>
+		 */
+		String returnReason = "A01";
+		String shipNode = "WH001";
+		String orderedQty = "1";
+		String ori_docType = "0001";
+		String ori_entCode = "KOLOR";
+		String ori_orderNo = "100000418";
+		String ori_orderLineNo = "1";
+		String ori_orderLineSubNo = "1";
 		
 		
-		
-		
-		MessageFormat msg = new MessageFormat(orderXML);
-		String inputXML = msg.format(new String[] {
-//			    docType, entCode, sellerCode, orderNo, billToId,
-//			    shipNode,orderLineText,
-//				fName,lName,phone, mPhone, email, addr1, addr2, city, zipCode
+		MessageFormat msg = new MessageFormat(returnOrderLineXML);
+		String lineXML = msg.format(new String[] {
+				returnReason, shipNode, orderedQty, ori_docType, ori_entCode, ori_orderNo, ori_orderLineNo, ori_orderLineSubNo
 			  } );
 		
+		String orderLineText = lineXML;
+		
+		/**
+		 * <?xml version="1.0" encoding="UTF-8"?>
+			<Order DocumentType="0003" EnterpriseCode="{0}" SellerOrganizationCode="{1}" OrderNo="{2}">
+				<OrderLines>
+			        {3}
+			     </OrderLines>
+				<PersonInfoShipTo FirstName="{4}" LastName="{5}" DayPhone="{6}" MobilePhone="{7}" EMailID="{8}"
+			                       AddressLine1="{9}" AddressLine2="{10}" AddressLine3="{11}" AddressLine4="{12}" City="{13}" Country="{14}" ZipCode="{15}"/>
+			    <PersonInfoBillTo  FirstName="{4}" LastName="{5}" DayPhone="{6}" MobilePhone="{7}" EMailID="{8}"
+			                       AddressLine1="{9}" AddressLine2="{10}" AddressLine3="{11}" AddressLine4="{12}" City="{13}" Country="{14}" ZipCode="{15}" />
+			</Order>
+		 */
+		
+		String entCode = "KOLOR";
+		String sellerCode = "ASPB";
+		String orderNo = "";  //반품주문정보는 마젠토에서 생성
+		String fName = "jang";
+		String lName = "yk";
+		String phone = "010-1111-2222";
+		String mPhone = "010-1111-3333";
+		String email = "a@test.com";
+		String addr1 = "aaaaaaa";
+		String addr2 = "bbbbbbb";
+		String addr3 = "ccccccc";
+		String addr4 = "ddddddd";
+		String city = "seoul";
+		String country = "KR";
+		String zipCode = "123-456";
+		
+		
+		msg = new MessageFormat(returnOrderXML);
+		String inputXML = msg.format(new String[] {
+			    entCode, sellerCode, orderNo,
+			    orderLineText,
+				fName,lName,phone, mPhone, email, addr1, addr2, addr3, addr4, city, country, zipCode
+			  } );
+		
+		
+		
+		System.out.println(inputXML);
+		
+		String outputXML = sterlingApiDelegate.comApiCall("createOrder", inputXML);
+		
+		System.out.println(outputXML);
 		
 	}
 }

@@ -12,6 +12,8 @@
 
 
 	<bean id="orderProcessBean" class="com.isec.sc.intgr.scheduler.OrderProcessTask"/>
+	<bean id="returnProcessBean" class="com.isec.sc.intgr.scheduler.ReturnProcessTask"/>
+	
 	<bean id="productSyncBean" class="com.isec.sc.intgr.scheduler.ProductSyncTask"/>
 	
 	<!-- ========== Job Detail ========== -->

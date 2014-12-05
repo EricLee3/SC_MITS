@@ -1,4 +1,4 @@
-	<OrderLine LineType="" ReturnReason="{0}" ShipNode="{1}" >
+	<OrderLine ReturnReason="{0}" ShipNode="{1}" >
         <OrderLineTranQuantity OrderedQty="{2}"/>
       	<DerivedFrom DocumentType="{3}" EnterpriseCode="{4}" OrderNo="{5}"  PrimeLineNo="{6}" SubLineNo="{7}"/>
     </OrderLine>
